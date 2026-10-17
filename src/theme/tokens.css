@@ -6,9 +6,9 @@
  * colors. When the final key visuals arrive, change the values here and
  * everything updates.
  *
- * Current values are a first pass that borrows Apple's iOS design (system
- * colors, SF type scale, grouped backgrounds). They get replaced by Baton's own
- * look later (brand red #fe4334 and purple #4b019e are the likely start).
+ * Current values are a first pass that borrows Apple's iOS shapes (SF type
+ * scale, grouped backgrounds) in grayscale only: no color until Baton's own
+ * look lands (brand red #fe4334 and purple #4b019e are the likely start).
  */
 @theme {
   /* Type: San Francisco on Apple devices, the system UI font elsewhere */
@@ -38,27 +38,27 @@
   --text-caption: 12px;
   --text-caption--line-height: 16px;
 
-  /* Brand (iOS tint: systemBlue) */
-  --color-brand: #007aff;
+  /* Brand: grayscale only until the key visuals land (no color yet) */
+  --color-brand: #1c1c1c; /* tint for buttons, links, selection */
   --color-on-brand: #ffffff;
-  --color-accent: #5856d6; /* systemIndigo */
+  --color-accent: #636363;
   --color-on-accent: #ffffff;
-  --color-danger: #ff3b30; /* systemRed */
+  --color-danger: #1c1c1c;
 
   /* Neutrals */
-  --color-canvas: #f2f2f7; /* systemGroupedBackground: app background */
+  --color-canvas: #f2f2f2; /* systemGroupedBackground: app background */
   --color-surface: #ffffff; /* secondarySystemGroupedBackground: cards, lists, sheets */
-  --color-surface-muted: #e9e9eb; /* fill: gray buttons, segmented track, fields */
+  --color-surface-muted: #e9e9e9; /* fill: gray buttons, segmented track, fields */
   --color-ink: #000000; /* label */
-  --color-ink-muted: #8a8a8e; /* secondaryLabel */
-  --color-line: #c6c6c8; /* separator */
+  --color-ink-muted: #8a8a8a; /* secondaryLabel */
+  --color-line: #c6c6c6; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
 
-  /* Stage accents (Moving -> Newcomer -> Local), iOS system colors for now */
-  --color-moving: #ff9500; /* systemOrange */
-  --color-newcomer: #007aff; /* systemBlue */
-  --color-local: #34c759; /* systemGreen */
+  /* Stage accents (Moving -> Newcomer -> Local): gray for now, colors come later */
+  --color-moving: #484848;
+  --color-newcomer: #484848;
+  --color-local: #484848;
 
   /* Follows the nearest [data-stage] wrapper, see below */
   --color-stage: var(--color-moving);

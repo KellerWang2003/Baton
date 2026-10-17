@@ -6,12 +6,15 @@ import {
   BottomSheet,
   Button,
   Card,
+  CheckCircle,
   Chip,
+  ChoiceCard,
   ListRow,
   ListSection,
   PromptCard,
   Screen,
   SegmentedControl,
+  Steps,
   TextArea,
   TextField,
   VisibilityBadge,
@@ -118,6 +121,17 @@ export function UiKit() {
                 </Chip>
               ))}
             </div>
+          </Section>
+
+          <Section title="Choices and steps">
+            <ChoiceCard title="Moving" subtitle="I'm leaving a city soon" selected={status === 'moving'} onSelect={() => setStatus('moving')} />
+            <ChoiceCard title="Newcomer" subtitle="I just arrived somewhere new" selected={status === 'newcomer'} onSelect={() => setStatus('newcomer')} />
+            <ListSection>
+              <ListRow title="Selectable row" leading={<CheckCircle checked />} />
+              <ListRow title="Done to-do" done leading={<CheckCircle checked />} />
+              <ListRow title="Open to-do" leading={<CheckCircle checked={false} />} />
+            </ListSection>
+            <Steps count={5} current={2} className="px-1" />
           </Section>
 
           <Section title="Stage colors">

@@ -36,7 +36,7 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 ### Prototype flows to build (from the video script, in story order)
 
-Status: the tab pages, Capture and Profile exist as shells. Everything below still needs building.
+Status: flow 1 (onboarding) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
 
 | # | Flow | Stage | What it must show |
 |---|---|---|---|
@@ -91,7 +91,7 @@ Workflow: branch off `main`, open a PR, check the Vercel preview link on it, mer
 
 ## Design system (keep it swappable)
 
-Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the first pass references Apple's iOS design (Human Interface Guidelines): system colors, SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. The team's own designs and components replace these later.
+Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the first pass references Apple's iOS design (Human Interface Guidelines) in **grayscale only, no color yet** (Keller's call): SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. The team's own designs and components replace these later.
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`) and the iOS text styles (`text-large-title`, `text-title-1..3`, `text-headline`, `text-body`, `text-subhead`, `text-footnote`, `text-caption`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
@@ -114,6 +114,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The tab pages (Today, Archive, Community) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button. Profile and Capture are pushed pages built on `Screen` with a back button and no tab bar; `goBack()` in `src/app/navigate.ts` returns to the previous screen
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
-- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt)
+- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt, `onboarding.ts` the onboarding copy, found places and to-dos)
+- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, kept places, picked to-dos, Instagram handle). Nothing persists
 - `docs/daily-prompts.md`: daily prompt list per stage and the rules prompts follow
 - `public/`: static assets

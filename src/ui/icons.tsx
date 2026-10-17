@@ -76,3 +76,30 @@ export function CameraIcon() {
     </Icon>
   )
 }
+
+export function CheckIcon() {
+  return (
+    <Icon strokeWidth={3} className="size-3.5">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </Icon>
+  )
+}
+
+export function MapPinIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+      <circle cx="12" cy="10" r="2.3" />
+    </Icon>
+  )
+}
+
+export function PhotosIcon() {
+  return (
+    <Icon className="size-10" strokeWidth={1.5}>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <circle cx="8.5" cy="10" r="1.8" />
+      <path d="M21 15.5l-5-5-8.5 8.5" />
+    </Icon>
+  )
+}
