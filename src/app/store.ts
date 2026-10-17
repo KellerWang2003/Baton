@@ -15,6 +15,9 @@ type State = {
   doneTodos: string[]
   instagram: string
   setupDone: SetupItem[]
+  // The + button is open as a text field in the tab bar
+  composing: boolean
+  reflections: { text: string; photos: number }[]
 }
 
 let state: State = {
@@ -25,6 +28,8 @@ let state: State = {
   doneTodos: [],
   instagram: '',
   setupDone: [],
+  composing: false,
+  reflections: [],
 }
 
 const listeners = new Set<() => void>()

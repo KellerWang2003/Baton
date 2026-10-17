@@ -45,8 +45,8 @@ export function Today() {
           </ListSection>
         )}
 
-        {/* The whole card opens Capture, like tapping a widget */}
-        <div role="button" tabIndex={0} onClick={() => navigate('capture')} className="text-left active:opacity-80">
+        {/* The whole card opens the + field in the tab bar, like tapping a widget */}
+        <div role="button" tabIndex={0} onClick={() => setState({ composing: true })} className="text-left active:opacity-80">
           <PromptCard meta={dailyPrompt.seed} question={dailyPrompt.question}>
             <p className="text-subhead text-ink-muted">{dailyPrompt.detail}</p>
             <Button variant="stage" size="sm" className="self-start">

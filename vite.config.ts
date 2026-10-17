@@ -10,4 +10,7 @@ export default defineConfig({
     babel({ presets: [reactCompilerPreset()] }),
     tailwindcss(),
   ],
+  // Listen on the local network too, so the prototype opens on a phone on the
+  // same wifi (npm run dev prints the Network URL)
+  server: { host: true },
 })

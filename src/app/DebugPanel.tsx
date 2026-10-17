@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
+import { cx } from '../ui'
 
 type DebugPanelProps = {
   index: number
@@ -39,23 +40,30 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
   if (!open) {
     // Framed: a round button in the corner of the page, outside the phone.
     // Responsive: a small tab on the left edge so it stays out of the app.
-    return framed ? (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        title="Open debug panel (`)"
-        className="fixed bottom-4 left-4 z-50 rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90"
-      >
-        Debug
-      </button>
-    ) : (
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        aria-label="Open debug panel"
-        title="Open debug panel (`)"
-        className="fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60"
-      />
+    // On a real phone the frame isn't drawn, so it always uses the edge tab.
+    return (
+      <>
+        {framed && (
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            title="Open debug panel (`)"
+            className="fixed bottom-4 left-4 z-50 rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90 max-[500px]:hidden"
+          >
+            Debug
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          aria-label="Open debug panel"
+          title="Open debug panel (`)"
+          className={cx(
+            'fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60',
+            framed && 'min-[501px]:hidden',
+          )}
+        />
+      </>
     )
   }
 

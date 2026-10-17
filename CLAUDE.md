@@ -30,7 +30,7 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 - Onboarding (outside the tabs): sign up, photo and location access seeds the archive (keep or remove places; most-visited places seed the first prompts), set status, pick logistics to-dos, optional Instagram tag.
 - Tab bar: **Today** (daily prompt card, logistics to-dos, hint cards; one screen with a different state per stage), **Archive** (segmented: My archive / Legacy, incl. what you left and notes on it), **Community** (segmented: Recommendations with Places / Logistics / Mentality filters and a map toggle for places / Q&A).
-- **+ (Capture)**: its own pushed page to add photos or write a short reflection on the daily prompt. Tapping the daily prompt card on Today opens the same page.
+- **+ (Capture)**: like search in Apple's iOS 26 tab bars, tapping + morphs it into a text field inside the tab bar (with a photo button) while the three tabs collapse into one round button for the current tab. Tapping the daily prompt card on Today opens the same field. The older Capture page still exists in the flow.
 - **Profile**: reached from the avatar at top right; a pushed page with no tab bar. Status, city, lifestyle.
 - Proposed, not yet agreed: a Rolling Paper (friends' notes) under Archive > Legacy; lifestyle asked when switching to Newcomer, editable in Profile.
 
@@ -79,7 +79,7 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 
 ```bash
 npm install
-npm run dev      # dev server on http://localhost:5173
+npm run dev      # dev server on http://localhost:5173, and on your wifi (Network URL) for a phone
 npm run build    # tsc -b && vite build
 npm run lint     # eslint .
 npm run preview  # serve the production build
@@ -104,7 +104,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/flow.ts`: ordered list of hero flow screens (`id`, `title`, `stage`, `component`). Add new screens here.
 - The current screen is in the URL hash (`#/today`).
 - The page shows only the app. A team-only debug panel (bottom left, closed by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it from the Debug button in the page corner (frame on) or the small tab on the left edge (frame off), with `` ` `` (backtick), or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
-- Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive.
+- Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive. On a real phone (screens 500px wide or less) the app always fills the screen.
 
 ## Layout
 

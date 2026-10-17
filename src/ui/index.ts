@@ -20,6 +20,7 @@ export { VisibilityBadge } from './VisibilityBadge'
 export { cx } from './cx'
 export {
   ArchiveIcon,
+  ArrowUpIcon,
   ArrivalGraphic,
   BoxesGraphic,
   CameraIcon,
@@ -31,5 +32,6 @@ export {
   MapPinIcon,
   PhotosIcon,
   PlusIcon,
+  SmallCameraIcon,
   TodayIcon,
 } from './icons'

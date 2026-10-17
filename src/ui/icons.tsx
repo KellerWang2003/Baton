@@ -133,3 +133,20 @@ export function HomeGraphic() {
     </Icon>
   )
 }
+
+export function ArrowUpIcon() {
+  return (
+    <Icon strokeWidth={2.4} className="size-5">
+      <path d="M12 19V5M6 11l6-6 6 6" />
+    </Icon>
+  )
+}
+
+export function SmallCameraIcon() {
+  return (
+    <Icon className="size-6">
+      <path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </Icon>
+  )
+}
