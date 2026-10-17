@@ -1,0 +1,59 @@
+/*
+ * Design tokens: the single place to restyle Baton.
+ *
+ * Screens and components only use these names (bg-surface, text-ink,
+ * rounded-card, font-display, ...), never raw hex values or stock Tailwind
+ * colors. When the final key visuals arrive, change the values here and
+ * everything updates.
+ *
+ * Current values are placeholders: neutral greys plus the LA28 brand colors.
+ */
+@theme {
+  /* Type */
+  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Archivo", ui-sans-serif, system-ui, sans-serif;
+
+  /* Brand */
+  --color-brand: #fe4334;
+  --color-on-brand: #ffffff;
+  --color-accent: #4b019e;
+  --color-on-accent: #ffffff;
+
+  /* Neutrals */
+  --color-canvas: #f6f6f4; /* app background */
+  --color-surface: #ffffff; /* cards, sheets */
+  --color-surface-muted: #efefec; /* inputs, quiet blocks */
+  --color-ink: #18181a; /* primary text */
+  --color-ink-muted: #6b6b70; /* secondary text */
+  --color-line: #e2e2de; /* borders, dividers */
+  --color-backdrop: #d9d9d4; /* behind the phone frame */
+
+  /* Stage accents (Moving -> Newcomer -> Local) */
+  --color-moving: #8a3f6e;
+  --color-newcomer: #0f7a73;
+  --color-local: #a8680a;
+
+  /* Follows the nearest [data-stage] wrapper, see below */
+  --color-stage: var(--color-moving);
+  --color-on-stage: #ffffff;
+
+  /* Shape */
+  --radius-control: 12px;
+  --radius-card: 18px;
+  --radius-sheet: 28px;
+
+  /* Depth */
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.06);
+  --shadow-float: 0 8px 32px rgb(0 0 0 / 0.16);
+}
+
+/* Wrap any subtree in data-stage="..." to recolor bg-stage, text-stage, etc. */
+[data-stage="moving"] {
+  --color-stage: var(--color-moving);
+}
+[data-stage="newcomer"] {
+  --color-stage: var(--color-newcomer);
+}
+[data-stage="local"] {
+  --color-stage: var(--color-local);
+}
