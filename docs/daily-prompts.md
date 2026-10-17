@@ -1,16 +1,17 @@
-# Daily prompts (draft)
+# Daily prompts
 
-Light prompts on the Today tab. Answers save to the private archive. Grounded in the team's FigJam answers (Leaving, Arriving) and Chloe.
+Light prompts on the Today tab. The wording shown in the app is the plain, verb-first list at the bottom (Keller, Oct 17); the tables keep the reasoning, seeds and sources behind each one. Answers save to the private archive. Grounded in the team's FigJam answers (Leaving, Arriving) and Chloe.
 
 ## Rules every prompt follows
 
-1. **Ask for an angle, not a subject.** "The view from where you always stand" beats "photograph your rooftop" (Jihyun: the everyday things never get kept "in the original perspective").
-2. **One action, seconds long.** One photo, a 10-second voice note, or one line. Each prompt names its default mode but accepts all three.
-3. **People and rituals, not just places.** Everyone said they'd miss people and a way of life first (Keller: "it's the people that won't be the same").
-4. **Honest is allowed.** Some prompts ask for what you won't miss. Left alone, people tell the polished version ("just to promote LA").
-5. **Some prompts quietly double as a future tip.** Noticing feels like a chore when it's only for yourself. A prompt like "what's the trick here?" is private now and becomes a legacy tip later if you choose. Never say "this will be public".
-6. **Skipping costs nothing.** Every card has *Not today* and *Another one*. No streaks, no counts, no "you missed 3 days".
-7. **Seeded by your own data.** Most-visited places, time of day and calendar moments (last class, last crit) make the prompt feel like it noticed you, not like a generic journal.
+1. **Plain and verb-first.** Start with the action (Take, Write, Say, Record, Tell) and say exactly what to do. No poetic titles.
+2. **Ask for an angle, not a subject.** "Take a photo of the view from the seat you always sit in" beats "Take a photo of your rooftop" (Jihyun: the everyday things never get kept "in the original perspective").
+3. **One action, seconds long.** One photo, a 10-second voice note, or one line. Each prompt names its default mode but accepts all three.
+4. **People and rituals, not just places.** Everyone said they'd miss people and a way of life first (Keller: "it's the people that won't be the same").
+5. **Honest is allowed.** Some prompts ask for what you won't miss. Left alone, people tell the polished version ("just to promote LA").
+6. **Some prompts quietly double as a future tip.** Noticing feels like a chore when it's only for yourself. A prompt like "what's the trick here?" is private now and becomes a legacy tip later if you choose. Never say "this will be public".
+7. **Skipping costs nothing.** Every card has *Not today* and *Another one*. No streaks, no counts, no "you missed 3 days".
+8. **Seeded by your own data.** Most-visited places, time of day and calendar moments (last class, last crit) make the prompt feel like it noticed you, not like a generic journal.
 
 ## Moving (Chloe, leaving LA)
 
@@ -49,8 +50,36 @@ Light prompts on the Today tab. Answers save to the private archive. Grounded in
 
 ## Demo moment
 
-The same prompt opens and closes the story: "The view from where you always stand" at Chloe's LA café in Moving, and again at her NYC spot as a Local, shown side by side. It shows the city becoming hers without a word of explanation.
+The same prompt opens and closes the story: "Take a photo of the view from the café seat you always sit in" at Chloe's LA café in Moving, and again at her NYC spot as a Local, shown side by side. It shows the city becoming hers without a word of explanation.
 
 ## Open question
 
 Noticing vs. exploring (persona fork): should prompts ever nudge you somewhere new ("something in LA you never got around to")? Suggested default: mostly noticing, with at most one explore prompt a week in Moving.
+
+## Plain wording (Keller, Oct 17: straightforward, verb-first)
+
+Moving
+1. Take a photo of the view from the café seat you always sit in.
+2. Take a photo of the door you walk through every day.
+3. Write down the name of someone you see here all the time.
+4. Tell us one thing you finished at this table.
+5. Record 10 seconds of the sound around you right now.
+6. Say one thing about LA you won't miss.
+7. Write one tip about this place that took you months to learn.
+8. Take a photo of your last class, crit or late night at school.
+9. Take a photo of your desk right now, without tidying it.
+10. Choose who you'd share this with: yourself later, a friend, or the next person here.
+
+Newcomer
+11. Take a photo of your coffee order here and say how it's different from LA.
+12. Write one thing that confused you today.
+13. Take a photo from the seat a leaver recommended.
+14. Write the first route you took without Maps.
+15. Write the name of the first person who recognized you.
+16. Say one thing you missed about LA today.
+
+Local
+17. Take a photo of the view from the café seat you always sit in.
+18. Write when this place stopped feeling new.
+19. Tell your month-one self one thing you know now.
+20. Write one tip about this place that took you months to learn.
