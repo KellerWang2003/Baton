@@ -52,16 +52,16 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 ## Prototype shell
 
 - `src/flow.ts`: ordered list of hero flow screens (`id`, `title`, `stage`, `component`). Add new screens here.
-- The current screen is in the URL hash (`#/ui-kit`).
-- A dev toolbar (bottom left) is not part of the app. Keys: `←`/`→` previous/next screen, `F` toggle phone frame (remembered), `M` screen list, `H` hide the toolbar for recording.
+- The current screen is in the URL hash (`#/today`).
+- The page shows only the app. A team-only debug panel (bottom left, hidden by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it with `` ` `` (backtick) or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
 - Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive.
 
 ## Layout
 
 - `src/main.tsx`: entry point
-- `src/App.tsx`: wires the flow, phone frame and toolbar
-- `src/app/`: prototype shell (DeviceFrame, Toolbar, hooks)
-- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button
+- `src/App.tsx`: wires the flow, phone frame and debug panel
+- `src/app/`: prototype shell (DeviceFrame, DebugPanel, hooks)
+- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
 - `src/data/`: mock content
