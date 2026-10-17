@@ -53,7 +53,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 
 - `src/flow.ts`: ordered list of hero flow screens (`id`, `title`, `stage`, `component`). Add new screens here.
 - The current screen is in the URL hash (`#/today`).
-- The page shows only the app. A team-only debug panel (bottom left, hidden by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it with `` ` `` (backtick) or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
+- The page shows only the app. A team-only debug panel (bottom left, closed by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it from the Debug button in the page corner (frame on) or the small tab on the left edge (frame off), with `` ` `` (backtick), or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
 - Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive.
 
 ## Layout

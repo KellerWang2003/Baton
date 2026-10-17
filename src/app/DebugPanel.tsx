@@ -13,8 +13,9 @@ type DebugPanelProps = {
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
 
-// Team-only controls, not part of the app. Hidden by default: press ` (backtick)
-// or add ?debug to the URL to open it. ← → move between screens and F toggles
+// Team-only controls, not part of the app. Closed by default: open it from the
+// Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
+// or add ?debug to the URL. ← → move between screens and F toggles
 // the phone frame even while the panel is closed.
 export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
@@ -35,7 +36,28 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
     return () => window.removeEventListener('keydown', onKey)
   }, [index, goTo, toggleFrame])
 
-  if (!open) return null
+  if (!open) {
+    // Framed: a round button in the corner of the page, outside the phone.
+    // Responsive: a small tab on the left edge so it stays out of the app.
+    return framed ? (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        title="Open debug panel (`)"
+        className="fixed bottom-4 left-4 z-50 rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90"
+      >
+        Debug
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open debug panel"
+        title="Open debug panel (`)"
+        className="fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60"
+      />
+    )
+  }
 
   return (
     <aside className="fixed bottom-4 left-4 z-50 flex max-h-[80vh] w-72 flex-col gap-3 overflow-y-auto rounded-card bg-surface p-3 font-body text-sm text-ink shadow-float">
