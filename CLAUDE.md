@@ -45,23 +45,23 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
-- `src/ui/` holds the shared building blocks (Button, Card, Chip, PromptCard, VisibilityBadge, Avatar, TextField/TextArea, Screen). Screens compose these; if a screen needs a new look, add a variant or a new block in `src/ui/` instead of one-off styling.
+- `src/ui/` holds the shared building blocks (Button, Card, Chip, PromptCard, VisibilityBadge, Avatar, TextField/TextArea, Screen, TabBar). Screens compose these; if a screen needs a new look, add a variant or a new block in `src/ui/` instead of one-off styling.
 - Mock content (people, places, copy) lives in `src/data/`, not in screens.
 - For responsive layouts use container variants (`@md:`, `@lg:`), not viewport ones (`md:`, `lg:`), so screens respond correctly both inside the phone frame and full-window.
 
 ## Prototype shell
 
 - `src/flow.ts`: ordered list of hero flow screens (`id`, `title`, `stage`, `component`). Add new screens here.
-- The current screen is in the URL hash (`#/ui-kit`).
-- A dev toolbar (bottom left) is not part of the app. Keys: `←`/`→` previous/next screen, `F` toggle phone frame (remembered), `M` screen list, `H` hide the toolbar for recording.
+- The current screen is in the URL hash (`#/today`).
+- The page shows only the app. A team-only debug panel (bottom left, hidden by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it with `` ` `` (backtick) or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
 - Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive.
 
 ## Layout
 
 - `src/main.tsx`: entry point
-- `src/App.tsx`: wires the flow, phone frame and toolbar
-- `src/app/`: prototype shell (DeviceFrame, Toolbar, hooks)
-- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block)
+- `src/App.tsx`: wires the flow, phone frame and debug panel
+- `src/app/`: prototype shell (DeviceFrame, DebugPanel, hooks)
+- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
 - `src/data/`: mock content

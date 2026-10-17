@@ -1,7 +1,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { flow } from '../flow'
 
-// The current screen lives in the URL hash (#/ui-kit), so a reload keeps your place.
+// The current screen lives in the URL hash (#/today), so a reload keeps your place.
 function subscribe(onChange: () => void) {
   window.addEventListener('hashchange', onChange)
   return () => window.removeEventListener('hashchange', onChange)
