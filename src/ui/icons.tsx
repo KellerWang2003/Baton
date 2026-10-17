@@ -51,3 +51,28 @@ export function PlusIcon() {
     </Icon>
   )
 }
+
+export function ChevronLeftIcon() {
+  return (
+    <Icon strokeWidth={2.4} className="size-6">
+      <path d="M15 5l-7 7 7 7" />
+    </Icon>
+  )
+}
+
+export function ChevronRightIcon() {
+  return (
+    <Icon strokeWidth={2.2} className="size-4">
+      <path d="M9 5l7 7-7 7" />
+    </Icon>
+  )
+}
+
+export function CameraIcon() {
+  return (
+    <Icon className="size-7">
+      <path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </Icon>
+  )
+}

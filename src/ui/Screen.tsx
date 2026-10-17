@@ -1,42 +1,53 @@
 import type { ReactNode } from 'react'
 import { cx } from './cx'
+import { ChevronLeftIcon } from './icons'
 
 type ScreenProps = {
   title?: string
   eyebrow?: string
   onBack?: () => void
+  backLabel?: string
+  // false for modal-style pages, where the left button reads Cancel
+  backChevron?: boolean
   action?: ReactNode
   footer?: ReactNode
   children: ReactNode
   className?: string
 }
 
-// Layout for one app screen: header, scrolling body, optional pinned footer.
+// Layout for one app screen in the iOS style: a navigation bar (back button and
+// trailing action), a large title, a scrolling body and an optional pinned footer.
 // Fills its container, so it works inside the phone frame and full-screen.
-export function Screen({ title, eyebrow, onBack, action, footer, children, className }: ScreenProps) {
+export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className }: ScreenProps) {
   return (
     <div className="flex h-full flex-col bg-canvas">
-      {(title || onBack || action) && (
-        <header className="flex items-center gap-2 px-4 pb-2 pt-3">
-          {onBack && (
-            <button
-              type="button"
-              onClick={onBack}
-              aria-label="Back"
-              className="-ml-2 inline-flex size-10 items-center justify-center rounded-full text-2xl text-ink hover:bg-surface-muted"
-            >
-              ‹
-            </button>
-          )}
-          <div className="min-w-0 flex-1">
-            {eyebrow && <p className="text-xs font-semibold uppercase tracking-wide text-stage">{eyebrow}</p>}
-            {title && <h1 className="truncate font-display text-2xl font-bold text-ink">{title}</h1>}
-          </div>
+      {onBack && (
+        <nav className="flex h-11 shrink-0 items-center justify-between px-2">
+          <button
+            type="button"
+            onClick={onBack}
+            className={cx(
+              'inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-body text-brand active:opacity-50',
+              !backChevron && 'pl-2',
+            )}
+          >
+            {backChevron && <ChevronLeftIcon />}
+            {backLabel}
+          </button>
           {action}
+        </nav>
+      )}
+      {(title || eyebrow) && (
+        <header className={cx('flex items-end gap-2 px-4 pb-2', onBack ? 'pt-0' : 'pt-3')}>
+          <div className="min-w-0 flex-1">
+            {eyebrow && <p className="text-footnote font-semibold uppercase text-stage">{eyebrow}</p>}
+            {title && <h1 className="truncate font-display text-large-title font-bold text-ink">{title}</h1>}
+          </div>
+          {!onBack && action && <div className="pb-1">{action}</div>}
         </header>
       )}
       <main className={cx('flex-1 overflow-y-auto px-4 pb-6', className)}>{children}</main>
-      {footer && <footer className="border-t border-line bg-surface px-4 pb-6 pt-3">{footer}</footer>}
+      {footer && <footer className="bg-canvas/90 px-4 pb-6 pt-3 backdrop-blur-xl">{footer}</footer>}
     </div>
   )
 }

@@ -30,8 +30,8 @@ export function TabBar({ tabs, active, onSelect, onCapture }: TabBarProps) {
             onClick={() => onSelect(tab.id)}
             aria-current={tab.id === active ? 'page' : undefined}
             className={cx(
-              'flex flex-1 flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] font-semibold',
-              tab.id === active ? 'bg-surface-muted text-ink' : 'text-ink-muted',
+              'flex flex-1 flex-col items-center gap-0.5 rounded-full py-1.5 text-[10px] font-semibold',
+              tab.id === active ? 'bg-surface-muted text-brand' : 'text-ink',
             )}
           >
             {tab.icon}
@@ -43,7 +43,7 @@ export function TabBar({ tabs, active, onSelect, onCapture }: TabBarProps) {
         type="button"
         onClick={onCapture}
         aria-label="Capture"
-        className={cx('pointer-events-auto inline-flex size-[62px] shrink-0 items-center justify-center rounded-full text-ink', glass)}
+        className={cx('pointer-events-auto inline-flex size-[62px] shrink-0 items-center justify-center rounded-full text-brand', glass)}
       >
         <PlusIcon />
       </button>

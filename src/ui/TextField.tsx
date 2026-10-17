@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, ReactNode, TextareaHTMLAttributes } from 'rea
 import { cx } from './cx'
 
 const fieldClass =
-  'w-full rounded-control bg-surface-muted px-4 py-3 text-base text-ink placeholder:text-ink-muted outline-none focus:ring-2 focus:ring-stage'
+  'w-full rounded-control bg-surface px-4 py-3 text-body text-ink placeholder:text-ink-muted outline-none focus:ring-2 focus:ring-brand'
 
 type FieldProps = {
   label?: string
@@ -43,12 +43,12 @@ function Field({ id, label, hint, className, children }: FieldProps & { id: stri
   return (
     <div className={cx('flex flex-col gap-1.5', className)}>
       {label && (
-        <label htmlFor={id} className="text-sm font-medium text-ink">
+        <label htmlFor={id} className="px-4 text-footnote uppercase text-ink-muted">
           {label}
         </label>
       )}
       {children}
-      {hint && <p className="text-xs text-ink-muted">{hint}</p>}
+      {hint && <p className="px-4 text-footnote text-ink-muted">{hint}</p>}
     </div>
   )
 }

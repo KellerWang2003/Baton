@@ -21,7 +21,7 @@ function App() {
   return (
     <>
       <DeviceFrame framed={framed}>
-        <div data-stage={stage} className="h-full">
+        <div data-stage={stage} className="relative h-full">
           {kitOpen ? <UiKit /> : <CurrentScreen />}
         </div>
       </DeviceFrame>
