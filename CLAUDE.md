@@ -23,7 +23,7 @@ Baton is a hackathon prototype for the SVSD "Traces" storytelling hackathon. It 
 - **No letter to your future self** (Keller, Oct 17: cringe and cliché). Its place is taken by the intention question below.
 - **The last night in LA is the legacy review.** She gets a last view of her LA legacy, picks what to publish, and her lifestyle snapshot is captured from it. Then she's asked her intention for the new city (what she wants to achieve, what she imagines). That intention seeds suggestions when she arrives, and becoming a Local shows an insight page comparing her lifestyle to the LA snapshot and her progress toward the intention.
 - **LA Wrapped happens after landing**, combined with the Rolling Paper of friends' notes: her LA lifestyle and the notes people left her, seen together.
-- **Daily prompts ask for an angle, not a subject**, take seconds, and have no streaks or counts. Full prompt list and rules: `docs/daily-prompts.md`. The demo bookend is "The view from where you always stand", asked at her LA café (Moving) and again at her NYC spot (Local), shown side by side.
+- **Daily prompts are plain and verb-first** (Keller, Oct 17: no poetic wording; "Take a photo of...", "Write one tip..."). They ask for an angle, not a subject, take seconds, and have no streaks or counts. Full prompt list and rules: `docs/daily-prompts.md`. The demo bookend is "Take a photo of the view from the café seat you always sit in", asked at her LA café (Moving) and again at her NYC spot (Local), shown side by side.
 
 ### Persona: Chloe
 
@@ -31,15 +31,15 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 ### Information architecture
 
-- Onboarding (outside the tabs): sign up, photo and location access seeds the archive (keep or remove places; most-visited places seed the first prompts), set status, pick logistics to-dos, optional Instagram tag.
+- Onboarding (outside the tabs): feature overview (full-bleed slides, no skip), create account (no back button), Tell us about yourself (three stage cards in fixed order: Moving soon, Just arrived, Settled in; the picked one expands in place, tags below), photo access, a Welcome to Baton splash, then Today with a "Finish setting up" list: organize the archive from imported photos (keep or remove places; most-visited places seed the first prompts), pick logistics to-dos, add the Instagram tag.
 - Tab bar: **Today** (daily prompt card, logistics to-dos, hint cards; one screen with a different state per stage), **Archive** (segmented: My archive / Legacy, incl. what you left and notes on it), **Community** (segmented: Recommendations with Places / Logistics / Mentality filters and a map toggle for places / Q&A).
-- **+ (Capture)**: like search in Apple's iOS 26 tab bars, tapping + morphs it into a text field inside the tab bar (with a photo button) while the three tabs collapse into one round button for the current tab. Tapping the daily prompt card on Today opens the same field. The older Capture page still exists in the flow.
+- **+ (Capture)**: like search in Apple's iOS 26 tab bars, tapping + morphs it into a text field inside the tab bar while the three tabs collapse into one round button for the current tab. A recent photos row slides in above it: a camera tile first, then photo tiles (gray placeholders for now); tapped photos get a check and are saved with the answer. Tapping the daily prompt card on Today opens the same field. There is one tab bar, kept mounted across tab switches. The older Capture page still exists in the flow.
 - **Profile**: reached from the avatar at top right; a pushed page with no tab bar. Status, city, lifestyle.
 - The Rolling Paper (friends' notes) opens with LA Wrapped right after landing. Lifestyle is captured from the legacy on the last night and is editable in Profile.
 
 ### Prototype flows to build (from the video script, in story order)
 
-Status: flow 1 (onboarding: feature overview, sign up / log in, about you with tags, photo access, a "Welcome to Baton" splash, then a "Finish setting up" list on Today for organizing the archive, logistics to-dos and the Instagram tag) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
+Status: flow 1 (onboarding, as described under Information architecture) is built, and so is the + field with the recent photos row. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
 
 | # | Flow | Stage | What it must show |
 |---|---|---|---|
@@ -68,8 +68,14 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 
 ## Brand
 
-- Font: Mundial Narrow (`mundial-narrow-variable`, Adobe Fonts). Set in the font tokens in `src/theme/tokens.css`; the Adobe Fonts embed link goes in `index.html` (falls back to the system sans-serif until it's there)
-- Red `#fe4334`, purple `#4b019e` (not applied yet: the design system stays grayscale for now)
+Keller, Oct 17. These hex values are the source of truth (the earlier Archivo font and red/purple palette are gone).
+
+- Colors: blue `#59a1ff`, cream `#efe6e2`, pink `#f3beeb`, yellow `#ede783`, olive `#3f4017`, navy `#222430`
+- Font: Mundial Narrow (`mundial-narrow-variable`, Adobe Fonts), loaded in `index.html` from `https://use.typekit.net/ypw1hyf.css` and set in the font tokens in `src/theme/tokens.css`
+- Logo: a segmented, tilted baton mark plus the lowercase "baton" wordmark. SVGs in `public/brand/` (`baton-mark.svg`, `baton-lockup.svg`), used through `src/ui/Logo.tsx`
+- Tagline: "Leave a story. Start another."
+- Shape: very rounded (pill buttons, 24px cards)
+- Stage colors (proposed, pending Keller's OK; thread "Stage colors and themes", https://claude.ai/artifact/JGP7cKRngKEA8N3LMDhW6b): Moving pink, Newcomer yellow, Local olive. Cream surfaces and navy text stay constant; blue marks onboarding, the logo and things handed over (recommendations, hint cards, notes, Q&A)
 
 ## Stack
 
@@ -94,7 +100,7 @@ Workflow: branch off `main`, open a PR, check the Vercel preview link on it, mer
 
 ## Design system (keep it swappable)
 
-Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the first pass references Apple's iOS design (Human Interface Guidelines) in **grayscale only, no color yet** (Keller's call): SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. The team's own designs and components replace these later.
+Final key visuals arrive after screens are built, so styling must be swappable from a few files. The first pass references Apple's iOS design (Human Interface Guidelines): SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. It started grayscale; color comes in **only through the stage themes** (see Brand), so the rest stays neutral until the team's own designs and components replace these.
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`) and the iOS text styles (`text-large-title`, `text-title-1..3`, `text-headline`, `text-body`, `text-subhead`, `text-footnote`, `text-caption`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
@@ -108,16 +114,18 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - The current screen is in the URL hash (`#/today`).
 - The page shows only the app. A team-only debug panel (bottom left, closed by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it from the Debug button in the page corner (frame on) or the small tab on the left edge (frame off), with `` ` `` (backtick), or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
 - Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive. On a real phone (screens 500px wide or less) the app always fills the screen.
+- Testing on a phone: `npm run dev` listens on the LAN (`server.host` in `vite.config.ts`); open the Network URL it prints on a phone on the same wifi, or use the Vercel preview link.
 
 ## Layout
 
 - `src/main.tsx`: entry point
 - `src/App.tsx`: wires the flow, phone frame and debug panel
 - `src/app/`: prototype shell (DeviceFrame, DebugPanel, hooks)
-- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The tab pages (Today, Archive, Community) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button. Profile and Capture are pushed pages built on `Screen` with a back button and no tab bar; `goBack()` in `src/app/navigate.ts` returns to the previous screen
+- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The tab pages (Today, Archive, Community) wrap their content in `MainLayout`, which adds the large title and profile avatar. `TabShell` (also in `MainLayout.tsx`) renders the floating tab bar and the + field once around whichever tab is showing, so the bar stays mounted across tab switches. Profile and Capture are pushed pages built on `Screen` with a back button and no tab bar; `goBack()` in `src/app/navigate.ts` returns to the previous screen
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
-- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt, `onboarding.ts` the onboarding copy, found places and to-dos)
-- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, kept places, picked to-dos, Instagram handle). Nothing persists
+- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt, `onboarding.ts` the onboarding copy, found places and to-dos, `photos.ts` the recent photos row, `people.ts` Chloe and others)
+- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, tags, kept places, picked to-dos, Instagram handle, whether the + field is open, saved reflections). Nothing persists
+- `src/app/composer.ts`: opens the + field and focuses it after the morph (used by + and the daily prompt card)
 - `docs/daily-prompts.md`: daily prompt list per stage and the rules prompts follow
-- `public/`: static assets
+- `public/`: static assets (`public/brand/` holds the logo SVGs)

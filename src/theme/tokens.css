@@ -7,8 +7,8 @@
  * everything updates.
  *
  * Current values are a first pass that borrows Apple's iOS shapes (SF type
- * scale, grouped backgrounds) in grayscale only: no color until Baton's own
- * look lands (brand red #fe4334 and purple #4b019e are the likely start).
+ * scale, grouped backgrounds), mostly grayscale. Color comes in through the
+ * stage themes below, from the brand palette in CLAUDE.md.
  */
 @theme {
   /* Type: Mundial Narrow (Adobe Fonts, embed link in index.html), falling back
