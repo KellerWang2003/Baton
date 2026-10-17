@@ -2,50 +2,77 @@
  * Design tokens: the single place to restyle Baton.
  *
  * Screens and components only use these names (bg-surface, text-ink,
- * rounded-card, font-display, ...), never raw hex values or stock Tailwind
+ * rounded-card, text-headline, ...), never raw hex values or stock Tailwind
  * colors. When the final key visuals arrive, change the values here and
  * everything updates.
  *
- * Current values are grayscale placeholders. Brand color and styling come later
- * (brand red #fe4334 and purple #4b019e are the likely starting point).
+ * Current values are a first pass that borrows Apple's iOS design (system
+ * colors, SF type scale, grouped backgrounds). They get replaced by Baton's own
+ * look later (brand red #fe4334 and purple #4b019e are the likely start).
  */
 @theme {
-  /* Type */
-  --font-display: "Archivo", ui-sans-serif, system-ui, sans-serif;
-  --font-body: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  /* Type: San Francisco on Apple devices, the system UI font elsewhere */
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
 
-  /* Brand */
-  --color-brand: #171717;
+  /* iOS text styles (size / line height), e.g. text-large-title, text-body */
+  --text-large-title: 34px;
+  --text-large-title--line-height: 41px;
+  --text-large-title--letter-spacing: 0.01em;
+  --text-title-1: 28px;
+  --text-title-1--line-height: 34px;
+  --text-title-2: 22px;
+  --text-title-2--line-height: 28px;
+  --text-title-3: 20px;
+  --text-title-3--line-height: 25px;
+  --text-headline: 17px;
+  --text-headline--line-height: 22px;
+  --text-body: 17px;
+  --text-body--line-height: 22px;
+  --text-callout: 16px;
+  --text-callout--line-height: 21px;
+  --text-subhead: 15px;
+  --text-subhead--line-height: 20px;
+  --text-footnote: 13px;
+  --text-footnote--line-height: 18px;
+  --text-caption: 12px;
+  --text-caption--line-height: 16px;
+
+  /* Brand (iOS tint: systemBlue) */
+  --color-brand: #007aff;
   --color-on-brand: #ffffff;
-  --color-accent: #404040;
+  --color-accent: #5856d6; /* systemIndigo */
   --color-on-accent: #ffffff;
+  --color-danger: #ff3b30; /* systemRed */
 
   /* Neutrals */
-  --color-canvas: #f5f5f5; /* app background */
-  --color-surface: #ffffff; /* cards, sheets */
-  --color-surface-muted: #ededed; /* inputs, quiet blocks */
-  --color-ink: #171717; /* primary text */
-  --color-ink-muted: #6b6b6b; /* secondary text */
-  --color-line: #e0e0e0; /* borders, dividers */
+  --color-canvas: #f2f2f7; /* systemGroupedBackground: app background */
+  --color-surface: #ffffff; /* secondarySystemGroupedBackground: cards, lists, sheets */
+  --color-surface-muted: #e9e9eb; /* fill: gray buttons, segmented track, fields */
+  --color-ink: #000000; /* label */
+  --color-ink-muted: #8a8a8e; /* secondaryLabel */
+  --color-line: #c6c6c8; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
+  --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
 
-  /* Stage accents (Moving -> Newcomer -> Local) */
-  --color-moving: #2e2e2e;
-  --color-newcomer: #2e2e2e;
-  --color-local: #2e2e2e;
+  /* Stage accents (Moving -> Newcomer -> Local), iOS system colors for now */
+  --color-moving: #ff9500; /* systemOrange */
+  --color-newcomer: #007aff; /* systemBlue */
+  --color-local: #34c759; /* systemGreen */
 
   /* Follows the nearest [data-stage] wrapper, see below */
   --color-stage: var(--color-moving);
   --color-on-stage: #ffffff;
 
   /* Shape */
-  --radius-control: 12px;
-  --radius-card: 18px;
-  --radius-sheet: 28px;
+  --radius-control: 12px; /* large buttons, fields */
+  --radius-card: 12px; /* grouped lists, cards */
+  --radius-sheet: 24px; /* bottom sheets */
 
   /* Depth */
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 16px rgb(0 0 0 / 0.06);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
   --shadow-float: 0 8px 32px rgb(0 0 0 / 0.16);
+  --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
 }
 
 /* Wrap any subtree in data-stage="..." to recolor bg-stage, text-stage, etc. */

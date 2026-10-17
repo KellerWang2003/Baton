@@ -12,14 +12,35 @@ export const pages = {
   },
   archive: {
     title: 'Archive',
-    purpose: 'Your private archive of places, people and reflections, and the legacy you choose to pass on.',
+    segments: [
+      { id: 'mine', label: 'My archive', purpose: 'Your private archive of places, people and reflections. Only you can see it.' },
+      { id: 'legacy', label: 'Legacy', purpose: 'What you chose to pass on when you left, and the notes people left on it.' },
+    ],
   },
   community: {
     title: 'Community',
-    purpose: 'Recommendations from people who lived here before you, and Q&A where locals answer newcomers.',
+    segments: [
+      { id: 'recs', label: 'Recommendations', purpose: 'Places, logistics and mindset tips from people who lived here before you.' },
+      { id: 'qa', label: 'Q&A', purpose: 'Newcomers ask, locals answer.' },
+    ],
   },
   profile: {
     title: 'Profile',
-    purpose: 'Your status (Moving, Newcomer, Local), your city and your lifestyle.',
+    purpose: 'Your status decides which features you see. Change it when you move.',
   },
+  capture: {
+    title: 'New reflection',
+    photosLabel: 'Photos',
+    addPhotos: 'Add photos',
+    reflectionLabel: 'Reflection',
+    reflectionPlaceholder: 'Write a few lines, or just one.',
+    privacyNote: 'Saved to your private archive. Only you can see it.',
+  },
+}
+
+// Today's light prompt (from prompts/daily-prompts.md, Moving stage).
+export const dailyPrompt = {
+  seed: "You're at your usual café again.",
+  question: 'The view from where you always stand.',
+  detail: 'Take it from your usual seat, not your best angle.',
 }

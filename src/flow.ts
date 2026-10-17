@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { Archive } from './screens/Archive'
+import { Capture } from './screens/Capture'
 import { Community } from './screens/Community'
 import { Profile } from './screens/Profile'
 import { Today } from './screens/Today'
@@ -19,6 +20,7 @@ export const flow: FlowScreen[] = [
   { id: 'today', title: 'Today', stage: 'moving', component: Today },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
   { id: 'community', title: 'Community', stage: 'moving', component: Community },
+  { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
 ]
 

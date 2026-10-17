@@ -13,8 +13,8 @@ type PromptCardProps = {
 export function PromptCard({ question, meta, children, className }: PromptCardProps) {
   return (
     <Card tone="stage" className={cx('flex flex-col gap-3', className)}>
-      {meta && <p className="text-xs font-semibold uppercase tracking-wide text-stage">{meta}</p>}
-      <p className="font-display text-xl font-semibold leading-snug text-ink">{question}</p>
+      {meta && <p className="text-footnote font-semibold uppercase text-stage">{meta}</p>}
+      <p className="font-display text-title-3 font-semibold text-ink">{question}</p>
       {children}
     </Card>
   )
