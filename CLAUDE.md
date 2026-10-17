@@ -36,7 +36,7 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 ### Prototype flows to build (from the video script, in story order)
 
-Status: flow 1 (onboarding: feature overview, sign up / log in, about you with tags, photo access, then a "Finish setting up" list on Today for organizing the archive, logistics to-dos and the Instagram tag) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
+Status: flow 1 (onboarding: feature overview, sign up / log in, about you with tags, photo access, a "Welcome to Baton" splash, then a "Finish setting up" list on Today for organizing the archive, logistics to-dos and the Instagram tag) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
 
 | # | Flow | Stage | What it must show |
 |---|---|---|---|

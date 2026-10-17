@@ -9,6 +9,7 @@ import { PhotoAccess } from './screens/PhotoAccess'
 import { Places } from './screens/Places'
 import { Profile } from './screens/Profile'
 import { SignUp } from './screens/SignUp'
+import { Splash } from './screens/Splash'
 import { Today } from './screens/Today'
 import { Todos } from './screens/Todos'
 
@@ -29,6 +30,7 @@ export const flow: FlowScreen[] = [
   { id: 'signup', title: 'Onboarding: sign up / log in', stage: 'moving', component: SignUp },
   { id: 'about', title: 'Onboarding: about you', stage: 'moving', component: AboutYou },
   { id: 'photos', title: 'Onboarding: photo access', stage: 'moving', component: PhotoAccess },
+  { id: 'welcome', title: 'Onboarding: welcome splash', stage: 'moving', component: Splash },
   // 2. Today, Moving, with the setup list (each item opens a setup page)
   { id: 'today', title: 'Today', stage: 'moving', component: Today },
   { id: 'setup-archive', title: 'Setup: organize archive', stage: 'moving', component: Places },

@@ -58,6 +58,11 @@ export const photos = {
   later: 'Not now',
 }
 
+export const splash = {
+  welcome: 'Welcome to',
+  tagline: 'Leave a story. Start another.',
+}
+
 export type FoundPlace = {
   id: string
   name: string
