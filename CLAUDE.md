@@ -45,7 +45,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
-- `src/ui/` holds the shared building blocks (Button, Card, Chip, PromptCard, VisibilityBadge, Avatar, TextField/TextArea, Screen). Screens compose these; if a screen needs a new look, add a variant or a new block in `src/ui/` instead of one-off styling.
+- `src/ui/` holds the shared building blocks (Button, Card, Chip, PromptCard, VisibilityBadge, Avatar, TextField/TextArea, Screen, TabBar). Screens compose these; if a screen needs a new look, add a variant or a new block in `src/ui/` instead of one-off styling.
 - Mock content (people, places, copy) lives in `src/data/`, not in screens.
 - For responsive layouts use container variants (`@md:`, `@lg:`), not viewport ones (`md:`, `lg:`), so screens respond correctly both inside the phone frame and full-window.
 
@@ -61,7 +61,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/main.tsx`: entry point
 - `src/App.tsx`: wires the flow, phone frame and toolbar
 - `src/app/`: prototype shell (DeviceFrame, Toolbar, hooks)
-- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block)
+- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and the bottom tab bar with the center capture button
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
 - `src/data/`: mock content
