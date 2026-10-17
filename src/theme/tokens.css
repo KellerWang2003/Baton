@@ -6,7 +6,8 @@
  * colors. When the final key visuals arrive, change the values here and
  * everything updates.
  *
- * Current values are placeholders: neutral greys plus the LA28 brand colors.
+ * Current values are grayscale placeholders. Brand color and styling come later
+ * (brand red #fe4334 and purple #4b019e are the likely starting point).
  */
 @theme {
   /* Type */
@@ -14,24 +15,24 @@
   --font-body: "Archivo", ui-sans-serif, system-ui, sans-serif;
 
   /* Brand */
-  --color-brand: #fe4334;
+  --color-brand: #171717;
   --color-on-brand: #ffffff;
-  --color-accent: #4b019e;
+  --color-accent: #404040;
   --color-on-accent: #ffffff;
 
   /* Neutrals */
-  --color-canvas: #f6f6f4; /* app background */
+  --color-canvas: #f5f5f5; /* app background */
   --color-surface: #ffffff; /* cards, sheets */
-  --color-surface-muted: #efefec; /* inputs, quiet blocks */
-  --color-ink: #18181a; /* primary text */
-  --color-ink-muted: #6b6b70; /* secondary text */
-  --color-line: #e2e2de; /* borders, dividers */
-  --color-backdrop: #d9d9d4; /* behind the phone frame */
+  --color-surface-muted: #ededed; /* inputs, quiet blocks */
+  --color-ink: #171717; /* primary text */
+  --color-ink-muted: #6b6b6b; /* secondary text */
+  --color-line: #e0e0e0; /* borders, dividers */
+  --color-backdrop: #d6d6d6; /* behind the phone frame */
 
   /* Stage accents (Moving -> Newcomer -> Local) */
-  --color-moving: #8a3f6e;
-  --color-newcomer: #0f7a73;
-  --color-local: #a8680a;
+  --color-moving: #2e2e2e;
+  --color-newcomer: #2e2e2e;
+  --color-local: #2e2e2e;
 
   /* Follows the nearest [data-stage] wrapper, see below */
   --color-stage: var(--color-moving);

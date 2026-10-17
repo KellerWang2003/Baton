@@ -41,7 +41,7 @@ There are no tests yet. Run `npm run build` and `npm run lint` before committing
 
 ## Design system (keep it swappable)
 
-Final key visuals arrive after screens are built, so styling must be swappable from a few files.
+Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the prototype is grayscale only: don't add color or decorative styling until the key visuals arrive.
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
