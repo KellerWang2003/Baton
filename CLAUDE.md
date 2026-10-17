@@ -20,6 +20,9 @@ Baton is a hackathon prototype for the SVSD "Traces" storytelling hackathon. It 
 - **Recommendations come from several lifestyle-matched leavers**, not one matched leaver. Community recommendations are drawn from legacies.
 - **Locals don't meet newcomers in person.** Locals only answer questions in Q&A.
 - **Notes go on a recommendation, not on a whole legacy.** A legacy as a whole is only seen by its author (Archive > Legacy). People can leave a note on a recommendation, including how it helped.
+- **No letter to your future self** (Keller, Oct 17: cringe and cliché). Its place is taken by the intention question below.
+- **The last night in LA is the legacy review.** She gets a last view of her LA legacy, picks what to publish, and her lifestyle snapshot is captured from it. Then she's asked her intention for the new city (what she wants to achieve, what she imagines). That intention seeds suggestions when she arrives, and becoming a Local shows an insight page comparing her lifestyle to the LA snapshot and her progress toward the intention.
+- **LA Wrapped happens after landing**, combined with the Rolling Paper of friends' notes: her LA lifestyle and the notes people left her, seen together.
 - **Daily prompts ask for an angle, not a subject**, take seconds, and have no streaks or counts. Full prompt list and rules: `docs/daily-prompts.md`. The demo bookend is "The view from where you always stand", asked at her LA café (Moving) and again at her NYC spot (Local), shown side by side.
 
 ### Persona: Chloe
@@ -32,7 +35,7 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 - Tab bar: **Today** (daily prompt card, logistics to-dos, hint cards; one screen with a different state per stage), **Archive** (segmented: My archive / Legacy, incl. what you left and notes on it), **Community** (segmented: Recommendations with Places / Logistics / Mentality filters and a map toggle for places / Q&A).
 - **+ (Capture)**: its own pushed page to add photos or write a short reflection on the daily prompt. Tapping the daily prompt card on Today opens the same page.
 - **Profile**: reached from the avatar at top right; a pushed page with no tab bar. Status, city, lifestyle.
-- Proposed, not yet agreed: a Rolling Paper (friends' notes) under Archive > Legacy; lifestyle asked when switching to Newcomer, editable in Profile.
+- The Rolling Paper (friends' notes) opens with LA Wrapped right after landing. Lifestyle is captured from the legacy on the last night and is editable in Profile.
 
 ### Prototype flows to build (from the video script, in story order)
 
@@ -45,12 +48,12 @@ Status: the tab pages, Capture and Profile exist as shells. Everything below sti
 | 3 | Daily prompt to archive | Moving | Answer a light prompt in seconds (Capture page), then see it land in Archive |
 | 4 | Place arrival prompt | Moving | Notification at her café or gym, reflect why with a few options ("Trader Joe's next door"), saved to archive |
 | 5 | Friend's note | Moving | A friend taps her Instagram tag and writes Chloe a note (can be a single web screen) |
-| 6 | LA Wrapped to legacy | Moving | Last-night recap, choose public or private for each piece of her legacy, then write and seal a letter to her future self |
-| 7 | Landing | Newcomer | Rolling Paper opens with friends' notes, then set status to Newcomer |
-| 8 | Today, Newcomer | Newcomer | Arrival to-dos and the gym hint card (a gym with a Trader Joe's next door, from someone else's legacy) |
+| 6 | Last night: legacy review | Moving | A last look at her LA legacy, choose public or private for each piece and publish. Her lifestyle snapshot is captured from it. Then one question: her intention for the new city (what she wants to achieve or is dreaming of) |
+| 7 | Landing: LA Wrapped + Rolling Paper | Newcomer | After landing, one combined moment: her LA lifestyle played back together with the notes friends left her, then set status to Newcomer |
+| 8 | Today, Newcomer | Newcomer | Arrival to-dos, the gym hint card (a gym with a Trader Joe's next door, from someone else's legacy) and suggestions based on her intention |
 | 9 | Recommendation detail | Newcomer | Community with the gym's detail and more lifestyle-matched recs, then leave a note on that recommendation |
 | 10 | Q&A | Newcomer | Ask for tips, see a local's answer |
-| 11 | Local | Local | Status to Local, the sealed letter opens, same prompt side by side with LA, answer a newcomer's question, write a new letter to her future self (sealed until her next move) |
+| 11 | Local | Local | Status to Local opens a celebratory insight page: how her lifestyle changed compared with the LA snapshot, and her progress toward the intention she set. Same prompt side by side with LA, answer a newcomer's question |
 
 Add each screen to `src/flow.ts` in this order with the right `stage`, so the debug panel and arrow keys walk the story.
 
