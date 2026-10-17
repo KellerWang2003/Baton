@@ -43,7 +43,7 @@ export function Places() {
             leading={
               <span className="flex items-center gap-3">
                 <CheckCircle checked={keptPlaces.includes(place.id)} />
-                <span className="inline-flex size-9 items-center justify-center rounded-[8px] bg-surface-muted text-ink-muted">
+                <span className="inline-flex size-9 items-center justify-center rounded-tile bg-surface-muted text-ink-muted">
                   <MapPinIcon />
                 </span>
               </span>

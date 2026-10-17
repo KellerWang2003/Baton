@@ -66,9 +66,12 @@
   --color-on-stage: #ffffff;
 
   /* Shape */
-  --radius-control: 12px; /* large buttons, fields */
-  --radius-card: 12px; /* grouped lists, cards */
-  --radius-sheet: 24px; /* bottom sheets */
+  /* Soft and round, like the capsule in the logo */
+  --radius-button: 9999px; /* buttons are pills */
+  --radius-control: 20px; /* fields, text areas */
+  --radius-card: 24px; /* grouped lists, cards */
+  --radius-tile: 16px; /* thumbnails and graphics inside cards */
+  --radius-sheet: 32px; /* bottom sheets */
 
   /* Depth */
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);

@@ -16,7 +16,7 @@ type SegmentedControlProps<T extends string> = {
 // segment. Use it as the sub nav inside a tab (e.g. My archive / Legacy).
 export function SegmentedControl<T extends string>({ segments, value, onChange, className }: SegmentedControlProps<T>) {
   return (
-    <div role="tablist" className={cx('flex h-8 rounded-[9px] bg-surface-muted p-0.5', className)}>
+    <div role="tablist" className={cx('flex h-8 rounded-full bg-surface-muted p-0.5', className)}>
       {segments.map((segment) => (
         <button
           key={segment.id}
@@ -25,7 +25,7 @@ export function SegmentedControl<T extends string>({ segments, value, onChange, 
           aria-selected={segment.id === value}
           onClick={() => onChange(segment.id)}
           className={cx(
-            'flex-1 truncate rounded-[7px] px-2 text-footnote transition',
+            'flex-1 truncate rounded-full px-2 text-footnote transition',
             segment.id === value ? 'bg-surface font-semibold text-ink shadow-thumb' : 'font-medium text-ink',
           )}
         >

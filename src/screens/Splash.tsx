@@ -17,7 +17,7 @@ export function Splash() {
       className="flex h-full w-full flex-col items-center justify-center gap-5 bg-canvas px-8 text-center"
     >
       <p className="text-title-3 font-semibold text-ink-muted">{splash.welcome}</p>
-      <Logo />
+      <Logo className="h-20" />
       <p className="text-body text-ink-muted">{splash.tagline}</p>
     </button>
   )

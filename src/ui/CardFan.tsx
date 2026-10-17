@@ -33,18 +33,18 @@ export function CardFan<T extends string>({ options, value, onChange, className 
             aria-checked={selected}
             onClick={() => onChange(option.id)}
             className={cx(
-              'relative -mx-3 flex aspect-[3/4] w-[42%] shrink-0 flex-col rounded-card bg-surface p-2.5 text-left shadow-float transition duration-300 ease-out',
+              'relative -mx-2 flex aspect-[3/4] w-[40%] shrink-0 flex-col rounded-card bg-surface p-2.5 text-left shadow-float transition duration-300 ease-out',
               selected ? 'z-20 -translate-y-2 scale-105 rotate-0 ring-2 ring-brand' : tilts[i],
               !selected && value !== null && 'opacity-80',
             )}
           >
-            <span className="relative flex flex-1 items-center justify-center rounded-[8px] bg-surface-muted text-ink-muted">
+            <span className="relative flex flex-1 items-center justify-center rounded-tile bg-surface-muted text-ink-muted">
               {option.graphic}
               {selected && <CheckCircle checked className="absolute right-1.5 top-1.5" />}
             </span>
             <span
               className={cx(
-                'pt-2 text-subhead font-semibold text-ink',
+                'pt-2 text-footnote font-semibold text-ink',
                 // Side labels hug the outer edge so the overlap never covers them
                 i === 0 ? 'text-left' : i === options.length - 1 ? 'text-right' : 'text-center',
               )}
