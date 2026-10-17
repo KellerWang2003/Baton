@@ -33,17 +33,17 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 - Onboarding (outside the tabs): sign up, photo and location access seeds the archive (keep or remove places; most-visited places seed the first prompts), set status, pick logistics to-dos, optional Instagram tag.
 - Tab bar: **Today** (daily prompt card, logistics to-dos, hint cards; one screen with a different state per stage), **Archive** (segmented: My archive / Legacy, incl. what you left and notes on it), **Community** (segmented: Recommendations with Places / Logistics / Mentality filters and a map toggle for places / Q&A).
-- **+ (Capture)**: its own pushed page to add photos or write a short reflection on the daily prompt. Tapping the daily prompt card on Today opens the same page.
+- **+ (Capture)**: like search in Apple's iOS 26 tab bars, tapping + morphs it into a text field inside the tab bar (with a photo button) while the three tabs collapse into one round button for the current tab. Tapping the daily prompt card on Today opens the same field. The older Capture page still exists in the flow.
 - **Profile**: reached from the avatar at top right; a pushed page with no tab bar. Status, city, lifestyle.
 - The Rolling Paper (friends' notes) opens with LA Wrapped right after landing. Lifestyle is captured from the legacy on the last night and is editable in Profile.
 
 ### Prototype flows to build (from the video script, in story order)
 
-Status: the tab pages, Capture and Profile exist as shells. Everything below still needs building.
+Status: flow 1 (onboarding: feature overview, sign up / log in, about you with tags, photo access, a "Welcome to Baton" splash, then a "Finish setting up" list on Today for organizing the archive, logistics to-dos and the Instagram tag) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
 
 | # | Flow | Stage | What it must show |
 |---|---|---|---|
-| 1 | Onboarding | Moving | Sign up, import photos into a list of places to reflect on, set status to Leaver, pick logistics to-dos, optional Instagram tag |
+| 1 | Onboarding | Moving | Feature overview, sign up or log in, tell us about yourself (move status and tags like Student, International), photo access, then on Today a setup list: organize the archive from imported photos, pick logistics to-dos, add the Instagram tag |
 | 2 | Today, Moving | Moving | Logistics to-do list and the daily prompt card |
 | 3 | Daily prompt to archive | Moving | Answer a light prompt in seconds (Capture page), then see it land in Archive |
 | 4 | Place arrival prompt | Moving | Notification at her café or gym, reflect why with a few options ("Trader Joe's next door"), saved to archive |
@@ -68,8 +68,8 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 
 ## Brand
 
-- Font: Archivo (loaded from Google Fonts in `index.html`; the iOS first pass uses the system font until the brand look lands)
-- Red `#fe4334`, purple `#4b019e`
+- Font: Mundial Narrow (`mundial-narrow-variable`, Adobe Fonts). Set in the font tokens in `src/theme/tokens.css`; the Adobe Fonts embed link goes in `index.html` (falls back to the system sans-serif until it's there)
+- Red `#fe4334`, purple `#4b019e` (not applied yet: the design system stays grayscale for now)
 
 ## Stack
 
@@ -82,7 +82,7 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 
 ```bash
 npm install
-npm run dev      # dev server on http://localhost:5173
+npm run dev      # dev server on http://localhost:5173, and on your wifi (Network URL) for a phone
 npm run build    # tsc -b && vite build
 npm run lint     # eslint .
 npm run preview  # serve the production build
@@ -94,7 +94,7 @@ Workflow: branch off `main`, open a PR, check the Vercel preview link on it, mer
 
 ## Design system (keep it swappable)
 
-Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the first pass references Apple's iOS design (Human Interface Guidelines): system colors, SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. The team's own designs and components replace these later.
+Final key visuals arrive after screens are built, so styling must be swappable from a few files. For now the first pass references Apple's iOS design (Human Interface Guidelines) in **grayscale only, no color yet** (Keller's call): SF type scale, grouped backgrounds, iOS buttons, segmented controls, bottom sheets, grouped lists and the tab bar. The team's own designs and components replace these later.
 
 - `src/theme/tokens.css` is the only place for colors, fonts, radii and shadows (Tailwind `@theme`). Use the token utilities (`bg-surface`, `text-ink`, `text-ink-muted`, `bg-brand`, `border-line`, `rounded-card`, `shadow-card`, `font-display`) and the iOS text styles (`text-large-title`, `text-title-1..3`, `text-headline`, `text-body`, `text-subhead`, `text-footnote`, `text-caption`). Never use raw hex values or stock Tailwind colors (`bg-red-500`) in components or screens.
 - Stage color: `bg-stage`, `text-stage`, etc. follow the nearest `data-stage="moving|newcomer|local"` wrapper. The app sets it from the current screen's stage.
@@ -107,7 +107,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/flow.ts`: ordered list of hero flow screens (`id`, `title`, `stage`, `component`). Add new screens here.
 - The current screen is in the URL hash (`#/today`).
 - The page shows only the app. A team-only debug panel (bottom left, closed by default) holds the screen list, the phone frame toggle and the design system view (`UiKit.tsx`). Open it from the Debug button in the page corner (frame on) or the small tab on the left edge (frame off), with `` ` `` (backtick), or by adding `?debug` to the URL. `←`/`→` previous/next screen and `F` toggle phone frame (remembered) work even while it is closed.
-- Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive.
+- Phone frame on: 390×844 phone centered on the page. Off: the app fills the window and is responsive. On a real phone (screens 500px wide or less) the app always fills the screen.
 
 ## Layout
 
@@ -117,6 +117,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/screens/`: one file per screen (`UiKit.tsx` shows every building block and opens from the debug panel). The tab pages (Today, Archive, Community) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button. Profile and Capture are pushed pages built on `Screen` with a back button and no tab bar; `goBack()` in `src/app/navigate.ts` returns to the previous screen
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
-- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt)
+- `src/data/`: mock content (`pages.ts` holds page copy and today's prompt, `onboarding.ts` the onboarding copy, found places and to-dos)
+- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, kept places, picked to-dos, Instagram handle). Nothing persists
 - `docs/daily-prompts.md`: daily prompt list per stage and the rules prompts follow
 - `public/`: static assets

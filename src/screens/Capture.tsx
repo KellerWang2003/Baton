@@ -55,7 +55,7 @@ export function Capture() {
         <ListSection header={copy.photosLabel}>
           <div className="grid grid-cols-3 gap-2 p-2">
             {photos.map((url) => (
-              <div key={url} className="relative aspect-square overflow-hidden rounded-[8px] bg-surface-muted">
+              <div key={url} className="relative aspect-square overflow-hidden rounded-tile bg-surface-muted">
                 <img src={url} alt="" className="size-full object-cover" />
                 <button
                   type="button"
@@ -67,7 +67,7 @@ export function Capture() {
                 </button>
               </div>
             ))}
-            <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-[8px] bg-surface-muted text-brand active:opacity-70">
+            <label className="flex aspect-square cursor-pointer flex-col items-center justify-center gap-1 rounded-tile bg-surface-muted text-brand active:opacity-70">
               <CameraIcon />
               <span className="text-footnote font-medium">{copy.addPhotos}</span>
               <input

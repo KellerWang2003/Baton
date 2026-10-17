@@ -13,7 +13,7 @@ const variants = {
 
 // md: large full-weight button (50pt, rounded rect). sm: compact capsule.
 const sizes = {
-  md: 'h-[50px] rounded-control px-5 text-headline',
+  md: 'h-[50px] rounded-button px-5 text-headline',
   sm: 'h-8 rounded-full px-3.5 text-subhead',
 }
 

@@ -35,6 +35,7 @@ export const pages = {
     reflectionLabel: 'Reflection',
     reflectionPlaceholder: 'Write a few lines, or just one.',
     privacyNote: 'Saved to your private archive. Only you can see it.',
+    saved: 'Saved to your private archive',
   },
 }
 

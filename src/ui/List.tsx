@@ -29,12 +29,14 @@ type ListRowProps = {
   value?: string
   leading?: ReactNode
   chevron?: boolean
+  // Completed to-do: title struck through and dimmed
+  done?: boolean
   onClick?: () => void
 }
 
 // One row in a ListSection. Rows after the first get an inset hairline on top
 // (the section removes it from the first row).
-export function ListRow({ title, subtitle, value, leading, chevron = false, onClick }: ListRowProps) {
+export function ListRow({ title, subtitle, value, leading, chevron = false, done = false, onClick }: ListRowProps) {
   const Tag = onClick ? 'button' : 'div'
   return (
     <Tag
@@ -45,7 +47,7 @@ export function ListRow({ title, subtitle, value, leading, chevron = false, onCl
       {leading}
       <div data-row-body className="flex min-h-11 flex-1 items-center gap-2 border-t border-line/70 py-2.5 pr-4">
         <div className="min-w-0 flex-1">
-          <p className="text-body text-ink">{title}</p>
+          <p className={cx('text-body', done ? 'text-ink-muted line-through' : 'text-ink')}>{title}</p>
           {subtitle && <p className="text-subhead text-ink-muted">{subtitle}</p>}
         </div>
         {value && <span className="text-body text-ink-muted">{value}</span>}

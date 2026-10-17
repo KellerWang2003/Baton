@@ -76,3 +76,77 @@ export function CameraIcon() {
     </Icon>
   )
 }
+
+export function CheckIcon() {
+  return (
+    <Icon strokeWidth={3} className="size-3.5">
+      <path d="M5 12.5l4.5 4.5L19 7.5" />
+    </Icon>
+  )
+}
+
+export function MapPinIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z" />
+      <circle cx="12" cy="10" r="2.3" />
+    </Icon>
+  )
+}
+
+export function PhotosIcon() {
+  return (
+    <Icon className="size-10" strokeWidth={1.5}>
+      <rect x="3" y="5" width="18" height="14" rx="2.5" />
+      <circle cx="8.5" cy="10" r="1.8" />
+      <path d="M21 15.5l-5-5-8.5 8.5" />
+    </Icon>
+  )
+}
+
+// Placeholder graphics for the status cards. Swap for real illustrations later.
+export function BoxesGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <rect x="3" y="11" width="9" height="9" rx="1" />
+      <rect x="12" y="11" width="9" height="9" rx="1" />
+      <rect x="7.5" y="3" width="9" height="8" rx="1" />
+      <path d="M7.5 11v2.5M16.5 11v2.5M12 3v2.5" />
+    </Icon>
+  )
+}
+
+export function ArrivalGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <path d="M3 20h18" />
+      <path d="M4 13.5l3.2 1 3-2.5-6-5.5 2-.6 8.3 4 3.7-1.2a1.6 1.6 0 0 1 1 3L6.5 16.5 3.5 14z" />
+    </Icon>
+  )
+}
+
+export function HomeGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <path d="M4 10.5L12 4l8 6.5V20H4z" />
+      <path d="M10 20v-5h4v5" />
+    </Icon>
+  )
+}
+
+export function ArrowUpIcon() {
+  return (
+    <Icon strokeWidth={2.4} className="size-5">
+      <path d="M12 19V5M6 11l6-6 6 6" />
+    </Icon>
+  )
+}
+
+export function SmallCameraIcon() {
+  return (
+    <Icon className="size-6">
+      <path d="M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z" />
+      <circle cx="12" cy="13" r="3.5" />
+    </Icon>
+  )
+}
