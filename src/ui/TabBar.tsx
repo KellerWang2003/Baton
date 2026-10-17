@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
-import { ArrowUpIcon, PlusIcon, SmallCameraIcon } from './icons'
+import { ArrowUpIcon, PlusIcon } from './icons'
 import { RecentPhotos } from './RecentPhotos'
 import type { PhotoItem } from './RecentPhotos'
 
@@ -19,8 +19,9 @@ type TabBarProps = {
   // Opening must focus the field inside the tap, or iOS won't raise the keyboard
   onOpen: () => void
   onClose: () => void
+  // photos are the ids of the selected photos
   onSubmit: (text: string, photos: string[]) => void
-  // Shown as a row above the field to attach with one tap
+  // Shown as a row above the field, led by a camera tile; tap to select
   recentPhotos?: PhotoItem[]
   fieldRef?: (element: HTMLInputElement | null) => void
   placeholder?: string
@@ -42,8 +43,8 @@ const layer = (shown: boolean, delay = false) =>
 
 // iOS-style floating tab bar. The tabs sit in one capsule and + is its own
 // round button. Tapping + morphs it into a wide input while the tabs collapse
-// into one round button showing the current tab (tap it to go back). Recent
-// photos rise above it; tapped ones show inside the field, which grows to fit.
+// into one round button showing the current tab (tap it to go back). A row of
+// recent photos rises above it to select from, led by a camera tile.
 export function TabBar({
   tabs,
   active,
@@ -58,7 +59,9 @@ export function TabBar({
 }: TabBarProps) {
   // The draft stays if she closes without sending, like Messages
   const [text, setText] = useState('')
-  const [attached, setAttached] = useState<PhotoItem[]>([])
+  const [selected, setSelected] = useState<string[]>([])
+  // Photos taken from the camera tile join the front of the row
+  const [taken, setTaken] = useState<PhotoItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const current = tabs.find((tab) => tab.id === active) ?? tabs[0]
 
@@ -68,17 +71,23 @@ export function TabBar({
   }, [composing])
 
   const toggle = (photo: PhotoItem) =>
-    setAttached((list) => (list.some((p) => p.id === photo.id) ? list.filter((p) => p.id !== photo.id) : [...list, photo]))
+    setSelected((ids) => (ids.includes(photo.id) ? ids.filter((id) => id !== photo.id) : [...ids, photo.id]))
 
-  const canSend = text.trim().length > 0 || attached.length > 0
+  const capture = (files: File[]) => {
+    const added = files.map((file) => {
+      const src = URL.createObjectURL(file)
+      return { id: src, src, alt: file.name }
+    })
+    setTaken((list) => [...added, ...list])
+    setSelected((ids) => [...ids, ...added.map((photo) => photo.id)])
+  }
+
+  const canSend = text.trim().length > 0 || selected.length > 0
   const send = () => {
     if (!canSend) return
-    onSubmit(
-      text.trim(),
-      attached.map((photo) => photo.src),
-    )
+    onSubmit(text.trim(), selected)
     setText('')
-    setAttached([])
+    setSelected([])
     onClose()
   }
 
@@ -88,15 +97,16 @@ export function TabBar({
       <div className={cx('grid transition-[grid-template-rows] duration-500', ease, composing ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]')}>
         <div className="min-h-0 overflow-hidden">
           <RecentPhotos
-            photos={recentPhotos}
-            selected={attached.map((photo) => photo.id)}
+            photos={[...taken, ...recentPhotos]}
+            selected={selected}
             onToggle={toggle}
+            onCapture={capture}
             open={composing}
           />
         </div>
       </div>
 
-      <nav className="flex items-end gap-3 px-4">
+      <nav className="flex items-center gap-3 px-4">
         {/* Tabs, collapsing into one round button for the current tab */}
         <div
           className={cx(
@@ -138,67 +148,19 @@ export function TabBar({
         {/* + button, growing into the field */}
         <div
           className={cx(
-            'pointer-events-auto relative min-w-0 overflow-hidden rounded-[31px]',
+            'pointer-events-auto relative min-w-0 overflow-hidden rounded-full',
             glass,
             morph,
             composing ? 'grow basis-0' : 'grow-0 basis-[62px]',
           )}
         >
-          {/* Attached photos, inside the field above the text */}
-          <div
-            className={cx(
-              'grid transition-[grid-template-rows] duration-300',
-              ease,
-              composing && attached.length > 0 ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-            )}
-          >
-            <div className="min-h-0 overflow-hidden">
-              <div className="flex gap-2 overflow-x-auto px-2.5 pt-2.5 [scrollbar-width:none]">
-                {attached.map((photo) => (
-                  <div key={photo.id} className="relative size-14 shrink-0 overflow-hidden rounded-xl bg-surface-muted">
-                    <img src={photo.src} alt={photo.alt} className="size-full object-cover" />
-                    <button
-                      type="button"
-                      onPointerDown={(event) => event.preventDefault()}
-                      onClick={() => toggle(photo)}
-                      aria-label="Remove photo"
-                      className="absolute right-0.5 top-0.5 inline-flex size-5 items-center justify-center rounded-full bg-scrim text-caption leading-none text-on-brand"
-                    >
-                      ×
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           <form
-            className={cx('flex h-[60px] items-center gap-1 px-2', layer(composing, true))}
+            className={cx('flex h-[60px] items-center gap-1 pl-5 pr-2', layer(composing, true))}
             onSubmit={(event) => {
               event.preventDefault()
               send()
             }}
           >
-            <label className="relative inline-flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-ink-muted active:opacity-60">
-              <SmallCameraIcon />
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                tabIndex={composing ? 0 : -1}
-                className="sr-only"
-                aria-label="Add photos"
-                onChange={(event) => {
-                  const files = Array.from(event.target.files ?? [])
-                  const added = files.map((file) => {
-                    const src = URL.createObjectURL(file)
-                    return { id: src, src, alt: file.name }
-                  })
-                  setAttached((list) => [...list, ...added])
-                  event.target.value = ''
-                }}
-              />
-            </label>
             {/* Always mounted so + can focus it during the tap */}
             <input
               ref={(element) => {
