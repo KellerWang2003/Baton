@@ -1,5 +1,5 @@
 import { navigate } from '../app/navigate'
-import { setState, useStore } from '../app/store'
+import { completeSetup, setState, useStore } from '../app/store'
 import { instagram } from '../data/onboarding'
 import { chloe } from '../data/people'
 import { Avatar, Button, Card, TextField } from '../ui'
@@ -7,32 +7,25 @@ import { OnboardingLayout } from './OnboardingLayout'
 
 const firstName = chloe.name.split(' ')[0]
 
-// Optional: a Baton tag for her Instagram bio, so friends can leave notes she
-// opens after landing. Skippable.
+// Setup page opened from Today: a Baton tag for her Instagram bio, so friends
+// can leave notes she opens after landing.
 export function InstagramTag() {
   const { instagram: handle } = useStore()
-  const finish = () => navigate('today')
-  const skip = (
-    <button type="button" onClick={finish} className="px-2 py-1 text-body text-brand active:opacity-50">
-      Skip
-    </button>
-  )
+  const done = () => {
+    completeSetup('instagram')
+    navigate('today')
+  }
 
   return (
     <OnboardingLayout
-      step="instagram"
       title={instagram.title}
       body={`${instagram.body} ${instagram.sealed}`}
-      action={skip}
+      onBack={() => navigate('today')}
+      backLabel="Today"
       footer={
-        <>
-          <Button block disabled={!handle.trim()} onClick={finish}>
-            {instagram.add}
-          </Button>
-          <Button block variant="ghost" onClick={finish}>
-            {instagram.skip}
-          </Button>
-        </>
+        <Button block disabled={!handle.trim()} onClick={done}>
+          {instagram.add}
+        </Button>
       }
     >
       <TextField

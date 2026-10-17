@@ -3,19 +3,19 @@ import { photos } from '../data/onboarding'
 import { Button, Card, PhotosIcon } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
-// Ask for photo and location access. The places found seed the private archive.
+// Last onboarding step: photo access. The places found seed the private
+// archive, which she organizes later from the setup list on Today.
 export function PhotoAccess() {
   return (
     <OnboardingLayout
-      step="photos"
       title={photos.title}
       body={photos.body}
       footer={
         <>
-          <Button block onClick={() => navigate('places')}>
+          <Button block onClick={() => navigate('today')}>
             {photos.allow}
           </Button>
-          <Button block variant="ghost" onClick={() => navigate('status')}>
+          <Button block variant="ghost" onClick={() => navigate('today')}>
             {photos.later}
           </Button>
         </>

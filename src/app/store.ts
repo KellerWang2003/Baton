@@ -4,21 +4,27 @@ import type { Stage } from '../flow'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
 // that show up on Today). Nothing persists; a reload starts fresh.
+export type SetupItem = 'archive' | 'todos' | 'instagram'
+
 type State = {
   status: Stage | null
+  tags: string[]
   keptPlaces: string[]
-  // null until picked in onboarding; Today then shows defaultTodos
+  // null until picked from the setup list on Today
   todos: string[] | null
   doneTodos: string[]
   instagram: string
+  setupDone: SetupItem[]
 }
 
 let state: State = {
   status: null,
+  tags: [],
   keptPlaces: foundPlaces.map((place) => place.id),
   todos: null,
   doneTodos: [],
   instagram: '',
+  setupDone: [],
 }
 
 const listeners = new Set<() => void>()
@@ -41,4 +47,14 @@ export function useStore() {
 // Add or remove an id in a list field.
 export function toggleIn(list: string[], id: string) {
   return list.includes(id) ? list.filter((item) => item !== id) : [...list, id]
+}
+
+// Mark a setup item on Today as done.
+export function completeSetup(item: SetupItem) {
+  setState((s) => ({ setupDone: s.setupDone.includes(item) ? s.setupDone : [...s.setupDone, item] }))
+}
+
+// Status for screens opened directly (debug panel): Chloe starts as Moving.
+export function useStatus(): Stage {
+  return useStore().status ?? 'moving'
 }

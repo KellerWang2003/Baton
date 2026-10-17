@@ -1,63 +1,56 @@
-import { useEffect, useState } from 'react'
 import { navigate } from '../app/navigate'
-import { setState, toggleIn, useStore } from '../app/store'
-import { foundPlaces, places } from '../data/onboarding'
-import { Button, CheckCircle, ListRow, ListSection, MapPinIcon } from '../ui'
+import { completeSetup, setState, toggleIn, useStore } from '../app/store'
+import { foundPlaces, organize } from '../data/onboarding'
+import { Button, Card, CheckCircle, ListRow, ListSection, MapPinIcon } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
-// Places found in her photos, most-visited first. She keeps or removes each;
-// the kept ones become the private list of places to reflect on later.
+// Setup page opened from Today: see what was imported from her photos and
+// remove what isn't right. The kept places become the private list to reflect on.
 export function Places() {
   const { keptPlaces } = useStore()
-  const [scanning, setScanning] = useState(true)
-
-  // A short pretend scan so the import reads as real on video.
-  useEffect(() => {
-    const timer = setTimeout(() => setScanning(false), 1400)
-    return () => clearTimeout(timer)
-  }, [])
-
-  if (scanning) {
-    return (
-      <div className="flex h-full flex-col items-center justify-center gap-3 bg-canvas px-8 text-center">
-        <span className="size-8 animate-spin rounded-full border-[3px] border-line border-t-ink" />
-        <p className="text-headline font-semibold text-ink">{places.scanning}</p>
-        <p className="text-subhead text-ink-muted">{places.scanningDetail}</p>
-      </div>
-    )
+  const done = () => {
+    completeSetup('archive')
+    navigate('today')
   }
 
   return (
     <OnboardingLayout
-      step="places"
-      title={places.title}
-      body={places.body}
+      title={organize.title}
+      body={organize.body}
+      onBack={() => navigate('today')}
+      backLabel="Today"
       footer={
-        <Button block disabled={keptPlaces.length === 0} onClick={() => navigate('status')}>
-          {places.cta(keptPlaces.length)}
+        <Button block disabled={keptPlaces.length === 0} onClick={done}>
+          {organize.done(keptPlaces.length)}
         </Button>
       }
     >
-      <ListSection footer={places.footer}>
-        {foundPlaces.map((place) => {
-          const kept = keptPlaces.includes(place.id)
-          return (
-            <ListRow
-              key={place.id}
-              title={place.name}
-              subtitle={`${place.area} · ${places.photosLabel(place.photos)}`}
-              leading={
-                <span className="flex items-center gap-3">
-                  <CheckCircle checked={kept} />
-                  <span className="inline-flex size-9 items-center justify-center rounded-[8px] bg-surface-muted text-ink-muted">
-                    <MapPinIcon />
-                  </span>
+      <Card className="grid grid-cols-3 divide-x divide-line/70 py-3 text-center">
+        {organize.stats.map((stat) => (
+          <div key={stat.label}>
+            <p className="font-display text-title-2 font-bold text-ink">{stat.value}</p>
+            <p className="text-footnote text-ink-muted">{stat.label}</p>
+          </div>
+        ))}
+      </Card>
+
+      <ListSection header={organize.header} footer={organize.footer}>
+        {foundPlaces.map((place) => (
+          <ListRow
+            key={place.id}
+            title={place.name}
+            subtitle={`${place.area} · ${organize.photosLabel(place.photos)}`}
+            leading={
+              <span className="flex items-center gap-3">
+                <CheckCircle checked={keptPlaces.includes(place.id)} />
+                <span className="inline-flex size-9 items-center justify-center rounded-[8px] bg-surface-muted text-ink-muted">
+                  <MapPinIcon />
                 </span>
-              }
-              onClick={() => setState((s) => ({ keptPlaces: toggleIn(s.keptPlaces, place.id) }))}
-            />
-          )
-        })}
+              </span>
+            }
+            onClick={() => setState((s) => ({ keptPlaces: toggleIn(s.keptPlaces, place.id) }))}
+          />
+        ))}
       </ListSection>
     </OnboardingLayout>
   )

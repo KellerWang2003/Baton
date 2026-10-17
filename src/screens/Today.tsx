@@ -1,21 +1,50 @@
 import { navigate } from '../app/navigate'
-import { setState, toggleIn, useStore } from '../app/store'
-import { defaultTodos, todayTodos, todoGroups } from '../data/onboarding'
+import { setState, toggleIn, useStatus, useStore } from '../app/store'
+import type { SetupItem } from '../app/store'
+import { setup, todayTodos, todoGroups } from '../data/onboarding'
 import { dailyPrompt, pages } from '../data/pages'
 import { chloe } from '../data/people'
 import { Button, CheckCircle, ListRow, ListSection, PromptCard } from '../ui'
 import { MainLayout } from './MainLayout'
 import { PagePurpose } from './PagePurpose'
 
-const allTodos = todoGroups.flatMap((group) => group.items)
-
 export function Today() {
-  const { todos, doneTodos } = useStore()
-  const picked = allTodos.filter((item) => (todos ?? defaultTodos).includes(item.id))
+  const { todos, doneTodos, setupDone } = useStore()
+  const status = useStatus()
+
+  // Setup list right after onboarding. Locals have no logistics to pick.
+  const setupItems: { id: SetupItem; title: string; subtitle: string }[] = [
+    { id: 'archive', ...setup.items.archive },
+    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status] }]),
+    { id: 'instagram', ...setup.items.instagram },
+  ]
+  const setupLeft = setupItems.some((item) => !setupDone.includes(item.id))
+
+  const picked =
+    status === 'local' ? [] : todoGroups[status].flatMap((group) => group.items).filter((item) => todos?.includes(item.id))
 
   return (
     <MainLayout title={pages.today.title} activeTab="today">
       <div className="flex flex-col gap-6 pt-2">
+        {setupLeft && (
+          <ListSection header={setup.header} footer={setup.footer}>
+            {setupItems.map((item) => {
+              const done = setupDone.includes(item.id)
+              return (
+                <ListRow
+                  key={item.id}
+                  title={item.title}
+                  subtitle={done ? undefined : item.subtitle}
+                  done={done}
+                  leading={<CheckCircle checked={done} />}
+                  chevron={!done}
+                  onClick={done ? undefined : () => navigate(`setup-${item.id}`)}
+                />
+              )
+            })}
+          </ListSection>
+        )}
+
         {/* The whole card opens Capture, like tapping a widget */}
         <div role="button" tabIndex={0} onClick={() => navigate('capture')} className="text-left active:opacity-80">
           <PromptCard meta={dailyPrompt.seed} question={dailyPrompt.question}>
@@ -27,7 +56,7 @@ export function Today() {
         </div>
 
         {picked.length > 0 && (
-          <ListSection header={todayTodos.header(chloe.leavingOn)} footer={todayTodos.footer}>
+          <ListSection header={todayTodos.header(status === 'local' ? 'newcomer' : status, chloe.leavingOn)} footer={todayTodos.footer}>
             {picked.map((item) => {
               const done = doneTodos.includes(item.id)
               return (

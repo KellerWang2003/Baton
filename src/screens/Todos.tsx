@@ -1,35 +1,40 @@
 import { navigate } from '../app/navigate'
-import { setState, toggleIn, useStore } from '../app/store'
+import { completeSetup, setState, toggleIn, useStatus, useStore } from '../app/store'
 import { todoGroups, todos as copy } from '../data/onboarding'
-import { chloe } from '../data/people'
 import { Button, CheckCircle, ListRow, ListSection } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
-const cityShort: Record<string, string> = { 'Los Angeles': 'LA' }
-
-// Pick the logistics to-dos for the move. The picks show on Today.
+// Setup page opened from Today: pick logistics to-dos for leaving (Moving) or
+// arriving (Newcomer). The picks show on Today.
 export function Todos() {
+  const status = useStatus()
+  const stage = status === 'newcomer' ? 'newcomer' : 'moving'
   const todos = useStore().todos ?? []
+  const done = () => {
+    completeSetup('todos')
+    navigate('today')
+  }
 
   return (
     <OnboardingLayout
-      step="todos"
-      title={copy.title(cityShort[chloe.from] ?? chloe.from)}
+      title={copy.title[stage]}
       body={copy.body}
+      onBack={() => navigate('today')}
+      backLabel="Today"
       footer={
-        <Button block disabled={todos.length === 0} onClick={() => navigate('instagram')}>
+        <Button block disabled={todos.length === 0} onClick={done}>
           {copy.cta(todos.length)}
         </Button>
       }
     >
-      {todoGroups.map((group) => (
+      {todoGroups[stage].map((group) => (
         <ListSection key={group.header} header={group.header}>
           {group.items.map((item) => (
             <ListRow
               key={item.id}
               title={item.title}
               leading={<CheckCircle checked={todos.includes(item.id)} />}
-              onClick={() => setState({ todos: toggleIn(todos, item.id) })}
+              onClick={() => setState((s) => ({ todos: toggleIn(s.todos ?? [], item.id) }))}
             />
           ))}
         </ListSection>

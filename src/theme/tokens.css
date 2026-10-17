@@ -11,9 +11,10 @@
  * look lands (brand red #fe4334 and purple #4b019e are the likely start).
  */
 @theme {
-  /* Type: San Francisco on Apple devices, the system UI font elsewhere */
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
-  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  /* Type: Mundial Narrow (Adobe Fonts, embed link in index.html), falling back
+     to the system UI font until the kit is loaded */
+  --font-display: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-body: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
 
   /* iOS text styles (size / line height), e.g. text-large-title, text-body */
   --text-large-title: 34px;

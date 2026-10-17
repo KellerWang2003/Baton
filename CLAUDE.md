@@ -36,11 +36,11 @@ Chloe, 23, final term at ArtCenter in LA. Came to LA alone four years ago. She s
 
 ### Prototype flows to build (from the video script, in story order)
 
-Status: flow 1 (onboarding) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
+Status: flow 1 (onboarding: feature overview, sign up / log in, about you with tags, photo access, then a "Finish setting up" list on Today for organizing the archive, logistics to-dos and the Instagram tag) is built. The tab pages, Capture and Profile exist as shells. Everything else below still needs building.
 
 | # | Flow | Stage | What it must show |
 |---|---|---|---|
-| 1 | Onboarding | Moving | Sign up, import photos into a list of places to reflect on, set status to Leaver, pick logistics to-dos, optional Instagram tag |
+| 1 | Onboarding | Moving | Feature overview, sign up or log in, tell us about yourself (move status and tags like Student, International), photo access, then on Today a setup list: organize the archive from imported photos, pick logistics to-dos, add the Instagram tag |
 | 2 | Today, Moving | Moving | Logistics to-do list and the daily prompt card |
 | 3 | Daily prompt to archive | Moving | Answer a light prompt in seconds (Capture page), then see it land in Archive |
 | 4 | Place arrival prompt | Moving | Notification at her café or gym, reflect why with a few options ("Trader Joe's next door"), saved to archive |
@@ -65,8 +65,8 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 
 ## Brand
 
-- Font: Archivo (loaded from Google Fonts in `index.html`; the iOS first pass uses the system font until the brand look lands)
-- Red `#fe4334`, purple `#4b019e`
+- Font: Mundial Narrow (`mundial-narrow-variable`, Adobe Fonts). Set in the font tokens in `src/theme/tokens.css`; the Adobe Fonts embed link goes in `index.html` (falls back to the system sans-serif until it's there)
+- Red `#fe4334`, purple `#4b019e` (not applied yet: the design system stays grayscale for now)
 
 ## Stack
 
