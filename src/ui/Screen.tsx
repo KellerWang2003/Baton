@@ -13,14 +13,16 @@ type ScreenProps = {
   footer?: ReactNode
   children: ReactNode
   className?: string
+  // Page background class, e.g. bg-stage-bg for a stage-themed page
+  background?: string
 }
 
 // Layout for one app screen in the iOS style: a navigation bar (back button and
 // trailing action), a large title, a scrolling body and an optional pinned footer.
 // Fills its container, so it works inside the phone frame and full-screen.
-export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className }: ScreenProps) {
+export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas' }: ScreenProps) {
   return (
-    <div className="flex h-full flex-col bg-canvas">
+    <div className={cx('flex h-full flex-col transition-colors duration-500', background)}>
       {onBack && (
         <nav className="flex h-11 shrink-0 items-center justify-between px-2">
           <button
@@ -47,7 +49,7 @@ export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron
         </header>
       )}
       <main className={cx('flex-1 overflow-y-auto px-4 pb-6', className)}>{children}</main>
-      {footer && <footer className="bg-canvas/90 px-4 pb-6 pt-3 backdrop-blur-xl">{footer}</footer>}
+      {footer && <footer className="px-4 pb-6 pt-3">{footer}</footer>}
     </div>
   )
 }

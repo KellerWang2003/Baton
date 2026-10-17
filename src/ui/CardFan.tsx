@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { CheckCircle } from './CheckCircle'
 import { cx } from './cx'
 
@@ -15,38 +15,57 @@ type CardFanProps<T extends string> = {
   className?: string
 }
 
-// Tilt and overlap for up to three cards, left to right.
-const tilts = ['z-0 -rotate-10 translate-y-4', 'z-10 rotate-0', 'z-0 rotate-10 translate-y-4']
+type Pose = { x: number; rotate: number; scale: number; y: number; z: number; dim: boolean }
+
+// Where each card sits. Nothing picked: an even fan of three. Picked: that card
+// moves to the center and grows, and the other two tuck in behind it.
+function poseFor(i: number, count: number, selected: number): Pose {
+  const fan = i - (count - 1) / 2 // -1, 0, 1
+  if (selected < 0) return { x: fan * 104, rotate: fan * 9, scale: 1, y: Math.abs(fan) * 14, z: fan === 0 ? 10 : 0, dim: false }
+  if (i === selected) return { x: 0, rotate: 0, scale: 1.12, y: -6, z: 20, dim: false }
+  // The other two go one to each side, in their original order
+  const others = [...Array(count).keys()].filter((j) => j !== selected)
+  const s = others[0] === i ? -1 : 1
+  return { x: s * 58, rotate: s * 14, scale: 0.82, y: 18, z: 0, dim: true }
+}
 
 // A big single choice shown as overlapping, tilted cards with a graphic on
-// each. The picked card straightens, lifts to the front and gets a check.
+// each. The picked card becomes the visual center with a check.
 export function CardFan<T extends string>({ options, value, onChange, className }: CardFanProps<T>) {
+  const selected = options.findIndex((option) => option.id === value)
+
   return (
-    <div role="radiogroup" className={cx('flex justify-center px-6 py-6', className)}>
+    <div role="radiogroup" className={cx('relative h-[230px]', className)}>
       {options.map((option, i) => {
-        const selected = option.id === value
+        const pose = poseFor(i, options.length, selected)
+        const isSelected = i === selected
+        const style: CSSProperties = {
+          transform: `translateX(-50%) translate(${pose.x}px, ${pose.y}px) rotate(${pose.rotate}deg) scale(${pose.scale})`,
+          zIndex: pose.z,
+        }
         return (
           <button
             key={option.id}
             type="button"
             role="radio"
-            aria-checked={selected}
+            aria-checked={isSelected}
             onClick={() => onChange(option.id)}
+            style={style}
             className={cx(
-              'relative -mx-2 flex aspect-[3/4] w-[40%] shrink-0 flex-col rounded-card bg-surface p-2.5 text-left shadow-float transition duration-300 ease-out',
-              selected ? 'z-20 -translate-y-2 scale-105 rotate-0 ring-2 ring-brand' : tilts[i],
-              !selected && value !== null && 'opacity-80',
+              'absolute left-1/2 top-2 flex aspect-[3/4] w-[140px] flex-col rounded-card bg-surface p-2.5 text-left shadow-float transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+              isSelected && 'ring-2 ring-brand',
+              pose.dim && 'opacity-70',
             )}
           >
             <span className="relative flex flex-1 items-center justify-center rounded-tile bg-surface-muted text-ink-muted">
               {option.graphic}
-              {selected && <CheckCircle checked className="absolute right-1.5 top-1.5" />}
+              {isSelected && <CheckCircle checked className="absolute right-1.5 top-1.5" />}
             </span>
             <span
               className={cx(
-                'pt-2 text-footnote font-semibold text-ink',
-                // Side labels hug the outer edge so the overlap never covers them
-                i === 0 ? 'text-left' : i === options.length - 1 ? 'text-right' : 'text-center',
+                'pt-2 text-footnote font-semibold text-ink transition-all',
+                // In the open fan, side labels hug the outer edge so the overlap never covers them
+                selected < 0 && i === 0 ? 'text-left' : selected < 0 && i === options.length - 1 ? 'text-right' : 'text-center',
               )}
             >{option.label}</span>
           </button>

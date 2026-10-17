@@ -65,6 +65,13 @@
   --color-stage: var(--color-moving);
   --color-on-stage: #ffffff;
 
+  /* Stage themes: page background per stage (e.g. Tell us about yourself
+     once a stage is picked). Grays for now; the stage color plan fills these in */
+  --color-moving-bg: #e9e6e2;
+  --color-newcomer-bg: #e2e4e7;
+  --color-local-bg: #e3e6e2;
+  --color-stage-bg: var(--color-canvas);
+
   /* Shape */
   /* Soft and round, like the capsule in the logo */
   --radius-button: 9999px; /* buttons are pills */
@@ -82,10 +89,13 @@
 /* Wrap any subtree in data-stage="..." to recolor bg-stage, text-stage, etc. */
 [data-stage="moving"] {
   --color-stage: var(--color-moving);
+  --color-stage-bg: var(--color-moving-bg);
 }
 [data-stage="newcomer"] {
   --color-stage: var(--color-newcomer);
+  --color-stage-bg: var(--color-newcomer-bg);
 }
 [data-stage="local"] {
   --color-stage: var(--color-local);
+  --color-stage-bg: var(--color-local-bg);
 }
