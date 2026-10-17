@@ -1,9 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
+import { openComposer, registerComposerField } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, useStore } from '../app/store'
+import { useKeyboardInset } from '../app/useKeyboardInset'
 import { dailyPrompt, pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
+import { recentPhotos } from '../data/photos'
 import { ArchiveIcon, Avatar, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
@@ -46,6 +49,7 @@ export function MainLayout({ title, children }: MainLayoutProps) {
 export function TabShell({ activeTab, children }: TabShellProps) {
   const { composing } = useStore()
   const [toast, setToast] = useState(false)
+  const keyboard = useKeyboardInset()
 
   useEffect(() => {
     if (!toast) return
@@ -63,7 +67,11 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         className={`absolute inset-0 bg-canvas/70 backdrop-blur-sm transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
-      <div className="absolute inset-x-0 bottom-0 flex flex-col">
+      {/* Rides on top of the keyboard on phones */}
+      <div
+        style={{ transform: `translateY(-${keyboard}px)` }}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 flex flex-col transition-[transform,padding] duration-300 ease-out ${keyboard ? 'pb-2' : 'pb-6'}`}
+      >
         <div
           className={`mx-4 mb-3 flex flex-col gap-1 px-1 transition duration-300 ${composing ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
         >
@@ -81,7 +89,10 @@ export function TabShell({ activeTab, children }: TabShellProps) {
           active={activeTab}
           onSelect={navigate}
           composing={composing}
-          onComposeChange={(open) => setState({ composing: open })}
+          onOpen={openComposer}
+          onClose={() => setState({ composing: false })}
+          recentPhotos={recentPhotos}
+          fieldRef={registerComposerField}
           placeholder={pages.capture.reflectionPlaceholder}
           onSubmit={(text, photos) => {
             setState((s) => ({ reflections: [...s.reflections, { text, photos }] }))

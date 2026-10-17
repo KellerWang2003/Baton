@@ -17,7 +17,8 @@ type State = {
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
-  reflections: { text: string; photos: number }[]
+  // photos are ids of the photos she picked
+  reflections: { text: string; photos: string[] }[]
 }
 
 let state: State = {
