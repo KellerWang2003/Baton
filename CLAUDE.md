@@ -61,7 +61,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/main.tsx`: entry point
 - `src/App.tsx`: wires the flow, phone frame and toolbar
 - `src/app/`: prototype shell (DeviceFrame, Toolbar, hooks)
-- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and the bottom tab bar with the center capture button
+- `src/screens/`: one file per screen (`UiKit.tsx` shows every building block). The main app pages (Today, Archive, Community, Profile) wrap their content in `MainLayout`, which adds the profile avatar and an iOS-style floating tab bar with a separate round capture (+) button
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
 - `src/data/`: mock content

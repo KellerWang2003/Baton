@@ -1,8 +1,11 @@
+import type { ReactNode } from 'react'
 import { cx } from './cx'
+import { PlusIcon } from './icons'
 
 export type TabItem = {
   id: string
   label: string
+  icon?: ReactNode
 }
 
 type TabBarProps = {
@@ -12,43 +15,38 @@ type TabBarProps = {
   onCapture: () => void
 }
 
-// Bottom navigation: the main tabs with the capture button in the middle.
+const glass = 'border border-line/70 bg-surface/75 shadow-float backdrop-blur-xl'
+
+// iOS-style floating tab bar: the tabs sit in one capsule, and capture is its
+// own round button beside it.
 export function TabBar({ tabs, active, onSelect, onCapture }: TabBarProps) {
-  const middle = Math.ceil(tabs.length / 2)
-
-  const renderTab = (tab: TabItem) => (
-    <button
-      key={tab.id}
-      type="button"
-      onClick={() => onSelect(tab.id)}
-      aria-current={tab.id === active ? 'page' : undefined}
-      className={cx(
-        'flex flex-1 flex-col items-center gap-1 py-2 text-xs font-semibold',
-        tab.id === active ? 'text-ink' : 'text-ink-muted',
-      )}
-    >
-      <span
-        aria-hidden
-        className={cx('size-6 rounded-control', tab.id === active ? 'bg-ink' : 'bg-surface-muted')}
-      />
-      {tab.label}
-    </button>
-  )
-
   return (
-    <nav className="flex items-center border-t border-line bg-surface px-2 pb-6 pt-1">
-      {tabs.slice(0, middle).map(renderTab)}
-      <div className="flex flex-1 justify-center">
-        <button
-          type="button"
-          onClick={onCapture}
-          aria-label="Capture"
-          className="inline-flex size-14 items-center justify-center rounded-full bg-brand text-3xl text-on-brand shadow-card"
-        >
-          +
-        </button>
+    <nav className="pointer-events-none flex items-center gap-3 px-4 pb-6">
+      <div className={cx('pointer-events-auto flex flex-1 items-center rounded-full p-1', glass)}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => onSelect(tab.id)}
+            aria-current={tab.id === active ? 'page' : undefined}
+            className={cx(
+              'flex flex-1 flex-col items-center gap-0.5 rounded-full py-1.5 text-[11px] font-semibold',
+              tab.id === active ? 'bg-surface-muted text-ink' : 'text-ink-muted',
+            )}
+          >
+            {tab.icon}
+            {tab.label}
+          </button>
+        ))}
       </div>
-      {tabs.slice(middle).map(renderTab)}
+      <button
+        type="button"
+        onClick={onCapture}
+        aria-label="Capture"
+        className={cx('pointer-events-auto inline-flex size-[62px] shrink-0 items-center justify-center rounded-full text-ink', glass)}
+      >
+        <PlusIcon />
+      </button>
     </nav>
   )
 }
