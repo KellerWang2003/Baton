@@ -24,7 +24,7 @@ export function Today() {
     status === 'local' ? [] : todoGroups[status].flatMap((group) => group.items).filter((item) => todos?.includes(item.id))
 
   return (
-    <MainLayout title={pages.today.title} activeTab="today">
+    <MainLayout title={pages.today.title}>
       <div className="flex flex-col gap-6 pt-2">
         {setupLeft && (
           <ListSection header={setup.header} footer={setup.footer}>

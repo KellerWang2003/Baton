@@ -11,7 +11,7 @@ export function Archive() {
   const current = segments.find((s) => s.id === segment) ?? segments[0]
 
   return (
-    <MainLayout title={title} activeTab="archive">
+    <MainLayout title={title}>
       <div className="flex flex-col gap-2 pt-1">
         <SegmentedControl segments={segments} value={segment} onChange={setSegment} />
         <PagePurpose>{current.purpose}</PagePurpose>
