@@ -41,18 +41,13 @@ export const auth = {
 export const about = {
   title: 'Tell us about yourself',
   body: 'This decides what Baton shows you. You can change it any time in Profile.',
-  moveHeader: 'Where are you in your move?',
   moveOptions: [
     { id: 'moving', label: 'Moving soon' },
     { id: 'newcomer', label: 'Just arrived' },
     { id: 'local', label: 'Settled in' },
-  ],
+  ] as { id: 'moving' | 'newcomer' | 'local'; label: string }[],
   youHeader: 'You are…',
   tags: ['Student', 'New grad', 'International', 'Working', 'Moving alone', 'First time in a big city'],
-  detailsHeader: 'Your move',
-  leaving: 'Leaving',
-  movingTo: 'Moving to',
-  date: 'Leaving on',
 }
 
 export const photos = {

@@ -103,3 +103,33 @@ export function PhotosIcon() {
     </Icon>
   )
 }
+
+// Placeholder graphics for the status cards. Swap for real illustrations later.
+export function BoxesGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <rect x="3" y="11" width="9" height="9" rx="1" />
+      <rect x="12" y="11" width="9" height="9" rx="1" />
+      <rect x="7.5" y="3" width="9" height="8" rx="1" />
+      <path d="M7.5 11v2.5M16.5 11v2.5M12 3v2.5" />
+    </Icon>
+  )
+}
+
+export function ArrivalGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <path d="M3 20h18" />
+      <path d="M4 13.5l3.2 1 3-2.5-6-5.5 2-.6 8.3 4 3.7-1.2a1.6 1.6 0 0 1 1 3L6.5 16.5 3.5 14z" />
+    </Icon>
+  )
+}
+
+export function HomeGraphic() {
+  return (
+    <Icon className="size-12" strokeWidth={1.4}>
+      <path d="M4 10.5L12 4l8 6.5V20H4z" />
+      <path d="M10 20v-5h4v5" />
+    </Icon>
+  )
+}

@@ -2,13 +2,17 @@ import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { chloe } from '../data/people'
 import {
+  ArrivalGraphic,
   Avatar,
+  BoxesGraphic,
   BottomSheet,
   Button,
   Card,
+  CardFan,
   CheckCircle,
   Chip,
   ChoiceCard,
+  HomeGraphic,
   ListRow,
   ListSection,
   PromptCard,
@@ -121,6 +125,18 @@ export function UiKit() {
                 </Chip>
               ))}
             </div>
+          </Section>
+
+          <Section title="Card fan">
+            <CardFan
+              options={[
+                { id: 'moving' as const, label: 'Moving soon', graphic: <BoxesGraphic /> },
+                { id: 'newcomer' as const, label: 'Just arrived', graphic: <ArrivalGraphic /> },
+                { id: 'local' as const, label: 'Settled in', graphic: <HomeGraphic /> },
+              ]}
+              value={status}
+              onChange={setStatus}
+            />
           </Section>
 
           <Section title="Choices and steps">
