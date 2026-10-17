@@ -17,16 +17,23 @@ type CardFanProps<T extends string> = {
 
 type Pose = { x: number; rotate: number; scale: number; y: number; z: number; dim: boolean }
 
-// Where each card sits. Nothing picked: an even fan of three. Picked: that card
-// moves to the center and grows, and the other two tuck in behind it.
+// Where each card sits. Nothing picked: an even fan of three. Picked: the cards
+// keep their order. The picked one grows in its own slot and the other two
+// squeeze together on the side that's left (one on each side for the middle).
 function poseFor(i: number, count: number, selected: number): Pose {
   const fan = i - (count - 1) / 2 // -1, 0, 1
   if (selected < 0) return { x: fan * 104, rotate: fan * 9, scale: 1, y: Math.abs(fan) * 14, z: fan === 0 ? 10 : 0, dim: false }
-  if (i === selected) return { x: 0, rotate: 0, scale: 1.12, y: -6, z: 20, dim: false }
-  // The other two go one to each side, in their original order
+  const side = selected - (count - 1) / 2 // where the picked card is: -1 left, 0 middle, 1 right
+  if (i === selected) return { x: side * 88, rotate: 0, scale: 1.12, y: -6, z: 20, dim: false }
+  if (side === 0) {
+    const s = i < selected ? -1 : 1
+    return { x: s * 100, rotate: s * 10, scale: 0.72, y: 24, z: 0, dim: true }
+  }
+  // Both others sit on the far side, stacked close, nearer one on top
   const others = [...Array(count).keys()].filter((j) => j !== selected)
-  const s = others[0] === i ? -1 : 1
-  return { x: s * 58, rotate: s * 14, scale: 0.82, y: 18, z: 0, dim: true }
+  const rank = side < 0 ? others.indexOf(i) : others.length - 1 - others.indexOf(i) // 0 = next to the picked card
+  const dir = side < 0 ? 1 : -1
+  return { x: dir * (48 + rank * 60), rotate: dir * (6 + rank * 5), scale: 0.72, y: 24 + rank * 4, z: 10 - rank, dim: true }
 }
 
 // A big single choice shown as overlapping, tilted cards with a graphic on

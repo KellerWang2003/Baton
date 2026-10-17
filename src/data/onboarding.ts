@@ -26,7 +26,6 @@ export const features = {
   ],
   next: 'Next',
   start: 'Get started',
-  skip: 'Skip',
 }
 
 export const auth = {
