@@ -128,7 +128,7 @@ export function TabBar({
                 onClick={() => onSelect(tab.id)}
                 aria-current={tab.id === active ? 'page' : undefined}
                 className={cx(
-                  'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] leading-[1.3] tracking-[-0.011em] transition-colors',
+                  'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] font-medium leading-[1.3] tracking-[-0.011em] transition-colors',
                   iconSize,
                   tab.id === active ? 'bg-surface text-baton-navy' : 'text-tab-idle',
                 )}
