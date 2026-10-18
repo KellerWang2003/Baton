@@ -51,7 +51,7 @@ export type RelayItem = {
   // Where its pin sits on the Relay map (CityMap drawing coordinates)
   map?: { x: number; y: number }
   body: string
-  // Missing src shows the placeholder photo from the Figma sketch
+  // Free Unsplash photos in public/relay/ (named by id); missing shows the placeholder
   photo?: string
   notes: RelayNote[]
 }
@@ -68,6 +68,7 @@ export const relayItems: RelayItem[] = [
   // Baton's picks, based on her routine
   {
     id: 'gym',
+    photo: '/relay/gym.jpg',
     source: { kind: 'baton', why: "Like your gym in Pasadena: open at 6, with a Trader Joe's next door." },
     title: 'Crunch, 14th St',
     category: 'exercise',
@@ -81,6 +82,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'cafe',
+    photo: '/relay/cafe.jpg',
     source: { kind: 'baton', why: 'Big tables and window light, like your usual café seat in LA.' },
     title: 'Devoción, Williamsburg',
     category: 'food',
@@ -91,6 +93,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'studio',
+    photo: '/relay/studio.jpg',
     source: { kind: 'baton', why: `For your intention: "${intention}".`, forIntention: true },
     title: 'Spring Studio',
     category: 'hobbies',
@@ -101,6 +104,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'market',
+    photo: '/relay/market.jpg',
     source: { kind: 'baton', why: 'Saturday mornings at the market, like you did in South Pasadena.' },
     title: 'Union Square Greenmarket',
     category: 'groceries',
@@ -112,6 +116,7 @@ export const relayItems: RelayItem[] = [
 
   {
     id: 'greenway',
+    photo: '/relay/greenway.jpg',
     source: { kind: 'baton', why: 'You ran the Arroyo loop most Saturdays. This one is flat, car-free and by the water.' },
     title: 'Hudson River Greenway',
     category: 'exercise',
@@ -122,6 +127,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'falafel',
+    photo: '/relay/falafel.jpg',
     source: { kind: 'baton', why: 'Cheap and open late, like the taco truck you went to after studio.' },
     title: "Mamoun's Falafel",
     category: 'food',
@@ -132,6 +138,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'citibike',
+    photo: '/relay/citibike.jpg',
     source: { kind: 'baton', why: 'You biked to class in Pasadena. There is a dock on almost every corner here.' },
     title: 'Citi Bike',
     category: 'getting-around',
@@ -142,6 +149,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'greenpoint',
+    photo: '/relay/greenpoint.jpg',
     source: { kind: 'baton', why: 'Quiet streets and small cafés, like Highland Park, and one train to your office.' },
     title: 'Greenpoint',
     category: 'housing',
@@ -152,6 +160,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'domino',
+    photo: '/relay/domino.jpg',
     source: { kind: 'baton', why: 'Your camera roll in LA is full of sunsets. This is where people watch them here.' },
     title: 'Domino Park',
     category: 'feelings',
@@ -162,6 +171,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'idnyc',
+    photo: '/relay/idnyc.jpg',
     source: { kind: 'baton', why: 'You just arrived. This free city ID unlocks a lot of small things.' },
     title: 'Get your IDNYC',
     category: 'setup',
@@ -172,6 +182,7 @@ export const relayItems: RelayItem[] = [
   // From people who lived like her: in their own words, titled by their place
   {
     id: 'potatoes',
+    photo: '/relay/potatoes.jpg',
     source: { kind: 'leaver', leaver: 'maya' },
     title: "Maya's market",
     quote: "Potatoes and eggs are a dollar cheaper here than at Trader Joe's.",
@@ -186,6 +197,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'gym-late',
+    photo: '/relay/gym-late.jpg',
     source: { kind: 'leaver', leaver: 'maya' },
     title: "Maya's gym",
     quote: 'Totally empty after 8 pm. I had the squat rack to myself.',
@@ -197,6 +209,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'month-two',
+    photo: '/relay/month-two.jpg',
     source: { kind: 'leaver', leaver: 'maya' },
     title: "Maya's first winter",
     quote: 'Month two was the hardest. I booked something every weekend.',
@@ -206,6 +219,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'library',
+    photo: '/relay/library.jpg',
     source: { kind: 'leaver', leaver: 'ana' },
     title: "Ana's drawing spot",
     quote: 'Free, big tables, and nobody minds a sketchbook.',
@@ -217,6 +231,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'ana-cafe',
+    photo: '/relay/ana-cafe.jpg',
     source: { kind: 'leaver', leaver: 'ana' },
     title: "Ana's café",
     quote: "Get the window bar before 11. After that it's laptops everywhere.",
@@ -228,6 +243,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'omny',
+    photo: '/relay/omny.jpg',
     source: { kind: 'leaver', leaver: 'ana' },
     title: "Ana's commute",
     quote: 'Tap your phone. After 12 rides the rest of the week is free.',
@@ -237,6 +253,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'laundry',
+    photo: '/relay/laundry.jpg',
     source: { kind: 'leaver', leaver: 'sam' },
     title: "Sam's laundromat",
     quote: 'Wash-and-fold is worth it. I got my Sundays back.',
@@ -248,6 +265,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'bank',
+    photo: '/relay/bank.jpg',
     source: { kind: 'leaver', leaver: 'sam' },
     title: "Sam's bank",
     quote: 'Go in person with your passport and offer letter. Online kept failing.',
@@ -257,6 +275,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'lease',
+    photo: '/relay/lease.jpg',
     source: { kind: 'leaver', leaver: 'sam' },
     title: "Sam's lease",
     quote: 'Ask for 13 months. They gave me one month free.',
@@ -266,6 +285,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'hmart',
+    photo: '/relay/hmart.jpg',
     source: { kind: 'leaver', leaver: 'mina' },
     title: "Mina's grocery",
     quote: 'Get the big rice bag here and split it with a friend.',
@@ -277,6 +297,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'esim',
+    photo: '/relay/esim.jpg',
     source: { kind: 'leaver', leaver: 'mina' },
     title: "Mina's phone plan",
     quote: 'Get an eSIM before you land. I had data at JFK.',
@@ -286,6 +307,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'say-yes',
+    photo: '/relay/say-yes.jpg',
     source: { kind: 'leaver', leaver: 'mina' },
     title: "Mina's first friends",
     quote: 'I said yes to every invite for two months.',
@@ -295,6 +317,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'listings',
+    photo: '/relay/listings.jpg',
     source: { kind: 'leaver', leaver: 'mina' },
     title: "Mina's apartment hunt",
     quote: 'Look on Monday mornings. The good ones are gone by Wednesday.',
@@ -304,6 +327,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'bridge',
+    photo: '/relay/bridge.jpg',
     source: { kind: 'leaver', leaver: 'theo' },
     title: "Theo's bike route",
     quote: 'Take the Williamsburg Bridge, not the Manhattan. Less traffic, better view.',
@@ -315,6 +339,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'climbing',
+    photo: '/relay/climbing.jpg',
     source: { kind: 'leaver', leaver: 'theo' },
     title: "Theo's climbing gym",
     quote: 'The off-peak pass is half price before 4 pm.',
@@ -326,6 +351,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'blick',
+    photo: '/relay/blick.jpg',
     source: { kind: 'leaver', leaver: 'theo' },
     title: "Theo's art store",
     quote: 'Bring your student ID. They still gave me the discount.',
@@ -337,6 +363,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'diner',
+    photo: '/relay/diner.jpg',
     source: { kind: 'leaver', leaver: 'theo' },
     title: "Theo's diner",
     quote: 'Two eggs, toast and coffee for under $10. They knew my order by week three.',
