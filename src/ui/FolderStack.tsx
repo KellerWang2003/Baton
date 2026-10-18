@@ -119,7 +119,7 @@ const SCROLL_TRAVEL_PER_FOLDER = 180
 // - Trackpad and mouse wheel step one folder per WHEEL_STEP of scrolling.
 const MOVE_SLOP = 8
 const FLICK_MS = 250
-const DRAG_PX_PER_FOLDER = 80
+const DRAG_PX_PER_FOLDER = 100
 const WHEEL_STEP = 80
 const WHEEL_QUIET_MS = 160
 
