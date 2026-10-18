@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { goBack } from '../app/navigate'
-import { dailyPrompt, pages } from '../data/pages'
+import { useDailyPrompt } from '../app/store'
+import { pages } from '../data/pages'
 import { CameraIcon, ListSection, Screen, TextArea, VisibilityBadge } from '../ui'
 
 const copy = pages.capture
@@ -9,6 +10,7 @@ const copy = pages.capture
 // write a short reflection. Opened from the + button and the prompt card.
 // Nothing is stored yet; Save just goes back.
 export function Capture() {
+  const dailyPrompt = useDailyPrompt()
   const [photos, setPhotos] = useState<string[]>([])
   const [text, setText] = useState('')
   const photosRef = useRef(photos)

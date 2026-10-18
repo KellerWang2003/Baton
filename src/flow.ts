@@ -5,12 +5,13 @@ import { Capture } from './screens/Capture'
 import { Community } from './screens/Community'
 import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
+import { LeaveDate } from './screens/LeaveDate'
 import { PhotoAccess } from './screens/PhotoAccess'
 import { Places } from './screens/Places'
 import { Profile } from './screens/Profile'
 import { SignUp } from './screens/SignUp'
 import { Splash } from './screens/Splash'
-import { Today } from './screens/Today'
+import { Today, TodayLastWeek } from './screens/Today'
 import { Todos } from './screens/Todos'
 
 export type Stage = 'moving' | 'newcomer' | 'local'
@@ -20,6 +21,8 @@ export type FlowScreen = {
   title: string
   stage: Stage
   component: ComponentType
+  // Tab this screen shows under, when it isn't a tab itself (a Today variant)
+  tab?: string
 }
 
 // The hero flow, in order. Add screens here as they are built; the debug panel,
@@ -35,11 +38,14 @@ export const flow: FlowScreen[] = [
   { id: 'today', title: 'Today', stage: 'moving', component: Today },
   { id: 'setup-archive', title: 'Setup: organize archive', stage: 'moving', component: Places },
   { id: 'setup-todos', title: 'Setup: logistics to-dos', stage: 'moving', component: Todos },
+  { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate },
   { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
   { id: 'community', title: 'Community', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
+  // 6. Last week in LA: Today shows the legacy card
+  { id: 'today-last-week', title: 'Today: last week in LA', stage: 'moving', component: TodayLastWeek, tab: 'today' },
 ]
 
 export const stageLabels: Record<Stage, string> = {

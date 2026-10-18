@@ -181,8 +181,3 @@ export const setup = {
     instagram: { title: 'Add your Instagram tag', subtitle: 'So friends can leave you notes' },
   },
 }
-
-export const todayTodos = {
-  header: (status: 'moving' | 'newcomer', date: string) => (status === 'moving' ? `Before ${date}` : 'Settling in'),
-  footer: "Tap one when it's done.",
-}

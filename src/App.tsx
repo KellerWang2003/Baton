@@ -12,8 +12,8 @@ function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
   const [kitOpen, setKitOpen] = useState(false)
-  const { id, component: CurrentScreen, stage } = flow[index]
-  const isTab = tabs.some((tab) => tab.id === id)
+  const { id, component: CurrentScreen, stage, tab } = flow[index]
+  const activeTab = tab ?? (tabs.some((t) => t.id === id) ? id : null)
 
   // Picking a screen from the debug panel closes the design system view.
   const goToScreen = (next: number) => {
@@ -27,9 +27,9 @@ function App() {
         <div data-stage={stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />
-          ) : isTab ? (
+          ) : activeTab ? (
             // One tab bar for all tab pages, so switching tabs doesn't remount it
-            <TabShell activeTab={id}>
+            <TabShell activeTab={activeTab}>
               <CurrentScreen />
             </TabShell>
           ) : (

@@ -16,7 +16,7 @@ type BottomSheetProps = {
 // dimmed area closes it. Covers the nearest positioned ancestor (the app screen).
 export function BottomSheet({ open, onClose, title, detent = 'medium', action, children }: BottomSheetProps) {
   return (
-    <div className={cx('absolute inset-0 z-40 flex flex-col justify-end', !open && 'pointer-events-none')} inert={!open}>
+    <div className={cx('absolute inset-0 z-40 flex flex-col justify-end overflow-hidden', !open && 'pointer-events-none')} inert={!open}>
       <div
         onClick={onClose}
         className={cx('absolute inset-0 bg-scrim transition-opacity duration-300', open ? 'opacity-100' : 'opacity-0')}

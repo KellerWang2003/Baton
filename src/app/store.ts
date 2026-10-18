@@ -1,10 +1,12 @@
 import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
+import { dailyPrompts } from '../data/pages'
+import { leave } from '../data/today'
 import type { Stage } from '../flow'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
 // that show up on Today). Nothing persists; a reload starts fresh.
-export type SetupItem = 'archive' | 'todos' | 'instagram'
+export type SetupItem = 'archive' | 'todos' | 'leave' | 'instagram'
 
 type State = {
   status: Stage | null
@@ -14,6 +16,15 @@ type State = {
   todos: string[] | null
   doneTodos: string[]
   instagram: string
+  // When she leaves LA: her flight, or just a date she imagines (ISO date)
+  leaveMode: 'flight' | 'date'
+  flight: string
+  leaveDate: string
+  // Today's prompt: which one is showing, and whether she skipped it
+  promptIndex: number
+  promptSkipped: boolean
+  // Which Archive segment opens (the legacy card on Today opens Legacy)
+  archiveSegment: 'mine' | 'legacy'
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -28,6 +39,12 @@ let state: State = {
   todos: null,
   doneTodos: [],
   instagram: '',
+  leaveMode: 'flight',
+  flight: '',
+  leaveDate: leave.defaultDate,
+  promptIndex: 0,
+  promptSkipped: false,
+  archiveSegment: 'mine',
   setupDone: [],
   composing: false,
   reflections: [],
@@ -63,4 +80,11 @@ export function completeSetup(item: SetupItem) {
 // Status for screens opened directly (debug panel): Chloe starts as Moving.
 export function useStatus(): Stage {
   return useStore().status ?? 'moving'
+}
+
+// Today's prompt for her stage (also shown above the + field while typing).
+export function useDailyPrompt() {
+  const { promptIndex } = useStore()
+  const prompts = dailyPrompts[useStatus()]
+  return prompts[promptIndex % prompts.length]
 }

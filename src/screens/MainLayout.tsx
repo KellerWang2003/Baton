@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer, registerComposerField } from '../app/composer'
 import { navigate } from '../app/navigate'
-import { setState, useStore } from '../app/store'
+import { setState, useDailyPrompt, useStore } from '../app/store'
 import { useKeyboardInset } from '../app/useKeyboardInset'
-import { dailyPrompt, pages, tabs } from '../data/pages'
+import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
 import { ArchiveIcon, Avatar, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
@@ -48,6 +48,7 @@ export function MainLayout({ title, children }: MainLayoutProps) {
 // Tapping + turns it into a text field for today's prompt, right in the tab bar.
 export function TabShell({ activeTab, children }: TabShellProps) {
   const { composing } = useStore()
+  const dailyPrompt = useDailyPrompt()
   const [toast, setToast] = useState(false)
   const keyboard = useKeyboardInset()
 

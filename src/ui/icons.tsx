@@ -150,3 +150,38 @@ export function SmallCameraIcon() {
     </Icon>
   )
 }
+
+// Small icons for the setup cards on Today
+export function PlaneIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M10.5 13.5L3 11l1.5-1.5 7.5 1 4.5-4.5a2.1 2.1 0 0 1 3 3L15 13.5l1 7.5-1.5 1.5-2.5-7.5-3.5 3.5V21l-1.5-1.5-1-2.5-2.5-1L3 14.5h2.5z" />
+    </Icon>
+  )
+}
+
+export function ListIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01" />
+    </Icon>
+  )
+}
+
+export function AtIcon() {
+  return (
+    <Icon className="size-5">
+      <circle cx="12" cy="12" r="3.5" />
+      <path d="M15.5 12v1.5a2.5 2.5 0 0 0 5 0V12a8.5 8.5 0 1 0-3.3 6.7" />
+    </Icon>
+  )
+}
+
+export function StackIcon() {
+  return (
+    <Icon className="size-5">
+      <rect x="3" y="4" width="18" height="5" rx="1.5" />
+      <path d="M5 9v9.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V9M10 13h4" />
+    </Icon>
+  )
+}

@@ -39,9 +39,53 @@ export const pages = {
   },
 }
 
-// Today's light prompt (from prompts/daily-prompts.md, Moving stage).
-export const dailyPrompt = {
-  seed: "You're at your usual café again.",
-  question: 'The view from where you always stand.',
-  detail: 'Take it from your usual seat, not your best angle.',
+export type DailyPrompt = { seed: string; question: string; detail: string }
+
+// Today's light prompts per stage, in the plain verb-first wording from
+// docs/daily-prompts.md. The first one shows by default; "Another one" moves
+// to the next. Moving and Local open with the café bookend.
+export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]> = {
+  moving: [
+    {
+      seed: "You're at Lake Ave Café again.",
+      question: 'Take a photo of the view from the café seat you always sit in.',
+      detail: 'From your usual seat, not your best angle.',
+    },
+    {
+      seed: 'Your most-visited place.',
+      question: 'Write one tip about this place that took you months to learn.',
+      detail: 'Like when it gets quiet, or which outlet works.',
+    },
+    {
+      seed: 'Evening at the studio.',
+      question: 'Take a photo of your desk right now, without tidying it.',
+      detail: 'Top-down is fine.',
+    },
+  ],
+  newcomer: [
+    {
+      seed: 'Your first week in New York.',
+      question: 'Write one thing that confused you today.',
+      detail: 'One line is enough.',
+    },
+    {
+      seed: 'Your first week in New York.',
+      question: 'Take a photo of your coffee order here and say how it’s different from LA.',
+      detail: 'A photo and one line.',
+    },
+  ],
+  local: [
+    {
+      seed: "You're at your usual café again.",
+      question: 'Take a photo of the view from the café seat you always sit in.',
+      detail: "You took this one in LA too. We'll show them side by side.",
+    },
+    {
+      seed: 'Your 30th visit here.',
+      question: 'Write when this place stopped feeling new.',
+      detail: 'One line is enough.',
+    },
+  ],
 }
+
+export const promptActions = { answer: 'Answer', skip: 'Not today', another: 'Another one', skipped: 'No prompt today. See you tomorrow.' }
