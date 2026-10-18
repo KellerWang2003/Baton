@@ -103,14 +103,20 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
         className="pointer-events-none absolute inset-0 z-20"
       >
-        {/* While typing: a blue gradient over the page, clear at the top so
-            the page still shows there, and blurred and deeper toward the field */}
+        {/* While typing: a light blur over the whole page (a blur that faded
+            out made a hard edge), under a blue gradient that's clear at the
+            top and deeper toward the field */}
         <div
           onClick={() => setState({ composing: false })}
-          className={`absolute inset-0 z-20 transition-opacity duration-300 ${composing ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+          className={`absolute inset-0 z-20 ${composing ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
-          <div className="absolute inset-0 backdrop-blur-lg [mask-image:linear-gradient(to_bottom,transparent_8%,black_32%)]" />
-          <div className="absolute inset-0 bg-linear-to-b from-baton-blue/0 from-5% via-baton-blue/45 via-50% to-baton-blue/90" />
+          {/* The blur itself eases in and out, so it doesn't land all at once */}
+          <div
+            className={`absolute inset-0 transition-[backdrop-filter] duration-500 ease-out ${composing ? 'backdrop-blur-[6px]' : 'backdrop-blur-[0px]'}`}
+          />
+          <div
+            className={`absolute inset-0 bg-linear-to-b from-baton-blue/0 from-5% via-baton-blue/45 via-50% to-baton-blue/90 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
+          />
         </div>
 
         {/* Rides on top of the keyboard on phones */}
