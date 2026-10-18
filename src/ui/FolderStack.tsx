@@ -48,14 +48,25 @@ const toneStyles: Record<
   },
 }
 
+// Folder tab outline, traced from the Union shapes in the Figma Archive frame
+// (LA28 Palms, 256:196): a long sloped left side, a nearly vertical right side,
+// both with soft rounded turns. The right-aligned tab runs straight into the
+// folder's right edge, so its outline also draws that corner.
+const TAB_PATH =
+  'M0 52C6.2252 52 11.8852 48.3893 14.5092 42.7441L30.0751 9.2559C32.6991 3.6108 38.3587 0 44.5839 0H180.786C189.336 0 196.376 6.7238 196.769 15.2656L197.756 36.7347C198.148 45.2765 205.188 52 213.739 52V53H0Z'
+const TAB_WIDTH = 214
+const EDGE_TAB_PATH =
+  'M0 52C6.2256 52 11.886 48.3893 14.51 42.7441L30.0756 9.2559C32.6996 3.6108 38.3586 0 44.584 0H180.787C189.337 0 196.377 6.7238 196.77 15.2656L197.807 37.8199C198.171 45.7545 204.71 52 212.653 52C220.862 52 227.516 58.6542 227.516 66.8625V68H0Z'
+const EDGE_TAB_WIDTH = 227.516
+
 const tabPositionStyles: Record<ArchiveFolder['tabAlign'], string> = {
-  left: 'ml-6 mr-auto',
+  left: 'ml-[30px] mr-auto',
   center: 'mx-auto',
-  right: 'ml-auto mr-6',
+  right: 'ml-auto',
 }
 
 // Each folder body extends 96px underneath the folder in front of it so the
-// lower folder's 24px rounded top corners always sit over the solid body of
+// lower folder's 16px rounded top corners always sit over the solid body of
 // the folder behind it (never exposing the canvas background or a sharp seam).
 const TAB_HEIGHT = 52
 const UNDERLAP_SKIRT = 96
@@ -217,6 +228,7 @@ export function FolderStack({ folders, onSelect, renderActive, className }: Fold
           const isLast = index === folders.length - 1
           const isActive = index === activeIndex
           const styles = toneStyles[folder.tone]
+          const isEdgeTab = folder.tabAlign === 'right'
 
           const stepHeight = isActive ? ACTIVE_STEP_HEIGHT : COMPACT_STEP_HEIGHT
           // Each non-last folder has height = stepHeight + UNDERLAP_SKIRT (96px),
@@ -257,45 +269,37 @@ export function FolderStack({ folders, onSelect, renderActive, className }: Fold
                 index > 0 && 'drop-shadow-[0_-8px_18px_rgb(0_0_0/0.12)]',
               )}
             >
-              {/* Protruding folder tab with sloped sides and concave shoulder fillets */}
+              {/* Protruding folder tab, same outline as the Figma frame */}
               <div
-                className={cx(
-                  'relative -mb-px flex h-[52px] items-stretch',
-                  tabPositionStyles[folder.tabAlign],
-                )}
+                style={{ width: `${isEdgeTab ? EDGE_TAB_WIDTH : TAB_WIDTH}px` }}
+                className={cx('relative z-10 -mb-px h-[52px] shrink-0', tabPositionStyles[folder.tabAlign])}
               >
                 <svg
-                  viewBox="0 0 28 52"
+                  width={isEdgeTab ? EDGE_TAB_WIDTH : TAB_WIDTH}
+                  height={isEdgeTab ? 68 : 53}
+                  viewBox={`0 0 ${isEdgeTab ? EDGE_TAB_WIDTH : TAB_WIDTH} ${isEdgeTab ? 68 : 53}`}
                   aria-hidden="true"
-                  className={cx('h-[52px] w-7 shrink-0 fill-current', styles.fillText)}
+                  className={cx('absolute top-0 left-0 overflow-visible fill-current', styles.fillText)}
                 >
-                  <path d="M 0 52 C 10 52, 12 46, 14 36 L 17 16 C 18.5 6, 22 0, 28 0 L 28 52 Z" />
+                  <path d={isEdgeTab ? EDGE_TAB_PATH : TAB_PATH} />
                 </svg>
-                <div
+                <span
                   className={cx(
-                    '-mx-px flex min-w-[144px] items-center justify-center px-3 pt-1',
-                    styles.fill,
+                    'absolute top-0 left-0 flex h-[52px] w-[220px] items-center justify-center pt-1.5 font-display text-large-title font-medium tracking-tight',
+                    styles.title,
                   )}
                 >
-                  <span className={cx('font-display text-large-title font-medium tracking-tight', styles.title)}>
-                    {folder.city}
-                  </span>
-                </div>
-                <svg
-                  viewBox="0 0 28 52"
-                  aria-hidden="true"
-                  className={cx('h-[52px] w-7 shrink-0 fill-current', styles.fillText)}
-                >
-                  <path d="M 28 52 C 18 52, 16 46, 14 36 L 11 16 C 9.5 6, 6 0, 0 0 L 0 52 Z" />
-                </svg>
+                  {folder.city}
+                </span>
               </div>
 
               {/* Folder body with deep bottom skirt so rounded corners of the next folder never reveal a gap */}
               <div
                 style={{ height: `${bodyHeight}px` }}
                 className={cx(
-                  'flex w-full flex-col overflow-hidden rounded-t-card px-7 pt-4 transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  'flex w-full flex-col overflow-hidden rounded-t-tile px-7 pt-4 transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
                   styles.fill,
+                  isEdgeTab && 'rounded-tr-none',
                   isLast && '-mb-[220px]',
                 )}
               >
