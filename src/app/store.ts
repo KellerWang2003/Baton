@@ -3,6 +3,7 @@ import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
+import type { PromptGlass } from '../ui/promptGlass'
 import type { RelayLook } from '../ui/relayLooks'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
@@ -34,6 +35,8 @@ type State = {
   relayFilter: string | null
   // Visual treatment for Relay, picked in the team-only Relay looks playground
   relayLook: RelayLook
+  // How Today's prompt circle is drawn, picked in the team-only Today looks playground
+  promptGlass: PromptGlass
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -59,6 +62,7 @@ let state: State = {
   relayFilter: null,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
+  promptGlass: 'css',
   setupDone: [],
   composing: false,
   reflections: [],

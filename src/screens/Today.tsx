@@ -6,7 +6,7 @@ import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
-import { promptMedium, promptMediumLabel } from '../data/pages'
+import { promptGlassMedia, promptMedium, promptMediumLabel } from '../data/pages'
 import { todayCards } from '../data/stages'
 import {
   allTodos,
@@ -51,7 +51,7 @@ type TodayProps = {
 // list of cards: the legacy card in her last week in LA, her to-dos (tap for
 // tips) and suggestions for her stage.
 export function Today({ lastWeek = false }: TodayProps) {
-  const { todos, doneTodos, setupDone, keptPlaces, ...store } = useStore()
+  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
@@ -97,6 +97,8 @@ export function Today({ lastWeek = false }: TodayProps) {
         seed={prompt.seed}
         medium={medium}
         mediumLabel={promptMediumLabel[medium]}
+        glass={promptGlass}
+        media={promptGlassMedia}
         onClick={openComposer}
       />
 
