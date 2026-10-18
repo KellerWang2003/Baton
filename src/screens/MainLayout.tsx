@@ -103,19 +103,22 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
         className="pointer-events-none absolute inset-0 z-20"
       >
-        {/* While typing: a light blur over the whole page (a blur that faded
-            out made a hard edge), under a blue gradient that's clear at the
-            top and deeper toward the field */}
+        {/* While typing: a heavy blur over the whole page, so nothing behind
+            can be read, under a blue gradient deepening toward the field */}
         <div
           onClick={() => setState({ composing: false })}
           className={`absolute inset-0 z-20 ${composing ? 'pointer-events-auto' : 'pointer-events-none'}`}
         >
           {/* The blur itself eases in and out, so it doesn't land all at once */}
           <div
-            className={`absolute inset-0 transition-[backdrop-filter] duration-500 ease-out ${composing ? 'backdrop-blur-[6px]' : 'backdrop-blur-[0px]'}`}
+            className={`absolute inset-0 transition-[backdrop-filter] duration-500 ease-out ${composing ? 'backdrop-blur-[24px]' : 'backdrop-blur-[0px]'}`}
+          />
+          {/* A light white tint, so the page behind reads even less */}
+          <div
+            className={`absolute inset-0 bg-surface/35 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
           />
           <div
-            className={`absolute inset-0 bg-linear-to-b from-baton-blue/0 from-5% via-baton-blue/45 via-50% to-baton-blue/90 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 bg-linear-to-b from-baton-blue/60 via-baton-blue/70 via-50% to-baton-blue/95 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
           />
         </div>
 
@@ -126,8 +129,8 @@ export function TabShell({ activeTab, children }: TabShellProps) {
           <div
             className={`mx-4 mb-3 flex flex-col gap-1 px-1 transition duration-300 ${composing ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
           >
-            <p className="font-display text-title-3 font-semibold text-ink">{dailyPrompt.question}</p>
-            <p className="flex items-center gap-1 text-footnote text-ink-muted">
+            <p className="font-display text-title-1 font-semibold text-ink">{dailyPrompt.question}</p>
+            <p className="flex items-center gap-1.5 text-subhead font-medium text-ink">
               <MapPinIcon className="size-4 shrink-0" />
               {dailyPrompt.seed}
             </p>
