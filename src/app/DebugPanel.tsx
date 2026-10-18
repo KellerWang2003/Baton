@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
+import { stageNames } from '../data/stages'
 import { cx } from '../ui'
+import { setState, useStatus } from './store'
 
 type DebugPanelProps = {
   index: number
@@ -16,10 +18,11 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 
 // Team-only controls, not part of the app. Closed by default: open it from the
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
-// or add ?debug to the URL. ← → move between screens and F toggles
-// the phone frame even while the panel is closed.
+// or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
+// and F toggles the phone frame even while the panel is closed.
 export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
+  const status = useStatus()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -32,6 +35,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
       else if (event.key === 'ArrowRight') goTo(index + 1)
       else if (event.key === 'ArrowLeft') goTo(index - 1)
       else if (event.key === 'f') toggleFrame()
+      else if (['1', '2', '3'].includes(event.key)) setState({ status: stages[Number(event.key) - 1] })
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -81,7 +85,30 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
         </button>
       </header>
 
-      <div className="flex flex-col gap-1">
+      {/* Chloe's stage: Today, Archive, Community and Profile follow it */}
+      <div className="flex flex-col gap-1.5">
+        <p className="px-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Chloe's stage</p>
+        <div role="radiogroup" aria-label="Chloe's stage" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+          {stages.map((stage) => (
+            <button
+              key={stage}
+              type="button"
+              role="radio"
+              aria-checked={status === stage}
+              data-stage={stage}
+              onClick={() => setState({ status: stage })}
+              className={cx(
+                'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
+                status === stage ? 'bg-stage text-on-stage' : 'text-ink hover:bg-surface',
+              )}
+            >
+              {stageNames[stage]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-1 border-t border-line pt-3">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
       </div>
@@ -108,7 +135,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
         })}
       </nav>
 
-      <p className="border-t border-line pt-2 text-xs text-ink-muted">` panel · ← → screens · F frame</p>
+      <p className="border-t border-line pt-2 text-xs text-ink-muted">` panel · ← → screens · 1 2 3 stage · F frame</p>
     </aside>
   )
 }
