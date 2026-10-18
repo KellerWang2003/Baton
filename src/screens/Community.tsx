@@ -40,12 +40,15 @@ export function Community() {
   const [query, setQuery] = useState('')
   const [pinned, setPinned] = useState<string | null>(null)
   const dragFrom = useRef<number | null>(null)
+  const listRef = useRef<HTMLDivElement>(null)
   const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
   const setCategory = (id: RelayCategory | null) => {
     setState({ relayFilter: id })
     setPinned(null)
   }
   const showMap = (on: boolean) => {
+    // The sheet slides down showing its top (filters and first heading), wherever the list was scrolled
+    if (on) listRef.current?.scrollTo({ top: 0, behavior: 'smooth' })
     setState({ relayMap: on })
     setPinned(null)
   }
@@ -96,10 +99,13 @@ export function Community() {
               className="absolute inset-0 z-10 touch-none rounded-t-map-sheet"
             />
           )}
-          <div className={cx(
+          <div
+            ref={listRef}
+            className={cx(
               'flex h-full flex-col gap-10 px-6 pb-44 transition-[padding] duration-500',
               mapOpen ? 'overflow-hidden pt-6' : 'overflow-y-auto pt-4',
-            )}>
+            )}
+          >
             {/* Category filters, with search at the end */}
             <div className="-mb-4 flex flex-col gap-3">
               <div className="-mx-6 flex items-center gap-[26px] pr-6">
