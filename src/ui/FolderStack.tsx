@@ -14,6 +14,8 @@ export type ArchiveFolder = {
 type FolderStackProps = {
   folders: ArchiveFolder[]
   onSelect?: (id: string) => void
+  // Folder that starts open (the first one if missing)
+  initialId?: string
   // Extra content under the dates of the open folder (the lifestyle summary)
   renderActive?: (folder: ArchiveFolder, isActive: boolean) => ReactNode
   // Shown once, centered at the bottom of the last folder just above the tab
@@ -131,7 +133,7 @@ function tick(ms = 8) {
 // - Each folder keeps its own fixed color tone.
 // - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
 // - Flick to turn one folder, drag to step through them (see above).
-export function FolderStack({ folders, onSelect, renderActive, footer, className }: FolderStackProps) {
+export function FolderStack({ folders, onSelect, initialId, renderActive, footer, className }: FolderStackProps) {
   const wheelTimerRef = useRef<number | null>(null)
   const wheelAccumRef = useRef(0)
   const dragStateRef = useRef<{
@@ -143,7 +145,9 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
     moved: boolean
   }>({ active: false, pointerId: -1, startY: 0, startTime: 0, startIndex: 0, moved: false })
 
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
+  )
   // Small stretch in px when pushing past the first or last folder:
   // > 0 pulls the folders DOWN (compress against the bottom),
   // < 0 pulls them UP (compress against the top)
@@ -233,7 +237,7 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
 
   // Since 3 folders fit in the viewport at any time (1 active + 2 compact),
   // scrolling from top to bottom shifts the stack up by (N - 3) compact steps
-  // so at scrollProgress = 1 the last folder (Busan) is framed with the 2
+  // so at scrollProgress = 1 the last folder is framed with the 2
   // folders above it and bleeds cleanly to the bottom edge.
   const maxStackShift = Math.max(0, folders.length - VISIBLE_FOLDERS) * COMPACT_STEP_HEIGHT
   const stackShiftY = -scrollProgress * maxStackShift

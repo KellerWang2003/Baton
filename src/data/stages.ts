@@ -82,10 +82,11 @@ export const todayCards: Record<Stage, StageCard[]> = {
   ],
 }
 
-// Archive folders: while Moving, LA is the open folder and New York doesn't
-// exist yet. After the move, New York opens on top and LA becomes a legacy.
-// Each city keeps its color in every stage (New York's navy is used by no
-// other city). Tab positions belong to the slot, so tabs still zigzag.
+// Archive folders, top to bottom NYC, LA, Seoul (Figma ARCHIVE_0, 256:196).
+// While Moving, New York doesn't exist yet. After the move New York sits on
+// top and LA, now her legacy, stays the open folder. Each city keeps its color
+// in every stage (NYC olive, LA blue, Seoul cream). Tab positions belong to
+// the slot, so tabs still zigzag.
 export function archiveFolders(stage: Stage): ArchiveFolder[] {
   const slots = pages.archive.folders
   if (stage !== 'moving') return slots
@@ -146,18 +147,9 @@ export const archiveSummaries: Record<string, Partial<Record<Stage, ArchiveSumma
   seoul: {
     newcomer: { parts: ['Convenience-store dinners', [photo('Dinner from the GS25 downstairs')], 'and the last train home.'] },
   },
-  chicago: {
-    newcomer: { parts: ['Your first real winter', [photo('Snow on the lakefront')], 'and a lot of deep-dish.'] },
-  },
-  taipei: {
-    newcomer: { parts: ['Night markets', [photo('Shilin night market')], 'every Friday, rain or not.'] },
-  },
-  busan: {
-    newcomer: { parts: ['Beach walks', [photo('Haeundae at dusk')], 'after school.'] },
-  },
 }
 
-// Older cities don't change with her stage, so they fall back to one summary.
+// Seoul doesn't change with her stage, so it falls back to one summary.
 export function archiveSummary(folderId: string, stage: Stage): ArchiveSummary | undefined {
   const byStage = archiveSummaries[folderId]
   return byStage?.[stage] ?? byStage?.newcomer

@@ -5,17 +5,20 @@ import { BatonMark, FolderStack, TypedSummary } from '../ui'
 import { MainLayout } from './MainLayout'
 
 
-// City folders. Her stage decides which city is open: LA while Moving,
-// New York after the move (LA becomes her legacy). The open folder shows a
+// City folders, LA open first in every stage (after the move it's her
+// legacy, with New York stacked above it). The open folder shows a
 // one-sentence lifestyle summary of that city with photos from her archive.
 export function Archive() {
   const status = useStatus()
 
   return (
     <MainLayout bleed>
+      {/* Remounts on a stage change so LA opens again */}
       <FolderStack
+        key={status}
         className="bg-baton-paper"
         folders={archiveFolders(status)}
+        initialId="la"
         onSelect={(id) => {
           setState({ selectedFolder: id })
           navigate('archive-detail')
