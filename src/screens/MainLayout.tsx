@@ -38,9 +38,17 @@ const tabIcons: Record<string, ReactNode> = {
 // Pushed pages (Profile) use Screen directly, without the tab bar.
 export function MainLayout({ title, subtitle, children, bleed = false, profile = false, background }: MainLayoutProps) {
   const greeting = title && (
-    <header className="pr-12 pb-2 pt-3">
-      <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>
-      {subtitle && <p className="font-display text-title-3 text-ink-muted">{subtitle}</p>}
+    // One sentence in one style, the second part on its own line (Figma TODAY 236:1282)
+    <header className="pr-14 pb-2 pt-3">
+      <h1 className="font-display text-title-1 font-normal text-baton-navy">
+        {title}
+        {subtitle && (
+          <>
+            <br />
+            {subtitle}
+          </>
+        )}
+      </h1>
     </header>
   )
 

@@ -20,8 +20,15 @@ export function timeOfDay(date = new Date()): TimeOfDay {
   return 'evening'
 }
 
-// daysLeft: days until she leaves LA (Moving only)
+// daysLeft: days until she leaves LA (Moving only). Today shows title and
+// subtitle as one sentence over two lines ("Afternoon, Chloe,\nWhat's today
+// look like?"), so the title ends in a comma when a subtitle follows.
 export function greeting(stage: Stage, time: TimeOfDay, daysLeft: number): Greeting {
+  const hello = parts(stage, time, daysLeft)
+  return hello.subtitle ? { ...hello, title: hello.title.replace(/\.$/, ',') } : hello
+}
+
+function parts(stage: Stage, time: TimeOfDay, daysLeft: number): Greeting {
   const name = chloe.name.split(' ')[0]
   const title = `${hello[time]}, ${name}.`
 

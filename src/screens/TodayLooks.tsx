@@ -64,8 +64,15 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                 <div className="px-4 pt-14">
                   <header className="flex items-start gap-3 pb-2">
                     <div className="min-w-0 flex-1">
-                      <h3 className="font-display text-large-title font-bold text-ink">{hello.title}</h3>
-                      {hello.subtitle && <p className="font-display text-title-3 text-ink-muted">{hello.subtitle}</p>}
+                      <h3 className="font-display text-title-1 font-normal text-baton-navy">
+                        {hello.title}
+                        {hello.subtitle && (
+                          <>
+                            <br />
+                            {hello.subtitle}
+                          </>
+                        )}
+                      </h3>
                     </div>
                     <span className="rounded-full shadow-float">
                       <Avatar name={chloe.name} size="sm" />
