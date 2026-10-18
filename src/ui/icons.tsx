@@ -207,3 +207,11 @@ export function NoteIcon({ className = 'size-4' }: { className?: string }) {
     </Icon>
   )
 }
+
+export function MapIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M9 4.5 3.5 6.5v13l5.5-2 6 2 5.5-2v-13l-5.5 2-6-2zM9 4.5v13M15 6.5v13" />
+    </Icon>
+  )
+}

@@ -28,6 +28,9 @@ type State = {
   selectedRec: string | null
   // Notes she left on Relay picks and tips, by item id
   relayNotes: Record<string, string[]>
+  // Relay shows the map (list slid down), and the picked category filter
+  relayMap: boolean
+  relayFilter: string | null
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -49,6 +52,8 @@ let state: State = {
   selectedFolder: null,
   selectedRec: null,
   relayNotes: {},
+  relayMap: false,
+  relayFilter: null,
   setupDone: [],
   composing: false,
   reflections: [],

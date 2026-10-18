@@ -30,6 +30,8 @@ export { TextArea, TextField } from './TextField'
 export { TypedSummary } from './TypedSummary'
 export type { SummaryPart } from './TypedSummary'
 export { VisibilityBadge } from './VisibilityBadge'
+export { CityMap } from './CityMap'
+export type { MapPin } from './CityMap'
 export { cx } from './cx'
 export {
   ArchiveIcon,
@@ -46,6 +48,7 @@ export {
   SearchIcon,
   HomeGraphic,
   ListIcon,
+  MapIcon,
   MapPinIcon,
   NoteIcon,
   PhotosIcon,
