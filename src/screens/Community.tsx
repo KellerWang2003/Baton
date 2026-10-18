@@ -43,6 +43,8 @@ export function Community() {
   const [query, setQuery] = useState('')
   const [pinned, setPinned] = useState<string | null>(null)
   const dragFrom = useRef<number | null>(null)
+  // How far the sheet is being pulled up right now (negative), while a finger is on it
+  const [pull, setPull] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
   const setCategory = (id: RelayCategory | null) => {
@@ -91,10 +93,12 @@ export function Community() {
 
         {/* Everything, filters included, is one sheet: slid down to a peek above the tab bar while the map shows */}
         <div
-          style={{ transform: mapOpen ? 'translateY(calc(100% - 293px))' : 'translateY(0)' }}
+          style={{ transform: mapOpen ? `translateY(calc(100% - 293px + ${pull ?? 0}px))` : 'translateY(0)' }}
           className={cx(
-            'absolute inset-0 z-10 bg-baton-paper transition-[transform,border-radius] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
-            mapOpen && 'rounded-t-map-sheet',
+            'absolute inset-0 z-10 bg-baton-paper ease-[cubic-bezier(0.32,0.72,0,1)]',
+            // Follows the finger while pulled, glides otherwise
+            pull === null && 'transition-[transform,border-radius,box-shadow] duration-500',
+            mapOpen && 'rounded-t-map-sheet shadow-sheet',
           )}
         >
           {mapOpen && (
@@ -102,14 +106,28 @@ export function Community() {
             <button
               type="button"
               aria-label="Show the list"
-              onClick={() => showMap(false)}
               onPointerDown={(event) => {
                 dragFrom.current = event.clientY
                 event.currentTarget.setPointerCapture(event.pointerId)
+                setPull(0)
+              }}
+              onPointerMove={(event) => {
+                if (dragFrom.current !== null) setPull(Math.min(0, event.clientY - dragFrom.current))
               }}
               onPointerUp={(event) => {
-                if (dragFrom.current !== null && dragFrom.current - event.clientY > 24) showMap(false)
+                const moved = dragFrom.current === null ? 0 : dragFrom.current - event.clientY
                 dragFrom.current = null
+                setPull(null)
+                // A swipe up, or a plain tap, brings the list back; a small nudge snaps back down
+                if (moved > 40 || Math.abs(moved) < 6) showMap(false)
+              }}
+              onPointerCancel={() => {
+                dragFrom.current = null
+                setPull(null)
+              }}
+              // Two-finger swipe up on a trackpad
+              onWheel={(event) => {
+                if (event.deltaY > 12) showMap(false)
               }}
               className="absolute inset-0 z-10 touch-none rounded-t-map-sheet"
             />

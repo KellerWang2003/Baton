@@ -151,6 +151,7 @@
   /* Depth */
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
   --shadow-float: 0 8px 32px rgb(0 0 0 / 0.16);
+  --shadow-sheet: 0 -4px 20px rgb(0 0 0 / 0.08); /* Relay list resting over the map */
   --shadow-glass: 0 2px 12px rgb(0 0 0 / 0.06); /* tab bar: light, the blur does the work */
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
 }
