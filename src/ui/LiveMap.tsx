@@ -55,11 +55,10 @@ function createMap(
   const instance = new maplibregl.Map({
     container: element,
     style: buildMapStyle(palette),
-    bounds: [
-      [-74.012, 40.668],
-      [-73.952, 40.745],
-    ],
-    fitBoundsOptions: { padding: { top: 24, left: 24, right: 24, bottom: 24 + coverBottom } },
+    // Opens on the East Village and Union Square, where most pins are, zoomed in far enough that the pins show
+    // their names (Keller, Oct 18); the sheet's peek is kept out of the middle
+    center: [-73.9895, 40.7295],
+    zoom: 13.55,
     maxBounds: nycBounds,
     minZoom: 10.5,
     maxZoom: 18,
@@ -70,6 +69,7 @@ function createMap(
   // Map credits as a small (i), moved to the top when a sheet covers the bottom
   instance.addControl(new maplibregl.AttributionControl({ compact: true }), coverBottom ? 'top-right' : 'bottom-right')
   instance.touchZoomRotate.disableRotation()
+  if (coverBottom) instance.setPadding({ top: 0, left: 0, right: 0, bottom: coverBottom })
   instance.on('load', () => {
     // Credits start folded into the small (i)
     element.querySelector('.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show')
