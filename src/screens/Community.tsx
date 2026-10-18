@@ -20,6 +20,9 @@ import { MainLayout } from './MainLayout'
 // The map library is big, so it loads with Relay's map, not the whole app
 const LiveMap = lazy(() => import('../ui/LiveMap').then((m) => ({ default: m.LiveMap })))
 
+// How much of the sheet shows over the map: just the filters, resting on the tab bar
+const mapPeek = 161
+
 function open(id: string) {
   setState({ selectedRec: id })
   navigate('relay-detail')
@@ -46,6 +49,22 @@ export function Community() {
   // How far the sheet is being pulled up right now (negative), while a finger is on it
   const [pull, setPull] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  // Pulling the list down from its top: where the pull started, whether it moved, and trackpad scroll
+  const listPull = useRef<{ from: number; moved: boolean } | null>(null)
+  const wheel = useRef({ sum: 0, at: 0 })
+  const startListPull = (list: HTMLElement, y: number) => {
+    listPull.current = !mapOpen && list.scrollTop <= 0 ? { from: y, moved: false } : null
+  }
+  const moveListPull = (y: number) => {
+    const drag = listPull.current
+    if (!drag) return
+    if (y - drag.from > 6) drag.moved = true
+    if (drag.moved) setPull(Math.max(0, y - drag.from))
+  }
+  const endListPull = () => {
+    if (listPull.current?.moved && (pull ?? 0) > 60) showMap(true)
+    setPull(null)
+  }
   const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
   const setCategory = (id: RelayCategory | null) => {
     setState({ relayFilter: id })
@@ -79,7 +98,7 @@ export function Community() {
               labels={mapNeighborhoods}
               selected={pinned}
               onSelect={setPinned}
-              coverBottom={293}
+              coverBottom={mapPeek}
               pins={onMap.map((item) => ({
                 id: item.id,
                 ...relaySpots[item.id],
@@ -93,7 +112,7 @@ export function Community() {
 
         {/* Everything, filters included, is one sheet: slid down to a peek above the tab bar while the map shows */}
         <div
-          style={{ transform: mapOpen ? `translateY(calc(100% - 293px + ${pull ?? 0}px))` : 'translateY(0)' }}
+          style={{ transform: mapOpen ? `translateY(calc(100% - ${mapPeek}px + ${pull ?? 0}px))` : `translateY(${pull ?? 0}px)` }}
           className={cx(
             'absolute inset-0 z-10 bg-baton-paper ease-[cubic-bezier(0.32,0.72,0,1)]',
             // Follows the finger while pulled, glides otherwise
@@ -135,9 +154,40 @@ export function Community() {
           <div
             ref={listRef}
             className={cx(
-              'flex h-full flex-col gap-10 px-6 pb-44 transition-[padding] duration-500',
+              'flex h-full flex-col gap-10 overscroll-y-contain px-6 pb-44 transition-[padding] duration-500',
               mapOpen ? 'overflow-hidden pt-6' : 'overflow-y-auto pt-4',
             )}
+            // Pulling the list down from the top drops it into the map, like swiping the sheet down
+            // (mouse in the phone frame; touch below, since the browser cancels pointers once it scrolls)
+            onPointerDown={(event) => {
+              if (event.pointerType === 'mouse') startListPull(event.currentTarget, event.clientY)
+            }}
+            onPointerMove={(event) => {
+              if (event.pointerType === 'mouse') moveListPull(event.clientY)
+            }}
+            onPointerUp={(event) => {
+              if (event.pointerType === 'mouse') endListPull()
+            }}
+            onTouchStart={(event) => startListPull(event.currentTarget, event.touches[0].clientY)}
+            onTouchMove={(event) => moveListPull(event.touches[0].clientY)}
+            onTouchEnd={endListPull}
+            onTouchCancel={endListPull}
+            // A pull is not a tap on the card under the finger
+            onClickCapture={(event) => {
+              if (listPull.current?.moved) event.stopPropagation()
+              listPull.current = null
+            }}
+            onWheel={(event) => {
+              // Two-finger swipe down on a trackpad while already at the top
+              if (mapOpen || event.currentTarget.scrollTop > 0 || event.deltaY >= 0) return
+              const now = event.timeStamp
+              wheel.current.sum = now - wheel.current.at > 300 ? event.deltaY : wheel.current.sum + event.deltaY
+              wheel.current.at = now
+              if (wheel.current.sum < -80) {
+                wheel.current.sum = 0
+                showMap(true)
+              }
+            }}
           >
             {/* Category filters, with search at the end */}
             <div className="-mb-4 flex flex-col gap-3">
@@ -181,59 +231,62 @@ export function Community() {
                 />
               )}
             </div>
-            {picks.length > 0 && (
-              <section className="flex flex-col gap-4">
-                <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
-                <CardRow gutter="lg">
-                  {picks.map((item) => (
-                    <RecCard
-                      key={item.id}
-                      title={item.title}
-                      text={item.source.kind === 'baton' ? item.source.why : item.body}
-                      tone={relayCategory(item.category).tone}
-                      photo={item.photo ?? relayPlaceholderPhoto}
-                      onClick={() => open(item.id)}
-                    />
-                  ))}
-                </CardRow>
-              </section>
-            )}
+            {/* Below the filters: hidden behind the nav while the map shows */}
+            <div className={cx('flex flex-col gap-10 transition-opacity duration-300', mapOpen && 'pointer-events-none opacity-0')}>
+              {picks.length > 0 && (
+                <section className="flex flex-col gap-4">
+                  <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
+                  <CardRow gutter="lg">
+                    {picks.map((item) => (
+                      <RecCard
+                        key={item.id}
+                        title={item.title}
+                        text={item.source.kind === 'baton' ? item.source.why : item.body}
+                        tone={relayCategory(item.category).tone}
+                        photo={item.photo ?? relayPlaceholderPhoto}
+                        onClick={() => open(item.id)}
+                      />
+                    ))}
+                  </CardRow>
+                </section>
+              )}
 
-            {people.length > 0 && (
-              <section className="flex flex-col gap-4">
-                <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
-                {people.map(({ leaver, tips }) => (
-                  <div key={leaver.id} className="flex flex-col gap-4 not-first-of-type:mt-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
-                      <div className="min-w-0">
-                        <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
-                        <p className="truncate text-[11px] leading-[1.2] text-ink/60">
-                          {leaver.left} · {leaver.match}
-                        </p>
+              {people.length > 0 && (
+                <section className="flex flex-col gap-4">
+                  <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
+                  {people.map(({ leaver, tips }) => (
+                    <div key={leaver.id} className="flex flex-col gap-4 not-first-of-type:mt-4">
+                      <div className="flex items-center gap-3">
+                        <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
+                        <div className="min-w-0">
+                          <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
+                          <p className="truncate text-[11px] leading-[1.2] text-ink/60">
+                            {leaver.left} · {leaver.match}
+                          </p>
+                        </div>
                       </div>
+                      <CardRow gutter="lg">
+                        {tips.map((item) => (
+                          <RecCard
+                            key={item.id}
+                            size="sm"
+                            title={item.title}
+                            text={`“${item.quote ?? item.body}”`}
+                            tone={relayCategory(item.category).tone}
+                            photo={item.photo ?? relayPlaceholderPhoto}
+                            onClick={() => open(item.id)}
+                          />
+                        ))}
+                      </CardRow>
                     </div>
-                    <CardRow gutter="lg">
-                      {tips.map((item) => (
-                        <RecCard
-                          key={item.id}
-                          size="sm"
-                          title={item.title}
-                          text={`“${item.quote ?? item.body}”`}
-                          tone={relayCategory(item.category).tone}
-                          photo={item.photo ?? relayPlaceholderPhoto}
-                          onClick={() => open(item.id)}
-                        />
-                      ))}
-                    </CardRow>
-                  </div>
-                ))}
-              </section>
-            )}
+                  ))}
+                </section>
+              )}
 
-            {picks.length === 0 && people.length === 0 && (
-              <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
-            )}
+              {picks.length === 0 && people.length === 0 && (
+                <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -242,7 +295,7 @@ export function Community() {
           <button
             type="button"
             onClick={() => open(pinnedItem.id)}
-            className="absolute inset-x-6 bottom-[305px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
+            className="absolute inset-x-6 bottom-[173px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
           >
             <img src={pinnedItem.photo ?? relayPlaceholderPhoto} alt="" className="size-16 shrink-0 rounded-tile object-cover" />
             <div className="min-w-0">
