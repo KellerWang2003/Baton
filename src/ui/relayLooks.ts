@@ -10,7 +10,7 @@ export const relayLooks: { id: RelayLook; name: string; blurb: string }[] = [
   {
     id: 'scrapbook',
     name: 'Scrapbook',
-    blurb: 'Notes taped into a journal: tilted paper scraps held on with cream tape, on a plain cream page. What Relay uses now (Keller, Oct 18).',
+    blurb: 'Notes taped into a journal: tilted paper scraps held on with cream tape, on a plain light paper page. What Relay uses now (Keller, Oct 18).',
   },
   {
     id: 'ticket',
@@ -33,7 +33,7 @@ export const relayLooks: { id: RelayLook; name: string; blurb: string }[] = [
 export const relayPage: Record<RelayLook, string> = {
   flat: 'bg-baton-paper',
   paper: 'bg-paper',
-  scrapbook: 'bg-baton-cream',
+  scrapbook: 'bg-baton-paper',
   ticket: 'bg-paper-light',
   postcard: 'bg-paper',
   bands: 'bg-paper-light',
