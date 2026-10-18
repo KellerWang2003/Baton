@@ -8,7 +8,21 @@
     height: 100%;
   }
 
+  /* The page behind the app is the app's own color. When the keyboard opens,
+     iOS Safari hides its toolbar and shows whatever lies past the bottom of
+     the page there; a gray backdrop made a hard band above the keyboard. */
+  html {
+    @apply bg-canvas;
+  }
+
   body {
     @apply bg-backdrop font-body text-ink antialiased;
+  }
+
+  /* On a phone the app fills the screen, so there's no frame to sit behind */
+  @media (max-width: 500px) {
+    body {
+      @apply bg-canvas;
+    }
   }
 }
