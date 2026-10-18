@@ -1,9 +1,8 @@
 import { setState } from './store'
 
 // The + field lives in the tab bar, but other screens (the prompt card on
-// Today) open it too. iOS Safari only raises the keyboard when focus happens
-// inside the tap itself, so opening focuses the field right away instead of
-// after the morph.
+// Today) open it too. Opening doesn't raise the keyboard: she may only want to
+// pick a photo, so the keyboard comes up when she taps into the field.
 let field: HTMLInputElement | null = null
 
 export function registerComposerField(element: HTMLInputElement | null) {
@@ -11,16 +10,7 @@ export function registerComposerField(element: HTMLInputElement | null) {
 }
 
 export function openComposer() {
-  if (field) {
-    // iOS Safari ignores preventScroll and pans the page up to reveal a field
-    // the keyboard will cover. Lifting the field out of view for the moment
-    // of focus leaves it nothing to reveal, so the page stays where it is.
-    const input = field
-    input.style.transform = 'translateY(-100000px)'
-    input.focus({ preventScroll: true })
-    requestAnimationFrame(() => {
-      input.style.transform = ''
-    })
-  }
+  // In case the field still has focus from last time
+  field?.blur()
   setState({ composing: true })
 }

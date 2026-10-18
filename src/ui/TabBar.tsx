@@ -16,7 +16,7 @@ type TabBarProps = {
   active?: string
   // The + button morphs into this text field (like search in iOS 26 tab bars)
   composing: boolean
-  // Opening must focus the field inside the tap, or iOS won't raise the keyboard
+  // Opens the field without raising the keyboard; tapping the field raises it
   onOpen: () => void
   onClose: () => void
   // photos are the ids of the selected photos
@@ -165,7 +165,7 @@ export function TabBar({
               send()
             }}
           >
-            {/* Always mounted so + can focus it during the tap */}
+            {/* Always mounted so the morph can fade it in */}
             <input
               ref={(element) => {
                 inputRef.current = element
