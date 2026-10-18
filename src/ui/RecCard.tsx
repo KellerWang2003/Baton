@@ -71,46 +71,34 @@ export function RecCard({ title, text, tone, photo, size = 'lg', onClick }: RecC
     >
       <img src={photo} alt="" draggable={false} className={cx('w-full rounded-card object-cover', recSizes[size].photo)} />
       <div className="flex flex-col gap-1 px-2 pb-2">
-        <p className="font-display text-title-3 font-bold">{title}</p>
-        <p className="line-clamp-3 text-subhead opacity-60">{text}</p>
+        <p className="font-display text-card-title font-bold">{title}</p>
+        <p className="line-clamp-3 text-card-body opacity-60">{text}</p>
       </div>
     </button>
   )
 }
 
-const toneDot: Record<RecTone, string> = {
-  blue: 'bg-baton-blue',
-  yellow: 'bg-baton-yellow',
-  pink: 'bg-baton-pink',
-  olive: 'bg-baton-olive',
-  cream: 'bg-baton-cream ring-1 ring-line',
-  navy: 'bg-baton-navy',
-}
-
 type CategoryChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   selected?: boolean
-  // The category color: a dot on the chip, and its fill when picked.
-  // Without it (All) the chip has no dot and fills navy.
+  // The chip is filled with its category color, like its cards. Without one
+  // (All) it is the soft gray.
   tone?: RecTone
 }
 
-// Filter chip on Relay: a soft gray capsule with a dot in its category color,
-// filled with that color when it's picked, so chips match their cards.
-export function CategoryChip({ selected = false, tone, className, type = 'button', children, ...props }: CategoryChipProps) {
+// Filter chip on Relay (Figma 265:2550): a 40pt capsule in its category color,
+// with a navy ring around it when it's picked.
+export function CategoryChip({ selected = false, tone, className, type = 'button', ...props }: CategoryChipProps) {
   return (
     <button
       type={type}
       aria-pressed={selected}
       className={cx(
-        'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full text-callout transition active:opacity-70',
-        tone ? 'pl-4 pr-5' : 'px-6',
-        selected ? cx(toneFill[tone ?? 'navy'], 'font-semibold ring-[1.5px] ring-inset ring-baton-navy') : 'bg-baton-chip text-ink',
+        'inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-full px-6 text-callout font-medium leading-[1.2] outline-offset-2 transition active:opacity-70',
+        tone ? toneFill[tone] : 'bg-baton-chip text-ink',
+        selected ? 'outline-2 outline-baton-navy' : 'outline-0 outline-transparent',
         className,
       )}
       {...props}
-    >
-      {tone && <span aria-hidden className={cx('size-2.5 shrink-0 rounded-full', toneDot[tone])} />}
-      {children}
-    </button>
+    />
   )
 }

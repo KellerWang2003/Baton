@@ -7,11 +7,13 @@ type CardRowProps = {
   detail?: string
   children: ReactNode
   className?: string
+  // Side margin it runs out into: md matches Screen's padding, lg is 24pt (Relay)
+  gutter?: 'md' | 'lg'
 }
 
 // A titled row of cards that scrolls sideways and snaps, running to the screen
 // edges (cancels the Screen's side padding) so the next card peeks in.
-export function CardRow({ header, detail, children, className }: CardRowProps) {
+export function CardRow({ header, detail, children, className, gutter = 'md' }: CardRowProps) {
   return (
     <section className={cx('flex flex-col gap-1.5', className)}>
       {header && (
@@ -20,7 +22,12 @@ export function CardRow({ header, detail, children, className }: CardRowProps) {
           {detail && <span className="text-footnote text-ink-muted">{detail}</span>}
         </div>
       )}
-      <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 [scrollbar-width:none]">
+      <div
+        className={cx(
+          'flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none]',
+          gutter === 'lg' ? '-mx-6 scroll-px-6 gap-4 px-6' : '-mx-4 scroll-px-4 gap-3 px-4',
+        )}
+      >
         {children}
       </div>
     </section>

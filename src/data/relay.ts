@@ -206,9 +206,9 @@ export const relayItems: RelayItem[] = [
 ]
 
 export const relayHeaders: Record<Stage, { picks: string; people: string }> = {
-  moving: { picks: 'Based on your life in LA', people: 'From people with a similar lifestyle' },
-  newcomer: { picks: 'Based on your life in LA', people: 'From people with a similar lifestyle' },
-  local: { picks: 'Based on your life in New York', people: 'From people with a similar lifestyle' },
+  moving: { picks: 'Based on your life in LA', people: 'From people with similar lifestyle' },
+  newcomer: { picks: 'Based on your life in LA', people: 'From people with similar lifestyle' },
+  local: { picks: 'Based on your life in New York', people: 'From people with similar lifestyle' },
 }
 
 // Baton's picks for her stage: intention picks once she has set one (last night in LA)
@@ -229,8 +229,8 @@ export function findLeaver(id: string) {
 export const relayCopy = {
   searchPlaceholder: 'Search places and tips',
   all: 'All',
-  map: 'Map',
-  list: 'List',
+  map: 'Map view',
+  list: 'List view',
   onMap: (count: number) => `${count} ${count === 1 ? 'place' : 'places'} on the map`,
   legacy: (name: string) => `${name}’s legacy`,
   noResults: 'Nothing here yet. Try another category.',

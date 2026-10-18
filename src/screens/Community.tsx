@@ -75,12 +75,12 @@ export function Community() {
           {/* Category filters, with search at the end */}
           <header
             className={cx(
-              'pointer-events-auto flex shrink-0 flex-col gap-3 px-4 pb-3 pt-3 transition-colors duration-300',
+              'pointer-events-auto flex shrink-0 flex-col gap-3 px-6 pb-3 pt-4 transition-colors duration-300',
               mapOpen ? 'bg-transparent' : 'bg-baton-paper',
             )}
           >
-            <div className="-mx-4 flex items-center gap-2 pr-4">
-              <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [scrollbar-width:none]">
+            <div className="-mx-6 flex items-center gap-[26px] pr-6">
+              <div className="-my-1 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 pl-6 pr-1 [scrollbar-width:none]">
                 <CategoryChip selected={!category} onClick={() => setCategory(null)} className={mapOpen ? 'shadow-card' : undefined}>
                   {relayCopy.all}
                 </CategoryChip>
@@ -145,11 +145,11 @@ export function Community() {
                   <span className="text-subhead font-semibold text-baton-navy">{relayCopy.onMap(onMap.length)}</span>
                 </button>
               )}
-              <div className={cx('flex h-full flex-col gap-6 px-4 pb-44 pt-3', mapOpen ? 'overflow-hidden' : 'overflow-y-auto')}>
+              <div className={cx('flex h-full flex-col gap-10 px-6 pb-44 pt-6', mapOpen ? 'overflow-hidden' : 'overflow-y-auto')}>
                 {picks.length > 0 && (
                   <section className="flex flex-col gap-4">
-                    <h2 className="font-display text-title-2 font-medium text-baton-navy">{headers.picks}</h2>
-                    <CardRow>
+                    <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
+                    <CardRow gutter="lg">
                       {picks.map((item) => (
                         <RecCard
                           key={item.id}
@@ -166,19 +166,19 @@ export function Community() {
 
                 {people.length > 0 && (
                   <section className="flex flex-col gap-4">
-                    <h2 className="font-display text-title-2 font-medium text-baton-navy">{headers.people}</h2>
+                    <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
                     {people.map(({ leaver, tips }) => (
                       <div key={leaver.id} className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
                           <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
                           <div className="min-w-0">
-                            <p className="text-subhead text-ink">{relayCopy.legacy(leaver.name)}</p>
-                            <p className="truncate text-caption text-ink/60">
+                            <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
+                            <p className="truncate text-[11px] leading-[1.2] text-ink/60">
                               {leaver.left} · {leaver.match}
                             </p>
                           </div>
                         </div>
-                        <CardRow>
+                        <CardRow gutter="lg">
                           {tips.map((item) => (
                             <RecCard
                               key={item.id}
@@ -197,7 +197,7 @@ export function Community() {
                 )}
 
                 {picks.length === 0 && people.length === 0 && (
-                  <p className="px-1 text-subhead text-ink-muted">{relayCopy.noResults}</p>
+                  <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
                 )}
               </div>
             </div>
@@ -209,7 +209,7 @@ export function Community() {
           <button
             type="button"
             onClick={() => open(pinnedItem.id)}
-            className="absolute inset-x-4 bottom-[212px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
+            className="absolute inset-x-6 bottom-[212px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
           >
             <img src={pinnedItem.photo ?? relayPlaceholderPhoto} alt="" className="size-16 shrink-0 rounded-tile object-cover" />
             <div className="min-w-0">
@@ -225,7 +225,7 @@ export function Community() {
         <button
           type="button"
           onClick={() => showMap(!mapOpen)}
-          className="absolute bottom-[97px] left-1/2 z-20 flex h-10 -translate-x-1/2 items-center gap-2 rounded-full bg-baton-navy pl-4 pr-5 text-subhead font-semibold text-on-brand shadow-float active:scale-95 transition-transform"
+          className="absolute bottom-[103px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-baton-blue px-4 py-3 text-callout font-medium leading-[1.1] text-on-brand transition-transform active:scale-95"
         >
           {mapOpen ? <ListIcon /> : <MapIcon />}
           {mapOpen ? relayCopy.list : relayCopy.map}

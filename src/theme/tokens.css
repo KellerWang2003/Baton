@@ -24,6 +24,16 @@
   --text-summary: 38px; /* 40px in Figma at 402pt wide; 38 keeps the same line breaks at 390 */
   --text-summary--line-height: 1.06;
   --text-summary--letter-spacing: -0.011em;
+  /* Relay (Figma 265:2550): section headings, card names and lines */
+  --text-section: 24px;
+  --text-section--line-height: 1.2;
+  --text-section--letter-spacing: -0.011em;
+  --text-card-title: 20px;
+  --text-card-title--line-height: 1.2;
+  --text-card-title--letter-spacing: -0.011em;
+  --text-card-body: 14px;
+  --text-card-body--line-height: 1.2;
+  --text-card-body--letter-spacing: -0.011em;
   --text-title-1: 28px;
   --text-title-1--line-height: 34px;
   --text-title-2: 22px;
