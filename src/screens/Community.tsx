@@ -164,7 +164,7 @@ export function Community() {
               <section className="flex flex-col gap-4">
                 <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
                 {people.map(({ leaver, tips }) => (
-                  <div key={leaver.id} className="flex flex-col gap-4">
+                  <div key={leaver.id} className="flex flex-col gap-4 not-first-of-type:mt-4">
                     <div className="flex items-center gap-3">
                       <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
                       <div className="min-w-0">
