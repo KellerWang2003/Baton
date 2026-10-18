@@ -104,7 +104,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         className="pointer-events-none absolute inset-0 z-20"
       >
         {/* While typing: a heavy blur over the whole page, so nothing behind
-            can be read, under a blue gradient deepening toward the field */}
+            can be read, under a blue glow at the bottom, around the field */}
         <div
           onClick={() => setState({ composing: false })}
           className={`absolute inset-0 z-20 ${composing ? 'pointer-events-auto' : 'pointer-events-none'}`}
@@ -115,10 +115,10 @@ export function TabShell({ activeTab, children }: TabShellProps) {
           />
           {/* A light white tint, so the page behind reads even less */}
           <div
-            className={`absolute inset-0 bg-surface/35 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 bg-surface/55 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
           />
           <div
-            className={`absolute inset-0 bg-linear-to-b from-baton-blue/60 via-baton-blue/70 via-50% to-baton-blue/95 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
+            className={`absolute inset-0 bg-linear-to-b from-baton-blue/0 from-55% to-baton-blue/90 transition-opacity duration-500 ease-out ${composing ? 'opacity-100' : 'opacity-0'}`}
           />
         </div>
 
