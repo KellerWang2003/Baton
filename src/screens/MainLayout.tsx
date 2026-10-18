@@ -16,6 +16,8 @@ type MainLayoutProps = {
   children: ReactNode
   // Full-bleed body that stretches to the bottom edge (e.g. Archive folders)
   bleed?: boolean
+  // Floating profile button (Today only; Archive and Community are just content)
+  profile?: boolean
 }
 
 type TabShellProps = {
@@ -29,10 +31,10 @@ const tabIcons: Record<string, ReactNode> = {
   community: <CommunityIcon />,
 }
 
-// Page layout for the three tab pages. No top bar: the profile avatar floats
-// at top right over the content, and on Today the greeting scrolls with the page.
+// Page layout for the three tab pages. No top bar: on Today the greeting
+// scrolls with the page and the profile avatar floats at top right over it.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
-export function MainLayout({ title, subtitle, children, bleed = false }: MainLayoutProps) {
+export function MainLayout({ title, subtitle, children, bleed = false, profile = false }: MainLayoutProps) {
   const greeting = title && (
     <header className="pr-12 pb-2 pt-3">
       <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>
@@ -44,24 +46,25 @@ export function MainLayout({ title, subtitle, children, bleed = false }: MainLay
     <div className="relative h-full">
       <Screen bleed={bleed}>
         {bleed ? (
-          // Room at the top so the floating avatar doesn't sit on the content
-          <div className="flex min-h-0 flex-1 flex-col pt-12">{children}</div>
+          <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         ) : (
           // Room so the last content can scroll above the floating tab bar
           <div className="pb-24">
-            {greeting || <div className="h-14" />}
+            {greeting || <div className="h-3" />}
             {children}
           </div>
         )}
       </Screen>
-      <button
-        type="button"
-        onClick={() => navigate('profile')}
-        aria-label="Profile"
-        className="absolute right-4 top-3 z-10 rounded-full shadow-float active:opacity-80"
-      >
-        <Avatar name={chloe.name} size="sm" />
-      </button>
+      {profile && (
+        <button
+          type="button"
+          onClick={() => navigate('profile')}
+          aria-label="Profile"
+          className="absolute right-4 top-3 z-10 rounded-full shadow-float active:opacity-80"
+        >
+          <Avatar name={chloe.name} size="sm" />
+        </button>
+      )}
     </div>
   )
 }

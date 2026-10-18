@@ -86,7 +86,7 @@ export function Today({ lastWeek = false }: TodayProps) {
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
   return (
-    <MainLayout title={hello.title} subtitle={hello.subtitle}>
+    <MainLayout title={hello.title} subtitle={hello.subtitle} profile>
       <div className="flex flex-col gap-6 pt-2">
         {/* The whole card opens the + field in the tab bar, like tapping a widget */}
         <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
