@@ -16,7 +16,8 @@ type FolderStackProps = {
   onSelect?: (id: string) => void
   // Extra content under the dates of the open folder (the lifestyle summary)
   renderActive?: (folder: ArchiveFolder, isActive: boolean) => ReactNode
-  // Shown once at the bottom of the last folder, in its quiet text color
+  // Shown once, centered at the bottom of the last folder just above the tab
+  // bar, in that folder's quiet text color, when the last folder is open
   footer?: ReactNode
   className?: string
 }
@@ -241,7 +242,7 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
       onPointerCancel={endPointerDrag}
       onPointerLeave={endPointerDrag}
       className={cx(
-        'isolate flex flex-1 flex-col justify-start overflow-hidden pt-7 select-none touch-none cursor-grab active:cursor-grabbing',
+        'relative isolate flex flex-1 flex-col justify-start overflow-hidden pt-7 select-none touch-none cursor-grab active:cursor-grabbing',
         className,
       )}
     >
@@ -348,12 +349,22 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
                     {renderActive(folder, isActive)}
                   </div>
                 )}
-                {isLast && footer && <div className={cx('pt-6', styles.dates)}>{footer}</div>}
               </div>
             </button>
           )
         })}
       </div>
+      {footer && folders.length > 0 && (
+        <div
+          className={cx(
+            'pointer-events-none absolute inset-x-0 bottom-[100px] z-[100] flex justify-center transition-opacity duration-300',
+            toneStyles[folders[folders.length - 1].tone].dates,
+            activeIndex === folders.length - 1 ? 'opacity-100' : 'opacity-0',
+          )}
+        >
+          {footer}
+        </div>
+      )}
     </div>
   )
 }
