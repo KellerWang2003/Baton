@@ -51,7 +51,6 @@ export function Capture() {
         <div className="flex flex-col gap-1 px-1" data-stage="moving">
           <p className="text-footnote font-semibold uppercase text-stage">{dailyPrompt.seed}</p>
           <p className="text-title-3 font-semibold text-ink">{dailyPrompt.question}</p>
-          <p className="text-subhead text-ink-muted">{dailyPrompt.detail}</p>
         </div>
 
         <ListSection header={copy.photosLabel}>

@@ -51,7 +51,7 @@ const tabPositionStyles: Record<ArchiveFolder['tabAlign'], string> = {
 // like passes in Apple Wallet.
 export function FolderStack({ folders, onSelect, className }: FolderStackProps) {
   return (
-    <div className={cx('flex flex-1 flex-col pt-3', className)}>
+    <div className={cx('isolate flex flex-1 flex-col pt-3', className)}>
       {folders.map((folder, index) => {
         const isLast = index === folders.length - 1
         const styles = toneStyles[folder.tone]

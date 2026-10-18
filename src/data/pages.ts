@@ -68,7 +68,8 @@ export const pages = {
   },
 }
 
-export type DailyPrompt = { seed: string; question: string; detail: string }
+// seed: why the prompt showed up (usually where she is), shown small under it
+export type DailyPrompt = { seed: string; question: string }
 
 // Today's light prompts per stage, in the plain verb-first wording from
 // docs/daily-prompts.md. Today shows the first; the rest are for later days.
@@ -76,43 +77,36 @@ export type DailyPrompt = { seed: string; question: string; detail: string }
 export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]> = {
   moving: [
     {
-      seed: "You're at Lake Ave Café again.",
+      seed: "You're at Lake Ave Café again",
       question: 'Take a photo of the view from the café seat you always sit in.',
-      detail: 'From your usual seat, not your best angle.',
     },
     {
-      seed: 'Your most-visited place.',
+      seed: 'Lake Ave Café, your most-visited place',
       question: 'Write one tip about this place that took you months to learn.',
-      detail: 'Like when it gets quiet, or which outlet works.',
     },
     {
-      seed: 'Evening at the studio.',
+      seed: 'Evening at the ArtCenter studio',
       question: 'Take a photo of your desk right now, without tidying it.',
-      detail: 'Top-down is fine.',
     },
   ],
   newcomer: [
     {
-      seed: 'Your first week in New York.',
+      seed: 'Your first week in New York',
       question: 'Write one thing that confused you today.',
-      detail: 'One line is enough.',
     },
     {
-      seed: 'Your first week in New York.',
+      seed: 'Your first week in New York',
       question: 'Take a photo of your coffee order here and say how it’s different from LA.',
-      detail: 'A photo and one line.',
     },
   ],
   local: [
     {
-      seed: "You're at your usual café again.",
+      seed: "You're at your usual café again",
       question: 'Take a photo of the view from the café seat you always sit in.',
-      detail: "You took this one in LA too. We'll show them side by side.",
     },
     {
-      seed: 'Your 30th visit here.',
+      seed: 'Your 30th visit here',
       question: 'Write when this place stopped feeling new.',
-      detail: 'One line is enough.',
     },
   ],
 }

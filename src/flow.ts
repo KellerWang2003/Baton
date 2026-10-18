@@ -1,6 +1,7 @@
 import type { ComponentType } from 'react'
 import { AboutYou } from './screens/AboutYou'
 import { Archive } from './screens/Archive'
+import { ArchiveDetail } from './screens/ArchiveDetail'
 import { Capture } from './screens/Capture'
 import { Community } from './screens/Community'
 import { Features } from './screens/Features'
@@ -41,6 +42,7 @@ export const flow: FlowScreen[] = [
   { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate },
   { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
+  { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail },
   { id: 'community', title: 'Community', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },

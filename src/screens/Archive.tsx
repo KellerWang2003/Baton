@@ -1,3 +1,4 @@
+import { navigate } from '../app/navigate'
 import { setState } from '../app/store'
 import { pages } from '../data/pages'
 import { FolderStack } from '../ui'
@@ -10,7 +11,10 @@ export function Archive() {
     <MainLayout title={title} bleed>
       <FolderStack
         folders={folders}
-        onSelect={(id) => setState({ selectedFolder: id })}
+        onSelect={(id) => {
+          setState({ selectedFolder: id })
+          navigate('archive-detail')
+        }}
       />
     </MainLayout>
   )

@@ -7,7 +7,7 @@ import { useKeyboardInset } from '../app/useKeyboardInset'
 import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
-import { ArchiveIcon, Avatar, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
+import { ArchiveIcon, Avatar, MapPinIcon, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
   title: string
@@ -67,19 +67,22 @@ export function TabShell({ activeTab, children }: TabShellProps) {
       {/* While typing: dim the page and show what she's answering */}
       <div
         onClick={() => setState({ composing: false })}
-        className={`absolute inset-0 bg-canvas/70 backdrop-blur-sm transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        className={`absolute inset-0 z-20 bg-canvas/70 backdrop-blur-sm transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
       {/* Rides on top of the keyboard on phones */}
       <div
         style={{ transform: `translateY(-${keyboard}px)` }}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 flex flex-col transition-[transform,padding] duration-300 ease-out ${keyboard ? 'pb-2' : 'pb-6'}`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col transition-[transform,padding] duration-300 ease-out ${keyboard ? 'pb-2' : 'pb-6'}`}
       >
         <div
           className={`mx-4 mb-3 flex flex-col gap-1 px-1 transition duration-300 ${composing ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
         >
-          <p className="text-footnote font-semibold uppercase text-ink-muted">{dailyPrompt.seed}</p>
           <p className="font-display text-title-3 font-semibold text-ink">{dailyPrompt.question}</p>
+          <p className="flex items-center gap-1 text-footnote text-ink-muted">
+            <MapPinIcon className="size-4 shrink-0" />
+            {dailyPrompt.seed}
+          </p>
         </div>
         <p
           role="status"

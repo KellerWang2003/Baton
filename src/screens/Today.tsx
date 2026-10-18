@@ -88,9 +88,7 @@ export function Today({ lastWeek = false }: TodayProps) {
       <div className="flex flex-col gap-6 pt-2">
         {/* The whole card opens the + field in the tab bar, like tapping a widget */}
         <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
-          <PromptCard image arrow meta={prompt.seed} question={prompt.question}>
-            <p className="text-subhead text-ink-muted">{prompt.detail}</p>
-          </PromptCard>
+          <PromptCard image arrow question={prompt.question} reason={prompt.seed} />
         </div>
 
         {setupCount < setupItems.length && (
