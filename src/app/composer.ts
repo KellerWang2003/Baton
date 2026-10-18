@@ -11,6 +11,16 @@ export function registerComposerField(element: HTMLInputElement | null) {
 }
 
 export function openComposer() {
-  field?.focus({ preventScroll: true })
+  if (field) {
+    // iOS Safari ignores preventScroll and pans the page up to reveal a field
+    // the keyboard will cover. Lifting the field out of view for the moment
+    // of focus leaves it nothing to reveal, so the page stays where it is.
+    const input = field
+    input.style.transform = 'translateY(-100000px)'
+    input.focus({ preventScroll: true })
+    requestAnimationFrame(() => {
+      input.style.transform = ''
+    })
+  }
   setState({ composing: true })
 }
