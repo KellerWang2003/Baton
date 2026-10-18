@@ -7,7 +7,7 @@ import { useKeyboardInset } from '../app/useKeyboardInset'
 import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
-import { ArchiveIcon, Avatar, MapPinIcon, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
+import { ArchiveIcon, Avatar, MapPinIcon, RelayIcon, Screen, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
   // Tabs have no page title; Today shows its greeting here
@@ -16,7 +16,7 @@ type MainLayoutProps = {
   children: ReactNode
   // Full-bleed body that stretches to the bottom edge (e.g. Archive folders)
   bleed?: boolean
-  // Floating profile button (Today only; Archive and Community are just content)
+  // Floating profile button (Today only; Archive and Relay are just content)
   profile?: boolean
 }
 
@@ -28,7 +28,7 @@ type TabShellProps = {
 const tabIcons: Record<string, ReactNode> = {
   today: <TodayIcon />,
   archive: <ArchiveIcon />,
-  community: <CommunityIcon />,
+  community: <RelayIcon />,
 }
 
 // Page layout for the three tab pages. No top bar: on Today the greeting
@@ -92,7 +92,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
       {/* While typing: dim the page and show what she's answering */}
       <div
         onClick={() => setState({ composing: false })}
-        className={`absolute inset-0 z-20 bg-canvas/70 backdrop-blur-sm transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        className={`absolute inset-0 z-20 bg-canvas/45 backdrop-blur-[3px] transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
       {/* Rides on top of the keyboard on phones */}

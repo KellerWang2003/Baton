@@ -40,7 +40,7 @@ export {
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  CommunityIcon,
+  RelayIcon,
   HomeGraphic,
   ListIcon,
   MapPinIcon,

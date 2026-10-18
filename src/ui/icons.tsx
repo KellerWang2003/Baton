@@ -35,13 +35,10 @@ export function ArchiveIcon() {
   )
 }
 
-export function CommunityIcon() {
-  return (
-    <Icon>
-      <circle cx="9" cy="8.5" r="3.5" />
-      <path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 5.2a3.5 3.5 0 0 1 0 6.6M18.5 14.5a6.5 6.5 0 0 1 3 5.5" />
-    </Icon>
-  )
+// Relay tab: the baton handed over, from the Figma nav (public/brand/relay-tab.svg).
+// Drawn as a mask so it takes the tab's text color like the line icons.
+export function RelayIcon() {
+  return <span aria-hidden className="block size-5 bg-current [mask:url(/brand/relay-tab.svg)_center/contain_no-repeat]" />
 }
 
 export function PlusIcon() {

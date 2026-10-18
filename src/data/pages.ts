@@ -2,7 +2,7 @@
 export const tabs = [
   { id: 'today', label: 'Today' },
   { id: 'archive', label: 'Archive' },
-  { id: 'community', label: 'Community' },
+  { id: 'community', label: 'Relay' },
 ]
 
 export const pages = {
@@ -68,7 +68,7 @@ export const pages = {
     ],
   },
   community: {
-    title: 'Community',
+    title: 'Relay',
     segments: [
       { id: 'recs', label: 'Recommendations', purpose: 'Places, logistics and mindset tips from people who lived here before you.' },
       { id: 'qa', label: 'Q&A', purpose: 'Newcomers ask, locals answer.' },

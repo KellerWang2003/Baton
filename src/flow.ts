@@ -43,7 +43,7 @@ export const flow: FlowScreen[] = [
   { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
   { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail },
-  { id: 'community', title: 'Community', stage: 'moving', component: Community },
+  { id: 'community', title: 'Relay', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
   // 6. Last week in LA: Today shows the legacy card

@@ -28,7 +28,10 @@ type TabBarProps = {
   onSelect: (id: string) => void
 }
 
-const glass = 'border border-line/70 bg-surface/75 shadow-float backdrop-blur-xl'
+// Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523)
+const glass = 'bg-glass shadow-glass backdrop-blur-md'
+// Icons in the bar are drawn a little smaller than the 24px line icons
+const iconSize = '[&_svg]:size-5'
 // iOS spring-like curve, used for every part of the morph so they move together
 const ease = 'ease-[cubic-bezier(0.32,0.72,0,1)]'
 const morph = `transition-[flex-grow,flex-basis] duration-500 ${ease}`
@@ -41,8 +44,8 @@ const layer = (shown: boolean, delay = false) =>
     shown && delay && 'delay-100',
   )
 
-// iOS-style floating tab bar. The tabs sit in one capsule and + is its own
-// round button. Tapping + morphs it into a wide input while the tabs collapse
+// iOS-style floating tab bar, sized to its content and centered. The tabs sit
+// in one capsule and + is its own round button. Tapping + morphs it into a wide input while the tabs collapse
 // into one round button showing the current tab (tap it to go back). A row of
 // recent photos rises above it to select from, led by a camera tile.
 export function TabBar({
@@ -106,17 +109,17 @@ export function TabBar({
         </div>
       </div>
 
-      <nav className="flex items-center gap-3 px-4">
+      <nav className="flex items-center justify-center gap-1.5 px-4">
         {/* Tabs, collapsing into one round button for the current tab */}
         <div
           className={cx(
-            'pointer-events-auto relative h-[62px] min-w-0 overflow-hidden rounded-full',
+            'pointer-events-auto relative h-[61px] min-w-0 shrink-0 overflow-hidden rounded-full',
             glass,
             morph,
-            composing ? 'grow-0 basis-[62px]' : 'grow basis-0',
+            composing ? 'basis-[61px]' : 'basis-[207px]',
           )}
         >
-          <div className={cx('absolute inset-1 flex', layer(!composing, true))}>
+          <div className={cx('absolute inset-x-1.5 inset-y-1 flex', layer(!composing, true))}>
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -125,8 +128,9 @@ export function TabBar({
                 onClick={() => onSelect(tab.id)}
                 aria-current={tab.id === active ? 'page' : undefined}
                 className={cx(
-                  'flex h-full min-w-0 flex-1 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-full text-[10px] font-semibold',
-                  tab.id === active ? 'bg-surface-muted text-brand' : 'text-ink',
+                  'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] leading-[1.3] tracking-[-0.011em] transition-colors',
+                  iconSize,
+                  tab.id === active ? 'bg-glass text-baton-navy' : 'text-tab-idle',
                 )}
               >
                 {tab.icon}
@@ -139,7 +143,7 @@ export function TabBar({
             tabIndex={composing ? 0 : -1}
             onClick={onClose}
             aria-label={`Back to ${current.label}`}
-            className={cx('absolute inset-0 flex items-center justify-center text-brand', layer(composing, true))}
+            className={cx('absolute inset-0 flex items-center justify-center text-baton-navy', iconSize, layer(composing, true))}
           >
             {current.icon}
           </button>
@@ -148,14 +152,14 @@ export function TabBar({
         {/* + button, growing into the field */}
         <div
           className={cx(
-            'pointer-events-auto relative min-w-0 overflow-hidden rounded-full',
+            'pointer-events-auto relative h-[58px] min-w-0 overflow-hidden rounded-full',
             glass,
             morph,
-            composing ? 'grow basis-0' : 'grow-0 basis-[62px]',
+            composing ? 'grow basis-0' : 'grow-0 basis-[58px]',
           )}
         >
           <form
-            className={cx('flex h-[60px] items-center gap-1 pl-5 pr-2', layer(composing, true))}
+            className={cx('flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
             onSubmit={(event) => {
               event.preventDefault()
               send()
@@ -193,7 +197,7 @@ export function TabBar({
             tabIndex={composing ? -1 : 0}
             onClick={onOpen}
             aria-label="Capture"
-            className={cx('absolute inset-0 flex items-center justify-center text-brand', layer(!composing))}
+            className={cx('absolute inset-0 flex items-center justify-center text-tab-idle [&_svg]:size-6 [&_svg]:stroke-[1.6]', layer(!composing))}
           >
             <PlusIcon />
           </button>
