@@ -62,7 +62,8 @@ let state: State = {
   relayFilter: null,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
-  promptGlass: 'css',
+  // Keller, Oct 18: the whole circle is one big blob of blue-tinted liquid glass
+  promptGlass: 'glass',
   setupDone: [],
   composing: false,
   reflections: [],

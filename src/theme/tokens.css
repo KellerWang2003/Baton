@@ -154,7 +154,9 @@
   --shadow-float: 0 8px 32px rgb(0 0 0 / 0.16);
   --shadow-sheet: 0 -4px 20px rgb(0 0 0 / 0.08); /* Relay list resting over the map */
   --shadow-glass: 0 2px 12px rgb(0 0 0 / 0.06); /* tab bar: light, the blur does the work */
-  /* Today's prompt circle (Figma 236:1282): white glass with a blue glow pooled at its edge */
+  /* Blue tint at the edge of Today's liquid glass circle (over the Fluid Glass lens) */
+  --shadow-prompt-tint: inset 0 0 44px 6px rgb(89 161 255 / 0.55), inset 0 0 6px 1px rgb(89 161 255 / 0.35);
+  /* Today's prompt circle, plain look (Figma 236:1282): white disc with a blue glow pooled at its edge */
   --shadow-prompt-glass: inset 0 0 42px 10px rgb(89 161 255 / 0.75), inset 0 2px 2px #ffffff, 0 18px 40px rgb(0 0 0 / 0.06);
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
   --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */

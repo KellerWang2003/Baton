@@ -6,7 +6,7 @@ import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
-import { promptGlassMedia, promptMedium, promptMediumLabel } from '../data/pages'
+import { promptMedium, promptMediumLabel } from '../data/pages'
 import { todayCards } from '../data/stages'
 import {
   allTodos,
@@ -92,13 +92,12 @@ export function Today({ lastWeek = false }: TodayProps) {
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
       {/* Tapping the circle opens the + field in the tab bar, like tapping a widget */}
       <PromptWindow
-        className="pb-12 pt-6"
+        className="pb-10 pt-2"
         question={prompt.question}
         seed={prompt.seed}
         medium={medium}
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
-        media={promptGlassMedia}
         onClick={openComposer}
       />
 

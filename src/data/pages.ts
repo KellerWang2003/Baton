@@ -99,9 +99,6 @@ export function promptMedium(question: string): PromptMedium {
 }
 export const promptMediumLabel: Record<PromptMedium, string> = { photo: 'Photo', write: 'Write' }
 
-// What Today's Fluid Glass circle bends, when it isn't the prompt itself
-export const promptGlassMedia = { photo: '/archive/la-sunset.jpg', color: '/today/glass-colors.svg' }
-
 // Today's light prompts per stage, in the plain verb-first wording from
 // docs/daily-prompts.md. Today shows the first; the rest are for later days.
 // Moving and Local open with the café bookend.

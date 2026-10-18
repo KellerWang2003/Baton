@@ -1,7 +1,7 @@
 import { setState, useStatus, useStore } from '../app/store'
 import { greeting, timeOfDay } from '../data/greetings'
 import { setup } from '../data/onboarding'
-import { dailyPrompts, promptGlassMedia, promptMedium, promptMediumLabel } from '../data/pages'
+import { dailyPrompts, promptMedium, promptMediumLabel } from '../data/pages'
 import { chloe } from '../data/people'
 import { daysUntil, leave, mockToday } from '../data/today'
 import { Avatar, PromptWindow, cx, promptGlasses } from '../ui'
@@ -72,13 +72,12 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                     </span>
                   </header>
                   <PromptWindow
-                    className="pb-12 pt-6"
+                    className="pb-10 pt-2"
                     question={prompt.question}
                     seed={prompt.seed}
                     medium={medium}
                     mediumLabel={promptMediumLabel[medium]}
                     glass={option.id}
-                    media={promptGlassMedia}
                   />
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-24 rounded-t-panel bg-baton-cream px-5 pt-7">
