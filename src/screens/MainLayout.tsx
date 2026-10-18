@@ -77,7 +77,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
   const { composing } = useStore()
   const dailyPrompt = useDailyPrompt()
   const [toast, setToast] = useState(false)
-  const keyboard = useKeyboardInset()
+  const { inset: keyboard, pan } = useKeyboardInset()
 
   useEffect(() => {
     if (!toast) return
@@ -87,12 +87,17 @@ export function TabShell({ activeTab, children }: TabShellProps) {
 
   return (
     <div className="relative h-full">
-      {children}
+      {/* The page stays where it was while the keyboard is up: Safari pans
+          the view to show the field, so the page moves back down by as much */}
+      <div style={pan ? { transform: `translateY(${pan}px)` } : undefined} className="h-full">
+        {children}
+      </div>
 
       {/* While typing: dim the page and show what she's answering */}
       <div
         onClick={() => setState({ composing: false })}
-        className={`absolute inset-0 z-20 bg-canvas/45 backdrop-blur-[3px] transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        style={pan ? { transform: `translateY(${pan}px)` } : undefined}
+        className={`absolute inset-0 z-20 bg-canvas/85 backdrop-blur-md transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
       {/* Rides on top of the keyboard on phones */}
