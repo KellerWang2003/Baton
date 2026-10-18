@@ -2,7 +2,7 @@
 // from the stage switcher in the debug panel). Each tab reads its part from
 // here until the real flows for that stage are built.
 import type { Stage } from '../flow'
-import type { ArchiveFolder, InlinePhotoItem } from '../ui'
+import type { ArchiveFolder, InlinePhotoItem, SummaryPart } from '../ui'
 import { pages } from './pages'
 
 export const stageNames: Record<Stage, string> = {
@@ -94,8 +94,6 @@ export function archiveFolders(stage: Stage): ArchiveFolder[] {
 // lived there, with photos from that city's archive set into the line.
 // Written by hand to match the archive (places, reflections), standing in for
 // what Baton would generate.
-export type SummaryPart = string | InlinePhotoItem[]
-
 export type ArchiveSummary = {
   parts: SummaryPart[]
   note: string

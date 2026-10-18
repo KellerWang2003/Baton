@@ -25,6 +25,8 @@ export { Steps } from './Steps'
 export { TabBar } from './TabBar'
 export type { TabItem } from './TabBar'
 export { TextArea, TextField } from './TextField'
+export { TypedSummary } from './TypedSummary'
+export type { SummaryPart } from './TypedSummary'
 export { VisibilityBadge } from './VisibilityBadge'
 export { cx } from './cx'
 export {

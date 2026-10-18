@@ -1,7 +1,7 @@
 import { navigate } from '../app/navigate'
 import { setState, useStatus } from '../app/store'
 import { archiveFolders, archiveSummary } from '../data/stages'
-import { BatonMark, FolderStack, InlinePhoto } from '../ui'
+import { BatonMark, FolderStack, TypedSummary } from '../ui'
 import { MainLayout } from './MainLayout'
 
 
@@ -20,25 +20,22 @@ export function Archive() {
           setState({ selectedFolder: id })
           navigate('archive-detail')
         }}
-        renderActive={(folder, mutedClass) => {
+        renderActive={(folder, mutedClass, isActive) => {
           const summary = archiveSummary(folder.id, status)
           if (!summary) return null
+          // Remounts each time the folder opens, so the sentence types out again
           return (
-            <div className="pt-7">
-              <p className="font-display text-summary font-normal">
-                {summary.parts.map((part, index) =>
-                  typeof part === 'string' ? (
-                    <span key={index}>{part} </span>
-                  ) : (
-                    <InlinePhoto key={index} photos={part} />
-                  ),
-                )}
-              </p>
+            <TypedSummary
+              key={isActive ? 'open' : 'closed'}
+              play={isActive}
+              parts={summary.parts}
+              className="pt-7 font-display text-summary font-normal"
+            >
               <p className={`mt-6 flex items-center gap-2 text-subhead ${mutedClass}`}>
                 <BatonMark className="size-4! text-current!" />
                 {summary.note}
               </p>
-            </div>
+            </TypedSummary>
           )
         }}
       />

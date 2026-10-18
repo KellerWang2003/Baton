@@ -15,7 +15,7 @@ type FolderStackProps = {
   folders: ArchiveFolder[]
   onSelect?: (id: string) => void
   // Extra content under the dates of the open folder (the lifestyle summary)
-  renderActive?: (folder: ArchiveFolder, mutedClass: string) => ReactNode
+  renderActive?: (folder: ArchiveFolder, mutedClass: string, isActive: boolean) => ReactNode
   className?: string
 }
 
@@ -320,7 +320,7 @@ export function FolderStack({ folders, onSelect, renderActive, className }: Fold
                       isActive ? 'opacity-100' : 'pointer-events-none opacity-0',
                     )}
                   >
-                    {renderActive(folder, styles.dates)}
+                    {renderActive(folder, styles.dates, isActive)}
                   </div>
                 )}
               </div>
