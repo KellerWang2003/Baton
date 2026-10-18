@@ -5,12 +5,12 @@
 export type RelayLook = 'flat' | 'paper' | 'scrapbook' | 'ticket' | 'postcard' | 'bands'
 
 export const relayLooks: { id: RelayLook; name: string; blurb: string }[] = [
-  { id: 'flat', name: 'Flat color', blurb: 'What Relay has now: solid category-colored cards on plain paper.' },
+  { id: 'flat', name: 'Flat color', blurb: 'The first version: solid category-colored cards on plain paper.' },
   { id: 'paper', name: 'Paper', blurb: 'Same cards, but everything is paper: cream page with grain and fibers, cards with grain and a soft shadow.' },
   {
     id: 'scrapbook',
     name: 'Scrapbook',
-    blurb: 'Notes taped into a journal: tilted paper scraps with washi tape, a dot-grid page and highlighted headings.',
+    blurb: 'Notes taped into a journal: tilted paper scraps with washi tape on a dot-grid page. What Relay uses now (Keller, Oct 18).',
   },
   {
     id: 'ticket',
@@ -55,13 +55,6 @@ export function relaySection(look: RelayLook, which: 'picks' | 'people') {
     return {
       section: '-mx-6 rounded-[40px] bg-baton-navy px-6 py-7',
       heading: 'text-baton-cream',
-    }
-  }
-  if (look === 'scrapbook') {
-    // A highlighter stroke across the lower half of the words
-    return {
-      section: '',
-      heading: 'self-start px-1 bg-[linear-gradient(transparent_58%,var(--color-baton-yellow)_58%,var(--color-baton-yellow)_92%,transparent_92%)]',
     }
   }
   return { section: '', heading: 'text-baton-navy' }

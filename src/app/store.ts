@@ -57,7 +57,8 @@ let state: State = {
   relayNotes: {},
   relayMap: false,
   relayFilter: null,
-  relayLook: 'flat',
+  // Keller picked Scrapbook (Oct 18)
+  relayLook: 'scrapbook',
   setupDone: [],
   composing: false,
   reflections: [],
