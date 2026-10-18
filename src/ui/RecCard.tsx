@@ -1,5 +1,4 @@
 import { cx } from './cx'
-import { NoteIcon } from './icons'
 
 export type RecTone = 'blue' | 'yellow' | 'pink' | 'olive' | 'cream'
 
@@ -67,31 +66,29 @@ export function PickCard({ title, why, label, tone, photo, onClick }: PickCardPr
 }
 
 type TipCardProps = {
-  text: string
-  label: string
-  notes: number
+  // "Maya's market"
+  title: string
+  // In their own words
+  quote: string
+  tone: RecTone
+  photo?: string
   onClick?: () => void
 }
 
-// A trial-and-error tip from someone's legacy: blue, since it was handed over.
-export function TipCard({ text, label, notes, onClick }: TipCardProps) {
+// A tip from someone's legacy, as a quote: their place on a photo, its name,
+// and what they'd tell you about it.
+export function TipCard({ title, quote, tone, photo, onClick }: TipCardProps) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex min-h-[148px] w-[200px] shrink-0 snap-start flex-col justify-between gap-4 rounded-card bg-baton-blue p-4 text-left transition active:scale-[0.98]"
+      className="flex w-[248px] shrink-0 snap-start flex-col gap-3 rounded-card bg-baton-cream p-2.5 pb-5 text-left transition active:scale-[0.98]"
     >
-      <p className="font-display text-title-3 font-semibold text-baton-navy">{text}</p>
-      <p className="flex items-center gap-1.5 text-footnote text-on-baton-blue-muted">
-        {label}
-        {notes > 0 && (
-          <>
-            <span aria-hidden>·</span>
-            <NoteIcon className="size-3.5" />
-            {notes}
-          </>
-        )}
-      </p>
+      <ToneTile tone={tone} src={photo} alt={title} className="aspect-[16/10] w-full" />
+      <div className="flex flex-col gap-1 px-2.5">
+        <p className="font-display text-title-3 font-bold text-baton-navy">{title}</p>
+        <p className="line-clamp-3 text-callout text-on-baton-cream-muted">“{quote}”</p>
+      </div>
     </button>
   )
 }

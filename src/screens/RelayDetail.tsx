@@ -28,6 +28,7 @@ export function RelayDetail() {
   return (
     <div className="relative h-full">
       <Screen
+        background="bg-baton-paper"
         backLabel={pages.community.title}
         onBack={() => goBack('community')}
         footer={
@@ -37,19 +38,11 @@ export function RelayDetail() {
         }
       >
         <div className="flex flex-col gap-6 pt-1">
-          {leaver ? (
-            <div className="flex min-h-[200px] flex-col justify-between gap-6 rounded-card bg-baton-blue p-5">
-              <span className="self-start rounded-full bg-glass px-2.5 py-1 text-caption font-semibold text-baton-navy">
-                {item.label}
-              </span>
-              <h1 className="text-balance font-display text-title-1 font-bold text-baton-navy">{item.title}</h1>
-            </div>
-          ) : (
-            <ToneTile tone={item.tone} src={item.photo} alt={item.title} label={item.label} className="aspect-[4/3] w-full rounded-card" />
-          )}
+          <ToneTile tone={item.tone} src={item.photo} alt={item.title} label={item.label} className="aspect-[4/3] w-full rounded-card" />
 
           <div className="flex flex-col gap-3 px-1">
-            {!leaver && <h1 className="font-display text-large-title font-bold text-baton-navy">{item.title}</h1>}
+            <h1 className="font-display text-large-title font-bold text-baton-navy">{item.title}</h1>
+            {item.quote && <p className="font-display text-title-2 text-baton-navy">“{item.quote}”</p>}
             {item.place && (
               <p className="flex items-center gap-1 text-subhead text-ink-muted">
                 <MapPinIcon className="size-4 shrink-0" />

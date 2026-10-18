@@ -18,6 +18,8 @@ type MainLayoutProps = {
   bleed?: boolean
   // Floating profile button (Today only; Archive and Relay are just content)
   profile?: boolean
+  // Page background class (Relay sits on the paper color, like Archive)
+  background?: string
 }
 
 type TabShellProps = {
@@ -34,7 +36,7 @@ const tabIcons: Record<string, ReactNode> = {
 // Page layout for the three tab pages. No top bar: on Today the greeting
 // scrolls with the page and the profile avatar floats at top right over it.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
-export function MainLayout({ title, subtitle, children, bleed = false, profile = false }: MainLayoutProps) {
+export function MainLayout({ title, subtitle, children, bleed = false, profile = false, background }: MainLayoutProps) {
   const greeting = title && (
     <header className="pr-12 pb-2 pt-3">
       <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>
@@ -44,7 +46,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
 
   return (
     <div className="relative h-full">
-      <Screen bleed={bleed}>
+      <Screen bleed={bleed} background={background}>
         {bleed ? (
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         ) : (

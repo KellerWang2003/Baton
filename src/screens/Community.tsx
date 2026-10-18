@@ -19,17 +19,16 @@ function open(id: string) {
 function matches(item: RelayItem, query: string) {
   const q = query.trim().toLowerCase()
   if (!q) return true
-  return [item.title, item.label, item.place, item.body].some((text) => text?.toLowerCase().includes(q))
+  return [item.title, item.quote, item.label, item.place, item.body].some((text) => text?.toLowerCase().includes(q))
 }
 
 // Relay: For you (Baton's picks from her routine, then tips from the legacies
 // of people who lived like her) and Q&A, where Locals only answer.
 export function Community() {
-  const { communitySegment, relayNotes } = useStore()
+  const { communitySegment } = useStore()
   const status = useStatus()
   const [searching, setSearching] = useState(false)
   const [query, setQuery] = useState('')
-  const noteCount = (item: RelayItem) => item.notes.length + (relayNotes[item.id]?.length ?? 0)
 
   const picks = relayPicks(status).filter((item) => matches(item, query))
   const people = leavers
@@ -39,7 +38,7 @@ export function Community() {
   const questions = qa[status]
 
   return (
-    <MainLayout>
+    <MainLayout background="bg-baton-paper">
       <div className="flex flex-col gap-6 pt-1">
         <div className="flex items-center gap-2">
           <SegmentedControl
@@ -114,9 +113,10 @@ export function Community() {
                       {tips.map((item) => (
                         <TipCard
                           key={item.id}
-                          text={item.title}
-                          label={item.label}
-                          notes={noteCount(item)}
+                          title={item.title}
+                          quote={item.quote ?? item.body}
+                          tone={item.tone}
+                          photo={item.photo}
                           onClick={() => open(item.id)}
                         />
                       ))}
