@@ -80,7 +80,7 @@ export function Community() {
             )}
           >
             <div className="-mx-6 flex items-center gap-[26px] pr-6">
-              <div className="-my-1 flex min-w-0 flex-1 gap-2 overflow-x-auto py-1 pl-6 pr-1 [scrollbar-width:none]">
+              <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-6 [scrollbar-width:none]">
                 <CategoryChip selected={!category} onClick={() => setCategory(null)} className={mapOpen ? 'shadow-card' : undefined}>
                   {relayCopy.all}
                 </CategoryChip>
