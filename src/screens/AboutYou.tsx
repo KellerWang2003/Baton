@@ -36,6 +36,10 @@ export function AboutYou() {
           value={status}
           onChange={(id) => setState({ status: id })}
         />
+        {/* What the picked stage means for her */}
+        <p className="-mt-2 min-h-[2lh] px-6 text-center text-subhead text-ink-muted">
+          {about.moveOptions.find((option) => option.id === status)?.detail ?? about.pickHint}
+        </p>
 
         <section className="flex flex-col gap-2">
           <h2 className="px-1 text-headline font-semibold text-ink">{about.youHeader}</h2>

@@ -39,12 +39,13 @@ export const auth = {
 
 export const about = {
   title: 'Tell us about yourself',
-  body: "Where are you in your move? Baton changes with each stage, from saving the city you're leaving to settling into the next. Switch any time in Profile.",
+  body: 'Baton works differently before you leave, after you land and once you settle in. Pick where you are now.',
   moveOptions: [
-    { id: 'moving', label: 'Moving soon' },
-    { id: 'newcomer', label: 'Just arrived' },
-    { id: 'local', label: 'Settled in' },
-  ] as { id: 'moving' | 'newcomer' | 'local'; label: string }[],
+    { id: 'moving', label: 'Moving soon', detail: "Save the places and people you'll miss, then pass them on when you leave." },
+    { id: 'newcomer', label: 'Just arrived', detail: 'Get tips from people with your lifestyle who lived here before you.' },
+    { id: 'local', label: 'Settled in', detail: "See how far you've come, and keep the small stuff for whoever's next." },
+  ] as { id: 'moving' | 'newcomer' | 'local'; label: string; detail: string }[],
+  pickHint: 'Tap a card to see what it means.',
   youHeader: 'You are…',
   tags: ['Student', 'New grad', 'International', 'Working', 'Moving alone', 'First time in a big city'],
 }
