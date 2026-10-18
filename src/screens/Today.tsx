@@ -6,6 +6,7 @@ import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
 import { pages } from '../data/pages'
+import { todayCards } from '../data/stages'
 import {
   allTodos,
   beforeYouLeave,
@@ -126,6 +127,35 @@ export function Today({ lastWeek = false }: TodayProps) {
                 }}
               />
             )}
+
+            {/* Placeholder cards for her stage until those flows are built */}
+            {todayCards[status].map((card) => {
+              const to = card.to
+              return (
+                <ItemCard
+                  key={card.id}
+                  tone={card.tone}
+                  thumbnail={!card.tone}
+                  eyebrow={card.eyebrow}
+                  title={card.title}
+                  subtitle={card.subtitle}
+                  trailing={
+                    to && (
+                      <span className="text-line">
+                        <ChevronRightIcon />
+                      </span>
+                    )
+                  }
+                  onClick={
+                    to &&
+                    (() => {
+                      if (to.screen === 'community') setState({ communitySegment: to.segment })
+                      navigate(to.screen)
+                    })
+                  }
+                />
+              )
+            })}
 
             {pickedTodos.map((item) => {
               const count = tips[item.id]?.length ?? 0

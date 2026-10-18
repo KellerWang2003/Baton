@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
+import type { CommunitySegment } from '../data/stages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
 
@@ -22,6 +23,8 @@ type State = {
   leaveDate: string
   // Which Archive segment opens (the legacy card on Today opens Legacy)
   archiveSegment: 'mine' | 'legacy'
+  // Which Community segment opens (hint cards on Today open Recommendations or Q&A)
+  communitySegment: CommunitySegment
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
   setupDone: SetupItem[]
@@ -42,6 +45,7 @@ let state: State = {
   flight: '',
   leaveDate: leave.defaultDate,
   archiveSegment: 'mine',
+  communitySegment: 'recs',
   selectedFolder: null,
   setupDone: [],
   composing: false,
@@ -75,7 +79,8 @@ export function completeSetup(item: SetupItem) {
   setState((s) => ({ setupDone: s.setupDone.includes(item) ? s.setupDone : [...s.setupDone, item] }))
 }
 
-// Status for screens opened directly (debug panel): Chloe starts as Moving.
+// Her stage: picked in onboarding, or set from the stage switcher in the debug
+// panel. Screens opened directly start her as Moving.
 export function useStatus(): Stage {
   return useStore().status ?? 'moving'
 }

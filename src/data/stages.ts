@@ -1,0 +1,293 @@
+// Placeholder content that changes with Chloe's stage (set in onboarding, or
+// from the stage switcher in the debug panel). Each tab reads its part from
+// here until the real flows for that stage are built.
+import type { Stage } from '../flow'
+import type { ArchiveFolder } from '../ui'
+import { pages } from './pages'
+
+export const stageNames: Record<Stage, string> = {
+  moving: 'Moving',
+  newcomer: 'Newcomer',
+  local: 'Local',
+}
+
+export const stageCity: Record<Stage, string> = {
+  moving: 'Los Angeles',
+  newcomer: 'New York',
+  local: 'New York',
+}
+
+// What she answered on her last night in LA. Seeds Newcomer suggestions and
+// the Local insight page.
+export const intention = 'Find people to draw with every week'
+
+// Extra cards at the top of the list on Today, per stage. `to` opens a tab
+// (with a segment) when tapped; cards without it wait for their flow.
+export type StageCard = {
+  id: string
+  eyebrow: string
+  title: string
+  subtitle: string
+  tone?: 'stage'
+  to?: { screen: 'community'; segment: CommunitySegment } | { screen: 'archive' }
+}
+
+export const todayCards: Record<Stage, StageCard[]> = {
+  moving: [
+    {
+      id: 'notes-waiting',
+      eyebrow: 'From friends',
+      title: '3 friends left you notes',
+      subtitle: "They stay sealed until you land in New York.",
+    },
+  ],
+  newcomer: [
+    {
+      id: 'wrapped',
+      eyebrow: 'You landed',
+      title: 'Your LA Wrapped is ready',
+      subtitle: 'Four years of LA, and the 5 notes friends left you.',
+      tone: 'stage',
+    },
+    {
+      id: 'gym-hint',
+      eyebrow: "From Maya's legacy",
+      title: "A gym with a Trader Joe's next door",
+      subtitle: 'Like yours in Pasadena. Crunch on 14th St, 6 min from you.',
+      to: { screen: 'community', segment: 'recs' },
+    },
+    {
+      id: 'intention',
+      eyebrow: 'For your intention',
+      title: 'Figure drawing at Spring Studio',
+      subtitle: `Thursdays at 7. You said: "${intention}".`,
+      to: { screen: 'community', segment: 'recs' },
+    },
+  ],
+  local: [
+    {
+      id: 'insight',
+      eyebrow: "You're a local now",
+      title: 'See how your life changed since LA',
+      subtitle: 'Compared with your LA snapshot, and your intention.',
+      tone: 'stage',
+    },
+    {
+      id: 'bookend',
+      eyebrow: 'Same prompt, a year apart',
+      title: 'Your seat in LA, and your seat here',
+      subtitle: 'Take the photo from your usual café, then see both side by side.',
+      to: { screen: 'archive' },
+    },
+  ],
+}
+
+// Archive folders: while Moving, LA is the open folder and New York doesn't
+// exist yet. After the move, New York opens on top and LA becomes a legacy.
+export function archiveFolders(stage: Stage): ArchiveFolder[] {
+  const [ny, la, seoul] = pages.archive.folders
+  if (stage !== 'moving') return [ny, la, seoul]
+  return [
+    { ...la, dates: '09.2023-', tabAlign: 'left', dateAlign: 'right', active: true, tone: 'active' },
+    { ...seoul, tone: 'mid' },
+  ]
+}
+
+export type ArchiveEntry = {
+  title: string
+  detail: string
+  // Only after she left: what she made public in her legacy
+  visibility?: 'private' | 'community'
+}
+
+export type ArchiveDetailContent = {
+  summary: string
+  sections: { header: string; entries: ArchiveEntry[] }[]
+}
+
+const laPlaces = [
+  { title: 'Lake Ave Café', detail: '214 photos · your seat by the window' },
+  { title: 'Eaton Canyon', detail: '42 photos · Sunday mornings' },
+  { title: 'Grand Central Market', detail: '31 photos, mostly of food' },
+  { title: 'ArtCenter Hillside studio', detail: '88 photos · late nights' },
+]
+
+export const archiveDetail: Record<string, Record<Stage, ArchiveDetailContent>> = {
+  la: {
+    moving: {
+      summary: 'Only you can see this. On your last night you choose what to pass on.',
+      sections: [
+        { header: 'Places', entries: laPlaces },
+        {
+          header: 'Reflections',
+          entries: [
+            { title: 'The view from my seat', detail: 'Oct 18 · daily prompt' },
+            { title: "Why this café: Trader Joe's next door", detail: 'Oct 12 · at Lake Ave Café' },
+          ],
+        },
+      ],
+    },
+    newcomer: {
+      summary: 'Your LA legacy: 6 of 14 pieces public, with 5 notes from people they helped.',
+      sections: [
+        {
+          header: 'Legacy',
+          entries: [
+            { ...laPlaces[0], visibility: 'community' },
+            { ...laPlaces[1], visibility: 'community' },
+            { ...laPlaces[2], visibility: 'community' },
+            { ...laPlaces[3], visibility: 'private' },
+          ],
+        },
+        {
+          header: 'Notes on your legacy',
+          entries: [{ title: '"Went to your café on day two. You were right about the window."', detail: 'Jess · moved to LA in January' }],
+        },
+      ],
+    },
+    local: {
+      summary: 'Your LA legacy: 6 of 14 pieces public, with 12 notes from people they helped.',
+      sections: [
+        {
+          header: 'Legacy',
+          entries: [
+            { ...laPlaces[0], visibility: 'community' },
+            { ...laPlaces[1], visibility: 'community' },
+            { ...laPlaces[2], visibility: 'community' },
+            { ...laPlaces[3], visibility: 'private' },
+          ],
+        },
+        {
+          header: 'Notes on your legacy',
+          entries: [
+            { title: '"Went to your café on day two. You were right about the window."', detail: 'Jess · moved to LA in January' },
+            { title: '"The Eaton Canyon tip saved my first Sunday."', detail: 'Marco · moved to LA in March' },
+          ],
+        },
+      ],
+    },
+  },
+  ny: {
+    moving: { summary: 'Opens when you arrive.', sections: [] },
+    newcomer: {
+      summary: 'Only you can see this. Your first weeks in New York.',
+      sections: [
+        {
+          header: 'Reflections',
+          entries: [
+            { title: 'What confused me today: the express train', detail: 'Feb 3 · daily prompt' },
+            { title: 'Coffee here costs more and comes faster', detail: 'Feb 5 · daily prompt' },
+          ],
+        },
+      ],
+    },
+    local: {
+      summary: 'Only you can see this. A year of New York.',
+      sections: [
+        {
+          header: 'Places',
+          entries: [
+            { title: 'Devoción, Williamsburg', detail: '96 photos · your seat by the plants' },
+            { title: 'Spring Studio', detail: '24 Thursdays of figure drawing' },
+            { title: "Crunch on 14th St", detail: "Trader Joe's next door" },
+          ],
+        },
+        {
+          header: 'Reflections',
+          entries: [{ title: 'The view from my seat, a year later', detail: 'Same prompt as LA' }],
+        },
+      ],
+    },
+  },
+}
+
+// Shared fallback for folders from before Baton (Seoul).
+export const olderArchive: ArchiveDetailContent = {
+  summary: 'From before Baton. Photos you imported, nothing else yet.',
+  sections: [],
+}
+
+export type CommunitySegment = 'recs' | 'qa'
+
+export type RecFilter = 'places' | 'logistics' | 'mentality'
+
+export const recFilters: { id: RecFilter; label: string }[] = [
+  { id: 'places', label: 'Places' },
+  { id: 'logistics', label: 'Logistics' },
+  { id: 'mentality', label: 'Mentality' },
+]
+
+export type Rec = { id: string; kind: RecFilter; title: string; detail: string; from: string; notes: number }
+
+// Drawn from the legacies of several people who lived like her and left NYC.
+export const recs: Rec[] = [
+  { id: 'gym', kind: 'places', title: "Crunch on 14th St", detail: "A gym with a Trader Joe's next door", from: 'Maya · left NYC in 2025', notes: 4 },
+  { id: 'cafe', kind: 'places', title: 'Devoción, Williamsburg', detail: 'Big tables, nobody rushes you', from: 'Ana · left NYC in 2024', notes: 7 },
+  { id: 'studio', kind: 'places', title: 'Spring Studio', detail: 'Figure drawing, Thursdays at 7, $25 drop-in', from: 'Leo · left NYC in 2025', notes: 3 },
+  { id: 'lease', kind: 'logistics', title: 'Ask for a 13-month lease', detail: 'The free month is often negotiable', from: 'Sam · left NYC in 2025', notes: 5 },
+  { id: 'omny', kind: 'logistics', title: 'Skip the MetroCard', detail: 'Tap your phone, rides cap at 12 a week', from: 'Ana · left NYC in 2024', notes: 2 },
+  { id: 'lonely', kind: 'mentality', title: 'Month two is the hardest', detail: 'Plan something every weekend that month', from: 'Maya · left NYC in 2025', notes: 9 },
+]
+
+export const communityHeader: Record<Stage, string> = {
+  moving: 'New York, before you get there',
+  newcomer: 'New York · from 5 people who lived like you',
+  local: 'New York · from 5 people who lived like you',
+}
+
+export type Question = { id: string; question: string; asker: string; answer?: { text: string; from: string } }
+
+export type QaContent = {
+  header: string
+  // Newcomers (and Moving) ask; locals only answer
+  action: 'ask' | 'answer'
+  questions: Question[]
+}
+
+export const qa: Record<Stage, QaContent> = {
+  moving: {
+    header: 'Ask New York before you go',
+    action: 'ask',
+    questions: [
+      {
+        id: 'q-hood',
+        question: 'Which neighborhood is calm but close to Midtown?',
+        asker: 'Priya · moving in March',
+        answer: { text: 'Look at Astoria. 20 minutes to Midtown on the N, and quiet after 9.', from: 'Leo · local since 2023' },
+      },
+    ],
+  },
+  newcomer: {
+    header: 'Your questions',
+    action: 'ask',
+    questions: [
+      {
+        id: 'q-draw',
+        question: 'Where can I draw for hours without buying three coffees?',
+        asker: 'You · 2 days ago',
+        answer: { text: "Brooklyn Public Library on Grand Army Plaza. Big tables, free, and nobody minds sketchbooks.", from: 'Ana · local since 2024' },
+      },
+      { id: 'q-laundry', question: 'Is wash-and-fold worth it?', asker: 'You · today' },
+    ],
+  },
+  local: {
+    header: 'Questions from newcomers',
+    action: 'answer',
+    questions: [
+      { id: 'q-draw-2', question: 'Where can I draw for hours without buying three coffees?', asker: 'Jess · arrived last week' },
+      { id: 'q-winter', question: 'What do I actually need for the first winter?', asker: 'Marco · arrived in October' },
+      {
+        id: 'q-gym',
+        question: 'Any gym near Union Square that isn’t packed at 7?',
+        asker: 'Kai · arrived in September',
+        answer: { text: "Crunch on 14th St after 8. Trader Joe's is next door, so you can shop on the way home.", from: 'You' },
+      },
+    ],
+  },
+}
+
+export const profileRows: Record<Stage, { lifestyle: string; intention?: string }> = {
+  moving: { lifestyle: 'Captured on your last night' },
+  newcomer: { lifestyle: 'From LA · Dec 18', intention },
+  local: { lifestyle: 'Changed since LA', intention },
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { DebugPanel } from './app/DebugPanel'
 import { DeviceFrame } from './app/DeviceFrame'
+import { useStore } from './app/store'
 import { usePersistentToggle } from './app/usePersistentToggle'
 import { useScreenIndex } from './app/useScreenIndex'
 import { tabs } from './data/pages'
@@ -13,6 +14,8 @@ function App() {
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
   const [kitOpen, setKitOpen] = useState(false)
   const { id, component: CurrentScreen, stage, tab } = flow[index]
+  // Her stage (onboarding or the debug panel) themes every screen once it's set
+  const { status } = useStore()
   const activeTab = tab ?? (tabs.some((t) => t.id === id) ? id : null)
 
   // Picking a screen from the debug panel closes the design system view.
@@ -24,7 +27,7 @@ function App() {
   return (
     <>
       <DeviceFrame framed={framed}>
-        <div data-stage={stage} className="relative h-full">
+        <div data-stage={status ?? stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />
           ) : activeTab ? (
