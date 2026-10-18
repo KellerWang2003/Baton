@@ -29,21 +29,40 @@ const tabIcons: Record<string, ReactNode> = {
   community: <CommunityIcon />,
 }
 
-// Page layout for the three tab pages: the profile avatar at top right, and on
-// Today the greeting in place of a title.
+// Page layout for the three tab pages. No top bar: the profile avatar floats
+// at top right over the content, and on Today the greeting scrolls with the page.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
 export function MainLayout({ title, subtitle, children, bleed = false }: MainLayoutProps) {
-  const avatar = (
-    <button type="button" onClick={() => navigate('profile')} aria-label="Profile">
-      <Avatar name={chloe.name} size="sm" />
-    </button>
+  const greeting = title && (
+    <header className="pr-12 pb-2 pt-3">
+      <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>
+      {subtitle && <p className="font-display text-title-3 text-ink-muted">{subtitle}</p>}
+    </header>
   )
 
   return (
-    <Screen title={title} subtitle={subtitle} action={avatar} bleed={bleed}>
-      {/* Room so the last content can scroll above the floating tab bar */}
-      {bleed ? children : <div className="pb-24">{children}</div>}
-    </Screen>
+    <div className="relative h-full">
+      <Screen bleed={bleed}>
+        {bleed ? (
+          // Room at the top so the floating avatar doesn't sit on the content
+          <div className="flex min-h-0 flex-1 flex-col pt-12">{children}</div>
+        ) : (
+          // Room so the last content can scroll above the floating tab bar
+          <div className="pb-24">
+            {greeting || <div className="h-14" />}
+            {children}
+          </div>
+        )}
+      </Screen>
+      <button
+        type="button"
+        onClick={() => navigate('profile')}
+        aria-label="Profile"
+        className="absolute right-4 top-3 z-10 rounded-full shadow-float active:opacity-80"
+      >
+        <Avatar name={chloe.name} size="sm" />
+      </button>
+    </div>
   )
 }
 
