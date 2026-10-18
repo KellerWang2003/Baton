@@ -39,7 +39,7 @@ export const auth = {
 
 export const about = {
   title: 'Tell us about yourself',
-  body: 'Baton works differently before you leave, after you land and once you settle in. Pick where you are now.',
+  body: "Baton works differently if you're leaving a city, just arrived somewhere new, or settled in.",
   moveOptions: [
     { id: 'moving', label: 'Moving soon', detail: "Save the places and people you'll miss, then pass them on when you leave." },
     { id: 'newcomer', label: 'Just arrived', detail: 'Get tips from people with your lifestyle who lived here before you.' },

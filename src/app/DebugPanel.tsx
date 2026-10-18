@@ -12,6 +12,8 @@ type DebugPanelProps = {
   toggleFrame: () => void
   kitOpen: boolean
   toggleKit: () => void
+  mapsOpen: boolean
+  toggleMaps: () => void
 }
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
@@ -20,7 +22,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit, mapsOpen, toggleMaps }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
 
@@ -111,6 +113,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
       <div className="flex flex-col gap-1 border-t border-line pt-3">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
+        <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
       </div>
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">

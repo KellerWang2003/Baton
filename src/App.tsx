@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, lazy, useState } from 'react'
 import { DebugPanel } from './app/DebugPanel'
 import { DeviceFrame } from './app/DeviceFrame'
 import { useStore } from './app/store'
@@ -9,10 +9,15 @@ import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
 import { UiKit } from './screens/UiKit'
 
+// The map library is big, so it only loads when the playground opens
+const MapPlayground = lazy(() => import('./screens/MapPlayground').then((m) => ({ default: m.MapPlayground })))
+
 function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
   const [kitOpen, setKitOpen] = useState(false)
+  // Map looks playground (team only): debug panel, or ?maps in the URL
+  const [mapsOpen, setMapsOpen] = useState(() => new URLSearchParams(window.location.search).has('maps'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
   const { status } = useStore()
@@ -47,7 +52,14 @@ function App() {
         toggleFrame={toggleFrame}
         kitOpen={kitOpen}
         toggleKit={() => setKitOpen((open) => !open)}
+        mapsOpen={mapsOpen}
+        toggleMaps={() => setMapsOpen((open) => !open)}
       />
+      {mapsOpen && (
+        <Suspense>
+          <MapPlayground onClose={() => setMapsOpen(false)} />
+        </Suspense>
+      )}
     </>
   )
 }

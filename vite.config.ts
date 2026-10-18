@@ -13,4 +13,7 @@ export default defineConfig({
   // Listen on the local network too, so the prototype opens on a phone on the
   // same wifi (npm run dev prints the Network URL)
   server: { host: true },
+  // MapLibre (the live Relay map) starts its map workers much faster served as
+  // is than pre-bundled
+  optimizeDeps: { exclude: ['maplibre-gl'] },
 })
