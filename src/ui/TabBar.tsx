@@ -5,6 +5,7 @@ import { ArrowUpIcon, MicIcon, PlusIcon } from './icons'
 import { RecentPhotos } from './RecentPhotos'
 import type { PhotoItem } from './RecentPhotos'
 import { useDictation } from './useDictation'
+import { LiquidGlassLayer } from './LiquidGlassLayer'
 
 export type TabItem = {
   id: string
@@ -27,10 +28,12 @@ type TabBarProps = {
   fieldRef?: (element: HTMLInputElement | null) => void
   placeholder?: string
   onSelect: (id: string) => void
+  // Real Liquid Glass (liquid-glass-react) behind the capsule and +, instead of the frosted white
+  liquidGlass?: boolean
 }
 
 // Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523).
-// Debug > Liquid glass swaps it for the Liquid Glass take (the glass utility in tokens.css)
+// Debug > Liquid glass swaps it for liquid-glass-react (LiquidGlassLayer)
 const glass = 'glass'
 // Icons in the bar are drawn a little smaller than the 24px line icons
 const iconSize = '[&_svg]:size-5'
@@ -61,6 +64,7 @@ export function TabBar({
   fieldRef,
   placeholder,
   onSelect,
+  liquidGlass = false,
 }: TabBarProps) {
   // The draft stays if she closes without sending, like Messages
   const [text, setText] = useState('')
@@ -131,6 +135,7 @@ export function TabBar({
             composing ? 'basis-[61px]' : 'basis-[207px]',
           )}
         >
+          {liquidGlass && <LiquidGlassLayer />}
           <div className={cx('absolute inset-x-1.5 inset-y-1 flex', layer(!composing, true))}>
             {tabs.map((tab) => (
               <button
@@ -170,6 +175,7 @@ export function TabBar({
             composing ? 'grow basis-0' : 'grow-0 basis-[58px]',
           )}
         >
+          {liquidGlass && <LiquidGlassLayer />}
           <form
             className={cx('flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
             onSubmit={(event) => {

@@ -173,11 +173,10 @@
   --texture-fibers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.22 -0.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
 }
 
-/* Tab bar glass. The default is the Figma nav (frosted white). Inside
-   data-glass="liquid" (Debug > Liquid glass) it becomes a WebKit-safe take on
-   Apple's Liquid Glass: clearer, a saturated light blur, a bright specular rim
-   lit from the top left and a soft inner glow. No SVG refraction: Safari and
-   iOS ignore displacement filters on the backdrop. */
+/* Tab bar glass: the Figma nav (frosted white). Inside data-glass="liquid"
+   (Debug > Liquid glass) liquid-glass-react draws the glass instead
+   (LiquidGlassLayer), so this steps aside: no backdrop-filter here, or the
+   layer inside would have no page behind it to refract. */
 @utility glass {
   background-color: var(--color-glass);
   box-shadow: var(--shadow-glass);
@@ -185,29 +184,9 @@
   backdrop-filter: blur(24px);
   [data-glass="liquid"] & {
     background-color: transparent;
-    background-image: linear-gradient(160deg, rgb(255 255 255 / 0.42), rgb(255 255 255 / 0.16) 55%, rgb(255 255 255 / 0.28));
-    box-shadow:
-      inset 1.5px 1.5px 0 -0.5px rgb(255 255 255 / 0.95),
-      inset -1px -1px 0 -0.5px rgb(255 255 255 / 0.6),
-      inset 0 0 14px rgb(255 255 255 / 0.35),
-      0 8px 28px rgb(0 0 0 / 0.12),
-      0 1px 3px rgb(0 0 0 / 0.08);
-    -webkit-backdrop-filter: blur(6px) saturate(190%) brightness(1.08);
-    backdrop-filter: blur(6px) saturate(190%) brightness(1.08);
-    &::before {
-      /* Specular edge: a thin rim, bright at the top left and bottom right */
-      content: "";
-      position: absolute;
-      inset: 0;
-      z-index: 2;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(135deg, rgb(255 255 255 / 0.95), rgb(255 255 255 / 0.1) 35%, rgb(255 255 255 / 0.05) 65%, rgb(255 255 255 / 0.7));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 /* The active tab's pill: solid white by default, a lighter lens in liquid glass */

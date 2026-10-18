@@ -45,7 +45,7 @@ function App() {
             <UiKit />
           ) : activeTab ? (
             // One tab bar for all tab pages, so switching tabs doesn't remount it
-            <TabShell activeTab={activeTab}>
+            <TabShell activeTab={activeTab} liquidGlass={liquidGlass}>
               <CurrentScreen />
             </TabShell>
           ) : (
