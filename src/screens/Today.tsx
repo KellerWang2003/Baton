@@ -6,6 +6,7 @@ import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
+import { promptMedium, promptMediumLabel } from '../data/pages'
 import { todayCards } from '../data/stages'
 import {
   allTodos,
@@ -33,7 +34,7 @@ import {
   ItemCard,
   ListIcon,
   PlaneIcon,
-  PromptCard,
+  PromptWindow,
   SetupCard,
   StackIcon,
 } from '../ui'
@@ -44,7 +45,8 @@ type TodayProps = {
   lastWeek?: boolean
 }
 
-// Today, top to bottom: the daily prompt (tap opens the + field), the setup
+// Today, top to bottom (Figma TODAY 236:1282): the daily prompt in a glass
+// circle with its medium above (tap opens the + field), then on a cream panel the setup
 // cards in a dashed outline until they're done, then "Before you leave" as a
 // list of cards: the legacy card in her last week in LA, her to-dos (tap for
 // tips) and suggestions for her stage.
@@ -53,6 +55,7 @@ export function Today({ lastWeek = false }: TodayProps) {
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
+  const medium = promptMedium(prompt.question)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
 
   const daysLeft = daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
@@ -86,13 +89,20 @@ export function Today({ lastWeek = false }: TodayProps) {
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
   return (
-    <MainLayout title={hello.title} subtitle={hello.subtitle} profile>
-      <div className="flex flex-col gap-6 pt-2">
-        {/* The whole card opens the + field in the tab bar, like tapping a widget */}
-        <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
-          <PromptCard image arrow question={prompt.question} reason={prompt.seed} />
-        </div>
+    <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
+      {/* Tapping the circle opens the + field in the tab bar, like tapping a widget */}
+      <PromptWindow
+        className="pb-12 pt-6"
+        question={prompt.question}
+        seed={prompt.seed}
+        medium={medium}
+        mediumLabel={promptMediumLabel[medium]}
+        onClick={openComposer}
+      />
 
+      {/* Everything else sits on a cream panel that runs to the bottom of the
+          page, under the floating tab bar */}
+      <div className="-mx-4 -mb-30 flex min-h-[420px] flex-col gap-6 rounded-t-panel bg-baton-cream px-4 pb-36 pt-7">
         {setupCount < setupItems.length && (
           <CardRow header={setup.header} detail={setupCards.progress(setupCount, setupItems.length)}>
             {setupItems.map((item) => (
