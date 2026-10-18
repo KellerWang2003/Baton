@@ -4,6 +4,8 @@ import { ChevronLeftIcon } from './icons'
 
 type ScreenProps = {
   title?: string
+  // Line under the large title, e.g. the rest of the greeting on Today
+  subtitle?: string
   eyebrow?: string
   onBack?: () => void
   backLabel?: string
@@ -22,7 +24,7 @@ type ScreenProps = {
 // Layout for one app screen in the iOS style: a navigation bar (back button and
 // trailing action), a large title, a scrolling body and an optional pinned footer.
 // Fills its container, so it works inside the phone frame and full-screen.
-export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas', bleed = false }: ScreenProps) {
+export function Screen({ title, subtitle, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas', bleed = false }: ScreenProps) {
   return (
     <div className={cx('flex h-full flex-col transition-colors duration-500', background)}>
       {onBack && (
@@ -41,11 +43,12 @@ export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron
           {action}
         </nav>
       )}
-      {(title || eyebrow) && (
+      {(title || eyebrow || (!onBack && action)) && (
         <header className={cx('flex items-end gap-2 px-4 pb-2', onBack ? 'pt-0' : 'pt-3')}>
           <div className="min-w-0 flex-1">
             {eyebrow && <p className="text-footnote font-semibold uppercase text-stage">{eyebrow}</p>}
-            {title && <h1 className="truncate font-display text-large-title font-bold text-ink">{title}</h1>}
+            {title && <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>}
+            {subtitle && <p className="font-display text-title-3 text-ink-muted">{subtitle}</p>}
           </div>
           {!onBack && action && <div className="pb-1">{action}</div>}
         </header>

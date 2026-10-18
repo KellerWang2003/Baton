@@ -10,7 +10,9 @@ import { recentPhotos } from '../data/photos'
 import { ArchiveIcon, Avatar, MapPinIcon, CommunityIcon, Screen, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
-  title: string
+  // Tabs have no page title; Today shows its greeting here
+  title?: string
+  subtitle?: string
   children: ReactNode
   // Full-bleed body that stretches to the bottom edge (e.g. Archive folders)
   bleed?: boolean
@@ -27,9 +29,10 @@ const tabIcons: Record<string, ReactNode> = {
   community: <CommunityIcon />,
 }
 
-// Page layout for the three tab pages: large title with the profile avatar.
+// Page layout for the three tab pages: the profile avatar at top right, and on
+// Today the greeting in place of a title.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
-export function MainLayout({ title, children, bleed = false }: MainLayoutProps) {
+export function MainLayout({ title, subtitle, children, bleed = false }: MainLayoutProps) {
   const avatar = (
     <button type="button" onClick={() => navigate('profile')} aria-label="Profile">
       <Avatar name={chloe.name} size="sm" />
@@ -37,7 +40,7 @@ export function MainLayout({ title, children, bleed = false }: MainLayoutProps) 
   )
 
   return (
-    <Screen title={title} action={avatar} bleed={bleed}>
+    <Screen title={title} subtitle={subtitle} action={avatar} bleed={bleed}>
       {/* Room so the last content can scroll above the floating tab bar */}
       {bleed ? children : <div className="pb-24">{children}</div>}
     </Screen>

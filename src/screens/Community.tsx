@@ -6,7 +6,7 @@ import type { CommunitySegment, RecFilter } from '../data/stages'
 import { Button, Card, Chip, ItemCard, SegmentedControl } from '../ui'
 import { MainLayout } from './MainLayout'
 
-const { title, segments } = pages.community
+const { segments } = pages.community
 
 // Recommendations drawn from the legacies of lifestyle-matched leavers, and
 // Q&A. Placeholder content follows her stage: Moving previews New York and can
@@ -19,7 +19,7 @@ export function Community() {
   const questions = qa[status]
 
   return (
-    <MainLayout title={title}>
+    <MainLayout>
       <div className="flex flex-col gap-4 pt-1">
         <SegmentedControl
           segments={segments as { id: CommunitySegment; label: string }[]}

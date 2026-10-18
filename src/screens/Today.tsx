@@ -5,7 +5,7 @@ import { navigate } from '../app/navigate'
 import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
-import { pages } from '../data/pages'
+import { greeting, timeOfDay } from '../data/greetings'
 import { todayCards } from '../data/stages'
 import {
   allTodos,
@@ -57,6 +57,7 @@ export function Today({ lastWeek = false }: TodayProps) {
 
   const daysLeft = daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
   const leaving = shortDate(leaveDate)
+  const hello = greeting(status, timeOfDay(), daysLeft)
 
   // Setup cards. Locals have no logistics to pick; only Moving has a leave date.
   const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode }[] = [
@@ -85,7 +86,7 @@ export function Today({ lastWeek = false }: TodayProps) {
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
   return (
-    <MainLayout title={pages.today.title}>
+    <MainLayout title={hello.title} subtitle={hello.subtitle}>
       <div className="flex flex-col gap-6 pt-2">
         {/* The whole card opens the + field in the tab bar, like tapping a widget */}
         <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
