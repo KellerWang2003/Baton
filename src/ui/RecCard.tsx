@@ -78,25 +78,39 @@ export function RecCard({ title, text, tone, photo, size = 'lg', onClick }: RecC
   )
 }
 
+const toneDot: Record<RecTone, string> = {
+  blue: 'bg-baton-blue',
+  yellow: 'bg-baton-yellow',
+  pink: 'bg-baton-pink',
+  olive: 'bg-baton-olive',
+  cream: 'bg-baton-cream ring-1 ring-line',
+  navy: 'bg-baton-navy',
+}
+
 type CategoryChipProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   selected?: boolean
-  // Selected chips fill with their category color
+  // The category color: a dot on the chip, and its fill when picked.
+  // Without it (All) the chip has no dot and fills navy.
   tone?: RecTone
 }
 
-// Filter chip on Relay: a soft gray capsule, filled with the category color
-// when it's picked (All fills navy).
-export function CategoryChip({ selected = false, tone = 'navy', className, type = 'button', ...props }: CategoryChipProps) {
+// Filter chip on Relay: a soft gray capsule with a dot in its category color,
+// filled with that color when it's picked, so chips match their cards.
+export function CategoryChip({ selected = false, tone, className, type = 'button', children, ...props }: CategoryChipProps) {
   return (
     <button
       type={type}
       aria-pressed={selected}
       className={cx(
-        'inline-flex h-10 shrink-0 items-center whitespace-nowrap rounded-full px-6 text-callout transition active:opacity-70',
-        selected ? toneFill[tone] : 'bg-baton-chip text-ink',
+        'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-full text-callout transition active:opacity-70',
+        tone ? 'pl-4 pr-5' : 'px-6',
+        selected ? cx(toneFill[tone ?? 'navy'], 'font-semibold ring-[1.5px] ring-inset ring-baton-navy') : 'bg-baton-chip text-ink',
         className,
       )}
       {...props}
-    />
+    >
+      {tone && <span aria-hidden className={cx('size-2.5 shrink-0 rounded-full', toneDot[tone])} />}
+      {children}
+    </button>
   )
 }
