@@ -23,7 +23,7 @@ export const pages = {
         dates: '02.2027-present',
         tabAlign: 'left' as const,
         dateAlign: 'right' as const,
-        tone: 'olive' as const,
+        tone: 'navy' as const,
       },
       {
         id: 'la',
@@ -31,7 +31,7 @@ export const pages = {
         dates: '09.2023-01.2027',
         tabAlign: 'right' as const,
         dateAlign: 'left' as const,
-        tone: 'blue' as const,
+        tone: 'olive' as const,
       },
       {
         id: 'seoul',
@@ -39,7 +39,7 @@ export const pages = {
         dates: '07.2022-08.2023',
         tabAlign: 'center' as const,
         dateAlign: 'left' as const,
-        tone: 'cream' as const,
+        tone: 'blue' as const,
       },
       {
         id: 'chicago',
@@ -47,7 +47,7 @@ export const pages = {
         dates: '09.2021-06.2022',
         tabAlign: 'left' as const,
         dateAlign: 'right' as const,
-        tone: 'pink' as const,
+        tone: 'cream' as const,
       },
       {
         id: 'taipei',
@@ -55,7 +55,7 @@ export const pages = {
         dates: '01.2020-08.2021',
         tabAlign: 'right' as const,
         dateAlign: 'left' as const,
-        tone: 'yellow' as const,
+        tone: 'pink' as const,
       },
       {
         id: 'busan',
@@ -63,7 +63,7 @@ export const pages = {
         dates: '03.2018-12.2019',
         tabAlign: 'center' as const,
         dateAlign: 'left' as const,
-        tone: 'navy' as const,
+        tone: 'yellow' as const,
       },
     ],
   },

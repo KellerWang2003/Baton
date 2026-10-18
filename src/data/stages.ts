@@ -84,15 +84,14 @@ export const todayCards: Record<Stage, StageCard[]> = {
 
 // Archive folders: while Moving, LA is the open folder and New York doesn't
 // exist yet. After the move, New York opens on top and LA becomes a legacy.
-// Colors and tab positions belong to the slot, not the city, so the stack
-// always starts olive, blue, cream like the Figma Archive frame (256:196).
+// Each city keeps its color in every stage (New York's navy is used by no
+// other city). Tab positions belong to the slot, so tabs still zigzag.
 export function archiveFolders(stage: Stage): ArchiveFolder[] {
   const slots = pages.archive.folders
   if (stage !== 'moving') return slots
   const [, la, ...older] = slots
   return [{ ...la, dates: '09.2023-present' }, ...older].map((folder, index) => ({
     ...folder,
-    tone: slots[index].tone,
     tabAlign: slots[index].tabAlign,
     dateAlign: slots[index].dateAlign,
   }))
