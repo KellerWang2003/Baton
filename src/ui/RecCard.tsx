@@ -113,15 +113,6 @@ function FlatCard({ title, text, tone, photo, label, size = 'lg', onClick, paper
   )
 }
 
-// Washi tape in a color that stands out from the scrap under it
-const tapeOn: Record<RecTone, string> = {
-  blue: 'bg-baton-yellow',
-  yellow: 'bg-baton-blue',
-  pink: 'bg-baton-yellow',
-  olive: 'bg-baton-pink',
-  cream: 'bg-baton-pink',
-  navy: 'bg-baton-yellow',
-}
 const tilts = ['-rotate-[1.6deg]', 'rotate-[1.2deg]', '-rotate-[0.6deg]', 'rotate-[2deg]']
 
 // Scrapbook: a tilted paper scrap taped into the row
@@ -139,7 +130,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
       >
         <span
           aria-hidden
-          className={cx('absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 shadow-card', tapeOn[tone])}
+          className={cx('absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-card')}
         />
         <div className={cx('relative w-full shrink-0 overflow-hidden rounded-[3px]', recSizes[size].photo)}>
           <img src={photo} alt="" draggable={false} className="size-full object-cover" />
