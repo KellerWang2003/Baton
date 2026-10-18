@@ -91,6 +91,14 @@ export const pages = {
 // seed: why the prompt showed up (usually where she is), shown small under it
 export type DailyPrompt = { seed: string; question: string }
 
+// What a prompt asks for, shown as a small label above it on Today. Read from
+// the verb-first wording ("Take a photo of..." vs "Write...").
+export type PromptMedium = 'photo' | 'write'
+export function promptMedium(question: string): PromptMedium {
+  return /photo/i.test(question) ? 'photo' : 'write'
+}
+export const promptMediumLabel: Record<PromptMedium, string> = { photo: 'Photo', write: 'Write' }
+
 // Today's light prompts per stage, in the plain verb-first wording from
 // docs/daily-prompts.md. Today shows the first; the rest are for later days.
 // Moving and Local open with the café bookend.

@@ -18,6 +18,8 @@ export { BatonMark, Logo } from './Logo'
 export { PromptCard } from './PromptCard'
 export { CategoryChip, RecCard, ToneTile } from './RecCard'
 export type { RecTone } from './RecCard'
+export { todayLooks } from './todayLooks'
+export type { TodayLook, TodayLookStyle } from './todayLooks'
 export { relayChipIdle, relayLooks, relayPage, relaySection } from './relayLooks'
 export type { RelayLook } from './relayLooks'
 export { RecentPhotos } from './RecentPhotos'
@@ -47,6 +49,7 @@ export {
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  PencilIcon,
   RelayIcon,
   SearchIcon,
   HomeGraphic,

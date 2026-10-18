@@ -16,6 +16,8 @@ type DebugPanelProps = {
   toggleMaps: () => void
   looksOpen: boolean
   toggleLooks: () => void
+  todayLooksOpen: boolean
+  toggleTodayLooks: () => void
 }
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
@@ -24,7 +26,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
 
@@ -117,6 +119,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
+        <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
       </div>
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
