@@ -105,8 +105,26 @@ const ACTIVE_STEP_HEIGHT = 480
 const COMPACT_STEP_HEIGHT = 96
 const VISIBLE_FOLDERS = 3
 
-// Deliberate scroll distance (in px) required to step from one active folder to the next:
+// Scroll position (in px) of one folder step. Snapped positions are
+// index * SCROLL_TRAVEL_PER_FOLDER; only a scrub sits between them.
 const SCROLL_TRAVEL_PER_FOLDER = 180
+
+// Gestures (Keller, Oct 18):
+// - A quick swipe (or any plain drag past SWIPE_DISTANCE) pages exactly one
+//   folder, like flicking through cards. While the finger is down the stack
+//   only stretches toward the next folder, so it never skips ahead.
+// - Press and hold (LONG_PRESS_MS without moving) lifts the stack, then
+//   dragging scrubs through every folder continuously, about
+//   SCRUB_PX_PER_FOLDER of finger travel each, with a tick per folder. On
+//   release it settles on the nearest one.
+// - Trackpad and mouse wheel page one folder per gesture.
+const LONG_PRESS_MS = 320
+const MOVE_SLOP = 8
+const SWIPE_DISTANCE = 36
+const SWIPE_VELOCITY = 0.35 // px per ms
+const SCRUB_PX_PER_FOLDER = 64
+const WHEEL_STEP = 40
+const WHEEL_QUIET_MS = 200
 
 function rubberBand(distance: number, max = 64) {
   const sign = Math.sign(distance)
@@ -114,117 +132,178 @@ function rubberBand(distance: number, max = 64) {
   return sign * max * (1 - Math.exp(-abs / (max * 1.8)))
 }
 
-// Stacked, scrollable city folders for the Archive screen.
+function tick(ms = 8) {
+  navigator.vibrate?.(ms)
+}
+
+// Stacked city folders for the Archive screen.
 // - Each folder keeps its own fixed color tone.
 // - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
-// - Scrolling or dragging steps the expanded active footprint through the
-//   stack (180px of travel per folder) and glides the stack upward.
+// - Swipe to page one folder, press and hold then drag to scrub (see above).
 export function FolderStack({ folders, onSelect, renderActive, footer, className }: FolderStackProps) {
-  const releaseTimerRef = useRef<number | null>(null)
-  const scrollPosRef = useRef(0)
-  const overscrollRef = useRef(0)
+  const longPressTimerRef = useRef<number | null>(null)
+  const wheelTimerRef = useRef<number | null>(null)
+  const wheelRef = useRef({ accum: 0, locked: false })
   const dragStateRef = useRef<{
     active: boolean
+    pointerId: number
     startY: number
-    startScrollPos: number
+    startIndex: number
     moved: boolean
-  }>({ active: false, startY: 0, startScrollPos: 0, moved: false })
+    scrubbing: boolean
+    samples: { y: number; t: number }[]
+  }>({ active: false, pointerId: -1, startY: 0, startIndex: 0, moved: false, scrubbing: false, samples: [] })
 
   const [activeIndex, setActiveIndex] = useState(0)
-  const [scrollProgress, setScrollProgress] = useState(0)
+  // Continuous position while scrubbing, null when resting on activeIndex
+  const [scrubPos, setScrubPos] = useState<number | null>(null)
+  const [scrubbing, setScrubbing] = useState(false)
   // Signed squeeze offset in px:
   // > 0 means user is pulling DOWN (folders shift downward and compress against the bottom)
   // < 0 means user is pulling UP (folders shift upward and compress against the top)
   const [pullOffset, setPullOffset] = useState(0)
 
   const lastIdx = Math.max(1, folders.length - 1)
+  const maxIndex = Math.max(0, folders.length - 1)
   const maxScroll = lastIdx * SCROLL_TRAVEL_PER_FOLDER
+  const clampIndex = (i: number) => Math.min(maxIndex, Math.max(0, i))
 
   useEffect(() => {
     return () => {
-      if (releaseTimerRef.current !== null) {
-        window.clearTimeout(releaseTimerRef.current)
-      }
+      if (longPressTimerRef.current !== null) window.clearTimeout(longPressTimerRef.current)
+      if (wheelTimerRef.current !== null) window.clearTimeout(wheelTimerRef.current)
     }
   }, [])
 
-  const scheduleRelease = (delay = 160) => {
-    if (releaseTimerRef.current !== null) {
-      window.clearTimeout(releaseTimerRef.current)
+  const clearLongPress = () => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current)
+      longPressTimerRef.current = null
     }
-    releaseTimerRef.current = window.setTimeout(() => {
-      if (!dragStateRef.current.active) {
-        overscrollRef.current = 0
-        setPullOffset(0)
-      }
-    }, delay)
   }
 
-  const applyScrollPosition = (nextPos: number, delta: number) => {
-    if (nextPos < 0) {
-      scrollPosRef.current = 0
-      overscrollRef.current = -nextPos
-      setPullOffset(rubberBand(overscrollRef.current, 64))
-    } else if (nextPos > maxScroll) {
-      scrollPosRef.current = maxScroll
-      overscrollRef.current = nextPos - maxScroll
-      setPullOffset(-rubberBand(overscrollRef.current, 64))
-    } else {
-      scrollPosRef.current = nextPos
-      overscrollRef.current = 0
-      const impulse = Math.max(-24, Math.min(24, -delta * 0.45))
-      setPullOffset(impulse)
-    }
-
-    const progress = maxScroll > 0 ? scrollPosRef.current / maxScroll : 0
-    setScrollProgress(progress)
-
-    const rawTarget = scrollPosRef.current / SCROLL_TRAVEL_PER_FOLDER
-    setActiveIndex((prev) => {
-      const distance = rawTarget - prev
-      if (Math.abs(distance) < 0.55) return prev
-      return Math.min(lastIdx, Math.max(0, Math.round(rawTarget)))
-    })
+  // Page one folder (dir = +1 next, -1 previous). Past either end the stack
+  // just bounces back.
+  const step = (from: number, dir: number) => {
+    const next = clampIndex(from + dir)
+    setActiveIndex(next)
+    setPullOffset(0)
   }
 
   const handleWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
-    const nextPos = scrollPosRef.current + event.deltaY
-    applyScrollPosition(nextPos, event.deltaY)
-    scheduleRelease(150)
+    const wheel = wheelRef.current
+    if (wheelTimerRef.current !== null) window.clearTimeout(wheelTimerRef.current)
+    wheelTimerRef.current = window.setTimeout(() => {
+      wheel.accum = 0
+      wheel.locked = false
+      setPullOffset(0)
+    }, WHEEL_QUIET_MS)
+    if (wheel.locked) return
+
+    wheel.accum += event.deltaY
+    if (Math.abs(wheel.accum) >= WHEEL_STEP) {
+      // One folder per gesture; trackpad momentum is ignored until it settles
+      wheel.locked = true
+      step(activeIndex, Math.sign(wheel.accum))
+    } else {
+      setPullOffset(rubberBand(-wheel.accum, 40))
+    }
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (releaseTimerRef.current !== null) {
-      window.clearTimeout(releaseTimerRef.current)
-    }
+    if (event.pointerType === 'mouse' && event.button !== 0) return
+    clearLongPress()
+    const now = performance.now()
     dragStateRef.current = {
       active: true,
+      pointerId: event.pointerId,
       startY: event.clientY,
-      startScrollPos: scrollPosRef.current,
+      startIndex: activeIndex,
       moved: false,
+      scrubbing: false,
+      samples: [{ y: event.clientY, t: now }],
     }
+    longPressTimerRef.current = window.setTimeout(() => {
+      longPressTimerRef.current = null
+      const drag = dragStateRef.current
+      if (!drag.active || drag.moved) return
+      // Lift: the stack shrinks back a little and follows the finger 1:1
+      drag.scrubbing = true
+      drag.moved = true // so releasing doesn't open the folder
+      setScrubbing(true)
+      setScrubPos(drag.startIndex * SCROLL_TRAVEL_PER_FOLDER)
+      tick(12)
+    }, LONG_PRESS_MS)
   }
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current
-    if (!drag.active) return
+    if (!drag.active || event.pointerId !== drag.pointerId) return
+
+    const now = performance.now()
+    drag.samples.push({ y: event.clientY, t: now })
+    while (drag.samples.length > 2 && now - drag.samples[0].t > 100) drag.samples.shift()
 
     const deltaY = event.clientY - drag.startY
-    if (Math.abs(deltaY) > 5) {
+
+    if (drag.scrubbing) {
+      const raw = drag.startIndex * SCROLL_TRAVEL_PER_FOLDER - (deltaY * SCROLL_TRAVEL_PER_FOLDER) / SCRUB_PX_PER_FOLDER
+      const pos = Math.min(maxScroll, Math.max(0, raw))
+      setScrubPos(pos)
+      // Stretch past either end
+      setPullOffset(raw < 0 ? rubberBand(-raw / 3, 48) : raw > maxScroll ? -rubberBand((raw - maxScroll) / 3, 48) : 0)
+      const index = clampIndex(Math.round(pos / SCROLL_TRAVEL_PER_FOLDER))
+      if (index !== activeIndex) {
+        setActiveIndex(index)
+        tick()
+      }
+      return
+    }
+
+    if (!drag.moved && Math.abs(deltaY) > MOVE_SLOP) {
       drag.moved = true
+      clearLongPress()
+      event.currentTarget.setPointerCapture?.(event.pointerId)
     }
     if (!drag.moved) return
 
-    const nextPos = drag.startScrollPos - deltaY * 1.25
-    applyScrollPosition(nextPos, -deltaY)
+    // Plain swipe: the stack stretches toward the next folder, then pages on release
+    setPullOffset(rubberBand(deltaY, 56))
   }
 
-  const endPointerDrag = () => {
-    if (!dragStateRef.current.active) return
-    dragStateRef.current.active = false
-    overscrollRef.current = 0
+  const endPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = dragStateRef.current
+    if (!drag.active || event.pointerId !== drag.pointerId) return
+    drag.active = false
+    clearLongPress()
+
+    if (drag.scrubbing) {
+      drag.scrubbing = false
+      setScrubbing(false)
+      setScrubPos(null)
+      setPullOffset(0)
+      return
+    }
+
+    if (drag.moved && event.type === 'pointerup') {
+      const deltaY = event.clientY - drag.startY
+      const first = drag.samples[0]
+      const last = drag.samples[drag.samples.length - 1]
+      const dt = last.t - first.t
+      const velocity = dt > 0 ? (last.y - first.y) / dt : 0
+      const flicked = Math.abs(velocity) > SWIPE_VELOCITY && Math.abs(deltaY) > MOVE_SLOP
+      if (Math.abs(deltaY) > SWIPE_DISTANCE || flicked) {
+        // Finger up = next folder
+        const dir = flicked ? -Math.sign(velocity) : -Math.sign(deltaY)
+        step(drag.startIndex, dir)
+        return
+      }
+    }
     setPullOffset(0)
   }
+
+  const scrollPos = scrubPos ?? activeIndex * SCROLL_TRAVEL_PER_FOLDER
+  const scrollProgress = maxScroll > 0 ? scrollPos / maxScroll : 0
 
   // Since 3 folders fit in the viewport at any time (1 active + 2 compact),
   // scrolling from top to bottom shifts the stack up by (N - 3) compact steps
@@ -240,15 +319,20 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
       onPointerMove={handlePointerMove}
       onPointerUp={endPointerDrag}
       onPointerCancel={endPointerDrag}
-      onPointerLeave={endPointerDrag}
+      onContextMenu={(event) => event.preventDefault()}
       className={cx(
-        'relative isolate flex flex-1 flex-col justify-start overflow-hidden pt-7 select-none touch-none cursor-grab active:cursor-grabbing',
+        'relative isolate flex flex-1 flex-col justify-start overflow-hidden pt-7 select-none touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]',
         className,
       )}
     >
       <div
-        style={{ transform: `translateY(${stackShiftY.toFixed(1)}px)` }}
-        className="flex w-full flex-col transition-transform duration-200 ease-out"
+        style={{
+          transform: `translateY(${stackShiftY.toFixed(1)}px)${scrubbing ? ' scale(0.96)' : ''}`,
+        }}
+        className={cx(
+          'flex w-full origin-top flex-col transition-transform ease-[cubic-bezier(0.22,1,0.36,1)]',
+          scrubbing ? 'duration-150' : 'duration-[420ms]',
+        )}
       >
         {folders.map((folder, index) => {
           const isLast = index === folders.length - 1
