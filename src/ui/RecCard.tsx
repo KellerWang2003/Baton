@@ -12,6 +12,20 @@ const toneFill: Record<RecTone, string> = {
   navy: 'bg-baton-navy text-on-brand',
 }
 
+// Small glass tag naming a card's category, on the top left of its photo
+function CategoryTag({ label, className }: { label: string; className?: string }) {
+  return (
+    <span
+      className={cx(
+        'absolute rounded-full bg-glass px-2.5 py-1 text-caption font-semibold leading-none text-baton-navy backdrop-blur',
+        className,
+      )}
+    >
+      {label}
+    </span>
+  )
+}
+
 type ToneTileProps = {
   tone: RecTone
   src?: string
@@ -30,11 +44,7 @@ export function ToneTile({ tone, src, alt, label, className }: ToneTileProps) {
       ) : (
         <span role="img" aria-label={alt} className="block size-full" />
       )}
-      {label && (
-        <span className="absolute left-3 top-3 rounded-full bg-glass px-2.5 py-1 text-caption font-semibold text-baton-navy backdrop-blur">
-          {label}
-        </span>
-      )}
+      {label && <CategoryTag label={label} className="left-3 top-3" />}
     </div>
   )
 }
@@ -52,13 +62,16 @@ type RecCardProps = {
   text: string
   tone: RecTone
   photo: string
+  // The category, as a small tag on the photo's top left (chips only show
+  // color once picked)
+  label?: string
   size?: keyof typeof recSizes
   onClick?: () => void
 }
 
 // A recommendation in a sideways row (Figma Relay 265:2550): the card takes its
 // category color, a rounded photo on top, a bold name and a softer line under it.
-export function RecCard({ title, text, tone, photo, size = 'lg', onClick }: RecCardProps) {
+export function RecCard({ title, text, tone, photo, label, size = 'lg', onClick }: RecCardProps) {
   return (
     <button
       type="button"
@@ -69,7 +82,10 @@ export function RecCard({ title, text, tone, photo, size = 'lg', onClick }: RecC
         recSizes[size].card,
       )}
     >
-      <img src={photo} alt="" draggable={false} className={cx('w-full rounded-card object-cover', recSizes[size].photo)} />
+      <div className={cx('relative w-full shrink-0 overflow-hidden rounded-card', recSizes[size].photo)}>
+        <img src={photo} alt="" draggable={false} className="size-full object-cover" />
+        {label && <CategoryTag label={label} className={size === 'sm' ? 'left-2 top-2' : 'left-3 top-3'} />}
+      </div>
       <div className="flex flex-col gap-1 px-2 pb-2">
         <p className="font-display text-card-title font-bold">{title}</p>
         <p className="line-clamp-3 text-card-body opacity-60">{text}</p>

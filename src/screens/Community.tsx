@@ -196,6 +196,7 @@ export function Community() {
                         title={item.title}
                         text={item.source.kind === 'baton' ? item.source.why : item.body}
                         tone={relayCategory(item.category).tone}
+                        label={relayCategory(item.category).label}
                         photo={item.photo ?? relayPlaceholderPhoto}
                         onClick={() => open(item.id)}
                       />
@@ -226,6 +227,7 @@ export function Community() {
                             title={item.title}
                             text={`“${item.quote ?? item.body}”`}
                             tone={relayCategory(item.category).tone}
+                            label={relayCategory(item.category).label}
                             photo={item.photo ?? relayPlaceholderPhoto}
                             onClick={() => open(item.id)}
                           />
