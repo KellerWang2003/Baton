@@ -103,11 +103,15 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
         className="pointer-events-none absolute inset-0 z-20"
       >
-        {/* While typing: a brand gradient over the blurred page, and what she's answering */}
+        {/* While typing: a blue gradient over the page, clear at the top so
+            the page still shows there, and blurred and deeper toward the field */}
         <div
           onClick={() => setState({ composing: false })}
-          className={`absolute inset-0 z-20 bg-linear-to-b from-baton-cream/95 via-baton-pink/75 to-baton-blue/75 backdrop-blur-xl transition-opacity duration-300 ${composing ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
-        />
+          className={`absolute inset-0 z-20 transition-opacity duration-300 ${composing ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+        >
+          <div className="absolute inset-0 backdrop-blur-lg [mask-image:linear-gradient(to_bottom,transparent_8%,black_32%)]" />
+          <div className="absolute inset-0 bg-linear-to-b from-baton-blue/0 from-5% via-baton-blue/45 via-50% to-baton-blue/90" />
+        </div>
 
         {/* Rides on top of the keyboard on phones */}
         <div
