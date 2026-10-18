@@ -47,7 +47,7 @@ export const pages = {
         dates: '09.2021-06.2022',
         tabAlign: 'left' as const,
         dateAlign: 'right' as const,
-        tone: 'olive' as const,
+        tone: 'pink' as const,
       },
       {
         id: 'taipei',
@@ -55,7 +55,7 @@ export const pages = {
         dates: '01.2020-08.2021',
         tabAlign: 'right' as const,
         dateAlign: 'left' as const,
-        tone: 'blue' as const,
+        tone: 'yellow' as const,
       },
       {
         id: 'busan',
@@ -63,7 +63,7 @@ export const pages = {
         dates: '03.2018-12.2019',
         tabAlign: 'center' as const,
         dateAlign: 'left' as const,
-        tone: 'cream' as const,
+        tone: 'navy' as const,
       },
     ],
   },

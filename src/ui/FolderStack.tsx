@@ -8,7 +8,7 @@ export type ArchiveFolder = {
   dates: string
   tabAlign: 'left' | 'center' | 'right'
   dateAlign: 'left' | 'right'
-  tone: 'olive' | 'blue' | 'cream'
+  tone: 'olive' | 'blue' | 'cream' | 'pink' | 'yellow' | 'navy'
 }
 
 type FolderStackProps = {
@@ -48,6 +48,28 @@ const toneStyles: Record<
     title: 'text-baton-navy',
     dates: 'text-on-baton-cream-muted',
     body: 'text-baton-navy',
+  },
+  // The rest of the brand palette (Figma brand frame, 223:175), so folders vary
+  pink: {
+    fill: 'bg-baton-pink [--folder-fill:var(--color-baton-pink)]',
+    fillText: 'text-baton-pink',
+    title: 'text-baton-navy',
+    dates: 'text-baton-navy/60',
+    body: 'text-baton-navy',
+  },
+  yellow: {
+    fill: 'bg-baton-yellow [--folder-fill:var(--color-baton-yellow)]',
+    fillText: 'text-baton-yellow',
+    title: 'text-baton-navy',
+    dates: 'text-baton-navy/60',
+    body: 'text-baton-navy',
+  },
+  navy: {
+    fill: 'bg-baton-navy [--folder-fill:var(--color-baton-navy)]',
+    fillText: 'text-baton-navy',
+    title: 'text-baton-pink',
+    dates: 'text-baton-cream/60',
+    body: 'text-baton-cream',
   },
 }
 
