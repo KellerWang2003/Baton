@@ -190,3 +190,20 @@ export function ArrowRightIcon() {
     </Icon>
   )
 }
+
+export function SearchIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <Icon strokeWidth={2.2} className={className}>
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="M16 16l4.5 4.5" />
+    </Icon>
+  )
+}
+
+export function NoteIcon({ className = 'size-4' }: { className?: string }) {
+  return (
+    <Icon strokeWidth={2} className={className}>
+      <path d="M4.5 6a1.5 1.5 0 0 1 1.5-1.5h12A1.5 1.5 0 0 1 19.5 6v8.5A1.5 1.5 0 0 1 18 16h-8l-4 3.5V16a1.5 1.5 0 0 1-1.5-1.5z" />
+    </Icon>
+  )
+}

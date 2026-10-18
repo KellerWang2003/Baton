@@ -16,6 +16,8 @@ export { ItemCard } from './ItemCard'
 export { ListRow, ListSection } from './List'
 export { BatonMark, Logo } from './Logo'
 export { PromptCard } from './PromptCard'
+export { PickCard, TipCard, ToneTile } from './RecCard'
+export type { RecTone } from './RecCard'
 export { RecentPhotos } from './RecentPhotos'
 export type { PhotoItem } from './RecentPhotos'
 export { Screen } from './Screen'
@@ -41,9 +43,11 @@ export {
   ChevronLeftIcon,
   ChevronRightIcon,
   RelayIcon,
+  SearchIcon,
   HomeGraphic,
   ListIcon,
   MapPinIcon,
+  NoteIcon,
   PhotosIcon,
   PlaneIcon,
   PlusIcon,

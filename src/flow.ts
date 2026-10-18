@@ -10,6 +10,7 @@ import { LeaveDate } from './screens/LeaveDate'
 import { PhotoAccess } from './screens/PhotoAccess'
 import { Places } from './screens/Places'
 import { Profile } from './screens/Profile'
+import { RelayDetail } from './screens/RelayDetail'
 import { SignUp } from './screens/SignUp'
 import { Splash } from './screens/Splash'
 import { Today, TodayLastWeek } from './screens/Today'
@@ -48,6 +49,8 @@ export const flow: FlowScreen[] = [
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
   // 6. Last week in LA: Today shows the legacy card
   { id: 'today-last-week', title: 'Today: last week in LA', stage: 'moving', component: TodayLastWeek, tab: 'today' },
+  // 9. Recommendation detail: a Relay pick or tip, with notes on it
+  { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail },
 ]
 
 export const stageLabels: Record<Stage, string> = {

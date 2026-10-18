@@ -70,7 +70,7 @@ export const pages = {
   community: {
     title: 'Relay',
     segments: [
-      { id: 'recs', label: 'Recommendations', purpose: 'Places, logistics and mindset tips from people who lived here before you.' },
+      { id: 'recs', label: 'For you', purpose: 'Picks from your routine, and tips from people who lived like you and left.' },
       { id: 'qa', label: 'Q&A', purpose: 'Newcomers ask, locals answer.' },
     ],
   },

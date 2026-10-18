@@ -27,6 +27,10 @@ type State = {
   communitySegment: CommunitySegment
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
+  // Which Relay pick or tip was tapped (opens its detail page)
+  selectedRec: string | null
+  // Notes she left on Relay picks and tips, by item id
+  relayNotes: Record<string, string[]>
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -47,6 +51,8 @@ let state: State = {
   archiveSegment: 'mine',
   communitySegment: 'recs',
   selectedFolder: null,
+  selectedRec: null,
+  relayNotes: {},
   setupDone: [],
   composing: false,
   reflections: [],
