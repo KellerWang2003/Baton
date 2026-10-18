@@ -1,5 +1,5 @@
-// Chloe's most recent camera roll photos, shown above the + field. Gray
-// placeholder tiles for now; alt text says what each one would be.
+// Chloe's most recent camera roll photos, shown above the + field. Real photos
+// from her LA archive for now (public/archive, public/relay).
 export type RecentPhoto = {
   id: string
   alt: string
@@ -7,12 +7,10 @@ export type RecentPhoto = {
 }
 
 export const recentPhotos: RecentPhoto[] = [
-  { id: 'cafe', alt: 'Coffee at the window seat, Lake Ave Café' },
-  { id: 'palms', alt: 'Palms at sunset on the walk home' },
-  { id: 'studio', alt: 'Her desk in the ArtCenter studio' },
-  { id: 'trail', alt: 'Eaton Canyon trail' },
-  { id: 'market', alt: 'Grand Central Market' },
-  { id: 'lake', alt: 'Swan boats on Echo Park Lake' },
-  { id: 'gym', alt: 'Lake Ave Fitness' },
-  { id: 'street', alt: 'Colorado Blvd at night' },
+  { id: 'sunset', alt: 'Palms at sunset over the city', src: '/archive/la-sunset.jpg' },
+  { id: 'tacos', alt: 'Tacos from the truck on her street', src: '/archive/la-tacos-2.jpg' },
+  { id: 'truck', alt: 'The taco truck at dusk', src: '/archive/la-tacos-1.jpg' },
+  { id: 'dance', alt: 'Dancing with friends', src: '/archive/la-party-2.jpg' },
+  { id: 'lunch', alt: 'Lunch in the studio', src: '/relay/placeholder.jpg' },
+  { id: 'party', alt: 'A night out in red light', src: '/archive/la-party-1.jpg' },
 ]

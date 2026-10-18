@@ -35,7 +35,7 @@ export function RecentPhotos({ photos, selected, onToggle, onCapture, open }: Re
     <div
       aria-hidden={!open}
       className={cx(
-        'flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-3 pt-2 [scrollbar-width:none]',
+        'flex snap-x scroll-px-4 gap-2 overflow-x-auto px-4 pb-5 pt-2 [scrollbar-width:none]',
         open ? 'pointer-events-auto' : 'pointer-events-none',
       )}
     >

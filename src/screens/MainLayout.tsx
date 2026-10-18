@@ -103,10 +103,10 @@ export function TabShell({ activeTab, children }: TabShellProps) {
         style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
         className="pointer-events-none absolute inset-0 z-20"
       >
-        {/* While typing: dim the page and show what she's answering */}
+        {/* While typing: a brand gradient over the blurred page, and what she's answering */}
         <div
           onClick={() => setState({ composing: false })}
-          className={`absolute inset-0 z-20 bg-canvas/85 backdrop-blur-md transition-opacity duration-300 ${composing ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
+          className={`absolute inset-0 z-20 bg-linear-to-b from-baton-cream/95 via-baton-pink/75 to-baton-blue/75 backdrop-blur-xl transition-opacity duration-300 ${composing ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'}`}
         />
 
         {/* Rides on top of the keyboard on phones */}
@@ -137,7 +137,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
             onClose={() => setState({ composing: false })}
             recentPhotos={recentPhotos}
             fieldRef={registerComposerField}
-            placeholder={pages.capture.reflectionPlaceholder}
+            placeholder={pages.capture.composerPlaceholder}
             onSubmit={(text, photos) => {
               setState((s) => ({ reflections: [...s.reflections, { text, photos }] }))
               setToast(true)

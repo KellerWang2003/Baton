@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
-import { ArrowUpIcon, PlusIcon } from './icons'
+import { ArrowUpIcon, MicIcon, PlusIcon } from './icons'
 import { RecentPhotos } from './RecentPhotos'
 import type { PhotoItem } from './RecentPhotos'
+import { useDictation } from './useDictation'
 
 export type TabItem = {
   id: string
@@ -67,11 +68,20 @@ export function TabBar({
   const [taken, setTaken] = useState<PhotoItem[]>([])
   const inputRef = useRef<HTMLInputElement>(null)
   const current = tabs.find((tab) => tab.id === active) ?? tabs[0]
+  // What was typed before she started talking; speech is added after it
+  const typed = useRef('')
+  const dictation = useDictation((spoken) => setText(typed.current ? `${typed.current} ${spoken}` : spoken))
 
   // Drop the keyboard whenever the field closes, however it was closed
   useEffect(() => {
     if (!composing) inputRef.current?.blur()
   }, [composing])
+
+  // Stop listening when the field closes
+  const stopListening = dictation?.stop
+  useEffect(() => {
+    if (!composing) stopListening?.()
+  }, [composing, stopListening])
 
   const toggle = (photo: PhotoItem) =>
     setSelected((ids) => (ids.includes(photo.id) ? ids.filter((id) => id !== photo.id) : [...ids, photo.id]))
@@ -88,6 +98,7 @@ export function TabBar({
   const canSend = text.trim().length > 0 || selected.length > 0
   const send = () => {
     if (!canSend) return
+    dictation?.stop()
     onSubmit(text.trim(), selected)
     setText('')
     setSelected([])
@@ -175,11 +186,34 @@ export function TabBar({
               tabIndex={composing ? 0 : -1}
               onChange={(event) => setText(event.target.value)}
               onKeyDown={(event) => event.key === 'Escape' && onClose()}
-              placeholder={placeholder}
+              placeholder={dictation?.listening ? 'Listening…' : placeholder}
               enterKeyHint="send"
               // 17px keeps iOS Safari from zooming in on focus
               className="min-w-0 flex-1 bg-transparent text-body text-ink outline-none placeholder:text-ink-muted"
             />
+            {/* Voice input. Without speech support in the browser it opens the
+                keyboard, which has its own dictation key */}
+            <button
+              type="button"
+              tabIndex={composing ? 0 : -1}
+              onPointerDown={(event) => event.preventDefault()}
+              onClick={() => {
+                if (!dictation) return inputRef.current?.focus()
+                if (!dictation.listening) typed.current = text.trim()
+                dictation.toggle()
+              }}
+              aria-label={dictation?.listening ? 'Stop voice input' : 'Voice input'}
+              aria-pressed={dictation?.listening ?? false}
+              className={cx(
+                'relative inline-flex size-10 shrink-0 items-center justify-center rounded-full transition',
+                dictation?.listening ? 'bg-baton-pink text-baton-navy' : 'text-ink-muted active:bg-surface-muted',
+              )}
+            >
+              {dictation?.listening && <span aria-hidden className="absolute inset-0 animate-ping rounded-full bg-baton-pink/60" />}
+              <span className="relative">
+                <MicIcon />
+              </span>
+            </button>
             <button
               type="submit"
               disabled={!canSend}

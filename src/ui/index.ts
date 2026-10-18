@@ -37,6 +37,7 @@ export {
   ArchiveIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  MicIcon,
   AtIcon,
   ArrivalGraphic,
   BoxesGraphic,
