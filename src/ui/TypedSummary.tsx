@@ -9,73 +9,67 @@ export type SummaryPart = string | InlinePhotoItem[]
 
 type TypedSummaryProps = {
   parts: SummaryPart[]
-  // Types the sentence out when true. Remount (change key) to type it again.
+  // Reveals the sentence when true. Remount (change key) to play it again.
   play: boolean
   className?: string
-  // Shown under the sentence once it has finished typing
+  // Shown under the sentence once it has finished
   children?: ReactNode
 }
 
-const CHAR_MS = 24
-// A photo takes as long as a few letters, so it has a beat to pop in
-const PHOTO_STEPS = 8
+const WORD_MS = 90
+// A photo takes as long as a couple of words, so it has a beat to pop in
+const PHOTO_STEPS = 2
 
 function stepsFor(part: SummaryPart) {
-  return typeof part === 'string' ? part.length + 1 : PHOTO_STEPS
+  return typeof part === 'string' ? part.split(' ').length : PHOTO_STEPS
 }
 
 function prefersReducedMotion() {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-// Big sentence that types itself out, photos popping in as the cursor reaches
-// them. Letters not typed yet are invisible but keep their place, so lines
-// never re-wrap while it types.
+// Big sentence that appears word by word, photos popping in as it reaches
+// them. Words not shown yet are invisible but keep their place, so lines
+// never re-wrap while it plays.
 export function TypedSummary({ parts, play, className, children }: TypedSummaryProps) {
   const total = parts.reduce((sum, part) => sum + stepsFor(part), 0)
-  const [typed, setTyped] = useState(() => (play && !prefersReducedMotion() ? 0 : total))
-  const done = typed >= total
+  const [shownSteps, setShownSteps] = useState(() => (play && !prefersReducedMotion() ? 0 : total))
+  const done = shownSteps >= total
+  const animate = play && !prefersReducedMotion()
 
   useEffect(() => {
     if (done) return
-    const timer = window.setInterval(() => setTyped((count) => Math.min(total, count + 1)), CHAR_MS)
+    const timer = window.setInterval(() => setShownSteps((count) => Math.min(total, count + 1)), WORD_MS)
     return () => window.clearInterval(timer)
   }, [done, total])
 
-  // Step at which each part starts typing
+  // Step at which each part starts
   const starts = parts.map((_, index) => parts.slice(0, index).reduce((sum, part) => sum + stepsFor(part), 0))
 
   return (
     <>
       <p className={className}>
         {parts.map((part, index) => {
-          const shown = Math.max(0, typed - starts[index])
-          const typing = !done && shown > 0 && shown < stepsFor(part)
+          const shown = Math.max(0, shownSteps - starts[index])
 
           if (typeof part !== 'string') {
-            return <InlinePhoto key={index} photos={part} appear={shown === 0 ? 'hidden' : done && !play ? 'shown' : 'pop'} />
+            return <InlinePhoto key={index} photos={part} appear={shown === 0 ? 'hidden' : animate ? 'pop' : 'shown'} />
           }
 
-          const text = `${part} `
           return (
             <span key={index}>
-              {text.slice(0, shown)}
-              {typing && <Caret />}
-              {shown < text.length && <span className="opacity-0">{text.slice(shown)}</span>}
+              {part.split(' ').map((word, wordIndex) => (
+                <span key={wordIndex}>
+                  <span className={cx('inline-block', wordIndex >= shown ? 'opacity-0' : animate && 'animate-word-in')}>
+                    {word}
+                  </span>{' '}
+                </span>
+              ))}
             </span>
           )
         })}
       </p>
       {children && <div className={cx(done ? 'animate-fade-in' : 'opacity-0')}>{children}</div>}
     </>
-  )
-}
-
-function Caret() {
-  return (
-    <span
-      aria-hidden
-      className="relative -mr-[2px] inline-block h-[0.8em] w-[2px] animate-caret bg-current align-[-0.08em]"
-    />
   )
 }
