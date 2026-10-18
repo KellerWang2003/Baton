@@ -173,31 +173,6 @@
   --texture-fibers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.22 -0.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
 }
 
-/* Tab bar glass: the Figma nav (frosted white). Inside data-glass="liquid"
-   (Debug > Liquid glass) liquid-glass-react draws the glass instead
-   (LiquidGlassLayer), so this steps aside: no backdrop-filter here, or the
-   layer inside would have no page behind it to refract. */
-@utility tab-glass {
-  background-color: var(--color-glass);
-  box-shadow: var(--shadow-glass);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  [data-glass="liquid"] & {
-    /* A light white tint keeps the tabs readable over busy pages */
-    background-color: rgb(255 255 255 / 0.3);
-    box-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-  }
-}
-/* The active tab's pill: solid white by default, a lighter lens in liquid glass */
-@utility glass-pill {
-  background-color: var(--color-surface);
-  [data-glass="liquid"] & {
-    background-color: rgb(255 255 255 / 0.55);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.9), 0 1px 4px rgb(0 0 0 / 0.08);
-  }
-}
 @utility bg-paper {
   background-color: var(--color-baton-cream);
   background-image: var(--texture-grain), var(--texture-fibers);

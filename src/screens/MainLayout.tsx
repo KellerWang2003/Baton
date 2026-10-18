@@ -25,8 +25,6 @@ type MainLayoutProps = {
 type TabShellProps = {
   activeTab: string
   children: ReactNode
-  // Liquid Glass tab bar (Debug > Liquid glass)
-  liquidGlass?: boolean
 }
 
 const tabIcons: Record<string, ReactNode> = {
@@ -77,7 +75,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
 // tab is showing, so switching tabs only swaps the page and the bar stays put
 // (remounting it with each page made every tab switch look like a reload).
 // Tapping + turns it into a text field for today's prompt, right in the tab bar.
-export function TabShell({ activeTab, children, liquidGlass = false }: TabShellProps) {
+export function TabShell({ activeTab, children }: TabShellProps) {
   const { composing } = useStore()
   const dailyPrompt = useDailyPrompt()
   const [toast, setToast] = useState(false)
@@ -146,7 +144,6 @@ export function TabShell({ activeTab, children, liquidGlass = false }: TabShellP
           <TabBar
             tabs={tabs.map((tab) => ({ ...tab, icon: tabIcons[tab.id] }))}
             active={activeTab}
-            liquidGlass={liquidGlass}
             onSelect={navigate}
             composing={composing}
             onOpen={openComposer}

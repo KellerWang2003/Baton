@@ -17,8 +17,6 @@ const MapPlayground = lazy(() => import('./screens/MapPlayground').then((m) => (
 function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
-  // Liquid Glass take on the tab bar (team only, to compare with the Figma nav)
-  const [liquidGlass, toggleLiquidGlass] = usePersistentToggle('baton:liquid-glass', false)
   const [kitOpen, setKitOpen] = useState(false)
   // Map looks playground (team only): debug panel, or ?maps in the URL
   const [mapsOpen, setMapsOpen] = useState(() => new URLSearchParams(window.location.search).has('maps'))
@@ -40,12 +38,12 @@ function App() {
   return (
     <>
       <DeviceFrame framed={framed}>
-        <div data-stage={status ?? stage} data-glass={liquidGlass ? 'liquid' : undefined} className="relative h-full">
+        <div data-stage={status ?? stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />
           ) : activeTab ? (
             // One tab bar for all tab pages, so switching tabs doesn't remount it
-            <TabShell activeTab={activeTab} liquidGlass={liquidGlass}>
+            <TabShell activeTab={activeTab}>
               <CurrentScreen />
             </TabShell>
           ) : (
@@ -58,8 +56,6 @@ function App() {
         goTo={goToScreen}
         framed={framed}
         toggleFrame={toggleFrame}
-        liquidGlass={liquidGlass}
-        toggleLiquidGlass={toggleLiquidGlass}
         kitOpen={kitOpen}
         toggleKit={() => setKitOpen((open) => !open)}
         mapsOpen={mapsOpen}

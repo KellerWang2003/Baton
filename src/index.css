@@ -1,7 +1,5 @@
 @import "tailwindcss";
 @import "./theme/tokens.css";
-/* liquid-glass-react styles its layers with Tailwind classes */
-@source "../node_modules/liquid-glass-react/dist";
 
 @layer base {
   html,

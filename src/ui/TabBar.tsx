@@ -5,7 +5,6 @@ import { ArrowUpIcon, MicIcon, PlusIcon } from './icons'
 import { RecentPhotos } from './RecentPhotos'
 import type { PhotoItem } from './RecentPhotos'
 import { useDictation } from './useDictation'
-import { LiquidGlassLayer } from './LiquidGlassLayer'
 
 export type TabItem = {
   id: string
@@ -28,13 +27,10 @@ type TabBarProps = {
   fieldRef?: (element: HTMLInputElement | null) => void
   placeholder?: string
   onSelect: (id: string) => void
-  // Real Liquid Glass (liquid-glass-react) behind the capsule and +, instead of the frosted white
-  liquidGlass?: boolean
 }
 
-// Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523).
-// Debug > Liquid glass swaps it for liquid-glass-react (LiquidGlassLayer)
-const glass = 'tab-glass'
+// Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523)
+const glass = 'bg-glass shadow-glass backdrop-blur-xl'
 // Icons in the bar are drawn a little smaller than the 24px line icons
 const iconSize = '[&_svg]:size-5'
 // iOS spring-like curve, used for every part of the morph so they move together
@@ -64,7 +60,6 @@ export function TabBar({
   fieldRef,
   placeholder,
   onSelect,
-  liquidGlass = false,
 }: TabBarProps) {
   // The draft stays if she closes without sending, like Messages
   const [text, setText] = useState('')
@@ -135,7 +130,6 @@ export function TabBar({
             composing ? 'basis-[61px]' : 'basis-[207px]',
           )}
         >
-          {liquidGlass && <LiquidGlassLayer />}
           <div className={cx('absolute inset-x-1.5 inset-y-1 flex', layer(!composing, true))}>
             {tabs.map((tab) => (
               <button
@@ -147,7 +141,7 @@ export function TabBar({
                 className={cx(
                   'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] font-medium leading-[1.3] tracking-[-0.011em] transition-colors',
                   iconSize,
-                  tab.id === active ? 'glass-pill text-baton-blue' : 'text-tab-idle',
+                  tab.id === active ? 'bg-surface text-baton-blue' : 'text-tab-idle',
                 )}
               >
                 {tab.icon}
@@ -175,9 +169,8 @@ export function TabBar({
             composing ? 'grow basis-0' : 'grow-0 basis-[58px]',
           )}
         >
-          {liquidGlass && <LiquidGlassLayer />}
           <form
-            className={cx('relative flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
+            className={cx('flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
             onSubmit={(event) => {
               event.preventDefault()
               send()
