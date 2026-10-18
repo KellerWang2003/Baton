@@ -29,7 +29,7 @@ type TabBarProps = {
 }
 
 // Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523)
-const glass = 'bg-glass shadow-glass backdrop-blur-md'
+const glass = 'bg-glass shadow-glass backdrop-blur-xl'
 // Icons in the bar are drawn a little smaller than the 24px line icons
 const iconSize = '[&_svg]:size-5'
 // iOS spring-like curve, used for every part of the morph so they move together
@@ -130,7 +130,7 @@ export function TabBar({
                 className={cx(
                   'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] leading-[1.3] tracking-[-0.011em] transition-colors',
                   iconSize,
-                  tab.id === active ? 'bg-glass text-baton-navy' : 'text-tab-idle',
+                  tab.id === active ? 'bg-surface text-baton-navy' : 'text-tab-idle',
                 )}
               >
                 {tab.icon}

@@ -74,7 +74,7 @@
   --color-line: #c6c6c6; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
-  --color-glass: rgb(255 255 255 / 0.4); /* tab bar capsules and the active tab, over a blur */
+  --color-glass: rgb(255 255 255 / 0.8); /* tab bar capsules over a blur: white enough to read over vibrant folders */
   --color-tab-idle: #a7a7a7; /* tabs that aren't showing, and + */
 
   /* Stage accents (Moving -> Newcomer -> Local): gray for now, colors come later */
