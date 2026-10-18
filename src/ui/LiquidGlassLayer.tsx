@@ -23,14 +23,14 @@ export function LiquidGlassLayer() {
   }, [])
 
   return (
-    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0">
+    <div ref={ref} aria-hidden className="pointer-events-none absolute inset-0 isolate">
       {size && size.width > 0 && (
         <LiquidGlass
           key={`${size.width}x${size.height}`}
           padding="0"
           cornerRadius={size.height / 2}
           displacementScale={64}
-          blurAmount={0.1}
+          blurAmount={0.15}
           saturation={130}
           aberrationIntensity={2}
           elasticity={0}

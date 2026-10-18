@@ -177,14 +177,15 @@
    (Debug > Liquid glass) liquid-glass-react draws the glass instead
    (LiquidGlassLayer), so this steps aside: no backdrop-filter here, or the
    layer inside would have no page behind it to refract. */
-@utility glass {
+@utility tab-glass {
   background-color: var(--color-glass);
   box-shadow: var(--shadow-glass);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   [data-glass="liquid"] & {
-    background-color: transparent;
-    box-shadow: none;
+    /* A light white tint keeps the tabs readable over busy pages */
+    background-color: rgb(255 255 255 / 0.3);
+    box-shadow: 0 6px 24px rgb(0 0 0 / 0.1);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }

@@ -34,7 +34,7 @@ type TabBarProps = {
 
 // Translucent white over a blur, with only a light shadow (Figma nav, LA28 Palms 258:1523).
 // Debug > Liquid glass swaps it for liquid-glass-react (LiquidGlassLayer)
-const glass = 'glass'
+const glass = 'tab-glass'
 // Icons in the bar are drawn a little smaller than the 24px line icons
 const iconSize = '[&_svg]:size-5'
 // iOS spring-like curve, used for every part of the morph so they move together
@@ -177,7 +177,7 @@ export function TabBar({
         >
           {liquidGlass && <LiquidGlassLayer />}
           <form
-            className={cx('flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
+            className={cx('relative flex h-full items-center gap-1 pl-5 pr-2', layer(composing, true))}
             onSubmit={(event) => {
               event.preventDefault()
               send()
