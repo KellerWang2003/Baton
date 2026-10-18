@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
@@ -22,12 +23,26 @@ type PromptWindowProps = {
 const circle = 330
 const drawn = 370
 const box = Math.ceil(drawn / 0.72)
+// How far the glass follows a drag (Keller, Oct 18: it reacts just a little)
+const give = 0.12
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18): the
 // whole circle is one big blob of liquid glass (React Bits Fluid Glass) with a
 // blue tint at its edge, no border and no images.
 export function PromptWindow({ question, seed, medium, mediumLabel, glass = 'glass', onClick, className }: PromptWindowProps) {
+  const down = useRef<{ x: number; y: number } | null>(null)
+  // The blue rim and the pill move with the glass while it's nudged
+  const rim = useRef<HTMLSpanElement>(null)
+  const nudge = (x: number, y: number, settle = false) => {
+    if (!rim.current) return
+    rim.current.style.transition = settle ? 'transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 120ms ease-out'
+    rim.current.style.transform = x || y ? `translate(${x * give}px, ${y * give}px)` : ''
+  }
+  const release = () => {
+    down.current = null
+    nudge(0, 0, true)
+  }
   const pill = (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-baton-blue/15 px-3 py-1.5 text-subhead font-semibold text-baton-blue">
       {medium === 'photo' ? <SmallCameraIcon /> : <PencilIcon />}
@@ -73,13 +88,16 @@ export function PromptWindow({ question, seed, medium, mediumLabel, glass = 'gla
             color={token('--color-baton-blue')}
             tint={0.25}
             shadow={0}
-            interaction="static"
+            // Drag it and it gives a little, then springs back
+            interaction="drag"
+            give={give}
             idle={false}
             morphOnClick={false}
           />
         </div>
         {/* The blue tint at the rim, and the pill (and the prompt, if it sits on top) */}
         <span
+          ref={rim}
           style={{ width: drawn, height: drawn }}
           className="pointer-events-none relative flex flex-col items-center justify-center gap-4 rounded-full px-10 shadow-prompt-tint"
         >
@@ -96,7 +114,17 @@ export function PromptWindow({ question, seed, medium, mediumLabel, glass = 'gla
         role="button"
         tabIndex={0}
         aria-label={question}
-        onClick={onClick}
+        onPointerDown={(event) => (down.current = { x: event.clientX, y: event.clientY })}
+        onPointerMove={(event) => down.current && nudge(event.clientX - down.current.x, event.clientY - down.current.y)}
+        onPointerUp={(event) => {
+          const start = down.current
+          release()
+          // Nudging the glass shouldn't count as a tap that opens the + field
+          if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) <= 6) onClick?.()
+        }}
+        onKeyDown={(event) => event.key === 'Enter' && onClick?.()}
+        onPointerCancel={release}
+        onPointerLeave={release}
         className="relative -mx-4 flex h-[390px] items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
       >
         {inside}

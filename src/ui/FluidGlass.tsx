@@ -33,6 +33,9 @@ export interface FluidGlassProps {
   shadow?: number;
   elevation?: number;
   interaction?: Interaction;
+  // Baton: with drag, 0..1 tethers the glass to its spot. It follows the
+  // finger only this fraction of the way and springs back home on release
+  give?: number;
   smoothness?: number;
   wobble?: number;
   spin?: number;
@@ -68,6 +71,7 @@ interface Settings {
   shadow: number;
   elevation: number;
   interaction: Interaction;
+  give: number;
   smoothness: number;
   wobble: number;
   spin: number;
@@ -666,6 +670,7 @@ const FluidGlass = ({
   shadow = 0.5,
   elevation = 0.4,
   interaction = 'follow',
+  give = 0,
   smoothness = 0.5,
   wobble = 0.5,
   spin = 0.3,
@@ -707,6 +712,7 @@ const FluidGlass = ({
     shadow: clamp(shadow, 0, 1),
     elevation: clamp(elevation, 0, 3),
     interaction,
+    give: clamp(give, 0, 1),
     smoothness: clamp(smoothness, 0, 1),
     wobble: clamp(wobble, 0, 1),
     spin,
@@ -1115,7 +1121,7 @@ const FluidGlass = ({
       }
 
       const size = radius();
-      if (!pointer.grabbed && s.interaction !== 'drag') {
+      if (!pointer.grabbed && (s.interaction !== 'drag' || s.give > 0)) {
         body.anchorX = s.position[0] * view.width;
         body.anchorY = s.position[1] * view.height;
       }
@@ -1137,6 +1143,10 @@ const FluidGlass = ({
       if (pointer.grabbed) {
         goalX = pointer.x - pointer.offsetX;
         goalY = pointer.y - pointer.offsetY;
+        if (s.give > 0) {
+          goalX = body.anchorX + (goalX - body.anchorX) * s.give;
+          goalY = body.anchorY + (goalY - body.anchorY) * s.give;
+        }
         flying = false;
       }
       if (flying) {
@@ -1404,8 +1414,8 @@ const FluidGlass = ({
       if (pointer.grabbed) {
         pointer.grabbed = false;
         container.removeAttribute('data-grabbing');
-        flying = Math.hypot(body.vx, body.vy) > 60;
-        if (!flying) settle();
+        flying = s.give === 0 && Math.hypot(body.vx, body.vy) > 60;
+        if (!flying && s.give === 0) settle();
       }
       if (!moved && near && spot.inside) {
         spring.vstretch -= 3 * s.wobble;
