@@ -71,139 +71,129 @@ export function Community() {
           />
         </div>
 
-        <div className="pointer-events-none relative z-10 flex h-full flex-col">
-          {/* Category filters, with search at the end */}
-          <header
-            className={cx(
-              'pointer-events-auto flex shrink-0 flex-col gap-3 px-6 pb-3 pt-4 transition-colors duration-300',
-              mapOpen ? 'bg-transparent' : 'bg-baton-paper',
-            )}
-          >
-            <div className="-mx-6 flex items-center gap-[26px] pr-6">
-              <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-6 [scrollbar-width:none]">
-                <CategoryChip selected={!category} onClick={() => setCategory(null)} className={mapOpen ? 'shadow-card' : undefined}>
-                  {relayCopy.all}
-                </CategoryChip>
-                {relayCategories.map((item) => (
-                  <CategoryChip
-                    key={item.id}
-                    tone={item.tone}
-                    selected={category === item.id}
-                    onClick={() => setCategory(category === item.id ? null : item.id)}
-                  >
-                    {item.label}
-                  </CategoryChip>
-                ))}
-              </div>
-              <button
-                type="button"
-                aria-label="Search"
-                aria-pressed={searching}
-                onClick={() => {
-                  setSearching((on) => !on)
-                  setQuery('')
-                }}
-                className="flex size-10 shrink-0 items-center justify-center rounded-full bg-baton-chip text-ink active:opacity-60"
-              >
-                <SearchIcon className="size-[18px]" />
-              </button>
-            </div>
-            {searching && (
-              <input
-                autoFocus
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={relayCopy.searchPlaceholder}
-                className="w-full rounded-full bg-baton-chip px-5 py-2.5 text-body text-ink outline-none placeholder:text-ink-muted"
-              />
-            )}
-          </header>
-
-          {/* The list, as a sheet: slid down to a peek above the tab bar while the map shows */}
-          <div className="relative min-h-0 flex-1">
-            <div
-              style={{ transform: mapOpen ? 'translateY(calc(100% - 150px))' : 'translateY(0)' }}
-              className={cx(
-                'pointer-events-auto absolute inset-0 bg-baton-paper transition-[transform,border-radius,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
-                mapOpen && 'rounded-t-sheet shadow-float',
-              )}
+        {/* Everything, filters included, is one sheet: slid down to a peek above the tab bar while the map shows */}
+        <div
+          style={{ transform: mapOpen ? 'translateY(calc(100% - 150px))' : 'translateY(0)' }}
+          className={cx(
+            'absolute inset-0 z-10 bg-baton-paper transition-[transform,border-radius,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            mapOpen && 'rounded-t-sheet shadow-float',
+          )}
+        >
+          {mapOpen && (
+            // Peek: swipe up (or tap) to bring the list back
+            <button
+              type="button"
+              onClick={() => showMap(false)}
+              onPointerDown={(event) => {
+                dragFrom.current = event.clientY
+                event.currentTarget.setPointerCapture(event.pointerId)
+              }}
+              onPointerUp={(event) => {
+                if (dragFrom.current !== null && dragFrom.current - event.clientY > 24) showMap(false)
+                dragFrom.current = null
+              }}
+              className="absolute inset-x-0 top-0 z-10 flex h-16 touch-none flex-col items-center gap-2.5 rounded-t-sheet bg-baton-paper pt-2"
             >
-              {mapOpen && (
-                // Peek: swipe up (or tap) to bring the list back
+              <span className="h-[5px] w-9 rounded-full bg-line" />
+              <span className="text-subhead font-semibold text-baton-navy">{relayCopy.onMap(onMap.length)}</span>
+            </button>
+          )}
+          <div className={cx('flex h-full flex-col gap-10 px-6 pb-44 pt-4', mapOpen ? 'overflow-hidden' : 'overflow-y-auto')}>
+            {/* Category filters, with search at the end */}
+            <div className="-mb-4 flex flex-col gap-3">
+              <div className="-mx-6 flex items-center gap-[26px] pr-6">
+                <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-6 [scrollbar-width:none]">
+                  <CategoryChip selected={!category} onClick={() => setCategory(null)}>
+                    {relayCopy.all}
+                  </CategoryChip>
+                  {relayCategories.map((item) => (
+                    <CategoryChip
+                      key={item.id}
+                      tone={item.tone}
+                      selected={category === item.id}
+                      onClick={() => setCategory(category === item.id ? null : item.id)}
+                    >
+                      {item.label}
+                    </CategoryChip>
+                  ))}
+                </div>
                 <button
                   type="button"
-                  onClick={() => showMap(false)}
-                  onPointerDown={(event) => {
-                    dragFrom.current = event.clientY
-                    event.currentTarget.setPointerCapture(event.pointerId)
+                  aria-label="Search"
+                  aria-pressed={searching}
+                  onClick={() => {
+                    setSearching((on) => !on)
+                    setQuery('')
                   }}
-                  onPointerUp={(event) => {
-                    if (dragFrom.current !== null && dragFrom.current - event.clientY > 24) showMap(false)
-                    dragFrom.current = null
-                  }}
-                  className="absolute inset-x-0 top-0 z-10 flex h-16 touch-none flex-col items-center gap-2.5 rounded-t-sheet bg-baton-paper pt-2"
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-baton-chip text-ink active:opacity-60"
                 >
-                  <span className="h-[5px] w-9 rounded-full bg-line" />
-                  <span className="text-subhead font-semibold text-baton-navy">{relayCopy.onMap(onMap.length)}</span>
+                  <SearchIcon className="size-[18px]" />
                 </button>
+              </div>
+              {searching && (
+                <input
+                  autoFocus
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={relayCopy.searchPlaceholder}
+                  className="w-full rounded-full bg-baton-chip px-5 py-2.5 text-body text-ink outline-none placeholder:text-ink-muted"
+                />
               )}
-              <div className={cx('flex h-full flex-col gap-10 px-6 pb-44 pt-6', mapOpen ? 'overflow-hidden' : 'overflow-y-auto')}>
-                {picks.length > 0 && (
-                  <section className="flex flex-col gap-4">
-                    <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
+            </div>
+            {picks.length > 0 && (
+              <section className="flex flex-col gap-4">
+                <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
+                <CardRow gutter="lg">
+                  {picks.map((item) => (
+                    <RecCard
+                      key={item.id}
+                      title={item.title}
+                      text={item.source.kind === 'baton' ? item.source.why : item.body}
+                      tone={relayCategory(item.category).tone}
+                      photo={item.photo ?? relayPlaceholderPhoto}
+                      onClick={() => open(item.id)}
+                    />
+                  ))}
+                </CardRow>
+              </section>
+            )}
+
+            {people.length > 0 && (
+              <section className="flex flex-col gap-4">
+                <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
+                {people.map(({ leaver, tips }) => (
+                  <div key={leaver.id} className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
+                      <div className="min-w-0">
+                        <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
+                        <p className="truncate text-[11px] leading-[1.2] text-ink/60">
+                          {leaver.left} · {leaver.match}
+                        </p>
+                      </div>
+                    </div>
                     <CardRow gutter="lg">
-                      {picks.map((item) => (
+                      {tips.map((item) => (
                         <RecCard
                           key={item.id}
+                          size="sm"
                           title={item.title}
-                          text={item.source.kind === 'baton' ? item.source.why : item.body}
+                          text={`“${item.quote ?? item.body}”`}
                           tone={relayCategory(item.category).tone}
                           photo={item.photo ?? relayPlaceholderPhoto}
                           onClick={() => open(item.id)}
                         />
                       ))}
                     </CardRow>
-                  </section>
-                )}
+                  </div>
+                ))}
+              </section>
+            )}
 
-                {people.length > 0 && (
-                  <section className="flex flex-col gap-4">
-                    <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
-                    {people.map(({ leaver, tips }) => (
-                      <div key={leaver.id} className="flex flex-col gap-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
-                          <div className="min-w-0">
-                            <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
-                            <p className="truncate text-[11px] leading-[1.2] text-ink/60">
-                              {leaver.left} · {leaver.match}
-                            </p>
-                          </div>
-                        </div>
-                        <CardRow gutter="lg">
-                          {tips.map((item) => (
-                            <RecCard
-                              key={item.id}
-                              size="sm"
-                              title={item.title}
-                              text={`“${item.quote ?? item.body}”`}
-                              tone={relayCategory(item.category).tone}
-                              photo={item.photo ?? relayPlaceholderPhoto}
-                              onClick={() => open(item.id)}
-                            />
-                          ))}
-                        </CardRow>
-                      </div>
-                    ))}
-                  </section>
-                )}
-
-                {picks.length === 0 && people.length === 0 && (
-                  <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
-                )}
-              </div>
-            </div>
+            {picks.length === 0 && people.length === 0 && (
+              <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
+            )}
           </div>
         </div>
 
