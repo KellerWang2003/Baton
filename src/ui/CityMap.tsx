@@ -28,7 +28,7 @@ const pinFill: Record<RecTone, string> = {
 }
 
 // Land shapes of a stylized New York (not to scale): New Jersey, Manhattan,
-// the Bronx and Queens, Brooklyn, with Central Park and a hint of the grid.
+// the Bronx and Queens, Brooklyn.
 const land = {
   jersey: 'M0 0H168L160 110 146 260 130 410 116 540 96 760H0Z',
   manhattan:
@@ -36,43 +36,66 @@ const land = {
   queens: 'M252 0H390V430L306 418 256 336 244 204 248 80Z',
   brooklyn: 'M196 560 232 478 262 440 312 430 390 440V760H150L166 640Z',
 }
-const park = 'M206 150 222 153 211 252 195 249Z'
+// Parks: Tompkins Square, Washington Square, McCarren, Prospect
+const parks = [
+  'M186 426 194 427 193 436 185 435Z',
+  'M168 440 176 441 175 448 167 447Z',
+  'M262 444 276 446 273 458 260 456Z',
+  'M246 548 274 552 270 590 242 584Z',
+]
 
-// A sideways stack of lines across Manhattan, clipped to it, for the grid.
-const grid = Array.from({ length: 70 }, (_, i) => 40 + i * 7.5)
+// Big roads: FDR Drive down the east side, the BQE, the West Side Highway
+const highways = [
+  'M232 120 220 250 207 340 196 420 186 480 168 524',
+  'M150 520 156 440 166 350 178 250 190 140',
+  'M190 600 214 540 240 490 270 452 320 438 390 446',
+]
+const roads = ['M146 470 L196 452', 'M150 430 L200 412', 'M162 380 L212 362', 'M230 470 L300 520 L330 600', 'M200 560 L300 580 L390 600']
 
-// A flat, brand-colored map for the Relay map view: tinted water, paper land,
-// pins in each recommendation's category color. Fills its container (cropped
-// to cover), so pins are drawn in the same SVG and stay put.
+// A flat street map in the style of the Figma map view (268:3798), drawn by
+// hand for New York: light land, white street grid, blue water, green parks,
+// and pins in each recommendation's category color. Fills its container
+// (cropped to cover), so pins are drawn in the same SVG and stay put.
 export function CityMap({ pins, selected, onSelect, you, className }: CityMapProps) {
   return (
     <svg
       // Framed on downtown Manhattan and north Brooklyn, where her picks are
-      viewBox="96 336 220 380"
+      viewBox="96 360 220 380"
       preserveAspectRatio="xMidYMid slice"
-      className={cx('size-full bg-baton-blue/25', className)}
+      className={cx('size-full bg-map-water', className)}
       onClick={() => onSelect?.(null)}
     >
       <defs>
-        <clipPath id="city-map-manhattan">
-          <path d={land.manhattan} />
-        </clipPath>
+        <pattern id="city-map-grid" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(-14)">
+          <path d="M0 0H9M0 0V9" className="stroke-map-street" strokeWidth={1.6} fill="none" />
+        </pattern>
+        <pattern id="city-map-grid-bk" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(18)">
+          <path d="M0 0H11M0 0V11" className="stroke-map-street" strokeWidth={1.4} fill="none" />
+        </pattern>
       </defs>
-      {Object.values(land).map((d) => (
-        <path key={d} d={d} className="fill-baton-paper stroke-baton-cream" strokeWidth={1} />
+      {Object.entries(land).map(([name, d]) => (
+        <g key={name}>
+          <path d={d} className="fill-map-land" />
+          <path d={d} fill={`url(#${name === 'manhattan' ? 'city-map-grid' : 'city-map-grid-bk'})`} />
+        </g>
       ))}
-      <g clipPath="url(#city-map-manhattan)" className="stroke-baton-cream" strokeWidth={0.8}>
-        {grid.map((y) => (
-          <line key={y} x1={120} y1={y} x2={260} y2={y - 34} />
+      {parks.map((d) => (
+        <path key={d} d={d} className="fill-map-park" />
+      ))}
+      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+        {roads.map((d) => (
+          <path key={d} d={d} className="stroke-map-road" strokeWidth={2.2} />
+        ))}
+        {highways.map((d) => (
+          <path key={d} d={d} className="stroke-map-highway" strokeWidth={3} />
         ))}
       </g>
-      <path d={park} className="fill-baton-olive/25" />
 
-      <g className="fill-ink-muted text-[5px] font-semibold tracking-[0.14em]" style={{ fontFamily: 'var(--font-body)' }}>
-        <text x={100} y={420}>NEW JERSEY</text>
-        <text x={282} y={398}>QUEENS</text>
-        <text x={262} y={600}>BROOKLYN</text>
-        <text x={158} y={528} transform="rotate(-80 158 528)">MANHATTAN</text>
+      <g className="fill-ink-muted text-[6px] font-semibold tracking-[0.08em]" style={{ fontFamily: 'var(--font-body)' }}>
+        <text x={104} y={430}>JERSEY CITY</text>
+        <text x={262} y={480}>WILLIAMSBURG</text>
+        <text x={226} y={612}>PARK SLOPE</text>
+        <text x={290} y={400}>QUEENS</text>
       </g>
 
       {you && (

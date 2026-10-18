@@ -73,16 +73,17 @@ export function Community() {
 
         {/* Everything, filters included, is one sheet: slid down to a peek above the tab bar while the map shows */}
         <div
-          style={{ transform: mapOpen ? 'translateY(calc(100% - 150px))' : 'translateY(0)' }}
+          style={{ transform: mapOpen ? 'translateY(calc(100% - 293px))' : 'translateY(0)' }}
           className={cx(
-            'absolute inset-0 z-10 bg-baton-paper transition-[transform,border-radius,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
-            mapOpen && 'rounded-t-sheet shadow-float',
+            'absolute inset-0 z-10 bg-baton-paper transition-[transform,border-radius] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
+            mapOpen && 'rounded-t-map-sheet',
           )}
         >
           {mapOpen && (
-            // Peek: swipe up (or tap) to bring the list back
+            // The visible top of the sheet: swipe it up (or tap) to bring the list back
             <button
               type="button"
+              aria-label="Show the list"
               onClick={() => showMap(false)}
               onPointerDown={(event) => {
                 dragFrom.current = event.clientY
@@ -92,13 +93,13 @@ export function Community() {
                 if (dragFrom.current !== null && dragFrom.current - event.clientY > 24) showMap(false)
                 dragFrom.current = null
               }}
-              className="absolute inset-x-0 top-0 z-10 flex h-16 touch-none flex-col items-center gap-2.5 rounded-t-sheet bg-baton-paper pt-2"
-            >
-              <span className="h-[5px] w-9 rounded-full bg-line" />
-              <span className="text-subhead font-semibold text-baton-navy">{relayCopy.onMap(onMap.length)}</span>
-            </button>
+              className="absolute inset-0 z-10 touch-none rounded-t-map-sheet"
+            />
           )}
-          <div className={cx('flex h-full flex-col gap-10 px-6 pb-44 pt-4', mapOpen ? 'overflow-hidden' : 'overflow-y-auto')}>
+          <div className={cx(
+              'flex h-full flex-col gap-10 px-6 pb-44 transition-[padding] duration-500',
+              mapOpen ? 'overflow-hidden pt-6' : 'overflow-y-auto pt-4',
+            )}>
             {/* Category filters, with search at the end */}
             <div className="-mb-4 flex flex-col gap-3">
               <div className="-mx-6 flex items-center gap-[26px] pr-6">
@@ -202,7 +203,7 @@ export function Community() {
           <button
             type="button"
             onClick={() => open(pinnedItem.id)}
-            className="absolute inset-x-6 bottom-[162px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
+            className="absolute inset-x-6 bottom-[305px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
           >
             <img src={pinnedItem.photo ?? relayPlaceholderPhoto} alt="" className="size-16 shrink-0 rounded-tile object-cover" />
             <div className="min-w-0">
