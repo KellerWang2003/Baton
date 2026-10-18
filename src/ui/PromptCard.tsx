@@ -20,6 +20,7 @@ type PromptCardProps = {
 export function PromptCard({ question, meta, reason, image = false, arrow = false, children, className }: PromptCardProps) {
   return (
     <Card tone="stage" className={cx('flex flex-col gap-3', className)}>
+      {image && <div aria-hidden className="aspect-[16/9] rounded-tile bg-placeholder" />}
       {meta && <p className="text-footnote font-semibold uppercase text-stage">{meta}</p>}
       <div className="flex items-start gap-3">
         <div className="flex flex-1 flex-col gap-1.5">
@@ -37,7 +38,6 @@ export function PromptCard({ question, meta, reason, image = false, arrow = fals
           </span>
         )}
       </div>
-      {image && <div aria-hidden className="aspect-[16/9] rounded-tile bg-placeholder" />}
       {children}
     </Card>
   )
