@@ -26,21 +26,22 @@ const toneStyles: Record<
   { fill: string; fillText: string; title: string; dates: string; body: string }
 > = {
   olive: {
-    fill: 'bg-baton-olive',
+    // --folder-fill lets content inside (inline photo outlines) match the folder
+    fill: 'bg-baton-olive [--folder-fill:var(--color-baton-olive)]',
     fillText: 'text-baton-olive',
     title: 'text-baton-yellow',
     dates: 'text-on-baton-olive-muted',
     body: 'text-baton-cream',
   },
   blue: {
-    fill: 'bg-baton-blue',
+    fill: 'bg-baton-blue [--folder-fill:var(--color-baton-blue)]',
     fillText: 'text-baton-blue',
     title: 'text-baton-cream',
     dates: 'text-on-baton-blue-muted',
     body: 'text-baton-cream',
   },
   cream: {
-    fill: 'bg-baton-cream',
+    fill: 'bg-baton-cream [--folder-fill:var(--color-baton-cream)]',
     fillText: 'text-baton-cream',
     title: 'text-baton-navy',
     dates: 'text-on-baton-cream-muted',

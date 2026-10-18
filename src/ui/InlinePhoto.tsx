@@ -41,7 +41,8 @@ export function InlinePhoto({ photos, appear = 'shown', className }: InlinePhoto
 }
 
 function Tile({ photo, className }: { photo: InlinePhotoItem; className?: string }) {
-  const tile = 'absolute inset-0 size-full rounded-inline border-[0.5px] border-baton-cream'
+  // Outlined in the color behind it (the folder), so overlapping pairs separate cleanly
+  const tile = 'absolute inset-0 size-full rounded-inline border-2 border-(--folder-fill,var(--color-canvas))'
   return photo.src ? (
     <img src={photo.src} alt={photo.alt} draggable={false} className={cx(tile, 'object-cover', className)} />
   ) : (
