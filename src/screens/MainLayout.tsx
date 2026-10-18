@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { openComposer, registerComposerField } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, useDailyPrompt, useStore } from '../app/store'
-import { useKeyboardInset } from '../app/useKeyboardInset'
+import { useKeyboardArea } from '../app/useKeyboardArea'
 import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
@@ -79,7 +79,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
   const { composing } = useStore()
   const dailyPrompt = useDailyPrompt()
   const [toast, setToast] = useState(false)
-  const { inset: keyboard, pan } = useKeyboardInset()
+  const keyboard = useKeyboardArea()
 
   useEffect(() => {
     if (!toast) return
@@ -88,24 +88,23 @@ export function TabShell({ activeTab, children }: TabShellProps) {
   }, [toast])
 
   return (
-    <div className="relative h-full">
-      {/* The page stays where it was while the keyboard is up: Safari pans
-          the view to show the field, so the page moves back down by as much */}
-      <div style={pan ? { transform: `translateY(${pan}px)` } : undefined} className="h-full">
-        {children}
-      </div>
+    // While the keyboard is up the shell fills just the part of the screen
+    // above it, so the page stays put and the bar sits right on the keyboard
+    <div
+      style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
+      className="relative h-full"
+    >
+      <div className="h-full">{children}</div>
 
       {/* While typing: dim the page and show what she's answering */}
       <div
         onClick={() => setState({ composing: false })}
-        style={pan ? { transform: `translateY(${pan}px)` } : undefined}
         className={`absolute inset-0 z-20 bg-canvas/85 backdrop-blur-md transition-opacity duration-300 ${composing ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
       />
 
       {/* Rides on top of the keyboard on phones */}
       <div
-        style={{ transform: `translateY(-${keyboard}px)` }}
-        className={`pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col transition-[transform,padding] duration-300 ease-out ${keyboard ? 'pb-2' : 'pb-6'}`}
+        className={`pointer-events-none absolute inset-x-0 bottom-0 z-30 flex flex-col transition-[padding] duration-300 ease-out ${keyboard ? 'pb-2' : 'pb-6'}`}
       >
         <div
           className={`mx-4 mb-3 flex flex-col gap-1 px-1 transition duration-300 ${composing ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
