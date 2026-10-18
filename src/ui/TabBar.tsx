@@ -141,7 +141,7 @@ export function TabBar({
                 className={cx(
                   'flex h-full w-[65px] shrink-0 flex-col items-center justify-center gap-0.5 whitespace-nowrap rounded-[40px] text-[10px] font-medium leading-[1.3] tracking-[-0.011em] transition-colors',
                   iconSize,
-                  tab.id === active ? 'bg-surface text-baton-navy' : 'text-tab-idle',
+                  tab.id === active ? 'bg-surface text-baton-blue' : 'text-tab-idle',
                 )}
               >
                 {tab.icon}
@@ -154,7 +154,7 @@ export function TabBar({
             tabIndex={composing ? 0 : -1}
             onClick={onClose}
             aria-label={`Back to ${current.label}`}
-            className={cx('absolute inset-0 flex items-center justify-center text-baton-navy', iconSize, layer(composing, true))}
+            className={cx('absolute inset-0 flex items-center justify-center text-baton-blue', iconSize, layer(composing, true))}
           >
             {current.icon}
           </button>
