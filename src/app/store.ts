@@ -3,7 +3,8 @@ import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
-import type { PromptGlass } from '../ui/promptGlass'
+import { defaultGlassTuning } from '../ui/promptGlass'
+import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
 import type { RelayLook } from '../ui/relayLooks'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
@@ -37,6 +38,8 @@ type State = {
   relayLook: RelayLook
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
+  // Fluid Glass settings for that circle, tuned live in the debug panel
+  glassTuning: GlassTuning
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -64,6 +67,7 @@ let state: State = {
   relayLook: 'scrapbook',
   // Keller, Oct 18: the whole circle is one big blob of blue-tinted liquid glass
   promptGlass: 'glass',
+  glassTuning: defaultGlassTuning,
   setupDone: [],
   composing: false,
   reflections: [],

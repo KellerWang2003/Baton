@@ -51,7 +51,7 @@ type TodayProps = {
 // list of cards: the legacy card in her last week in LA, her to-dos (tap for
 // tips) and suggestions for her stage.
 export function Today({ lastWeek = false }: TodayProps) {
-  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, ...store } = useStore()
+  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
@@ -98,6 +98,7 @@ export function Today({ lastWeek = false }: TodayProps) {
         medium={medium}
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
+        tuning={glassTuning}
         onClick={openComposer}
       />
 

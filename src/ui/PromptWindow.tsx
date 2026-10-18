@@ -3,7 +3,8 @@ import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
 import { PencilIcon, SmallCameraIcon } from './icons'
-import type { PromptGlass } from './promptGlass'
+import { defaultGlassTuning } from './promptGlass'
+import type { GlassTuning, PromptGlass } from './promptGlass'
 
 type PromptWindowProps = {
   question: string
@@ -13,31 +14,43 @@ type PromptWindowProps = {
   mediumLabel: string
   // How the circle is drawn (Today looks playground)
   glass?: PromptGlass
+  // Fluid Glass settings (debug panel > Today glass)
+  tuning?: GlassTuning
   onClick?: () => void
   className?: string
 }
 
-// The glass size we ask Fluid Glass for, how wide it really draws (its rim
-// runs past that), and its canvas: the glass only fills 72% of its own box, so
-// the box is bigger and spills past the screen edges (clipped there)
-const circle = 330
-const drawn = 370
-const box = Math.ceil(drawn / 0.72)
-// How far the glass follows a drag (Keller, Oct 18: it reacts just a little)
-const give = 0.12
+// Fluid Glass draws a bit wider than the size it's given (its rim runs past
+// it), and fills only 72% of its own canvas, so the canvas is bigger than the
+// circle and spills past the screen edges (clipped there)
+const rimRatio = 370 / 330
+const box = Math.ceil((330 * rimRatio) / 0.72)
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18): the
 // whole circle is one big blob of liquid glass (React Bits Fluid Glass) with a
 // blue tint at its edge, no border and no images.
-export function PromptWindow({ question, seed, medium, mediumLabel, glass = 'glass', onClick, className }: PromptWindowProps) {
+export function PromptWindow({
+  question,
+  seed,
+  medium,
+  mediumLabel,
+  glass = 'glass',
+  tuning = defaultGlassTuning,
+  onClick,
+  className,
+}: PromptWindowProps) {
+  const { give, ...glassProps } = tuning
+  const drawn = tuning.size * rimRatio
+  // With no give (or no dragging), the rim stays put
+  const follow = tuning.interaction === 'drag' ? give || 1 : 0
   const down = useRef<{ x: number; y: number } | null>(null)
   // The blue rim and the pill move with the glass while it's nudged
   const rim = useRef<HTMLSpanElement>(null)
   const nudge = (x: number, y: number, settle = false) => {
     if (!rim.current) return
     rim.current.style.transition = settle ? 'transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 120ms ease-out'
-    rim.current.style.transform = x || y ? `translate(${x * give}px, ${y * give}px)` : ''
+    rim.current.style.transform = (x || y) && follow ? `translate(${x * follow}px, ${y * follow}px)` : ''
   }
   const release = () => {
     down.current = null
@@ -81,18 +94,10 @@ export function PromptWindow({ question, seed, medium, mediumLabel, glass = 'gla
             textColor={token('--color-baton-navy')}
             fontSize={17}
             fontWeight={500}
-            shape="lens"
-            size={circle}
-            refraction={0.7}
-            dispersion={0.3}
             color={token('--color-baton-blue')}
-            tint={0.25}
-            shadow={0}
-            // Drag it and it gives a little, then springs back
-            interaction="drag"
+            {...glassProps}
+            // Default is a drag that gives a little, then springs back
             give={give}
-            idle={false}
-            morphOnClick={false}
           />
         </div>
         {/* The blue tint at the rim, and the pill (and the prompt, if it sits on top) */}

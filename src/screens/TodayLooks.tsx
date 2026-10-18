@@ -12,7 +12,7 @@ import { Avatar, PromptWindow, cx, promptGlasses } from '../ui'
 // on the real Today page.
 export function TodayLooks({ onClose }: { onClose: () => void }) {
   const status = useStatus()
-  const { promptGlass } = useStore()
+  const { promptGlass, glassTuning } = useStore()
   const prompt = dailyPrompts[status][0]
   const medium = promptMedium(prompt.question)
   const hello = greeting(status, timeOfDay(), daysUntil(mockToday.normal, leave.defaultDate))
@@ -85,6 +85,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                     medium={medium}
                     mediumLabel={promptMediumLabel[medium]}
                     glass={option.id}
+                    tuning={glassTuning}
                   />
                 </div>
                 <div className="absolute inset-x-0 bottom-0 h-24 rounded-t-panel bg-baton-cream px-5 pt-7">

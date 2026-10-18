@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
-import { cx } from '../ui'
-import { setState, useStatus } from './store'
+import { cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
+import type { GlassTuning } from '../ui'
+import { setState, useStatus, useStore } from './store'
 
 type DebugPanelProps = {
   index: number
@@ -122,6 +123,8 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
       </div>
 
+      <GlassControls />
+
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
         {stages.map((stage) => {
           const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage)
@@ -166,5 +169,82 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
         <span className="size-4 rounded-full bg-surface" />
       </span>
     </button>
+  )
+}
+
+// Live Fluid Glass settings for Today's prompt circle, the controls React Bits
+// shows for the component. They reset on reload like everything else.
+function GlassControls() {
+  const { glassTuning: tuning } = useStore()
+  const [open, setOpen] = useState(false)
+  const set = (patch: Partial<GlassTuning>) => setState((s) => ({ glassTuning: { ...s.glassTuning, ...patch } }))
+  const select = 'rounded-full bg-surface-muted px-2 py-1 text-xs'
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-line pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-wide text-ink-muted"
+      >
+        Today glass
+        <span>{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2 px-2">
+          <label className="flex items-center justify-between gap-2">
+            Shape
+            <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
+              {glassShapes.map((shape) => (
+                <option key={shape}>{shape}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            Interaction
+            <select
+              value={tuning.interaction}
+              onChange={(event) => set({ interaction: event.target.value as GlassTuning['interaction'] })}
+              className={select}
+            >
+              {glassInteractions.map((interaction) => (
+                <option key={interaction}>{interaction}</option>
+              ))}
+            </select>
+          </label>
+          {glassSliders.map((slider) => {
+            const value = tuning[slider.key] as number
+            return (
+              <label key={slider.key} className="flex flex-col gap-0.5">
+                <span className="flex justify-between text-xs">
+                  {slider.label}
+                  <span className="tabular-nums text-ink-muted">{value}</span>
+                </span>
+                <input
+                  type="range"
+                  min={slider.min}
+                  max={slider.max}
+                  step={slider.step}
+                  value={value}
+                  onChange={(event) => set({ [slider.key]: Number(event.target.value) })}
+                  className="accent-baton-blue"
+                />
+              </label>
+            )
+          })}
+          <div className="-mx-2 flex flex-col">
+            <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
+            <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setState({ glassTuning: defaultGlassTuning })}
+            className="self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
+          >
+            Reset
+          </button>
+        </div>
+      )}
+    </div>
   )
 }
