@@ -3,7 +3,7 @@ import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
 import { pages } from '../data/pages'
 import { chloe } from '../data/people'
-import { findLeaver, relayCopy, relayItems } from '../data/relay'
+import { findLeaver, relayCategory, relayCopy, relayItems, relayPlaceholderAvatar, relayPlaceholderPhoto } from '../data/relay'
 import { Avatar, BatonMark, BottomSheet, Button, Chip, MapPinIcon, Screen, TextArea, ToneTile } from '../ui'
 
 // Pushed page for one Relay pick or tip: the full story, who it came from,
@@ -14,6 +14,7 @@ export function RelayDetail() {
   const item = relayItems.find((rec) => rec.id === selectedRec) ?? relayItems[0]
   const leaver = item.source.kind === 'leaver' ? findLeaver(item.source.leaver) : undefined
   const mine = relayNotes[item.id] ?? []
+  const category = relayCategory(item.category)
   const [writing, setWriting] = useState(false)
   const [draft, setDraft] = useState('')
 
@@ -38,7 +39,13 @@ export function RelayDetail() {
         }
       >
         <div className="flex flex-col gap-6 pt-1">
-          <ToneTile tone={item.tone} src={item.photo} alt={item.title} label={item.label} className="aspect-[4/3] w-full rounded-card" />
+          <ToneTile
+            tone={category.tone}
+            src={item.photo ?? relayPlaceholderPhoto}
+            alt={item.title}
+            label={category.label}
+            className="aspect-[4/3] w-full rounded-rec"
+          />
 
           <div className="flex flex-col gap-3 px-1">
             <h1 className="font-display text-large-title font-bold text-baton-navy">{item.title}</h1>
@@ -56,9 +63,9 @@ export function RelayDetail() {
           <div className="flex items-center gap-3 rounded-card bg-surface p-4">
             {leaver ? (
               <>
-                <Avatar name={leaver.name} className="bg-baton-navy!" />
+                <Avatar name={leaver.name} src={relayPlaceholderAvatar} />
                 <div className="min-w-0">
-                  <p className="text-headline font-semibold text-baton-navy">From {leaver.name}</p>
+                  <p className="text-headline font-semibold text-baton-navy">{relayCopy.legacy(leaver.name)}</p>
                   <p className="text-footnote text-ink-muted">
                     {leaver.left} · {leaver.match}
                   </p>

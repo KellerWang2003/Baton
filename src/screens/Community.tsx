@@ -2,11 +2,21 @@ import { useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useStatus, useStore } from '../app/store'
 import { pages } from '../data/pages'
-import { leavers, leaverTips, relayCopy, relayHeaders, relayPicks } from '../data/relay'
-import type { RelayItem } from '../data/relay'
+import {
+  leavers,
+  leaverTips,
+  relayCategories,
+  relayCategory,
+  relayCopy,
+  relayHeaders,
+  relayPicks,
+  relayPlaceholderAvatar,
+  relayPlaceholderPhoto,
+} from '../data/relay'
+import type { RelayCategory, RelayItem } from '../data/relay'
 import { qa } from '../data/stages'
 import type { CommunitySegment } from '../data/stages'
-import { Avatar, Button, Card, CardRow, PickCard, SearchIcon, SegmentedControl, TipCard } from '../ui'
+import { Avatar, Button, Card, CardRow, CategoryChip, RecCard, SearchIcon, SegmentedControl } from '../ui'
 import { MainLayout } from './MainLayout'
 
 const { segments } = pages.community
@@ -19,20 +29,23 @@ function open(id: string) {
 function matches(item: RelayItem, query: string) {
   const q = query.trim().toLowerCase()
   if (!q) return true
-  return [item.title, item.quote, item.label, item.place, item.body].some((text) => text?.toLowerCase().includes(q))
+  return [item.title, item.quote, relayCategory(item.category).label, item.place, item.body].some((text) => text?.toLowerCase().includes(q))
 }
 
-// Relay: For you (Baton's picks from her routine, then tips from the legacies
-// of people who lived like her) and Q&A, where Locals only answer.
+// Relay (Figma 265:2550): For you has category filters, Baton's picks from her
+// life, then tips from the legacies of people with a similar lifestyle; each
+// card takes its category's color. Q&A is its own sub-tab, where Locals only answer.
 export function Community() {
   const { communitySegment } = useStore()
   const status = useStatus()
+  const [category, setCategory] = useState<RelayCategory | null>(null)
   const [searching, setSearching] = useState(false)
   const [query, setQuery] = useState('')
+  const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
 
-  const picks = relayPicks(status).filter((item) => matches(item, query))
+  const picks = relayPicks(status).filter(shown)
   const people = leavers
-    .map((leaver) => ({ leaver, tips: leaverTips(leaver.id).filter((item) => matches(item, query)) }))
+    .map((leaver) => ({ leaver, tips: leaverTips(leaver.id).filter(shown) }))
     .filter((row) => row.tips.length > 0)
   const headers = relayHeaders[status]
   const questions = qa[status]
@@ -40,54 +53,68 @@ export function Community() {
   return (
     <MainLayout background="bg-baton-paper">
       <div className="flex flex-col gap-6 pt-1">
-        <div className="flex items-center gap-2">
-          <SegmentedControl
-            className="flex-1"
-            segments={segments as { id: CommunitySegment; label: string }[]}
-            value={communitySegment}
-            onChange={(id) => setState({ communitySegment: id })}
-          />
-          {communitySegment === 'recs' && (
-            <button
-              type="button"
-              aria-label="Search"
-              aria-pressed={searching}
-              onClick={() => {
-                setSearching((on) => !on)
-                setQuery('')
-              }}
-              className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-muted text-ink active:opacity-60"
-            >
-              <SearchIcon className="size-[18px]" />
-            </button>
-          )}
-        </div>
+        <SegmentedControl
+          segments={segments as { id: CommunitySegment; label: string }[]}
+          value={communitySegment}
+          onChange={(id) => setState({ communitySegment: id })}
+        />
 
         {communitySegment === 'recs' ? (
           <>
-            {searching && (
-              <input
-                autoFocus
-                type="search"
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder={relayCopy.searchPlaceholder}
-                className="-mt-3 w-full rounded-full bg-surface px-4 py-2.5 text-body text-ink outline-none placeholder:text-ink-muted"
-              />
-            )}
+            {/* Category filters, with search at the end */}
+            <div className="-mt-2 flex flex-col gap-3">
+              <div className="-mx-4 flex items-center gap-2 pr-4">
+                <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-4 [scrollbar-width:none]">
+                  <CategoryChip selected={!category} onClick={() => setCategory(null)}>
+                    {relayCopy.all}
+                  </CategoryChip>
+                  {relayCategories.map((item) => (
+                    <CategoryChip
+                      key={item.id}
+                      tone={item.tone}
+                      selected={category === item.id}
+                      onClick={() => setCategory(category === item.id ? null : item.id)}
+                    >
+                      {item.label}
+                    </CategoryChip>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  aria-label="Search"
+                  aria-pressed={searching}
+                  onClick={() => {
+                    setSearching((on) => !on)
+                    setQuery('')
+                  }}
+                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-baton-chip text-ink active:opacity-60"
+                >
+                  <SearchIcon className="size-[18px]" />
+                </button>
+              </div>
+              {searching && (
+                <input
+                  autoFocus
+                  type="search"
+                  value={query}
+                  onChange={(event) => setQuery(event.target.value)}
+                  placeholder={relayCopy.searchPlaceholder}
+                  className="w-full rounded-full bg-baton-chip px-5 py-2.5 text-body text-ink outline-none placeholder:text-ink-muted"
+                />
+              )}
+            </div>
 
             {picks.length > 0 && (
-              <section className="flex flex-col gap-3">
-                <h2 className="px-1 font-display text-title-2 font-bold text-baton-navy">{headers.picks}</h2>
+              <section className="flex flex-col gap-4">
+                <h2 className="font-display text-title-2 font-medium text-baton-navy">{headers.picks}</h2>
                 <CardRow>
                   {picks.map((item) => (
-                    <PickCard
+                    <RecCard
                       key={item.id}
                       title={item.title}
-                      why={item.source.kind === 'baton' ? item.source.why : item.body}
-                      label={item.label}
-                      tone={item.tone}
-                      photo={item.photo}
+                      text={item.source.kind === 'baton' ? item.source.why : item.body}
+                      tone={relayCategory(item.category).tone}
+                      photo={item.photo ?? relayPlaceholderPhoto}
                       onClick={() => open(item.id)}
                     />
                   ))}
@@ -96,27 +123,28 @@ export function Community() {
             )}
 
             {people.length > 0 && (
-              <section className="flex flex-col gap-5">
-                <h2 className="px-1 font-display text-title-2 font-bold text-baton-navy">{headers.people}</h2>
+              <section className="flex flex-col gap-4">
+                <h2 className="font-display text-title-2 font-medium text-baton-navy">{headers.people}</h2>
                 {people.map(({ leaver, tips }) => (
-                  <div key={leaver.id} className="flex flex-col gap-2.5">
-                    <div className="flex items-center gap-2.5 px-1">
-                      <Avatar name={leaver.name} size="sm" className="bg-baton-navy!" />
+                  <div key={leaver.id} className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
                       <div className="min-w-0">
-                        <p className="text-headline font-semibold text-baton-navy">From {leaver.name}</p>
-                        <p className="truncate text-footnote text-ink-muted">
+                        <p className="text-subhead text-ink">{relayCopy.legacy(leaver.name)}</p>
+                        <p className="truncate text-caption text-ink/60">
                           {leaver.left} · {leaver.match}
                         </p>
                       </div>
                     </div>
                     <CardRow>
                       {tips.map((item) => (
-                        <TipCard
+                        <RecCard
                           key={item.id}
+                          size="sm"
                           title={item.title}
-                          quote={item.quote ?? item.body}
-                          tone={item.tone}
-                          photo={item.photo}
+                          text={`“${item.quote ?? item.body}”`}
+                          tone={relayCategory(item.category).tone}
+                          photo={item.photo ?? relayPlaceholderPhoto}
                           onClick={() => open(item.id)}
                         />
                       ))}
