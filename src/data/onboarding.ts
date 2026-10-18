@@ -39,7 +39,7 @@ export const auth = {
 
 export const about = {
   title: 'Tell us about yourself',
-  body: 'This decides what Baton shows you. You can change it any time in Profile.',
+  body: "Where are you in your move? Baton changes with each stage, from saving the city you're leaving to settling into the next. Switch any time in Profile.",
   moveOptions: [
     { id: 'moving', label: 'Moving soon' },
     { id: 'newcomer', label: 'Just arrived' },
