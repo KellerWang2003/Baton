@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from 'react'
+import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
 
 export type ArchiveFolder = {
@@ -8,36 +8,43 @@ export type ArchiveFolder = {
   dates: string
   tabAlign: 'left' | 'center' | 'right'
   dateAlign: 'left' | 'right'
-  tone: 'dark' | 'mid' | 'light'
+  tone: 'olive' | 'blue' | 'cream'
 }
 
 type FolderStackProps = {
   folders: ArchiveFolder[]
   onSelect?: (id: string) => void
+  // Extra content under the dates of the open folder (the lifestyle summary)
+  renderActive?: (folder: ArchiveFolder, mutedClass: string) => ReactNode
   className?: string
 }
 
+// Brand colors from the Figma Archive frame (LA28 Palms, 256:196).
+// body is the text color for content inside the open folder.
 const toneStyles: Record<
   ArchiveFolder['tone'],
-  { fill: string; fillText: string; title: string; dates: string }
+  { fill: string; fillText: string; title: string; dates: string; body: string }
 > = {
-  dark: {
-    fill: 'bg-brand',
-    fillText: 'text-brand',
-    title: 'text-on-brand',
-    dates: 'text-on-brand/75',
+  olive: {
+    fill: 'bg-baton-olive',
+    fillText: 'text-baton-olive',
+    title: 'text-baton-yellow',
+    dates: 'text-on-baton-olive-muted',
+    body: 'text-baton-cream',
   },
-  mid: {
-    fill: 'bg-placeholder',
-    fillText: 'text-placeholder',
-    title: 'text-ink',
-    dates: 'text-ink/65',
+  blue: {
+    fill: 'bg-baton-blue',
+    fillText: 'text-baton-blue',
+    title: 'text-baton-cream',
+    dates: 'text-on-baton-blue-muted',
+    body: 'text-baton-cream',
   },
-  light: {
-    fill: 'bg-surface-muted',
-    fillText: 'text-surface-muted',
-    title: 'text-accent',
-    dates: 'text-ink-muted',
+  cream: {
+    fill: 'bg-baton-cream',
+    fillText: 'text-baton-cream',
+    title: 'text-baton-navy',
+    dates: 'text-on-baton-cream-muted',
+    body: 'text-baton-navy',
   },
 }
 
@@ -55,9 +62,9 @@ const UNDERLAP_SKIRT = 96
 const BASE_OVERLAP = TAB_HEIGHT + UNDERLAP_SKIRT // 148px
 
 // Shoulder-to-shoulder height of the active folder vs compact folders.
-// At any scroll position, the viewport frames 3 folders: 1 active folder (450px)
+// At any scroll position, the viewport frames 3 folders: 1 active folder (480px)
 // + 2 compact folders (2 * 96px).
-const ACTIVE_STEP_HEIGHT = 450
+const ACTIVE_STEP_HEIGHT = 480
 const COMPACT_STEP_HEIGHT = 96
 const VISIBLE_FOLDERS = 3
 
@@ -75,7 +82,7 @@ function rubberBand(distance: number, max = 64) {
 // - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
 // - Scrolling or dragging steps the expanded active footprint through the
 //   stack (180px of travel per folder) and glides the stack upward.
-export function FolderStack({ folders, onSelect, className }: FolderStackProps) {
+export function FolderStack({ folders, onSelect, renderActive, className }: FolderStackProps) {
   const releaseTimerRef = useRef<number | null>(null)
   const scrollPosRef = useRef(0)
   const overscrollRef = useRef(0)
@@ -266,7 +273,7 @@ export function FolderStack({ folders, onSelect, className }: FolderStackProps) 
                 </svg>
                 <div
                   className={cx(
-                    '-mx-px flex min-w-[116px] items-center justify-center px-3 pt-1',
+                    '-mx-px flex min-w-[144px] items-center justify-center px-3 pt-1',
                     styles.fill,
                   )}
                 >
@@ -287,7 +294,7 @@ export function FolderStack({ folders, onSelect, className }: FolderStackProps) 
               <div
                 style={{ height: `${bodyHeight}px` }}
                 className={cx(
-                  'flex w-full flex-col rounded-t-card px-7 pt-4 transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  'flex w-full flex-col overflow-hidden rounded-t-card px-7 pt-4 transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
                   styles.fill,
                   isLast && '-mb-[220px]',
                 )}
@@ -301,6 +308,17 @@ export function FolderStack({ folders, onSelect, className }: FolderStackProps) 
                 >
                   {folder.dates}
                 </span>
+                {renderActive && (
+                  <div
+                    className={cx(
+                      'transition-opacity duration-300',
+                      styles.body,
+                      isActive ? 'opacity-100' : 'pointer-events-none opacity-0',
+                    )}
+                  >
+                    {renderActive(folder, styles.dates)}
+                  </div>
+                )}
               </div>
             </button>
           )

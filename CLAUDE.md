@@ -75,6 +75,7 @@ Keller, Oct 17. These hex values are the source of truth (the earlier Archivo fo
 - Logo: a segmented, tilted baton mark plus the lowercase "baton" wordmark. SVGs in `public/brand/` (`baton-mark.svg`, `baton-lockup.svg`), used through `src/ui/Logo.tsx`
 - Tagline: "Leave a story. Start another."
 - Shape: very rounded (pill buttons, 24px cards)
+- In code the palette is the `baton-*` color tokens in `src/theme/tokens.css` (`bg-baton-blue`, `text-baton-cream`, ...). The high-fidelity Archive uses them directly: city folders cycle olive, blue, cream as in the Figma Archive frame (256:196), each with a one-sentence lifestyle summary and inline photos (`archiveSummaries` in `src/data/stages.ts`, photos in `public/archive/`, `InlinePhoto` in `src/ui/`)
 - Stage colors (proposed, pending Keller's OK; thread "Stage colors and themes", https://claude.ai/artifact/JGP7cKRngKEA8N3LMDhW6b): Moving pink, Newcomer yellow, Local olive. Cream surfaces and navy text stay constant; blue marks onboarding, the logo and things handed over (recommendations, hint cards, notes, Q&A)
 
 ## Stack
