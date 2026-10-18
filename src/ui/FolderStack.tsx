@@ -16,6 +16,8 @@ type FolderStackProps = {
   onSelect?: (id: string) => void
   // Extra content under the dates of the open folder (the lifestyle summary)
   renderActive?: (folder: ArchiveFolder, mutedClass: string, isActive: boolean) => ReactNode
+  // Shown once at the bottom of the last folder, in its quiet text color
+  footer?: ReactNode
   className?: string
 }
 
@@ -94,7 +96,7 @@ function rubberBand(distance: number, max = 64) {
 // - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
 // - Scrolling or dragging steps the expanded active footprint through the
 //   stack (180px of travel per folder) and glides the stack upward.
-export function FolderStack({ folders, onSelect, renderActive, className }: FolderStackProps) {
+export function FolderStack({ folders, onSelect, renderActive, footer, className }: FolderStackProps) {
   const releaseTimerRef = useRef<number | null>(null)
   const scrollPosRef = useRef(0)
   const overscrollRef = useRef(0)

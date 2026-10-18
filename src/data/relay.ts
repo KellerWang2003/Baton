@@ -230,7 +230,6 @@ export const relayCopy = {
   searchPlaceholder: 'Search places and tips',
   all: 'All',
   map: 'Map view',
-  list: 'List view',
   onMap: (count: number) => `${count} ${count === 1 ? 'place' : 'places'} on the map`,
   legacy: (name: string) => `${name}’s legacy`,
   noResults: 'Nothing here yet. Try another category.',

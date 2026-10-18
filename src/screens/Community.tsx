@@ -14,7 +14,7 @@ import {
   relayYou,
 } from '../data/relay'
 import type { RelayCategory, RelayItem } from '../data/relay'
-import { Avatar, CardRow, CategoryChip, CityMap, ListIcon, MapIcon, RecCard, SearchIcon, cx } from '../ui'
+import { Avatar, CardRow, CategoryChip, CityMap, MapIcon, RecCard, SearchIcon, cx } from '../ui'
 import { MainLayout } from './MainLayout'
 
 function open(id: string) {
@@ -123,18 +123,21 @@ export function Community() {
           {/* The list, as a sheet: slid down to a peek above the tab bar while the map shows */}
           <div className="relative min-h-0 flex-1">
             <div
-              style={{ transform: mapOpen ? 'translateY(calc(100% - 200px))' : 'translateY(0)' }}
+              style={{ transform: mapOpen ? 'translateY(calc(100% - 150px))' : 'translateY(0)' }}
               className={cx(
                 'pointer-events-auto absolute inset-0 bg-baton-paper transition-[transform,border-radius,box-shadow] duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]',
                 mapOpen && 'rounded-t-sheet shadow-float',
               )}
             >
               {mapOpen && (
-                // Peek: tap or drag up to bring the list back
+                // Peek: swipe up (or tap) to bring the list back
                 <button
                   type="button"
                   onClick={() => showMap(false)}
-                  onPointerDown={(event) => (dragFrom.current = event.clientY)}
+                  onPointerDown={(event) => {
+                    dragFrom.current = event.clientY
+                    event.currentTarget.setPointerCapture(event.pointerId)
+                  }}
                   onPointerUp={(event) => {
                     if (dragFrom.current !== null && dragFrom.current - event.clientY > 24) showMap(false)
                     dragFrom.current = null
@@ -209,7 +212,7 @@ export function Community() {
           <button
             type="button"
             onClick={() => open(pinnedItem.id)}
-            className="absolute inset-x-6 bottom-[212px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
+            className="absolute inset-x-6 bottom-[162px] z-20 flex items-center gap-3 rounded-card bg-surface p-2 pr-4 text-left shadow-float animate-fade-in"
           >
             <img src={pinnedItem.photo ?? relayPlaceholderPhoto} alt="" className="size-16 shrink-0 rounded-tile object-cover" />
             <div className="min-w-0">
@@ -221,15 +224,17 @@ export function Community() {
           </button>
         )}
 
-        {/* Map / List, floating just above the tab bar */}
-        <button
-          type="button"
-          onClick={() => showMap(!mapOpen)}
-          className="absolute bottom-[103px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-baton-blue px-4 py-3 text-callout font-medium leading-[1.1] text-on-brand transition-transform active:scale-95"
-        >
-          {mapOpen ? <ListIcon /> : <MapIcon />}
-          {mapOpen ? relayCopy.list : relayCopy.map}
-        </button>
+        {/* Map view, floating just above the tab bar; the list comes back by swiping the sheet up */}
+        {!mapOpen && (
+          <button
+            type="button"
+            onClick={() => showMap(true)}
+            className="absolute bottom-[103px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-baton-blue px-4 py-3 text-callout font-medium leading-[1.1] text-on-brand transition-transform active:scale-95"
+          >
+            <MapIcon />
+            {relayCopy.map}
+          </button>
+        )}
       </div>
     </MainLayout>
   )
