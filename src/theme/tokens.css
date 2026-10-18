@@ -154,6 +154,65 @@
   --shadow-sheet: 0 -4px 20px rgb(0 0 0 / 0.08); /* Relay list resting over the map */
   --shadow-glass: 0 2px 12px rgb(0 0 0 / 0.06); /* tab bar: light, the blur does the work */
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
+  --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */
+
+  /* Relay looks (team playground): warm paper surfaces */
+  --color-baton-postcard: #fffcf6; /* postcard stock */
+}
+
+/*
+ * Paper textures for the Relay looks playground. The grain is SVG noise, so
+ * nothing extra loads. bg-paper-* are page backgrounds; grain lays the same
+ * noise over a card (it needs no position of its own, the card is relative).
+ */
+:root {
+  --texture-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.13 0 0 0 0 0.14 0 0 0 0 0.19 0 0 0 0.32 -0.07'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --texture-fibers: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.05' numOctaves='4' seed='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.36 0 0 0 0 0.28 0 0 0 0.22 -0.06'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+@utility bg-paper {
+  background-color: var(--color-baton-cream);
+  background-image: var(--texture-grain), var(--texture-fibers);
+  background-size: 180px, 400px;
+}
+@utility bg-paper-dots {
+  background-color: var(--color-baton-cream);
+  background-image: var(--texture-grain), radial-gradient(circle, rgb(34 36 48 / 0.16) 1.2px, transparent 1.6px);
+  background-size: 180px, 22px 22px;
+}
+@utility bg-paper-light {
+  background-color: var(--color-baton-paper);
+  background-image: var(--texture-grain);
+  background-size: 180px;
+}
+@utility grain {
+  isolation: isolate;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    background-image: var(--texture-grain);
+    background-size: 180px;
+    mix-blend-mode: multiply;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+/* Two half-circle bites out of the sides, at --notch from the top (ticket cards) */
+@utility ticket-notch {
+  mask-image:
+    radial-gradient(circle 11px at 0 var(--notch), transparent 98%, #000 100%),
+    radial-gradient(circle 11px at 100% var(--notch), transparent 98%, #000 100%);
+  mask-composite: intersect;
+}
+/* Perforated stamp edge: a solid middle plus a ring of round holes */
+@utility stamp-edge {
+  padding: 4px;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    radial-gradient(circle 2.6px at 4px 4px, transparent 96%, #000 100%) -4px -4px / 8px 8px;
 }
 
 /* Wrap any subtree in data-stage="..." to recolor bg-stage, text-stage, etc. */

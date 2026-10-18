@@ -7,6 +7,7 @@ import { useScreenIndex } from './app/useScreenIndex'
 import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
+import { RelayLooks } from './screens/RelayLooks'
 import { UiKit } from './screens/UiKit'
 
 // The map library is big, so it only loads when the playground opens
@@ -18,6 +19,8 @@ function App() {
   const [kitOpen, setKitOpen] = useState(false)
   // Map looks playground (team only): debug panel, or ?maps in the URL
   const [mapsOpen, setMapsOpen] = useState(() => new URLSearchParams(window.location.search).has('maps'))
+  // Relay looks playground (team only): debug panel, or ?relay-looks in the URL
+  const [looksOpen, setLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('relay-looks'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
   const { status } = useStore()
@@ -54,12 +57,15 @@ function App() {
         toggleKit={() => setKitOpen((open) => !open)}
         mapsOpen={mapsOpen}
         toggleMaps={() => setMapsOpen((open) => !open)}
+        looksOpen={looksOpen}
+        toggleLooks={() => setLooksOpen((open) => !open)}
       />
       {mapsOpen && (
         <Suspense>
           <MapPlayground onClose={() => setMapsOpen(false)} />
         </Suspense>
       )}
+      {looksOpen && <RelayLooks onClose={() => setLooksOpen(false)} />}
     </>
   )
 }

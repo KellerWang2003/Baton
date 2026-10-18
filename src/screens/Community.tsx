@@ -1,21 +1,12 @@
 import { Suspense, lazy, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useStatus, useStore } from '../app/store'
-import {
-  leavers,
-  leaverTips,
-  relayCategories,
-  relayCategory,
-  relayCopy,
-  relayHeaders,
-  relayPicks,
-  relayPlaceholderAvatar,
-  relayPlaceholderPhoto,
-} from '../data/relay'
+import { leavers, leaverTips, relayCategories, relayCategory, relayCopy, relayHeaders, relayPicks, relayPlaceholderPhoto } from '../data/relay'
 import { homeSpot, mapNeighborhoods, relaySpots } from '../data/mapSpots'
 import type { RelayCategory, RelayItem } from '../data/relay'
-import { Avatar, CardRow, CategoryChip, MapIcon, RecCard, SearchIcon, cx } from '../ui'
+import { CategoryChip, MapIcon, SearchIcon, cx, relayChipIdle, relayPage } from '../ui'
 import { MainLayout } from './MainLayout'
+import { RelayFeed } from './RelayFeed'
 
 // The map library is big, so it loads with Relay's map, not the whole app
 const LiveMap = lazy(() => import('../ui/LiveMap').then((m) => ({ default: m.LiveMap })))
@@ -40,7 +31,7 @@ function matches(item: RelayItem, query: string) {
 // (the AllTrails list/map pattern) to show the same picks as pins on a map.
 export function Community() {
   const status = useStatus()
-  const { relayMap: mapOpen, relayFilter } = useStore()
+  const { relayMap: mapOpen, relayFilter, relayLook } = useStore()
   const category = relayFilter as RelayCategory | null
   const [searching, setSearching] = useState(false)
   const [query, setQuery] = useState('')
@@ -70,7 +61,7 @@ export function Community() {
   const headers = relayHeaders[status]
 
   return (
-    <MainLayout bleed background="bg-baton-paper">
+    <MainLayout bleed background={relayPage[relayLook]}>
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* The map, behind everything; the list slides down to show it */}
         <div className="absolute inset-0" inert={!mapOpen}>
@@ -98,9 +89,10 @@ export function Community() {
         <div
           style={{ transform: mapOpen ? `translateY(calc(100% - ${mapPeek}px + ${pull ?? 0}px))` : `translateY(${pull ?? 0}px)` }}
           className={cx(
-            'absolute inset-0 z-10 bg-baton-paper ease-[cubic-bezier(0.32,0.72,0,1)]',
+            'absolute inset-0 z-10 ease-[cubic-bezier(0.32,0.72,0,1)]',
             // Follows the finger while pulled, glides otherwise
             pull === null && 'transition-[transform,border-radius,box-shadow] duration-500',
+            relayPage[relayLook],
             mapOpen && 'rounded-t-map-sheet shadow-sheet',
           )}
         >
@@ -146,13 +138,14 @@ export function Community() {
             <div className="-mb-4 flex flex-col gap-3">
               <div className="-mx-6 flex items-center gap-[26px] pr-6">
                 <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-6 [scrollbar-width:none]">
-                  <CategoryChip selected={!category} onClick={() => setCategory(null)}>
+                  <CategoryChip look={relayLook} selected={!category} onClick={() => setCategory(null)}>
                     {relayCopy.all}
                   </CategoryChip>
                   {relayCategories.map((item) => (
                     <CategoryChip
                       key={item.id}
                       tone={item.tone}
+                      look={relayLook}
                       selected={category === item.id}
                       onClick={() => setCategory(category === item.id ? null : item.id)}
                     >
@@ -168,7 +161,7 @@ export function Community() {
                     setSearching((on) => !on)
                     setQuery('')
                   }}
-                  className="flex size-10 shrink-0 items-center justify-center rounded-full bg-baton-chip text-ink active:opacity-60"
+                  className={cx('flex size-10 shrink-0 items-center justify-center rounded-full active:opacity-60', relayChipIdle[relayLook])}
                 >
                   <SearchIcon className="size-[18px]" />
                 </button>
@@ -186,57 +179,7 @@ export function Community() {
             </div>
             {/* Below the filters: hidden behind the nav while the map shows */}
             <div className={cx('flex flex-col gap-10 transition-opacity duration-300', mapOpen && 'pointer-events-none opacity-0')}>
-              {picks.length > 0 && (
-                <section className="flex flex-col gap-4">
-                  <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.picks}</h2>
-                  <CardRow gutter="lg">
-                    {picks.map((item) => (
-                      <RecCard
-                        key={item.id}
-                        title={item.title}
-                        text={item.source.kind === 'baton' ? item.source.why : item.body}
-                        tone={relayCategory(item.category).tone}
-                        label={relayCategory(item.category).label}
-                        photo={item.photo ?? relayPlaceholderPhoto}
-                        onClick={() => open(item.id)}
-                      />
-                    ))}
-                  </CardRow>
-                </section>
-              )}
-
-              {people.length > 0 && (
-                <section className="flex flex-col gap-4">
-                  <h2 className="whitespace-nowrap font-display text-section font-medium text-baton-navy">{headers.people}</h2>
-                  {people.map(({ leaver, tips }) => (
-                    <div key={leaver.id} className="flex flex-col gap-4 not-first-of-type:mt-4">
-                      <div className="flex items-center gap-3">
-                        <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
-                        <div className="min-w-0">
-                          <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
-                          <p className="truncate text-[11px] leading-[1.2] text-ink/60">
-                            {leaver.left} · {leaver.match}
-                          </p>
-                        </div>
-                      </div>
-                      <CardRow gutter="lg">
-                        {tips.map((item) => (
-                          <RecCard
-                            key={item.id}
-                            size="sm"
-                            title={item.title}
-                            text={`“${item.quote ?? item.body}”`}
-                            tone={relayCategory(item.category).tone}
-                            label={relayCategory(item.category).label}
-                            photo={item.photo ?? relayPlaceholderPhoto}
-                            onClick={() => open(item.id)}
-                          />
-                        ))}
-                      </CardRow>
-                    </div>
-                  ))}
-                </section>
-              )}
+              <RelayFeed look={relayLook} headers={headers} picks={picks} people={people} onOpen={open} />
 
               {picks.length === 0 && people.length === 0 && (
                 <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>

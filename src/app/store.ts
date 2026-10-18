@@ -3,6 +3,7 @@ import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
+import type { RelayLook } from '../ui/relayLooks'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
 // that show up on Today). Nothing persists; a reload starts fresh.
@@ -31,6 +32,8 @@ type State = {
   // Relay shows the map (list slid down), and the picked category filter
   relayMap: boolean
   relayFilter: string | null
+  // Visual treatment for Relay, picked in the team-only Relay looks playground
+  relayLook: RelayLook
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -54,6 +57,7 @@ let state: State = {
   relayNotes: {},
   relayMap: false,
   relayFilter: null,
+  relayLook: 'flat',
   setupDone: [],
   composing: false,
   reflections: [],
