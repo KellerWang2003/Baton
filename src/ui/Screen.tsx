@@ -15,12 +15,14 @@ type ScreenProps = {
   className?: string
   // Page background class, e.g. bg-stage-bg for a stage-themed page
   background?: string
+  // Full-bleed body without horizontal or bottom padding
+  bleed?: boolean
 }
 
 // Layout for one app screen in the iOS style: a navigation bar (back button and
 // trailing action), a large title, a scrolling body and an optional pinned footer.
 // Fills its container, so it works inside the phone frame and full-screen.
-export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas' }: ScreenProps) {
+export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas', bleed = false }: ScreenProps) {
   return (
     <div className={cx('flex h-full flex-col transition-colors duration-500', background)}>
       {onBack && (
@@ -48,7 +50,7 @@ export function Screen({ title, eyebrow, onBack, backLabel = 'Back', backChevron
           {!onBack && action && <div className="pb-1">{action}</div>}
         </header>
       )}
-      <main className={cx('flex-1 overflow-y-auto px-4 pb-6', className)}>{children}</main>
+      <main className={cx('flex-1', bleed ? 'flex flex-col overflow-hidden' : 'overflow-y-auto px-4 pb-6', className)}>{children}</main>
       {footer && <footer className="px-4 pb-6 pt-3">{footer}</footer>}
     </div>
   )

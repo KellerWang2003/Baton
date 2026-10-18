@@ -37,7 +37,7 @@ export function MainLayout({ title, children, bleed = false }: MainLayoutProps) 
   )
 
   return (
-    <Screen title={title} action={avatar} className={bleed ? 'flex flex-col overflow-hidden px-0 pb-0' : undefined}>
+    <Screen title={title} action={avatar} bleed={bleed}>
       {/* Room so the last content can scroll above the floating tab bar */}
       {bleed ? children : <div className="pb-24">{children}</div>}
     </Screen>
