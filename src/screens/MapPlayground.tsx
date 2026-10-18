@@ -19,6 +19,7 @@ const pinChoices: { id: PinDesign | 'own'; label: string }[] = [
   { id: 'drop', label: 'Drop' },
   { id: 'badge', label: 'Badge' },
   { id: 'label', label: 'Label' },
+  { id: 'sticky', label: 'Sticky' },
 ]
 
 // Team-only page (from the debug panel, or ?maps in the URL): the candidate
@@ -41,7 +42,7 @@ export function MapPlayground({ onClose }: { onClose: () => void }) {
         </div>
         <label className="flex items-center gap-2 text-subhead">
           <span className="text-ink-muted">Pins</span>
-          <SegmentedControl segments={pinChoices} value={pinDesign} onChange={setPinDesign} className="w-[380px]" />
+          <SegmentedControl segments={pinChoices} value={pinDesign} onChange={setPinDesign} className="w-[460px]" />
         </label>
         <button
           type="button"

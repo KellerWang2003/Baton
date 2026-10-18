@@ -6,7 +6,7 @@ import type { StyleSpecification } from 'maplibre-gl'
 // vector tiles of OpenStreetMap (no key). Labels aren't in the tiles' style:
 // LiveMap draws its own neighborhood names in Mundial Narrow.
 
-export type PinDesign = 'dot' | 'drop' | 'badge' | 'label'
+export type PinDesign = 'dot' | 'drop' | 'badge' | 'label' | 'sticky'
 
 export type MapLook = {
   id: string
@@ -60,7 +60,8 @@ export const mapLooks: MapLook[] = [
     id: 'paper',
     name: 'Paper',
     blurb: 'Off-white paper, soft blue water, butter-yellow parks. Calm, lets the pins do the talking.',
-    pin: 'dot',
+    // Small taped sticky notes, like the Scrapbook cards in the list (Keller, Oct 18)
+    pin: 'sticky',
     palette: () => {
       const b = brand()
       return {

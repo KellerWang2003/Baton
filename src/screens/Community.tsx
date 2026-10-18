@@ -11,8 +11,9 @@ import { RelayFeed } from './RelayFeed'
 // The map library is big, so it loads with Relay's map, not the whole app
 const LiveMap = lazy(() => import('../ui/LiveMap').then((m) => ({ default: m.LiveMap })))
 
-// How much of the sheet shows over the map: just the filters, resting on the tab bar
-const mapPeek = 161
+// How much of the sheet shows over the map: just the filters, with the same
+// 16px gap above them (sheet edge) and below them (tab bar)
+const mapPeek = 157
 
 function open(id: string) {
   setState({ selectedRec: id })
@@ -131,7 +132,7 @@ export function Community() {
             ref={listRef}
             className={cx(
               'flex h-full flex-col gap-10 overscroll-y-contain px-6 pb-44 transition-[padding] duration-500',
-              mapOpen ? 'overflow-hidden pt-6' : 'overflow-y-auto pt-4',
+              mapOpen ? 'overflow-hidden pt-4' : 'overflow-y-auto pt-4',
             )}
           >
             {/* Category filters, with search at the end */}

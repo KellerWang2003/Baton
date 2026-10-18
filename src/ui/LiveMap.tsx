@@ -212,7 +212,7 @@ export function LiveMap({
           </span>
         )}
 
-        {pins.map((pin) => {
+        {pins.map((pin, index) => {
           const point = points[`pin:${pin.id}`]
           if (!point) return null
           const active = pin.id === selected
@@ -237,6 +237,7 @@ export function LiveMap({
                   // Names only once zoomed into a neighborhood, so they don't pile up
                   title={active || zoom >= 13.5 ? pin.title : undefined}
                   dark={dark}
+                  index={index}
                 />
               </span>
             </button>
@@ -262,10 +263,31 @@ const toneBg: Record<RecTone, string> = {
   navy: 'bg-baton-navy text-on-brand',
 }
 
-type PinMarkProps = { design: PinDesign; tone: RecTone; active: boolean; title?: string; dark?: boolean }
+type PinMarkProps = { design: PinDesign; tone: RecTone; active: boolean; title?: string; dark?: boolean; index?: number }
+
+const stickyTilts = ['-rotate-[6deg]', 'rotate-[4deg]', '-rotate-[2deg]', 'rotate-[7deg]']
 
 // The pin designs to choose from. Each is centered on (or points at) the spot.
-export function PinMark({ design, tone, active, title, dark }: PinMarkProps) {
+export function PinMark({ design, tone, active, title, dark, index = 0 }: PinMarkProps) {
+  if (design === 'sticky') {
+    // A small sticky note in the category color, held on with cream tape like
+    // the Scrapbook cards; it grows to show the name once zoomed in or picked
+    return (
+      <span
+        className={cx(
+          'grain absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[3px] font-display font-bold shadow-paper transition-all duration-200',
+          toneBg[tone],
+          stickyTilts[index % stickyTilts.length],
+          !title ? 'size-6' : 'max-w-44 whitespace-nowrap px-2.5 pb-1.5 pt-2 text-caption leading-tight',
+          active && 'scale-125',
+        )}
+      >
+        <span aria-hidden className="absolute -top-1.5 left-1/2 h-2.5 w-5 -translate-x-1/2 -rotate-6 bg-baton-cream/90 shadow-paper" />
+        {title && <span className="truncate">{title}</span>}
+      </span>
+    )
+  }
+
   if (design === 'drop') {
     // A classic map drop, tip on the spot
     return (
