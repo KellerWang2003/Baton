@@ -278,32 +278,6 @@ export const olderArchive: ArchiveDetailContent = {
 
 export type CommunitySegment = 'recs' | 'qa'
 
-export type RecFilter = 'places' | 'logistics' | 'mentality'
-
-export const recFilters: { id: RecFilter; label: string }[] = [
-  { id: 'places', label: 'Places' },
-  { id: 'logistics', label: 'Logistics' },
-  { id: 'mentality', label: 'Mentality' },
-]
-
-export type Rec = { id: string; kind: RecFilter; title: string; detail: string; from: string; notes: number }
-
-// Drawn from the legacies of several people who lived like her and left NYC.
-export const recs: Rec[] = [
-  { id: 'gym', kind: 'places', title: "Crunch on 14th St", detail: "A gym with a Trader Joe's next door", from: 'Maya · left NYC in 2025', notes: 4 },
-  { id: 'cafe', kind: 'places', title: 'Devoción, Williamsburg', detail: 'Big tables, nobody rushes you', from: 'Ana · left NYC in 2024', notes: 7 },
-  { id: 'studio', kind: 'places', title: 'Spring Studio', detail: 'Figure drawing, Thursdays at 7, $25 drop-in', from: 'Leo · left NYC in 2025', notes: 3 },
-  { id: 'lease', kind: 'logistics', title: 'Ask for a 13-month lease', detail: 'The free month is often negotiable', from: 'Sam · left NYC in 2025', notes: 5 },
-  { id: 'omny', kind: 'logistics', title: 'Skip the MetroCard', detail: 'Tap your phone, rides cap at 12 a week', from: 'Ana · left NYC in 2024', notes: 2 },
-  { id: 'lonely', kind: 'mentality', title: 'Month two is the hardest', detail: 'Plan something every weekend that month', from: 'Maya · left NYC in 2025', notes: 9 },
-]
-
-export const communityHeader: Record<Stage, string> = {
-  moving: 'New York, before you get there',
-  newcomer: 'New York · from 5 people who lived like you',
-  local: 'New York · from 5 people who lived like you',
-}
-
 export type Question = { id: string; question: string; asker: string; answer?: { text: string; from: string } }
 
 export type QaContent = {
