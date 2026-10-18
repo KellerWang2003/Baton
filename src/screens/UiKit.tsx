@@ -12,6 +12,7 @@ import {
   CheckCircle,
   Chip,
   ChoiceCard,
+  FluidGlass,
   HomeGraphic,
   ListRow,
   ListSection,
@@ -124,6 +125,12 @@ export function UiKit() {
                   {stage[0].toUpperCase() + stage.slice(1)}
                 </Chip>
               ))}
+            </div>
+          </Section>
+
+          <Section title="Liquid glass (React Bits Fluid Glass)">
+            <div className="h-64 overflow-hidden rounded-card">
+              <FluidGlass src="/archive/la-sunset.jpg" shape="blob" size={200} dispersion={0.85} />
             </div>
           </Section>
 
