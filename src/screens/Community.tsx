@@ -49,22 +49,6 @@ export function Community() {
   // How far the sheet is being pulled up right now (negative), while a finger is on it
   const [pull, setPull] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  // Pulling the list down from its top: where the pull started, whether it moved, and trackpad scroll
-  const listPull = useRef<{ from: number; moved: boolean } | null>(null)
-  const wheel = useRef({ sum: 0, at: 0 })
-  const startListPull = (list: HTMLElement, y: number) => {
-    listPull.current = !mapOpen && list.scrollTop <= 0 ? { from: y, moved: false } : null
-  }
-  const moveListPull = (y: number) => {
-    const drag = listPull.current
-    if (!drag) return
-    if (y - drag.from > 6) drag.moved = true
-    if (drag.moved) setPull(Math.max(0, y - drag.from))
-  }
-  const endListPull = () => {
-    if (listPull.current?.moved && (pull ?? 0) > 60) showMap(true)
-    setPull(null)
-  }
   const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
   const setCategory = (id: RelayCategory | null) => {
     setState({ relayFilter: id })
@@ -157,37 +141,6 @@ export function Community() {
               'flex h-full flex-col gap-10 overscroll-y-contain px-6 pb-44 transition-[padding] duration-500',
               mapOpen ? 'overflow-hidden pt-6' : 'overflow-y-auto pt-4',
             )}
-            // Pulling the list down from the top drops it into the map, like swiping the sheet down
-            // (mouse in the phone frame; touch below, since the browser cancels pointers once it scrolls)
-            onPointerDown={(event) => {
-              if (event.pointerType === 'mouse') startListPull(event.currentTarget, event.clientY)
-            }}
-            onPointerMove={(event) => {
-              if (event.pointerType === 'mouse') moveListPull(event.clientY)
-            }}
-            onPointerUp={(event) => {
-              if (event.pointerType === 'mouse') endListPull()
-            }}
-            onTouchStart={(event) => startListPull(event.currentTarget, event.touches[0].clientY)}
-            onTouchMove={(event) => moveListPull(event.touches[0].clientY)}
-            onTouchEnd={endListPull}
-            onTouchCancel={endListPull}
-            // A pull is not a tap on the card under the finger
-            onClickCapture={(event) => {
-              if (listPull.current?.moved) event.stopPropagation()
-              listPull.current = null
-            }}
-            onWheel={(event) => {
-              // Two-finger swipe down on a trackpad while already at the top
-              if (mapOpen || event.currentTarget.scrollTop > 0 || event.deltaY >= 0) return
-              const now = event.timeStamp
-              wheel.current.sum = now - wheel.current.at > 300 ? event.deltaY : wheel.current.sum + event.deltaY
-              wheel.current.at = now
-              if (wheel.current.sum < -80) {
-                wheel.current.sum = 0
-                showMap(true)
-              }
-            }}
           >
             {/* Category filters, with search at the end */}
             <div className="-mb-4 flex flex-col gap-3">
