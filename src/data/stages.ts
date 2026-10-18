@@ -82,20 +82,15 @@ export const todayCards: Record<Stage, StageCard[]> = {
   ],
 }
 
-// Archive folders, top to bottom NYC, LA, Seoul (Figma ARCHIVE_0, 256:196).
-// While Moving, New York doesn't exist yet. After the move New York sits on
-// top and LA, now her legacy, stays the open folder. Each city keeps its color
-// in every stage (NYC olive, LA blue, Seoul cream). Tab positions belong to
-// the slot, so tabs still zigzag.
+// Archive folders, top to bottom NYC, LA, Seoul (Figma ARCHIVE_default,
+// 236:1107) in every stage. While Moving, New York is already there as the
+// city she's headed to (open-ended dates, nothing in it yet) and LA is still
+// present. After the move LA becomes her legacy. Each city keeps its color in
+// every stage (NYC olive, LA blue, Seoul cream).
 export function archiveFolders(stage: Stage): ArchiveFolder[] {
-  const slots = pages.archive.folders
-  if (stage !== 'moving') return slots
-  const [, la, ...older] = slots
-  return [{ ...la, dates: '09.2023-present' }, ...older].map((folder, index) => ({
-    ...folder,
-    tabAlign: slots[index].tabAlign,
-    dateAlign: slots[index].dateAlign,
-  }))
+  const [ny, la, ...older] = pages.archive.folders
+  if (stage !== 'moving') return [ny, la, ...older]
+  return [{ ...ny, dates: '02.2027-' }, { ...la, dates: '09.2023-present' }, ...older]
 }
 
 // Lifestyle summary on each city folder: one short sentence about how she

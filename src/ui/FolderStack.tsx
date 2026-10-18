@@ -14,8 +14,8 @@ export type ArchiveFolder = {
 type FolderStackProps = {
   folders: ArchiveFolder[]
   onSelect?: (id: string) => void
-  // Folder that starts open (the first one if missing)
-  initialId?: string
+  // Folder whose content shows through while the stack is closed
+  peekId?: string
   // Extra content under the dates of the open folder (the lifestyle summary)
   renderActive?: (folder: ArchiveFolder, isActive: boolean) => ReactNode
   // Shown once, centered at the bottom of the last folder just above the tab
@@ -105,6 +105,14 @@ const BASE_OVERLAP = TAB_HEIGHT + UNDERLAP_SKIRT // 148px
 // + 2 compact folders (2 * 96px).
 const ACTIVE_STEP_HEIGHT = 480
 const COMPACT_STEP_HEIGHT = 96
+
+// Closed stack (Figma ARCHIVE_default, 236:1107): no folder open, tabs 189px
+// apart, the stack resting on the bottom edge with the last folder showing
+// 289px (tab plus 237px of body).
+const CLOSED_STEP_HEIGHT = 189
+const CLOSED_LAST_VISIBLE = 289
+const CLOSED_LAST_STEP = CLOSED_LAST_VISIBLE - TAB_HEIGHT - UNDERLAP_SKIRT
+const STACK_TOP_PADDING = 28 // pt-7
 const VISIBLE_FOLDERS = 3
 
 // Scroll position (in px) of one folder step. Snapped positions are
@@ -132,8 +140,11 @@ function tick(ms = 8) {
 // Stacked city folders for the Archive screen.
 // - Each folder keeps its own fixed color tone.
 // - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
-// - Flick to turn one folder, drag to step through them (see above).
-export function FolderStack({ folders, onSelect, initialId, renderActive, footer, className }: FolderStackProps) {
+// - It opens closed (activeIndex -1, all folders the same height, resting on
+//   the bottom). Tap a folder to open it, tap the open folder to select it.
+// - Flick to turn one folder, drag to step through them (see above). Turning
+//   back past the first folder closes the stack again.
+export function FolderStack({ folders, onSelect, peekId, renderActive, footer, className }: FolderStackProps) {
   const wheelTimerRef = useRef<number | null>(null)
   const wheelAccumRef = useRef(0)
   const dragStateRef = useRef<{
@@ -145,9 +156,19 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     moved: boolean
   }>({ active: false, pointerId: -1, startY: 0, startTime: 0, startIndex: 0, moved: false })
 
-  const [activeIndex, setActiveIndex] = useState(() =>
-    Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
-  )
+  const [activeIndex, setActiveIndex] = useState(-1)
+  const isClosed = activeIndex < 0
+  // Height of the stack's frame, so the closed stack can rest on its bottom
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [frameHeight, setFrameHeight] = useState(0)
+
+  useEffect(() => {
+    const frame = frameRef.current
+    if (!frame) return
+    const observer = new ResizeObserver(([entry]) => setFrameHeight(entry.contentRect.height))
+    observer.observe(frame)
+    return () => observer.disconnect()
+  }, [])
   // Small stretch in px when pushing past the first or last folder:
   // > 0 pulls the folders DOWN (compress against the bottom),
   // < 0 pulls them UP (compress against the top)
@@ -156,7 +177,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
   const lastIdx = Math.max(1, folders.length - 1)
   const maxIndex = Math.max(0, folders.length - 1)
   const maxScroll = lastIdx * SCROLL_TRAVEL_PER_FOLDER
-  const clampIndex = (i: number) => Math.min(maxIndex, Math.max(0, i))
+  const clampIndex = (i: number) => Math.min(maxIndex, Math.max(-1, i))
 
   useEffect(() => {
     return () => {
@@ -167,7 +188,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
   // Snap to a folder; asking for one past either end gives a small bounce
   const goTo = (target: number) => {
     const next = clampIndex(target)
-    setPullOffset(target < 0 ? 24 : target > maxIndex ? -24 : 0)
+    setPullOffset(target < -1 ? 24 : target > maxIndex ? -24 : 0)
     if (next !== activeIndex) {
       setActiveIndex(next)
       tick()
@@ -233,17 +254,21 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     }
   }
 
-  const scrollProgress = maxScroll > 0 ? (activeIndex * SCROLL_TRAVEL_PER_FOLDER) / maxScroll : 0
+  const scrollProgress = maxScroll > 0 ? (Math.max(0, activeIndex) * SCROLL_TRAVEL_PER_FOLDER) / maxScroll : 0
 
   // Since 3 folders fit in the viewport at any time (1 active + 2 compact),
   // scrolling from top to bottom shifts the stack up by (N - 3) compact steps
   // so at scrollProgress = 1 the last folder is framed with the 2
   // folders above it and bleeds cleanly to the bottom edge.
   const maxStackShift = Math.max(0, folders.length - VISIBLE_FOLDERS) * COMPACT_STEP_HEIGHT
-  const stackShiftY = -scrollProgress * maxStackShift
+  const closedStackHeight = STACK_TOP_PADDING + CLOSED_STEP_HEIGHT * (folders.length - 1) + CLOSED_LAST_VISIBLE
+  const stackShiftY = isClosed
+    ? Math.max(0, frameHeight - closedStackHeight)
+    : -scrollProgress * maxStackShift
 
   return (
     <div
+      ref={frameRef}
       onWheel={handleWheel}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -267,7 +292,15 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
           const styles = toneStyles[folder.tone]
           const isEdgeTab = folder.tabAlign === 'right'
 
-          const stepHeight = isActive ? ACTIVE_STEP_HEIGHT : COMPACT_STEP_HEIGHT
+          const stepHeight = isClosed
+            ? isLast
+              ? CLOSED_LAST_STEP
+              : CLOSED_STEP_HEIGHT
+            : isActive
+              ? ACTIVE_STEP_HEIGHT
+              : COMPACT_STEP_HEIGHT
+          // Closed, only the peek folder's content shows (still, not typed)
+          const showContent = isActive || (isClosed && folder.id === peekId)
           // Each non-last folder has height = stepHeight + UNDERLAP_SKIRT (96px),
           // and the next folder pulls up by -(TAB_HEIGHT + UNDERLAP_SKIRT) = -148px.
           // The last folder includes an extra 220px bottom skirt so it always bleeds
@@ -294,7 +327,8 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
               type="button"
               onClick={() => {
                 if (dragStateRef.current.moved) return
-                onSelect?.(folder.id)
+                if (isActive) onSelect?.(folder.id)
+                else goTo(index)
               }}
               style={{
                 zIndex: index + 1,
@@ -354,7 +388,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
                     className={cx(
                       'transition-opacity duration-300',
                       styles.body,
-                      isActive ? 'opacity-100' : 'pointer-events-none opacity-0',
+                      showContent ? 'opacity-100' : 'pointer-events-none opacity-0',
                     )}
                   >
                     {renderActive(folder, isActive)}
