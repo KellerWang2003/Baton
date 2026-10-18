@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { Suspense, lazy, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useStatus, useStore } from '../app/store'
 import {
@@ -11,11 +11,14 @@ import {
   relayPicks,
   relayPlaceholderAvatar,
   relayPlaceholderPhoto,
-  relayYou,
 } from '../data/relay'
+import { homeSpot, mapNeighborhoods, relaySpots } from '../data/mapSpots'
 import type { RelayCategory, RelayItem } from '../data/relay'
-import { Avatar, CardRow, CategoryChip, CityMap, MapIcon, RecCard, SearchIcon, cx } from '../ui'
+import { Avatar, CardRow, CategoryChip, MapIcon, RecCard, SearchIcon, cx } from '../ui'
 import { MainLayout } from './MainLayout'
+
+// The map library is big, so it loads with Relay's map, not the whole app
+const LiveMap = lazy(() => import('../ui/LiveMap').then((m) => ({ default: m.LiveMap })))
 
 function open(id: string) {
   setState({ selectedRec: id })
@@ -57,7 +60,7 @@ export function Community() {
   const people = leavers
     .map((leaver) => ({ leaver, tips: leaverTips(leaver.id).filter(shown) }))
     .filter((row) => row.tips.length > 0)
-  const onMap = [...picks, ...people.flatMap((row) => row.tips)].filter((item) => item.map)
+  const onMap = [...picks, ...people.flatMap((row) => row.tips)].filter((item) => relaySpots[item.id])
   const pinnedItem = onMap.find((item) => item.id === pinned)
   const headers = relayHeaders[status]
 
@@ -66,12 +69,24 @@ export function Community() {
       <div className="relative min-h-0 flex-1 overflow-hidden">
         {/* The map, behind everything; the list slides down to show it */}
         <div className="absolute inset-0" inert={!mapOpen}>
-          <CityMap
-            you={relayYou}
-            selected={pinned}
-            onSelect={setPinned}
-            pins={onMap.map((item) => ({ id: item.id, ...item.map!, tone: relayCategory(item.category).tone }))}
-          />
+          {/* A real New York to drag and zoom, in the Paper look Keller picked (Oct 18) */}
+          <Suspense>
+            <LiveMap
+              look="paper"
+              you={homeSpot}
+              labels={mapNeighborhoods}
+              selected={pinned}
+              onSelect={setPinned}
+              coverBottom={293}
+              pins={onMap.map((item) => ({
+                id: item.id,
+                ...relaySpots[item.id],
+                tone: relayCategory(item.category).tone,
+                title: item.title,
+              }))}
+              className="size-full"
+            />
+          </Suspense>
         </div>
 
         {/* Everything, filters included, is one sheet: slid down to a peek above the tab bar while the map shows */}

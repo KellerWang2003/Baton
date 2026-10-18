@@ -27,6 +27,8 @@ type LiveMapProps = {
   onCamera?: (camera: Camera) => void
   // Moves the map to this camera when it changes
   camera?: Camera | null
+  // Space covered by things on top (like a sheet), kept clear when framing
+  coverBottom?: number
   className?: string
 }
 
@@ -46,6 +48,7 @@ type Point = { x: number; y: number }
 function createMap(
   element: HTMLDivElement,
   palette: MapPalette,
+  coverBottom: number,
   onLoad: (map: maplibregl.Map) => void,
   onFail: () => void,
 ) {
@@ -56,14 +59,16 @@ function createMap(
       [-74.012, 40.668],
       [-73.952, 40.745],
     ],
-    fitBoundsOptions: { padding: 24 },
+    fitBoundsOptions: { padding: { top: 24, left: 24, right: 24, bottom: 24 + coverBottom } },
     maxBounds: nycBounds,
     minZoom: 10.5,
     maxZoom: 18,
     dragRotate: false,
     pitchWithRotate: false,
-    attributionControl: { compact: true },
+    attributionControl: false,
   })
+  // Map credits as a small (i), moved to the top when a sheet covers the bottom
+  instance.addControl(new maplibregl.AttributionControl({ compact: true }), coverBottom ? 'top-right' : 'bottom-right')
   instance.touchZoomRotate.disableRotation()
   instance.on('load', () => {
     // Credits start folded into the small (i)
@@ -93,6 +98,7 @@ export function LiveMap({
   labels = noLabels,
   onCamera,
   camera,
+  coverBottom = 0,
   className,
 }: LiveMapProps) {
   const container = useRef<HTMLDivElement>(null)
@@ -113,7 +119,7 @@ export function LiveMap({
     // A tick later, so React's dev double mount doesn't start and tear down a
     // map at once (that leaves MapLibre's workers stuck for seconds)
     const timer = setTimeout(() => {
-      instance = createMap(element, theLook.palette(), setMap, () => setFailed(true))
+      instance = createMap(element, theLook.palette(), coverBottom, setMap, () => setFailed(true))
     })
     return () => {
       clearTimeout(timer)
@@ -219,17 +225,20 @@ export function LiveMap({
                 event.stopPropagation()
                 onSelect?.(active ? null : pin.id)
               }}
-              className={cx('pointer-events-auto absolute', active ? 'z-20' : 'z-10')}
+              // A finger-sized target centered on the spot; the pin draws from its center
+              className={cx('pointer-events-auto absolute size-11 -translate-x-1/2 -translate-y-1/2', active ? 'z-20' : 'z-10')}
               style={{ left: point.x, top: point.y }}
             >
-              <PinMark
-                design={design}
-                tone={pin.tone}
-                active={active}
-                // Names only once zoomed into a neighborhood, so they don't pile up
-                title={active || zoom >= 13.5 ? pin.title : undefined}
-                dark={dark}
-              />
+              <span className="absolute left-1/2 top-1/2">
+                <PinMark
+                  design={design}
+                  tone={pin.tone}
+                  active={active}
+                  // Names only once zoomed into a neighborhood, so they don't pile up
+                  title={active || zoom >= 13.5 ? pin.title : undefined}
+                  dark={dark}
+                />
+              </span>
             </button>
           )
         })}
