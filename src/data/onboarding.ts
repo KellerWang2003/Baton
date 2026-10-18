@@ -21,7 +21,7 @@ export const features = {
     {
       eyebrow: 'When you arrive',
       title: 'Start with a head start',
-      body: 'Tips from people with your lifestyle who lived there before you, and locals who answer your questions.',
+      body: 'Tips from people with your lifestyle who lived there before you, and places picked from your own routine.',
     },
   ],
   next: 'Next',

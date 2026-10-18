@@ -216,7 +216,7 @@ export const relayCopy = {
   searchPlaceholder: 'Search places and tips',
   all: 'All',
   legacy: (name: string) => `${name}’s legacy`,
-  noResults: 'Nothing matches yet. Ask in Q&A instead.',
+  noResults: 'Nothing here yet. Try another category.',
   pickedBy: 'Picked by Baton',
   notesHeader: 'Notes',
   noNotes: 'No notes yet. Be the first to say how it went.',

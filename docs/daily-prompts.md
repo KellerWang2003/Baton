@@ -33,7 +33,7 @@ Light prompts on the Today tab. The wording shown in the app is the plain, verb-
 | Prompt | Mode | Seed | Source |
 |---|---|---|---|
 | **Same thing, new city.** Your coffee order, your commute, your groceries. What's different? | Photo + line | First week | LA's meaning shows up by contrast |
-| **What confused you today?** One line. (Offers: ask the Q&A.) | Line | Any day, first month | Logistics come first |
+| **What confused you today?** One line. | Line | Any day, first month | Logistics come first |
 | **You went to a leaver's place.** Take the view from their seat. (Optional: send it to them.) | Photo | Visited a recommended place | Reply "only when I want to" |
 | **First route without Maps.** Where were you going? | Line | Repeated route detected | "A city becomes yours through routine and mobility" |
 | **Who said hi?** The first person who recognized you. | Line | Week 2+ | Loneliness arrives after logistics |
@@ -45,7 +45,7 @@ Light prompts on the Today tab. The wording shown in the app is the plain, verb-
 |---|---|---|---|
 | **The view from where you always stand.** (Same prompt as LA.) Shown next to your LA answer. | Photo | New most-visited place | Bookend moment |
 | **When did this stop feeling new?** | Line | Place visited 30+ times | "Second year" turning point |
-| **What would you tell yourself from month one?** (Offers: answer a newcomer's question.) | Voice | Status switched to Local | Locals answer Q&A |
+| **What would you tell yourself from month one?** | Voice | Status switched to Local | Month one, seen from a year later |
 | **What's the trick here?** | Line | Most-visited place | Same as Moving: seeds the next legacy |
 
 ## Demo moment

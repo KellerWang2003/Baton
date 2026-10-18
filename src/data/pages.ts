@@ -69,10 +69,7 @@ export const pages = {
   },
   community: {
     title: 'Relay',
-    segments: [
-      { id: 'recs', label: 'For you', purpose: 'Picks from your routine, and tips from people who lived like you and left.' },
-      { id: 'qa', label: 'Q&A', purpose: 'Newcomers ask, locals answer.' },
-    ],
+    purpose: 'Picks from your life, and tips from people with a similar lifestyle who lived there before you.',
   },
   profile: {
     title: 'Profile',

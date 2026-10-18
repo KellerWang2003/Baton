@@ -22,14 +22,14 @@ export const stageCity: Record<Stage, string> = {
 export const intention = 'Find people to draw with every week'
 
 // Extra cards at the top of the list on Today, per stage. `to` opens a tab
-// (with a segment) when tapped; cards without it wait for their flow.
+// when tapped; cards without it wait for their flow.
 export type StageCard = {
   id: string
   eyebrow: string
   title: string
   subtitle: string
   tone?: 'stage'
-  to?: { screen: 'community'; segment: CommunitySegment } | { screen: 'archive' }
+  to?: { screen: 'community' } | { screen: 'archive' }
 }
 
 export const todayCards: Record<Stage, StageCard[]> = {
@@ -54,14 +54,14 @@ export const todayCards: Record<Stage, StageCard[]> = {
       eyebrow: "From Maya's legacy",
       title: "A gym with a Trader Joe's next door",
       subtitle: 'Like yours in Pasadena. Crunch on 14th St, 6 min from you.',
-      to: { screen: 'community', segment: 'recs' },
+      to: { screen: 'community' },
     },
     {
       id: 'intention',
       eyebrow: 'For your intention',
       title: 'Figure drawing at Spring Studio',
       subtitle: `Thursdays at 7. You said: "${intention}".`,
-      to: { screen: 'community', segment: 'recs' },
+      to: { screen: 'community' },
     },
   ],
   local: [
@@ -274,59 +274,6 @@ export const archiveDetail: Record<string, Record<Stage, ArchiveDetailContent>> 
 export const olderArchive: ArchiveDetailContent = {
   summary: 'From before Baton. Photos you imported, nothing else yet.',
   sections: [],
-}
-
-export type CommunitySegment = 'recs' | 'qa'
-
-export type Question = { id: string; question: string; asker: string; answer?: { text: string; from: string } }
-
-export type QaContent = {
-  header: string
-  // Newcomers (and Moving) ask; locals only answer
-  action: 'ask' | 'answer'
-  questions: Question[]
-}
-
-export const qa: Record<Stage, QaContent> = {
-  moving: {
-    header: 'Ask New York before you go',
-    action: 'ask',
-    questions: [
-      {
-        id: 'q-hood',
-        question: 'Which neighborhood is calm but close to Midtown?',
-        asker: 'Priya · moving in March',
-        answer: { text: 'Look at Astoria. 20 minutes to Midtown on the N, and quiet after 9.', from: 'Leo · local since 2023' },
-      },
-    ],
-  },
-  newcomer: {
-    header: 'Your questions',
-    action: 'ask',
-    questions: [
-      {
-        id: 'q-draw',
-        question: 'Where can I draw for hours without buying three coffees?',
-        asker: 'You · 2 days ago',
-        answer: { text: "Brooklyn Public Library on Grand Army Plaza. Big tables, free, and nobody minds sketchbooks.", from: 'Ana · local since 2024' },
-      },
-      { id: 'q-laundry', question: 'Is wash-and-fold worth it?', asker: 'You · today' },
-    ],
-  },
-  local: {
-    header: 'Questions from newcomers',
-    action: 'answer',
-    questions: [
-      { id: 'q-draw-2', question: 'Where can I draw for hours without buying three coffees?', asker: 'Jess · arrived last week' },
-      { id: 'q-winter', question: 'What do I actually need for the first winter?', asker: 'Marco · arrived in October' },
-      {
-        id: 'q-gym',
-        question: 'Any gym near Union Square that isn’t packed at 7?',
-        asker: 'Kai · arrived in September',
-        answer: { text: "Crunch on 14th St after 8. Trader Joe's is next door, so you can shop on the way home.", from: 'You' },
-      },
-    ],
-  },
 }
 
 export const profileRows: Record<Stage, { lifestyle: string; intention?: string }> = {

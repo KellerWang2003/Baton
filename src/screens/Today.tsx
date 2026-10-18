@@ -149,10 +149,7 @@ export function Today({ lastWeek = false }: TodayProps) {
                   }
                   onClick={
                     to &&
-                    (() => {
-                      if (to.screen === 'community') setState({ communitySegment: to.segment })
-                      navigate(to.screen)
-                    })
+                    (() => navigate(to.screen))
                   }
                 />
               )

@@ -1,7 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
-import type { CommunitySegment } from '../data/stages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
 
@@ -23,8 +22,6 @@ type State = {
   leaveDate: string
   // Which Archive segment opens (the legacy card on Today opens Legacy)
   archiveSegment: 'mine' | 'legacy'
-  // Which Community segment opens (hint cards on Today open Recommendations or Q&A)
-  communitySegment: CommunitySegment
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
   // Which Relay pick or tip was tapped (opens its detail page)
@@ -49,7 +46,6 @@ let state: State = {
   flight: '',
   leaveDate: leave.defaultDate,
   archiveSegment: 'mine',
-  communitySegment: 'recs',
   selectedFolder: null,
   selectedRec: null,
   relayNotes: {},

@@ -87,7 +87,6 @@ export const suggestions: { items: Record<Stage, Suggestion[]> } = {
       { id: 'try-gym', title: 'Try a gym near your place', subtitle: 'You went three times a week in LA' },
     ],
     local: [
-      { id: 'answer-qa', title: "Answer a newcomer's question", subtitle: '3 new questions in Q&A' },
       { id: 'tip-cafe', title: 'Write one tip about your café', subtitle: 'It could help the next person' },
     ],
   },
@@ -136,7 +135,6 @@ export const tips: Record<string, Tip[]> = {
   'find-cafe': [{ text: 'Try one place three times before you decide. The first visit is never the real one.', from: 'Ana · moved to NYC in 2024' }],
   'walk-no-maps': [{ text: 'Pick a direction and turn back after twenty minutes. That’s your first route.', from: 'Leo · moved to NYC in 2023' }],
   'try-gym': [{ text: 'Most gyms here give a free first week. Ask at the desk.', from: 'Sam · moved to NYC in 2025' }],
-  'answer-qa': [{ text: 'Answer the way you wish someone had answered you in month one.', from: 'Baton' }],
   'tip-cafe': [{ text: 'The small stuff is the useful stuff: which outlet works, when it gets quiet.', from: 'Baton' }],
 }
 
