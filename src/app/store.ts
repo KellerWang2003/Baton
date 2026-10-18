@@ -20,11 +20,10 @@ type State = {
   leaveMode: 'flight' | 'date'
   flight: string
   leaveDate: string
-  // Today's prompt: which one is showing, and whether she skipped it
-  promptIndex: number
-  promptSkipped: boolean
   // Which Archive segment opens (the legacy card on Today opens Legacy)
   archiveSegment: 'mine' | 'legacy'
+  // Which city folder in Archive was tapped (opens the detail page next)
+  selectedFolder: string | null
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -42,9 +41,8 @@ let state: State = {
   leaveMode: 'flight',
   flight: '',
   leaveDate: leave.defaultDate,
-  promptIndex: 0,
-  promptSkipped: false,
   archiveSegment: 'mine',
+  selectedFolder: null,
   setupDone: [],
   composing: false,
   reflections: [],
@@ -84,7 +82,5 @@ export function useStatus(): Stage {
 
 // Today's prompt for her stage (also shown above the + field while typing).
 export function useDailyPrompt() {
-  const { promptIndex } = useStore()
-  const prompts = dailyPrompts[useStatus()]
-  return prompts[promptIndex % prompts.length]
+  return dailyPrompts[useStatus()][0]
 }

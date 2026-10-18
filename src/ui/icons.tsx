@@ -185,3 +185,11 @@ export function StackIcon() {
     </Icon>
   )
 }
+
+export function ArrowRightIcon() {
+  return (
+    <Icon strokeWidth={2.4} className="size-5">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </Icon>
+  )
+}

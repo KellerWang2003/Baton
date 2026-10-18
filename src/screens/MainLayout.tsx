@@ -12,6 +12,8 @@ import { ArchiveIcon, Avatar, CommunityIcon, Screen, TabBar, TodayIcon } from '.
 type MainLayoutProps = {
   title: string
   children: ReactNode
+  // Full-bleed body that stretches to the bottom edge (e.g. Archive folders)
+  bleed?: boolean
 }
 
 type TabShellProps = {
@@ -27,7 +29,7 @@ const tabIcons: Record<string, ReactNode> = {
 
 // Page layout for the three tab pages: large title with the profile avatar.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
-export function MainLayout({ title, children }: MainLayoutProps) {
+export function MainLayout({ title, children, bleed = false }: MainLayoutProps) {
   const avatar = (
     <button type="button" onClick={() => navigate('profile')} aria-label="Profile">
       <Avatar name={chloe.name} size="sm" />
@@ -35,9 +37,9 @@ export function MainLayout({ title, children }: MainLayoutProps) {
   )
 
   return (
-    <Screen title={title} action={avatar}>
+    <Screen title={title} action={avatar} className={bleed ? 'flex flex-col overflow-hidden px-0 pb-0' : undefined}>
       {/* Room so the last content can scroll above the floating tab bar */}
-      <div className="pb-24">{children}</div>
+      {bleed ? children : <div className="pb-24">{children}</div>}
     </Screen>
   )
 }

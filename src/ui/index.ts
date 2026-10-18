@@ -8,6 +8,9 @@ export type { FanOption } from './CardFan'
 export { CheckCircle } from './CheckCircle'
 export { ChoiceCard } from './ChoiceCard'
 export { Chip } from './Chip'
+export { FolderStack } from './FolderStack'
+export type { ArchiveFolder } from './FolderStack'
+export { ItemCard } from './ItemCard'
 export { ListRow, ListSection } from './List'
 export { BatonMark, Logo } from './Logo'
 export { PromptCard } from './PromptCard'
@@ -24,6 +27,7 @@ export { VisibilityBadge } from './VisibilityBadge'
 export { cx } from './cx'
 export {
   ArchiveIcon,
+  ArrowRightIcon,
   ArrowUpIcon,
   AtIcon,
   ArrivalGraphic,

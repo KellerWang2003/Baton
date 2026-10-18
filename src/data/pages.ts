@@ -16,6 +16,35 @@ export const pages = {
       { id: 'mine', label: 'My archive', purpose: 'Your private archive of places, people and reflections. Only you can see it.' },
       { id: 'legacy', label: 'Legacy', purpose: 'What you chose to pass on when you left, and the notes people left on it.' },
     ],
+    folders: [
+      {
+        id: 'ny',
+        city: 'New York',
+        dates: '02.2027-',
+        tabAlign: 'left' as const,
+        dateAlign: 'right' as const,
+        active: true,
+        tone: 'active' as const,
+      },
+      {
+        id: 'la',
+        city: 'LA',
+        dates: '09.2023-01.2027',
+        tabAlign: 'right' as const,
+        dateAlign: 'left' as const,
+        active: false,
+        tone: 'mid' as const,
+      },
+      {
+        id: 'seoul',
+        city: 'Seoul',
+        dates: '07.2022-08.2023',
+        tabAlign: 'center' as const,
+        dateAlign: 'left' as const,
+        active: false,
+        tone: 'light' as const,
+      },
+    ],
   },
   community: {
     title: 'Community',
@@ -42,8 +71,8 @@ export const pages = {
 export type DailyPrompt = { seed: string; question: string; detail: string }
 
 // Today's light prompts per stage, in the plain verb-first wording from
-// docs/daily-prompts.md. The first one shows by default; "Another one" moves
-// to the next. Moving and Local open with the café bookend.
+// docs/daily-prompts.md. Today shows the first; the rest are for later days.
+// Moving and Local open with the café bookend.
 export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]> = {
   moving: [
     {
@@ -87,5 +116,3 @@ export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]
     },
   ],
 }
-
-export const promptActions = { answer: 'Answer', skip: 'Not today', another: 'Another one', skipped: 'No prompt today. See you tomorrow.' }

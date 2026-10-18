@@ -11,7 +11,8 @@ type SetupCardProps = {
 }
 
 // One step in the "Finish setting up" row on Today: a small card with an icon,
-// a title and a line of detail. Done cards stay in the row, checked and dimmed.
+// a title and a line of detail. The dashed outline marks it as temporary, not
+// part of the usual Today. Done cards stay in the row, checked and dimmed.
 export function SetupCard({ icon, title, subtitle, done = false, onClick }: SetupCardProps) {
   return (
     <button
@@ -19,7 +20,7 @@ export function SetupCard({ icon, title, subtitle, done = false, onClick }: Setu
       onClick={done ? undefined : onClick}
       disabled={done}
       className={cx(
-        'flex w-[44%] min-w-36 shrink-0 snap-start flex-col gap-6 rounded-card bg-surface p-4 text-left shadow-card transition active:scale-[0.98]',
+        'flex w-[44%] min-w-36 shrink-0 snap-start flex-col gap-6 rounded-card border-[1.5px] border-dashed border-line p-4 text-left transition active:scale-[0.98]',
         done && 'opacity-60',
       )}
     >

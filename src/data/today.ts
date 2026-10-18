@@ -50,11 +50,11 @@ export const setupCards = {
   },
 }
 
+// First card in "Before you leave" during her last week in LA.
 export const legacyCard = {
   eyebrow: (days: number) => (days === 1 ? '1 day left in LA' : `${days} days left in LA`),
   title: 'Look back at your LA archive',
-  body: 'See what you kept these four years, then choose what to pass on to whoever comes next.',
-  cta: 'Open my archive',
+  body: 'Then choose what to pass on.',
 }
 
 export type Suggestion = Todo & {
@@ -63,15 +63,17 @@ export type Suggestion = Todo & {
   place?: string
 }
 
-// Suggested to-dos under the daily prompt, seeded by her places (Moving) or
-// her stage. Adding one moves it into her to-do list.
-export const suggestions: { header: Record<Stage, string>; footer: string; items: Record<Stage, Suggestion[]> } = {
-  header: {
-    moving: 'Before you go',
-    newcomer: 'To try this week',
-    local: 'For you',
-  },
-  footer: 'Add one to your to-dos.',
+// The list of cards under the setup row: her to-dos (tap for tips), then
+// suggestions seeded by her places (Moving) or her stage. Adding a suggestion
+// makes it a to-do.
+export const beforeYouLeave = {
+  header: { moving: 'Before you leave', newcomer: 'Settling in', local: 'For you' } as Record<Stage, string>,
+  suggested: 'Suggested',
+  add: 'Add',
+  tipCount: (n: number) => (n === 1 ? '1 tip' : `${n} tips`),
+}
+
+export const suggestions: { items: Record<Stage, Suggestion[]> } = {
   items: {
     moving: [
       { id: 'last-cafe', title: 'Go to Lake Ave Café one last time', subtitle: 'Your most-visited place · 214 photos', place: 'cafe' },
@@ -89,11 +91,6 @@ export const suggestions: { header: Record<Stage, string>; footer: string; items
       { id: 'tip-cafe', title: 'Write one tip about your café', subtitle: 'It could help the next person' },
     ],
   },
-}
-
-export const todoList = {
-  header: (stage: 'moving' | 'newcomer', date: string) => (stage === 'moving' ? `To-dos before ${date}` : 'To-dos for settling in'),
-  footer: 'Tap one for tips from people who did it before you.',
 }
 
 export type Tip = { text: string; from: string }

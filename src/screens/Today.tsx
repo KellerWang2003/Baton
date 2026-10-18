@@ -1,13 +1,14 @@
 import { useState } from 'react'
-import type { MouseEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
 import { setup } from '../data/onboarding'
-import { pages, promptActions } from '../data/pages'
+import { pages } from '../data/pages'
 import {
   allTodos,
+  beforeYouLeave,
   daysUntil,
   lastWeekDays,
   leave,
@@ -18,18 +19,18 @@ import {
   suggestions,
   tips,
   tipSheet,
-  todoList,
 } from '../data/today'
 import {
+  ArrowRightIcon,
   AtIcon,
   BottomSheet,
   Button,
   Card,
   CardRow,
   CheckCircle,
+  ChevronRightIcon,
+  ItemCard,
   ListIcon,
-  ListRow,
-  ListSection,
   PlaneIcon,
   PromptCard,
   SetupCard,
@@ -42,11 +43,12 @@ type TodayProps = {
   lastWeek?: boolean
 }
 
-// Today, top to bottom: the setup cards (until done), the legacy card in her
-// last week in LA, the daily prompt, suggested to-dos for her stage, and her
-// to-dos with tips at the very end.
+// Today, top to bottom: the daily prompt (tap opens the + field), the setup
+// cards in a dashed outline until they're done, then "Before you leave" as a
+// list of cards: the legacy card in her last week in LA, her to-dos (tap for
+// tips) and suggestions for her stage.
 export function Today({ lastWeek = false }: TodayProps) {
-  const { todos, doneTodos, setupDone, keptPlaces, promptSkipped, ...store } = useStore()
+  const { todos, doneTodos, setupDone, keptPlaces, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
@@ -81,18 +83,16 @@ export function Today({ lastWeek = false }: TodayProps) {
   const sheetTodo = allTodos.find((todo) => todo.id === openTodo)
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
-  const anotherPrompt = (event: MouseEvent) => {
-    event.stopPropagation()
-    setState((s) => ({ promptIndex: s.promptIndex + 1 }))
-  }
-  const skipPrompt = (event: MouseEvent) => {
-    event.stopPropagation()
-    setState({ promptSkipped: true })
-  }
-
   return (
     <MainLayout title={pages.today.title}>
       <div className="flex flex-col gap-6 pt-2">
+        {/* The whole card opens the + field in the tab bar, like tapping a widget */}
+        <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
+          <PromptCard image arrow meta={prompt.seed} question={prompt.question}>
+            <p className="text-subhead text-ink-muted">{prompt.detail}</p>
+          </PromptCard>
+        </div>
+
         {setupCount < setupItems.length && (
           <CardRow header={setup.header} detail={setupCards.progress(setupCount, setupItems.length)}>
             {setupItems.map((item) => (
@@ -108,52 +108,52 @@ export function Today({ lastWeek = false }: TodayProps) {
           </CardRow>
         )}
 
-        {status === 'moving' && daysLeft <= lastWeekDays && (
-          <Card tone="stage" className="flex flex-col gap-3">
-            <p className="text-footnote font-semibold uppercase text-stage">{legacyCard.eyebrow(daysLeft)}</p>
-            <p className="font-display text-title-3 font-semibold text-ink">{legacyCard.title}</p>
-            <p className="text-subhead text-ink-muted">{legacyCard.body}</p>
-            <Button
-              variant="stage"
-              size="sm"
-              className="self-start"
-              onClick={() => {
-                setState({ archiveSegment: 'legacy' })
-                navigate('archive')
-              }}
-            >
-              {legacyCard.cta}
-            </Button>
-          </Card>
-        )}
+        <section className="flex flex-col gap-1.5">
+          <h2 className="px-4 text-footnote uppercase text-ink-muted">{beforeYouLeave.header[status]}</h2>
+          <div className="flex flex-col gap-2.5">
+            {status === 'moving' && daysLeft <= lastWeekDays && (
+              <ItemCard
+                tone="stage"
+                eyebrow={legacyCard.eyebrow(daysLeft)}
+                title={legacyCard.title}
+                subtitle={legacyCard.body}
+                trailing={
+                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-stage text-on-stage">
+                    <ArrowRightIcon />
+                  </span>
+                }
+                onClick={() => {
+                  setState({ archiveSegment: 'legacy' })
+                  navigate('archive')
+                }}
+              />
+            )}
 
-        {promptSkipped ? (
-          <p className="px-4 text-subhead text-ink-muted">{promptActions.skipped}</p>
-        ) : (
-          // The whole card opens the + field in the tab bar, like tapping a widget
-          <div role="button" tabIndex={0} onClick={openComposer} className="text-left active:opacity-80">
-            <PromptCard meta={prompt.seed} question={prompt.question}>
-              <p className="text-subhead text-ink-muted">{prompt.detail}</p>
-              <div className="flex items-center gap-1">
-                <Button variant="stage" size="sm">
-                  {promptActions.answer}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={anotherPrompt}>
-                  {promptActions.another}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={skipPrompt}>
-                  {promptActions.skip}
-                </Button>
-              </div>
-            </PromptCard>
-          </div>
-        )}
+            {pickedTodos.map((item) => {
+              const count = tips[item.id]?.length ?? 0
+              const done = doneTodos.includes(item.id)
+              return (
+                <ItemCard
+                  key={item.id}
+                  title={item.title}
+                  subtitle={count ? beforeYouLeave.tipCount(count) : undefined}
+                  done={done}
+                  leading={<CheckCircle checked={done} />}
+                  trailing={
+                    <span className="text-line">
+                      <ChevronRightIcon />
+                    </span>
+                  }
+                  onClick={() => setOpenTodo(item.id)}
+                />
+              )
+            })}
 
-        {suggested.length > 0 && (
-          <ListSection header={suggestions.header[status]} footer={suggestions.footer}>
             {suggested.map((item) => (
-              <ListRow
+              <ItemCard
                 key={item.id}
+                thumbnail
+                eyebrow={beforeYouLeave.suggested}
                 title={item.title}
                 subtitle={item.subtitle}
                 trailing={
@@ -162,32 +162,13 @@ export function Today({ lastWeek = false }: TodayProps) {
                     size="sm"
                     onClick={() => setState((s) => ({ todos: [...(s.todos ?? []), item.id] }))}
                   >
-                    Add
+                    {beforeYouLeave.add}
                   </Button>
                 }
               />
             ))}
-          </ListSection>
-        )}
-
-        {pickedTodos.length > 0 && (
-          <ListSection header={todoList.header(status === 'moving' ? 'moving' : 'newcomer', leaving)} footer={todoList.footer}>
-            {pickedTodos.map((item) => {
-              const count = tips[item.id]?.length ?? 0
-              return (
-                <ListRow
-                  key={item.id}
-                  title={item.title}
-                  done={doneTodos.includes(item.id)}
-                  leading={<CheckCircle checked={doneTodos.includes(item.id)} />}
-                  value={count ? `${count} ${count === 1 ? 'tip' : 'tips'}` : undefined}
-                  chevron
-                  onClick={() => setOpenTodo(item.id)}
-                />
-              )
-            })}
-          </ListSection>
-        )}
+          </div>
+        </section>
       </div>
 
       <BottomSheet
