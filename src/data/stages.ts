@@ -85,12 +85,9 @@ export const todayCards: Record<Stage, StageCard[]> = {
 // Archive folders: while Moving, LA is the open folder and New York doesn't
 // exist yet. After the move, New York opens on top and LA becomes a legacy.
 export function archiveFolders(stage: Stage): ArchiveFolder[] {
-  const [ny, la, seoul] = pages.archive.folders
-  if (stage !== 'moving') return [ny, la, seoul]
-  return [
-    { ...la, dates: '09.2023-', tabAlign: 'left', dateAlign: 'right', active: true, tone: 'active' },
-    { ...seoul, tone: 'mid' },
-  ]
+  const [ny, la, ...older] = pages.archive.folders
+  if (stage !== 'moving') return pages.archive.folders
+  return [{ ...la, dates: '09.2023-', tabAlign: 'left', dateAlign: 'right', tone: ny.tone }, ...older]
 }
 
 export type ArchiveEntry = {
