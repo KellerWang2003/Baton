@@ -43,7 +43,7 @@ export const relayPage: Record<RelayLook, string> = {
 export const relayChipIdle: Record<RelayLook, string> = {
   flat: 'bg-baton-chip text-ink',
   paper: 'bg-baton-paper/70 text-ink shadow-card',
-  scrapbook: 'bg-baton-postcard text-ink shadow-paper',
+  scrapbook: 'bg-baton-chip text-ink',
   ticket: 'bg-baton-chip text-ink',
   postcard: 'bg-baton-postcard/80 text-ink',
   bands: 'bg-baton-chip text-ink',
