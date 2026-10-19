@@ -1,7 +1,7 @@
 // Ways to draw the glass circle around Today's prompt, compared side by side in
 // the team-only Today looks playground (Debug > Today looks, or ?today-looks).
 // Keller (Oct 18): the whole circle is one big blob of liquid glass (React
-// Bits Fluid Glass) with a blue tint at its edge, no border and no images.
+// Bits Fluid Glass), tinted blue by the glass itself, no border and no images.
 // "Use in Today" sets promptGlass in the store for the real page.
 export type PromptGlass = 'glass' | 'glass-crisp' | 'css'
 
@@ -9,7 +9,7 @@ export const promptGlasses: { id: PromptGlass; name: string; blurb: string }[] =
   {
     id: 'glass',
     name: 'Liquid glass',
-    blurb: 'The whole circle is one lens of Fluid Glass with a blue tint at its edge. The prompt sits under the glass, so it bends a little toward the rim.',
+    blurb: 'The whole circle is one lens of Fluid Glass, tinted a little blue. The prompt sits under the glass, so it bends a little toward the rim.',
   },
   {
     id: 'glass-crisp',
@@ -57,7 +57,8 @@ export const defaultGlassTuning: GlassTuning = {
   dispersion: 0.85,
   reflection: 0.05,
   frost: 0,
-  tint: 0,
+  // The only blue: the glass tints itself (Keller: one layer, not a blue blob behind it)
+  tint: 0.2,
   shadow: 0.5,
   elevation: 0.4,
   interaction: 'drag',

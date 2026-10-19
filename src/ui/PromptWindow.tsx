@@ -27,8 +27,8 @@ const rimRatio = 370 / 330
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18): the
-// whole circle is one big blob of liquid glass (React Bits Fluid Glass) with a
-// blue tint at its edge, no border and no images.
+// whole circle is one big blob of liquid glass (React Bits Fluid Glass), tinted
+// blue by the glass itself: one layer, no border and no images.
 export function PromptWindow({
   question,
   seed,
@@ -45,7 +45,7 @@ export function PromptWindow({
   // With no give (or no dragging), the rim stays put
   const follow = tuning.interaction === 'drag' ? give || 1 : 0
   const down = useRef<{ x: number; y: number } | null>(null)
-  // The blue rim and the pill move with the glass while it's nudged
+  // The pill moves with the glass while it's nudged
   const rim = useRef<HTMLSpanElement>(null)
   const nudge = (x: number, y: number, settle = false) => {
     if (!rim.current) return
@@ -100,11 +100,11 @@ export function PromptWindow({
             give={give}
           />
         </div>
-        {/* The blue tint at the rim, and the pill (and the prompt, if it sits on top) */}
+        {/* The pill (and the prompt, if it sits on top), over the glass */}
         <span
           ref={rim}
           style={{ width: drawn, height: drawn }}
-          className="pointer-events-none relative flex flex-col items-center justify-center gap-4 rounded-full px-10 shadow-prompt-tint"
+          className="pointer-events-none relative flex flex-col items-center justify-center gap-4 rounded-full px-10"
         >
           <span className={crisp ? undefined : 'absolute top-[13%]'}>{pill}</span>
           {crisp && words}
