@@ -256,7 +256,7 @@ function Summary() {
           <span key={moment.date} className={cx('size-[9px] rounded-full', summaryFill[moment.color])} />
         ))}
       </div>
-      <Button variant="glow" size="cta" onClick={() => navigate('rolling-paper')} className="mt-[30px] w-[309px]">
+      <Button variant="glow" size="cta" onClick={() => navigate('today')} className="mt-[30px] w-[309px]">
         {wrapped.cta}
         <ArrowRightIcon />
       </Button>

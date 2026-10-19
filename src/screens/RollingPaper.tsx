@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { paperDoodles, paperNotes, paperSheet, paperSlotY, rollingPaper, type PaperNote, type PaperNoteColor } from '../data/rollingPaper'
-import { cx } from '../ui'
+import { navigate } from '../app/navigate'
+import { ArrowRightIcon, Button, cx } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
 const TOP = 54
@@ -41,7 +42,7 @@ function prefersReducedMotion() {
 type Selected = { note: PaperNote; from: string; closing: boolean }
 
 // Rolling Paper (Figma ROLLING PAPER_coming out1/2, complete, select): the
-// notes friends left Chloe, opened from Profile. The sheet prints out of the
+// notes friends left Chloe, opened from the Newcomer splash or Profile. The sheet prints out of the
 // expanded Dynamic Island, then settles on the page with hand-drawn hearts
 // and stars; tap a note to read it bigger.
 export function RollingPaper() {
@@ -84,7 +85,8 @@ export function RollingPaper() {
         className={cx('absolute inset-x-0 bottom-0', phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden')}
         style={{ top: paperSlotY - TOP }}
       >
-        <div className="relative mx-auto w-[402px]" style={{ height: sheetTop + paperSheet.height + 24 }}>
+        {/* Room under the sheet so the button doesn't cover the last notes */}
+        <div className="relative mx-auto w-[402px]" style={{ height: sheetTop + paperSheet.height + 120 }}>
           <div
             className="absolute overflow-hidden rounded-[10px] bg-baton-cream shadow-paper-sheet motion-reduce:transition-none"
             style={{
@@ -133,6 +135,21 @@ export function RollingPaper() {
           transition: 'width 500ms cubic-bezier(0.34, 1.3, 0.64, 1), height 500ms cubic-bezier(0.34, 1.3, 0.64, 1)',
         }}
       />
+
+      {/* Once the sheet has settled: on to her LA Wrapped */}
+      {phase === 'done' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex justify-center">
+          <Button
+            variant="glow"
+            size="cta"
+            onClick={() => navigate('la-wrapped')}
+            className="pointer-events-auto w-[309px] animate-splash-rise"
+          >
+            {rollingPaper.cta}
+            <ArrowRightIcon />
+          </Button>
+        </div>
+      )}
 
       {selected && (
         <BigNote

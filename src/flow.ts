@@ -58,10 +58,10 @@ export const flow: FlowScreen[] = [
   { id: 'today-last-week', title: 'Today: last week in LA', stage: 'moving', component: TodayLastWeek, tab: 'today' },
   // 7. Landing: the congrats splash pops up as she becomes a Newcomer...
   { id: 'arrived', title: 'Stage change: welcome to New York', stage: 'newcomer', component: ArrivedSplash },
-  // ...then LA Wrapped, opened from Profile (dots zoom open into the timeline)
-  { id: 'la-wrapped', title: 'LA Wrapped', stage: 'newcomer', component: LaWrapped },
   // ...then the Rolling Paper of friends' notes prints out of the Dynamic Island
   { id: 'rolling-paper', title: 'Rolling Paper', stage: 'newcomer', component: RollingPaper },
+  // ...and its button opens LA Wrapped (dots zoom open into the timeline)
+  { id: 'la-wrapped', title: 'LA Wrapped', stage: 'newcomer', component: LaWrapped },
   // 9. Recommendation detail: a Relay pick or tip, with notes on it
   { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail },
   // 10. Local: the congrats splash as she becomes a Local

@@ -20,6 +20,8 @@ export type PaperNote = {
 export const rollingPaper = {
   title: ['From 18 friends,', 'with love'],
   completed: 'Completed on 12.15.2026',
+  // Button at the bottom once the sheet has settled (Keller, Oct 19: Rolling Paper comes first, then LA Wrapped)
+  cta: 'See your LA Wrapped',
 }
 
 // The sheet once it has printed (Figma complete): 362pt wide, 20pt from the

@@ -19,10 +19,10 @@ export const stageSplash: Partial<Record<Stage, StageSplashContent>> = {
     title: ['Welcome to', 'New York, Chloe!'],
     photo: '/stage-splash/newcomer.png',
     photoAlt: 'Chloe with an iced drink at a café table in New York',
-    // Same count as the Rolling Paper it leads into (Figma says 18)
+    // Same count as the Rolling Paper it opens (Figma says 18)
     message: `Your LA friends left you ${paperNotes.length} notes`,
     cta: 'Check it out',
-    next: 'la-wrapped',
+    next: 'rolling-paper',
   },
   local: {
     title: ['You’re a Local now!', '180 days in New York'],
