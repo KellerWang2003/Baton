@@ -45,7 +45,7 @@ export function RelayLooks({ onClose }: { onClose: () => void }) {
                   onClick={() => setState({ relayLook: look.id })}
                   className={cx(
                     'shrink-0 rounded-full px-3 py-1.5 text-footnote font-semibold',
-                    inUse ? 'bg-baton-blue text-baton-navy' : 'bg-baton-chip text-ink hover:bg-surface-muted',
+                    inUse ? 'bg-baton-blue text-on-brand' : 'bg-baton-chip text-ink hover:bg-surface-muted',
                   )}
                 >
                   {inUse ? 'In Relay' : 'Use in Relay'}

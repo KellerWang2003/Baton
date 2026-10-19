@@ -255,7 +255,8 @@ export function LiveMap({
 }
 
 const toneBg: Record<RecTone, string> = {
-  blue: 'bg-baton-blue text-baton-navy',
+  // Type on brand blue is white (Keller, Oct 19)
+  blue: 'bg-baton-blue text-on-brand',
   yellow: 'bg-baton-yellow text-baton-navy',
   pink: 'bg-baton-pink text-baton-navy',
   olive: 'bg-baton-olive text-on-brand',

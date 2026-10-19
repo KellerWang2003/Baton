@@ -2,6 +2,7 @@ import type { ComponentType } from 'react'
 import { AboutYou, AboutYouTags } from './screens/AboutYou'
 import { Archive } from './screens/Archive'
 import { ArchiveDetail } from './screens/ArchiveDetail'
+import { ArchiveSelected } from './screens/ArchiveSelected'
 import { Capture } from './screens/Capture'
 import { Community } from './screens/Community'
 import { Features } from './screens/Features'
@@ -52,6 +53,7 @@ export const flow: FlowScreen[] = [
   { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
   { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail },
+  { id: 'archive-selected', title: 'Archive: a photo opened', stage: 'moving', component: ArchiveSelected },
   { id: 'community', title: 'Relay', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },

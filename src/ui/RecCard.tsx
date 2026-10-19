@@ -6,7 +6,8 @@ import { relayChipIdle } from './relayLooks'
 export type RecTone = 'blue' | 'yellow' | 'pink' | 'olive' | 'cream' | 'navy'
 
 const toneFill: Record<RecTone, string> = {
-  blue: 'bg-baton-blue text-baton-navy',
+  // Type on brand blue is white (Keller, Oct 19)
+  blue: 'bg-baton-blue text-on-brand',
   yellow: 'bg-baton-yellow text-baton-navy',
   pink: 'bg-baton-pink text-baton-navy',
   olive: 'bg-baton-olive text-on-brand',
@@ -136,7 +137,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
           <img src={photo} alt="" draggable={false} className="size-full object-cover" />
         </div>
         <div className="flex flex-col gap-1 px-1">
-          {label && <p className="text-caption font-semibold uppercase tracking-wider opacity-60">{label}</p>}
+          {label && <p className="text-caption font-semibold opacity-60">{label}</p>}
           <p className="font-display text-card-title font-medium">{title}</p>
           <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
         </div>
@@ -170,7 +171,7 @@ function TicketCard({ title, text, tone, photo, label, size = 'lg', onClick, fro
         <p className="line-clamp-3 text-card-body opacity-60">{text}</p>
       </div>
       {from && (
-        <div className="mt-auto flex items-center justify-between gap-2 rounded-full bg-baton-postcard/30 px-3 py-1.5 text-caption font-semibold uppercase tracking-wider">
+        <div className="mt-auto flex items-center justify-between gap-2 rounded-full bg-baton-postcard/30 px-3 py-1.5 text-caption font-semibold">
           <span className="truncate">{from}</span>
           <span aria-hidden className="shrink-0 opacity-60">
             → you

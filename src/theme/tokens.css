@@ -39,6 +39,17 @@
   --text-orb-label: 20px;
   --text-orb-label--line-height: 1.3;
   --text-orb-label--letter-spacing: -0.011em;
+  /* A photo opened from the Archive cloud (Figma ARCHIVE_selected, 236:234):
+     the prompt it answered, its place and time, and her note */
+  --text-moment-question: 24px;
+  --text-moment-question--line-height: 1.2;
+  --text-moment-question--letter-spacing: -0.011em;
+  --text-moment-meta: 16px;
+  --text-moment-meta--line-height: 1.3;
+  --text-moment-meta--letter-spacing: -0.011em;
+  --text-moment-note: 18px;
+  --text-moment-note--line-height: 1.25;
+  --text-moment-note--letter-spacing: -0.011em;
   /* City name on the sideways folder tab (Archive detail) */
   --text-side-tab: 24px;
   --text-side-tab--line-height: 1;
@@ -138,6 +149,7 @@
   --color-wrap-faint: #b2b2b2;
   /* Notes on paper (LA Wrapped, Rolling Paper): a softer yellow than the brand's */
   --color-note-yellow: #f4ef9e;
+  --color-moment-ring: #e2e2e2; /* hairline around an opened photo's glass circle */
   /* Glow button (Button variant glow, Figma 278:7144): blue core fading to
      a pale edge */
   --color-cta-glow-core: #3396ff;
@@ -269,6 +281,9 @@
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
   --shadow-paper-sheet: 4px 4px 20px rgb(0 0 0 / 0.05); /* the Rolling Paper sheet */
   --shadow-note: 4px 4px 10px rgb(0 0 0 / 0.05); /* a Rolling Paper note opened big */
+  --shadow-moment-note: 4px 4px 5px rgb(0 0 0 / 0.08); /* her note under an opened Archive photo */
+  --shadow-note-stuck: 0 1px 2px rgb(0 0 0 / 0.06); /* a note still stuck to the sheet */
+  --shadow-note-peeled: 6px 18px 30px rgb(0 0 0 / 0.16); /* a note peeled off and in the air */
   --shadow-today-card: 4px 4px 10px rgb(0 0 0 / 0.05); /* Today's list cards (Figma 334:11284) */
   --shadow-setup-card: 4px 4px 5px rgb(0 0 0 / 0.05); /* Today's setup cards (Figma 334:11111) */
   --shadow-pill: 2px 2px 4px rgb(0 0 0 / 0.08); /* date pills on the LA Wrapped timeline */

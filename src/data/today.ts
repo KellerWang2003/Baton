@@ -73,6 +73,11 @@ export type Suggestion = Todo & {
 // makes it a to-do.
 export const beforeYouLeave = {
   header: { moving: 'Before you leave', newcomer: 'Settling in', local: 'For you' } as Record<Stage, string>,
+  // Her picked to-dos, their own section above the suggestions
+  todosHeader: { moving: 'Moving to-dos', newcomer: 'Arrival to-dos', local: 'To-dos' } as Record<Stage, string>,
+  markDone: 'Mark as done',
+  markUndone: 'Not done yet',
+  noTips: 'No tips yet. You could be the first to leave one.',
   suggested: 'Suggested',
   add: 'Add',
   tipCount: (n: number) => (n === 1 ? '1 tip' : `${n} tips`),
@@ -144,6 +149,22 @@ export const tips: Record<string, Tip[]> = {
     { text: 'Spectrum wants the router back. Drop it at the store, keep the receipt.', from: 'Daniel · left LA in May' },
     { text: 'Call Pasadena Water and Power a week out to set the final reading date.', from: 'Jun · left LA in March' },
   ],
+  landlord: [{ text: 'Email, don’t text. You’ll want the date in writing when the deposit comes up.', from: 'Daniel · left LA in May' }],
+  roommate: [
+    { text: 'Split the last utility bills by days, not months. Put it in a shared note.', from: 'Maya · left LA in June' },
+    { text: 'Decide who keeps the shared stuff a month out, not on moving day.', from: 'Jun · left LA in March' },
+  ],
+  bedframe: [{ text: 'Post it with the dimensions in the first line. People filter by size.', from: 'Priya · left LA in August' }],
+  'car-insurance': [{ text: 'NY rates are different. Call before you go so you’re not paying LA rates on a car in storage.', from: 'Sam · moved to NYC in 2025' }],
+  'gift-professors': [{ text: 'A card with a note about one specific class means more than anything you buy.', from: 'Priya · left LA in August' }],
+  'studio-cards': [
+    { text: 'Write them a week early and hand them out in person. The last day is too busy.', from: 'Jun · left LA in March' },
+  ],
+  'goodbye-dinner': [
+    { text: 'Do it somewhere you all used to go, not somewhere new.', from: 'Maya · left LA in June' },
+    { text: 'Pick a weeknight. Weekends in your last week go to packing.', from: 'Daniel · left LA in May' },
+  ],
+  'roommate-gift': [{ text: 'Leave the things you were going to throw out anyway, with a note on each.', from: 'Maya · left LA in June' }],
   gym: [{ text: 'Most gyms need 30 days notice. Cancel in person and ask for it in writing.', from: 'Priya · left LA in August' }],
   bank: [{ text: 'Update your address before you go so your new card ships to New York.', from: 'Maya · left LA in June' }],
   insurance: [{ text: "Lemonade took five minutes and many NYC landlords ask for proof before you move in.", from: 'Sam · moved to NYC in 2025' }],

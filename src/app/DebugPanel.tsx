@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
-import { cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
+import { confettiVariants, cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
 import type { GlassTuning } from '../ui'
 import { dailyPrompts } from '../data/pages'
 import { changeStage, setState, useStatus, useStore } from './store'
@@ -128,6 +128,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
       </div>
 
       <PromptPicker />
+      <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
       <GlassControls />
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
@@ -260,6 +261,37 @@ function GlassControls() {
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+// Confetti on the Welcome to New York splash: pick a style to see it play
+// there (picking jumps to the splash and replays it)
+function ConfettiPicker({ goToArrived }: { goToArrived: () => void }) {
+  const { confetti, confettiRun } = useStore()
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Welcome confetti</span>
+      <div role="radiogroup" aria-label="Welcome confetti" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+        {confettiVariants.map((variant) => (
+          <button
+            key={variant.id}
+            type="button"
+            role="radio"
+            aria-checked={confetti === variant.id}
+            onClick={() => {
+              setState({ confetti: variant.id, confettiRun: confettiRun + 1 })
+              goToArrived()
+            }}
+            className={cx(
+              'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
+              confetti === variant.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
+            )}
+          >
+            {variant.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

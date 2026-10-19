@@ -26,9 +26,9 @@ export const rollingPaper = {
 }
 
 // The sheet once it has printed (Figma complete): 362pt wide, 20pt from the
-// sides, starting 80pt down. Taller than the 898pt in Figma so the last note
-// stays on it.
-export const paperSheet = { left: 20, top: 80, width: 362, height: 920 }
+// sides, starting 80pt down. Taller than the 898pt in Figma so all 18 notes
+// fit (Figma shows 13; the last five run on below them).
+export const paperSheet = { left: 20, top: 80, width: 362, height: 1170 }
 
 // Where the sheet comes out: the middle of the expanded island (11pt down,
 // 62.6pt tall), so it looks like it prints from inside it
@@ -49,23 +49,39 @@ export const paperNotes: PaperNote[] = [
   { name: 'Jenna', color: 'yellow', cx: 274.44, cy: 826.44, rotate: 7.62, text: 'Chloe!! I can’t believe our late nights in the studio are over. Thank you for every 2am snack run. New York is so lucky to have you. 💙' },
   { name: 'Keller', color: 'blue', cx: 100.53, cy: 864.53, rotate: -7.75, text: 'From strangers in first term to this. So proud of you, Chloe.' },
   { name: 'Hana', color: 'pink', cx: 215, cy: 932, rotate: 0, text: 'Congrats on the new job!! You earned every bit of it 🎉' },
+  // The other five of the 18, past the end of the Figma sheet
+  { name: 'Minji', color: 'olive', cx: 104, cy: 1000, rotate: 6.4, text: 'Our Sunday Eaton Canyon hikes won’t be the same. Find a new trail and tell me everything.' },
+  { name: 'Daniel', color: 'blue', cx: 302, cy: 1020, rotate: -8.2, text: 'You still owe me tacos. I’ll collect in New York.' },
+  { name: 'Sofia', color: 'yellow', cx: 196, cy: 1090, rotate: -3.6, text: 'The window seat at Lake Ave is officially yours forever. I’ll guard it.' },
+  { name: 'Marcus', color: 'pink', cx: 92, cy: 1160, rotate: -9.1, text: 'Go get ’em, Chloe. Proud of you.' },
+  { name: 'Yerin', color: 'blue', cx: 296, cy: 1168, rotate: 7.3, text: '잘 지내 Chloe! Bagels > tacos? We’ll see. 🥯' },
 ]
 
 // Hand-drawn hearts, stars and the loop across the sheet, each its own image
 // (cut from one sprite sheet) so they can be drawn on one at a time, in this
 // order. Box in sheet coordinates. Lines are drawn along their length; marks
-// are scribbled on in place.
-export type PaperDoodle = { src: string; left: number; top: number; width: number; height: number; kind: 'line' | 'mark' }
+// are scribbled on in place. A mark drawn over a note names it in `on`, so it
+// can step aside while that note is peeled off; the loops cross several notes
+// and always stay.
+export type PaperDoodle = {
+  src: string
+  left: number
+  top: number
+  width: number
+  height: number
+  kind: 'line' | 'mark'
+  on?: string
+}
 
 export const paperDoodles: PaperDoodle[] = [
-  { src: '/rolling-paper/doodles/doodle-1.png', left: 28.6, top: 85.8, width: 35.0, height: 43.7, kind: 'mark' }, // blue heart
-  { src: '/rolling-paper/doodles/doodle-2.png', left: 247.3, top: 135.4, width: 90.4, height: 61.2, kind: 'mark' }, // noted
+  { src: '/rolling-paper/doodles/doodle-1.png', left: 28.6, top: 85.8, width: 35.0, height: 43.7, kind: 'mark', on: 'Gayoung' }, // blue heart
+  { src: '/rolling-paper/doodles/doodle-2.png', left: 247.3, top: 135.4, width: 90.4, height: 61.2, kind: 'mark', on: 'Yuna' }, // noted
   { src: '/rolling-paper/doodles/doodle-3.png', left: 142.4, top: 170.4, width: 169.1, height: 177.9, kind: 'line' }, // loop, top half
-  { src: '/rolling-paper/doodles/doodle-4.png', left: 226.9, top: 269.5, width: 49.6, height: 43.7, kind: 'mark' }, // star
-  { src: '/rolling-paper/doodles/doodle-5.png', left: 46.1, top: 295.8, width: 67.1, height: 67.1, kind: 'mark' }, // sun
-  { src: '/rolling-paper/doodles/doodle-6.png', left: 250.3, top: 392.0, width: 52.5, height: 55.4, kind: 'mark' }, // clover
+  { src: '/rolling-paper/doodles/doodle-4.png', left: 226.9, top: 269.5, width: 49.6, height: 43.7, kind: 'mark', on: 'Leo' }, // star
+  { src: '/rolling-paper/doodles/doodle-5.png', left: 46.1, top: 295.8, width: 67.1, height: 67.1, kind: 'mark', on: 'Sora' }, // sun
+  { src: '/rolling-paper/doodles/doodle-6.png', left: 250.3, top: 392.0, width: 52.5, height: 55.4, kind: 'mark', on: 'Jiwoo' }, // clover
   { src: '/rolling-paper/doodles/doodle-7.png', left: 101.5, top: 389.1, width: 140.0, height: 227.5, kind: 'line' }, // loop, bottom half
-  { src: '/rolling-paper/doodles/doodle-8.png', left: 151.1, top: 505.7, width: 61.2, height: 55.4, kind: 'mark' }, // sparkles
-  { src: '/rolling-paper/doodles/doodle-9.png', left: 34.5, top: 546.6, width: 46.7, height: 49.6, kind: 'mark' }, // pink heart
-  { src: '/rolling-paper/doodles/doodle-10.png', left: 98.6, top: 654.5, width: 64.2, height: 49.6, kind: 'mark' }, // two hearts
+  { src: '/rolling-paper/doodles/doodle-8.png', left: 151.1, top: 505.7, width: 61.2, height: 55.4, kind: 'mark', on: 'Priya' }, // sparkles
+  { src: '/rolling-paper/doodles/doodle-9.png', left: 34.5, top: 546.6, width: 46.7, height: 49.6, kind: 'mark', on: 'Gabe' }, // pink heart
+  { src: '/rolling-paper/doodles/doodle-10.png', left: 98.6, top: 654.5, width: 64.2, height: 49.6, kind: 'mark', on: 'Ava' }, // two hearts
 ]

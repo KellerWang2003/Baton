@@ -4,7 +4,7 @@ import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
-import { setup } from '../data/onboarding'
+import { setup, todoKind } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
 import { promptMedium, promptMediumLabel } from '../data/pages'
 import { todayCards } from '../data/stages'
@@ -24,17 +24,14 @@ import {
 } from '../data/today'
 import {
   ArrowRightIcon,
-  AtIcon,
   BottomSheet,
   Card,
-  CheckCircle,
   ChevronRightIcon,
   ItemCard,
-  ListIcon,
-  PlaneIcon,
   PromptWindow,
   SetupCard,
   TodayCard,
+  TodoCard,
 } from '../ui'
 import { MainLayout } from './MainLayout'
 
@@ -46,8 +43,9 @@ type TodayProps = {
 // Today, top to bottom (Figma TODAY 334:10047): the daily prompt in a glass
 // circle with an icon for its medium (tap opens the camera or the + field),
 // then on the paper the setup cards until they're done, then "Before you
-// leave" as a list of cards: the legacy card in her last week in LA, her
-// to-dos and suggestions from her archive (tap either for tips).
+// leave" as a list of cards: the legacy card in her last week in LA and
+// suggestions from her archive (tap for tips). The to-dos she picked get their
+// own "Moving to-dos" section above it; each opens to show tips.
 export function Today({ lastWeek = false }: TodayProps) {
   const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
@@ -61,19 +59,20 @@ export function Today({ lastWeek = false }: TodayProps) {
   const leaving = shortDate(leaveDate)
   const hello = greeting(status, timeOfDay(), daysLeft)
 
-  // Figma's setup row (TODAY 334:11110): Instagram, to-dos, leave date. Locals
+  // Figma's setup row (TODAY 334:11110): Instagram, to-dos, leave date, with
+  // Figma's SF Symbol glyphs (public/today/setup-*.svg). Locals
   // have no logistics to pick; only Moving has a leave date. Archive
   // organization remains its own flow.
   const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode; tone: 'blue' | 'pink' | 'olive' }[] = [
-    { id: 'instagram', ...setup.items.instagram, icon: <AtIcon />, tone: 'blue' },
-    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <ListIcon />, tone: 'pink' as const }]),
+    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={19} height={19} />, tone: 'blue' },
+    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" width={19} height={14} />, tone: 'pink' as const }]),
     ...(status === 'moving'
       ? [
           {
             id: 'leave' as const,
             title: setupCards.leave.title,
             subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : setupCards.leave.subtitle,
-            icon: <PlaneIcon />,
+            icon: <img src="/today/setup-leave.svg" alt="" width={19} height={19} />,
             tone: 'olive' as const,
           },
         ]
@@ -140,6 +139,30 @@ export function Today({ lastWeek = false }: TodayProps) {
           </section>
         )}
 
+        {/* The to-dos she picked; open one for tips from people who did it */}
+        {pickedTodos.length > 0 && (
+          <section className="flex flex-col gap-4">
+            <h2 className="text-section font-normal text-ink">{beforeYouLeave.todosHeader[status]}</h2>
+            <div className="flex flex-col gap-3">
+              {pickedTodos.map((item) => {
+                const itemTips = tips[item.id] ?? []
+                return (
+                  <TodoCard
+                    key={item.id}
+                    kind={todoKind[item.id] ?? 'home'}
+                    title={item.title}
+                    subtitle={itemTips.length ? beforeYouLeave.tipCount(itemTips.length) : undefined}
+                    tips={itemTips}
+                    done={doneTodos.includes(item.id)}
+                    onToggleDone={() => setState((s) => ({ doneTodos: toggleIn(s.doneTodos, item.id) }))}
+                    copy={beforeYouLeave}
+                  />
+                )
+              })}
+            </div>
+          </section>
+        )}
+
         <section className="flex flex-col gap-4">
           <h2 className="text-section font-normal text-ink">{beforeYouLeave.header[status]}</h2>
           <div className="flex flex-col gap-3">
@@ -184,21 +207,6 @@ export function Today({ lastWeek = false }: TodayProps) {
                   />
                 )
               })}
-
-            {pickedTodos.map((item) => {
-              const count = tips[item.id]?.length ?? 0
-              const done = doneTodos.includes(item.id)
-              return (
-                <TodayCard
-                  key={item.id}
-                  title={item.title}
-                  subtitle={count ? beforeYouLeave.tipCount(count) : undefined}
-                  done={done}
-                  leading={<CheckCircle checked={done} />}
-                  onClick={() => setOpenTodo(item.id)}
-                />
-              )
-            })}
 
             {/* Suggestions from her archive; tap for tips from people who did it */}
             {suggested.map((item) => (
