@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { navigate } from '../app/navigate'
 import { completeSetup } from '../app/store'
 import { instagram } from '../data/onboarding'
-import { Button, Card } from '../ui'
+import { ArrowRightIcon, Button, Card } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
 // Copy the Rolling Paper link, then open a social app to share it with friends.
@@ -65,8 +65,9 @@ export function InstagramTag() {
           className="w-full min-w-0 rounded-control bg-surface px-4 py-3 text-subhead text-ink outline-none focus:ring-2 focus:ring-baton-blue"
           autoFocus={manualCopy}
         />
-        <Button block variant="blue" onClick={() => void copyLink()}>
+        <Button block variant="glow" size="cta" onClick={() => void copyLink()}>
           {copied ? 'Link copied' : 'Copy link'}
+          <ArrowRightIcon />
         </Button>
       </Card>
 

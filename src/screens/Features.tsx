@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { navigate } from '../app/navigate'
 import { features } from '../data/onboarding'
-import { Button, Steps } from '../ui'
+import { ArrowRightIcon, Button, Steps } from '../ui'
 
 // Feature overview before sign up: what Baton does, one idea per slide. Each
 // slide's image fills the whole screen, with the copy over it at the bottom.
@@ -27,8 +27,9 @@ export function Features() {
 
         <div className="flex flex-col items-center gap-6">
           <Steps count={features.slides.length} current={index} />
-          <Button block onClick={next}>
+          <Button block variant="glow" size="cta" onClick={next}>
             {last ? features.start : features.next}
+            <ArrowRightIcon />
           </Button>
         </div>
       </div>

@@ -4,7 +4,7 @@ import { setState, useStore } from '../app/store'
 import { pages } from '../data/pages'
 import { chloe } from '../data/people'
 import { findLeaver, relayCategory, relayCopy, relayItems, relayPlaceholderAvatar, relayPlaceholderPhoto } from '../data/relay'
-import { Avatar, BatonMark, BottomSheet, Button, Chip, MapPinIcon, Screen, TextArea, ToneTile } from '../ui'
+import { ArrowRightIcon, Avatar, BatonMark, BottomSheet, Button, Chip, MapPinIcon, Screen, TextArea, ToneTile } from '../ui'
 
 // Pushed page for one Relay pick or tip: the full story, who it came from,
 // and notes people left on it. Notes go on a recommendation, never on a whole
@@ -33,8 +33,9 @@ export function RelayDetail() {
         backLabel={pages.community.title}
         onBack={() => goBack('community')}
         footer={
-          <Button block variant="primary" className="bg-baton-navy!" onClick={() => setWriting(true)}>
+          <Button block variant="glow" size="cta" onClick={() => setWriting(true)}>
             {relayCopy.leaveNote}
+            <ArrowRightIcon />
           </Button>
         }
       >

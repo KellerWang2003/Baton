@@ -1,7 +1,7 @@
 import { navigate } from '../app/navigate'
 import { completeSetup, setState, toggleIn, useStore } from '../app/store'
 import { foundPlaces, organize } from '../data/onboarding'
-import { Button, Card, CheckCircle, ListRow, ListSection, MapPinIcon } from '../ui'
+import { ArrowRightIcon, Button, Card, CheckCircle, ListRow, ListSection, MapPinIcon } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
 // Setup page opened from Today: see what was imported from her photos and
@@ -20,8 +20,9 @@ export function Places() {
       onBack={() => navigate('today')}
       backLabel="Today"
       footer={
-        <Button block disabled={keptPlaces.length === 0} onClick={done}>
+        <Button block variant="glow" size="cta" disabled={keptPlaces.length === 0} onClick={done}>
           {organize.done(keptPlaces.length)}
+          <ArrowRightIcon />
         </Button>
       }
     >

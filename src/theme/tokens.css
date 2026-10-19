@@ -407,20 +407,6 @@
   padding: 40px 30px max(37px, env(safe-area-inset-bottom));
   flex-shrink: 0;
 }
-.onboarding-footer .onboarding-continue {
-  margin-left: 7px;
-  width: calc(100% - 7px);
-  height: 51px;
-  justify-content: space-between;
-  border-radius: 99px;
-  padding: 12px 24px;
-  background: var(--color-onboarding-action);
-  color: var(--color-on-brand);
-  font-size: 18px;
-  font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: -0.198px;
-}
 .onboarding-tags-step .onboarding-heading { margin-left: 34.3px; }
 .onboarding-tags-step { overflow: hidden; }
 .onboarding-tags-step .onboarding-content { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 24px; }
@@ -574,7 +560,6 @@
 .account-email-field input { width: 100%; min-width: 0; height: 100%; padding: 12px 24px; background: transparent; outline: none; font-size: 18px; font-weight: 400; line-height: 1.5; letter-spacing: -0.198px; color: var(--color-baton-navy); caret-color: var(--color-onboarding-action); }
 .account-email-field input::placeholder { color: var(--color-onboarding-muted); }
 .account-clear { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin-right: 8px; flex-shrink: 0; color: var(--color-onboarding-muted); cursor: pointer; }
-.account-options .account-continue { margin-top: 12px; height: 51px; border-radius: 99px; padding: 12px 24px; background: var(--color-onboarding-action); color: var(--color-on-brand); font-size: 18px; font-weight: 500; line-height: 1.5; letter-spacing: -0.198px; }
 .account-divider { margin: 20px 0; font-size: 16px; line-height: 22px; color: var(--color-onboarding-muted); text-align: center; }
 .account-providers { display: flex; flex-direction: column; gap: 12px; }
 .account-options .account-provider { height: 51px; gap: 12px; padding: 12px 20px; border-radius: 99px; background: var(--color-surface); color: var(--color-baton-navy); box-shadow: var(--shadow-onboarding-chip); font-size: 18px; font-weight: 500; line-height: 1.5; letter-spacing: -0.198px; }

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { setState } from '../app/store'
 import { chloe } from '../data/people'
-import { Avatar, Button, Card, Screen, TextArea, TextField } from '../ui'
+import { ArrowRightIcon, Avatar, Button, Card, Screen, TextArea, TextField } from '../ui'
 
 // Public-facing prototype destination for the link shared on Instagram.
 // Like the rest of the demo, submissions live in the in-memory store.
@@ -43,7 +43,10 @@ export function FriendNote() {
             <TextField label="Your name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={80} autoComplete="name" placeholder="So Chloe knows who it’s from" />
             <TextArea label="Your note to Chloe" value={message} onChange={(event) => setMessage(event.target.value)} required maxLength={2000} rows={7} placeholder="I’ll always remember…" />
             <p className="px-1 text-footnote text-ink-muted">Just for Chloe. Your note stays sealed until she lands. No account needed.</p>
-            <Button type="submit" block variant="blue" disabled={!name.trim() || !message.trim()}>Seal your note</Button>
+            <Button type="submit" block variant="glow" size="cta" disabled={!name.trim() || !message.trim()}>
+              Seal your note
+              <ArrowRightIcon />
+            </Button>
           </form>
         )}
       </div>
