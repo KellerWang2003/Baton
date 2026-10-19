@@ -13,6 +13,7 @@ import { StageSplashOverlay } from './screens/StageSplash'
 import { RelayMotion } from './screens/RelayMotion'
 import { RelayLooks } from './screens/RelayLooks'
 import { TodayLooks } from './screens/TodayLooks'
+import { ArchiveIdeas } from './screens/ArchiveIdeas'
 import { UiKit } from './screens/UiKit'
 
 // The map library is big, so it only loads when the playground opens
@@ -34,6 +35,8 @@ function App() {
   const [looksOpen, setLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('relay-looks'))
   // Today looks playground (team only): debug panel, or ?today-looks in the URL
   const [todayLooksOpen, setTodayLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('today-looks'))
+  // Archive ideas playground (team only): debug panel, or ?archive-ideas in the URL
+  const [archiveIdeasOpen, setArchiveIdeasOpen] = useState(() => new URLSearchParams(window.location.search).has('archive-ideas'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
   const { status, stageSplash } = useStore()
@@ -86,6 +89,8 @@ function App() {
         toggleLooks={() => setLooksOpen((open) => !open)}
         todayLooksOpen={todayLooksOpen}
         toggleTodayLooks={() => setTodayLooksOpen((open) => !open)}
+        archiveIdeasOpen={archiveIdeasOpen}
+        toggleArchiveIdeas={() => setArchiveIdeasOpen((open) => !open)}
       />
       {joystick && <ScrollJoystick />}
       {mapsOpen && (
@@ -96,6 +101,7 @@ function App() {
       {motionOpen && <RelayMotion onClose={() => setMotionOpen(false)} />}
       {looksOpen && <RelayLooks onClose={() => setLooksOpen(false)} />}
       {todayLooksOpen && <TodayLooks onClose={() => setTodayLooksOpen(false)} />}
+      {archiveIdeasOpen && <ArchiveIdeas onClose={() => setArchiveIdeasOpen(false)} />}
     </>
   )
 }

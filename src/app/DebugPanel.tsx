@@ -32,6 +32,8 @@ type DebugPanelProps = {
   toggleLooks: () => void
   todayLooksOpen: boolean
   toggleTodayLooks: () => void
+  archiveIdeasOpen: boolean
+  toggleArchiveIdeas: () => void
 }
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
@@ -40,7 +42,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
   const { onboardingPhotoAccess } = useStore()
@@ -171,6 +173,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+        <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
       </div>
 
       <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
