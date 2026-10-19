@@ -119,9 +119,11 @@ export function RollingPaper() {
                 width, so the sheet's own perspective tilts it the same way */}
             <div
               aria-hidden
-              className="pointer-events-none absolute inset-x-0 h-[150px] bg-linear-to-b from-slot-shade to-transparent mix-blend-multiply"
+              className="pointer-events-none absolute inset-x-0 h-[158px] bg-linear-to-b from-slot-shade from-[5%] to-transparent mix-blend-multiply"
               style={{
-                top: 0,
+                // Starts a little above the slot, so a sliver of bare sheet
+                // never shows between the island and the shade
+                top: -8,
                 translate: `0 ${-pulled}px`,
                 opacity: printing ? 1 : 0,
                 transition:
