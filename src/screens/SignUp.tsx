@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { auth } from '../data/onboarding'
-import { Button } from '../ui'
+import { ArrowRightIcon, Button } from '../ui'
 
 // These entry points continue the prototype; no external authentication runs.
 export function SignUp() {
@@ -39,7 +39,10 @@ export function SignUp() {
               </button>
             )}
           </div>
-          <Button type="submit" block variant="onboarding" className="account-continue">{auth.continue}</Button>
+          <Button type="submit" block variant="glow" size="cta" className="mt-3">
+            {auth.continue}
+            <ArrowRightIcon />
+          </Button>
         </form>
         <p className="account-divider">{auth.divider}</p>
         <div className="account-providers">

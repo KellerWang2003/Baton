@@ -11,6 +11,13 @@ export const stageNames: Record<Stage, string> = {
   local: 'Local',
 }
 
+// The tag under her profile picture
+export const stageTags: Record<Stage, string> = {
+  moving: 'Moving out',
+  newcomer: 'Newcomer',
+  local: 'Local',
+}
+
 export const stageCity: Record<Stage, string> = {
   moving: 'Los Angeles',
   newcomer: 'New York',
@@ -29,7 +36,7 @@ export type StageCard = {
   title: string
   subtitle: string
   tone?: 'stage'
-  to?: { screen: 'community' } | { screen: 'archive' }
+  to?: { screen: 'community' } | { screen: 'archive' } | { screen: 'local-insight' }
 }
 
 export const todayCards: Record<Stage, StageCard[]> = {
@@ -71,6 +78,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
       title: 'See how your life changed since LA',
       subtitle: 'Compared with your LA snapshot, and your intention.',
       tone: 'stage',
+      to: { screen: 'local-insight' },
     },
     {
       id: 'bookend',

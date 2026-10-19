@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { paperDoodles, paperNotes, paperSheet, paperSlotY, rollingPaper, type PaperNote, type PaperNoteColor } from '../data/rollingPaper'
-import { cx } from '../ui'
+import { navigate } from '../app/navigate'
+import { ArrowRightIcon, Button, cx, SaveButton } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
 const TOP = 54
@@ -18,6 +19,8 @@ const PRINT = 3600
 const SETTLE = 800
 const SETTLE_AT = PRINT_AT + PRINT + 150
 const DONE_AT = SETTLE_AT + SETTLE
+// Gap between one doodle starting and the next
+const DOODLE_STEP = 260
 
 // Perspective while printing (Figma coming out: 302pt wide at the slot,
 // 341pt at the leading edge 624pt below)
@@ -41,7 +44,7 @@ function prefersReducedMotion() {
 type Selected = { note: PaperNote; from: string; closing: boolean }
 
 // Rolling Paper (Figma ROLLING PAPER_coming out1/2, complete, select): the
-// notes friends left Chloe, opened from Profile. The sheet prints out of the
+// notes friends left Chloe, opened from the Newcomer splash or Profile. The sheet prints out of the
 // expanded Dynamic Island, then settles on the page with hand-drawn hearts
 // and stars; tap a note to read it bigger.
 export function RollingPaper() {
@@ -81,10 +84,17 @@ export function RollingPaper() {
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
       {/* The sheet comes out from just under the top of the island */}
       <div
-        className={cx('absolute inset-x-0 bottom-0', phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden')}
+        className={cx(
+          'absolute inset-x-0 bottom-0',
+          // Over the island while printing, so the sheet covers its lower half
+          // and seems to come out of it; under it once it has landed
+          printing ? 'z-10' : 'z-0',
+          phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden',
+        )}
         style={{ top: paperSlotY - TOP }}
       >
-        <div className="relative mx-auto w-[402px]" style={{ height: sheetTop + paperSheet.height + 24 }}>
+        {/* Room under the sheet so the button doesn't cover the last notes */}
+        <div className="relative mx-auto w-[402px]" style={{ height: sheetTop + paperSheet.height + 120 }}>
           <div
             className="absolute overflow-hidden rounded-[10px] bg-baton-cream shadow-paper-sheet motion-reduce:transition-none"
             style={{
@@ -104,15 +114,16 @@ export function RollingPaper() {
           >
             <Sheet phase={phase} onOpen={open} />
             {/* Shade where the sheet leaves the slot; it stays at the slot
-                while the sheet slides under it */}
-            <img
-              src="/rolling-paper/slot-shade.svg"
-              alt=""
+                while the sheet slides under it. A plain band the sheet's full
+                width, so the sheet's own perspective tilts it the same way */}
+            <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 h-[150px] w-[340px] max-w-none mix-blend-multiply"
+              className="pointer-events-none absolute inset-x-0 h-[158px] bg-linear-to-b from-slot-shade from-[5%] to-transparent"
               style={{
-                top: 0,
-                translate: `-50% ${-pulled}px`,
+                // Starts a little above the slot, so a sliver of bare sheet
+                // never shows between the island and the shade
+                top: -8,
+                translate: `0 ${-pulled}px`,
                 opacity: printing ? 1 : 0,
                 transition:
                   phase === 'print' ? `translate ${PRINT}ms cubic-bezier(0.45, 0.05, 0.55, 0.95)` : 'opacity 400ms ease-out',
@@ -133,6 +144,22 @@ export function RollingPaper() {
           transition: 'width 500ms cubic-bezier(0.34, 1.3, 0.64, 1), height 500ms cubic-bezier(0.34, 1.3, 0.64, 1)',
         }}
       />
+
+      {/* Once the sheet has settled: save it, or on to her LA Wrapped */}
+      {phase === 'done' && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex animate-splash-rise justify-center gap-2.5">
+          <SaveButton label={rollingPaper.save} />
+          <Button
+            variant="glow"
+            size="cta"
+            onClick={() => navigate('la-wrapped')}
+            className="pointer-events-auto w-[309px]"
+          >
+            {rollingPaper.cta}
+            <ArrowRightIcon />
+          </Button>
+        </div>
+      )}
 
       {selected && (
         <BigNote
@@ -183,30 +210,27 @@ function Sheet({ phase, onOpen }: { phase: Phase; onOpen: (note: PaperNote, elem
         </button>
       ))}
 
-      {/* Scribbled on once the sheet has landed, top to bottom */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-0 left-0 overflow-hidden motion-reduce:transition-none"
-        style={{
-          width: paperDoodles.width,
-          height: paperDoodles.height,
-          clipPath: done ? 'inset(0 0 0 0)' : 'inset(0 0 100% 0)',
-          opacity: done ? 1 : 0,
-          transition: 'clip-path 1400ms cubic-bezier(0.33, 1, 0.68, 1) 150ms, opacity 300ms ease-out 150ms',
-        }}
-      >
-        <img
-          src={paperDoodles.src}
-          alt=""
-          className="absolute max-w-none"
-          style={{
-            width: `${paperDoodles.crop.w}%`,
-            height: `${paperDoodles.crop.h}%`,
-            left: `${paperDoodles.crop.left}%`,
-            top: `${paperDoodles.crop.top}%`,
-          }}
-        />
-      </div>
+      {/* Scribbled on one at a time once the sheet has landed */}
+      {done &&
+        paperDoodles.map((doodle, index) => (
+          <img
+            key={doodle.src}
+            src={doodle.src}
+            alt=""
+            aria-hidden
+            className={cx(
+              'pointer-events-none absolute max-w-none motion-reduce:animate-none',
+              doodle.kind === 'line' ? 'animate-doodle-line' : 'animate-doodle-mark',
+            )}
+            style={{
+              left: doodle.left,
+              top: doodle.top,
+              width: doodle.width,
+              height: doodle.height,
+              animationDelay: `${150 + index * DOODLE_STEP}ms`,
+            }}
+          />
+        ))}
     </>
   )
 }

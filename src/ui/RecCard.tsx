@@ -96,7 +96,7 @@ function FlatCard({ title, text, tone, photo, label, size = 'lg', onClick, paper
         toneFill[tone],
         recSizes[size].card,
         // Paper: grain on the card and a soft shadow, lifted off the page (room for it below)
-        paper && 'grain mb-3 shadow-paper',
+        paper && 'grain mb-3 shadow-rec',
         // On the navy band, a thin light edge keeps navy cards from melting in
         edged && 'ring-1 ring-baton-cream/25',
       )}
@@ -106,7 +106,7 @@ function FlatCard({ title, text, tone, photo, label, size = 'lg', onClick, paper
         {label && <CategoryTag label={label} className={size === 'sm' ? 'left-2 top-2' : 'left-3 top-3'} />}
       </div>
       <div className="flex flex-col gap-1 px-2 pb-2">
-        <p className="font-display text-card-title font-bold">{title}</p>
+        <p className="font-display text-card-title font-medium">{title}</p>
         <p className="line-clamp-3 text-card-body opacity-60">{text}</p>
       </div>
     </button>
@@ -123,7 +123,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
         type="button"
         onClick={onClick}
         className={cx(
-          'grain relative flex w-full flex-col gap-2.5 rounded-[6px] p-2.5 pb-4 text-left shadow-paper transition active:scale-[0.98]',
+          'grain relative flex w-full flex-col gap-2.5 rounded-[6px] p-2.5 pb-4 text-left shadow-rec transition active:scale-[0.98]',
           toneFill[tone],
           tilts[index % tilts.length],
         )}
@@ -137,7 +137,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
         </div>
         <div className="flex flex-col gap-1 px-1">
           {label && <p className="text-caption font-semibold uppercase tracking-wider opacity-60">{label}</p>}
-          <p className="font-display text-card-title font-bold">{title}</p>
+          <p className="font-display text-card-title font-medium">{title}</p>
           <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
         </div>
       </button>
@@ -166,7 +166,7 @@ function TicketCard({ title, text, tone, photo, label, size = 'lg', onClick, fro
       {/* Tear line between the notches */}
       <div aria-hidden className="mx-3 my-3 border-t-2 border-dashed border-current opacity-25" />
       <div className="mb-3 flex flex-col gap-1 px-2">
-        <p className="font-display text-card-title font-bold">{title}</p>
+        <p className="font-display text-card-title font-medium">{title}</p>
         <p className="line-clamp-3 text-card-body opacity-60">{text}</p>
       </div>
       {from && (
@@ -188,7 +188,7 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
       type="button"
       onClick={onClick}
       className={cx(
-        'grain relative mb-3 flex shrink-0 snap-start flex-col gap-3 rounded-[20px] bg-baton-postcard p-3 text-left text-baton-navy shadow-paper transition active:scale-[0.98]',
+        'grain relative mb-3 flex shrink-0 snap-start flex-col gap-3 rounded-[20px] bg-baton-postcard p-3 text-left text-baton-navy shadow-rec transition active:scale-[0.98]',
         recSizes[size].card,
       )}
     >
@@ -215,7 +215,7 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
         York
       </span>
       <div className="flex flex-col gap-1 px-1.5">
-        <p className="font-display text-card-title font-bold">{title}</p>
+        <p className="font-display text-card-title font-medium">{title}</p>
         <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
         {from && <p className="mt-1.5 border-t border-dashed border-baton-navy/20 pt-1.5 text-caption font-semibold text-baton-navy/60">{from}</p>}
       </div>

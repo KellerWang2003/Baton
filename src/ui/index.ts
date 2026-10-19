@@ -1,6 +1,8 @@
 export { Avatar } from './Avatar'
+export { StageTag } from './StageTag'
 export { BottomSheet } from './BottomSheet'
 export { Button } from './Button'
+export { SaveButton } from './SaveButton'
 export { Card } from './Card'
 export { CardRow } from './CardRow'
 export { CardFan } from './CardFan'
@@ -11,6 +13,7 @@ export { Chip } from './Chip'
 export { default as FluidGlass } from './FluidGlass'
 export type { FluidGlassProps } from './FluidGlass'
 export { FolderSideTab, FolderStack } from './FolderStack'
+export { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
 export type { ArchiveFolder } from './FolderStack'
 export { InlinePhoto } from './InlinePhoto'
 export type { InlinePhotoItem } from './InlinePhoto'
@@ -49,6 +52,7 @@ export {
   ArchiveIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  DownloadIcon,
   MicIcon,
   AtIcon,
   ArrivalGraphic,

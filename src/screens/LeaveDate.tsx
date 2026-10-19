@@ -1,7 +1,7 @@
 import { navigate } from '../app/navigate'
 import { completeSetup, setState, useStore } from '../app/store'
 import { leave } from '../data/today'
-import { Button, SegmentedControl, TextField } from '../ui'
+import { ArrowRightIcon, Button, SegmentedControl, TextField } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
 // Setup page opened from Today: when she leaves LA, as her flight or just a
@@ -20,8 +20,9 @@ export function LeaveDate() {
       onBack={() => navigate('today')}
       backLabel="Today"
       footer={
-        <Button block disabled={!leaveDate || (leaveMode === 'flight' && !flight.trim())} onClick={done}>
+        <Button block variant="glow" size="cta" disabled={!leaveDate || (leaveMode === 'flight' && !flight.trim())} onClick={done}>
           {leave.save}
+          <ArrowRightIcon />
         </Button>
       }
     >

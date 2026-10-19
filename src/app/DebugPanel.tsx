@@ -5,7 +5,7 @@ import { stageNames } from '../data/stages'
 import { cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
 import type { GlassTuning } from '../ui'
 import { dailyPrompts } from '../data/pages'
-import { setState, useStatus, useStore } from './store'
+import { changeStage, setState, useStatus, useStore } from './store'
 
 type DebugPanelProps = {
   index: number
@@ -45,7 +45,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
       else if (event.key === 'ArrowRight') goTo(index + 1)
       else if (event.key === 'ArrowLeft') goTo(index - 1)
       else if (event.key === 'f') toggleFrame()
-      else if (['1', '2', '3'].includes(event.key)) setState({ status: stages[Number(event.key) - 1] })
+      else if (['1', '2', '3'].includes(event.key)) changeStage(stages[Number(event.key) - 1])
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
@@ -106,7 +106,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
               role="radio"
               aria-checked={status === stage}
               data-stage={stage}
-              onClick={() => setState({ status: stage })}
+              onClick={() => changeStage(stage)}
               className={cx(
                 'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
                 status === stage ? 'bg-stage text-on-stage' : 'text-ink hover:bg-surface',

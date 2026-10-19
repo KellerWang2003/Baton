@@ -72,6 +72,10 @@ export const photos = {
 
 export const splash = {
   welcome: 'Welcome to Baton',
+  // Figma Splash_Blue 337:1181 plays a video of the mark. Figma can't export
+  // it, so until the file is in public/onboarding/ the still frame shows.
+  video: null as string | null,
+  poster: '/onboarding/welcome-video-still.png',
 }
 
 export type FoundPlace = {

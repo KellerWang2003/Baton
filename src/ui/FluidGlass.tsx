@@ -62,6 +62,9 @@ export interface FluidGlassProps {
   position?: [number, number];
   intro?: boolean;
   maxDevicePixelRatio?: number;
+  // Baton: keep the drawn frame readable (canvas.toDataURL), to snapshot a
+  // still glass once and show it as an image instead of keeping a WebGL canvas
+  preserve?: boolean;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -746,6 +749,7 @@ const FluidGlass = ({
   position = [0.5, 0.5],
   intro = true,
   maxDevicePixelRatio = 2,
+  preserve = false,
   className = '',
   style,
   children
@@ -754,6 +758,8 @@ const FluidGlass = ({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const handleRef = useRef<HTMLDivElement>(null);
   const wakeRef = useRef<(() => void) | null>(null);
+  // Read once when the context is made
+  const preserveRef = useRef(preserve);
   const [generation, setGeneration] = useState(0);
 
   const cycle = Array.isArray(shapes) && shapes.length ? shapes.filter(name => SHAPES.includes(name)) : SHAPES;
@@ -816,6 +822,7 @@ const FluidGlass = ({
       antialias: false,
       depth: false,
       stencil: false,
+      preserveDrawingBuffer: preserveRef.current,
       powerPreference: 'high-performance'
     });
     if (!gl) return;

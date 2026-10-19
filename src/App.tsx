@@ -7,6 +7,7 @@ import { useScreenIndex } from './app/useScreenIndex'
 import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
+import { StageSplashOverlay } from './screens/StageSplash'
 import { RelayLooks } from './screens/RelayLooks'
 import { TodayLooks } from './screens/TodayLooks'
 import { UiKit } from './screens/UiKit'
@@ -27,7 +28,7 @@ function App() {
   const [todayLooksOpen, setTodayLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('today-looks'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
-  const { status } = useStore()
+  const { status, stageSplash } = useStore()
   const activeTab = tab ?? (tabs.some((t) => t.id === id) ? id : null)
 
   // Picking a screen from the debug panel closes the design system view.
@@ -50,6 +51,8 @@ function App() {
           ) : (
             <CurrentScreen />
           )}
+          {/* Congrats splash over whatever is showing when her stage moves forward */}
+          {stageSplash && !kitOpen && <StageSplashOverlay key={stageSplash} stage={stageSplash} />}
         </div>
       </DeviceFrame>
       <DebugPanel

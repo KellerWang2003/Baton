@@ -4,7 +4,7 @@ import { setState, useStatus, useStore } from '../app/store'
 import { leavers, leaverTips, relayCategories, relayCategory, relayCopy, relayHeaders, relayPicks, relayPlaceholderPhoto } from '../data/relay'
 import { homeSpot, mapNeighborhoods, relaySpots } from '../data/mapSpots'
 import type { RelayCategory, RelayItem } from '../data/relay'
-import { CategoryChip, MapIcon, SearchIcon, cx, relayChipIdle, relayPage } from '../ui'
+import { Button, CategoryChip, MapIcon, SearchIcon, cx, relayChipIdle, relayPage } from '../ui'
 import { MainLayout } from './MainLayout'
 import { RelayFeed } from './RelayFeed'
 
@@ -208,14 +208,15 @@ export function Community() {
 
         {/* Map view, floating just above the tab bar; the list comes back by swiping the sheet up */}
         {!mapOpen && (
-          <button
-            type="button"
+          <Button
+            variant="glow"
+            size="pill"
             onClick={() => showMap(true)}
-            className="absolute bottom-[103px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 whitespace-nowrap rounded-full bg-baton-blue px-4 py-3 text-callout font-medium leading-[1.1] text-on-brand transition-transform active:scale-95"
+            className="absolute bottom-[103px] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap active:scale-95"
           >
             <MapIcon />
             {relayCopy.map}
-          </button>
+          </Button>
         )}
       </div>
     </MainLayout>

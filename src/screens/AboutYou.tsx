@@ -26,7 +26,7 @@ export function AboutYouTags() {
   const { tags } = useStore()
 
   return (
-    <OnboardingStep title={about.title} className="onboarding-tags-step" onContinue={() => navigate('photos')}>
+    <OnboardingStep title={about.title} className="onboarding-tags-step" continueDisabled={tags.length === 0} onContinue={() => navigate('photos')}>
       <div className="onboarding-tag-groups">
         {about.tagGroups.map((group) => (
           <fieldset key={group.title} className="onboarding-tag-group">
