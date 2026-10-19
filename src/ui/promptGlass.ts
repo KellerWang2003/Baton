@@ -28,6 +28,8 @@ export type GlassInteraction = 'follow' | 'drag' | 'static'
 export type GlassTuning = {
   shape: GlassShape
   color: string
+  // Ours: how strong the blue is at the rim, fading inward (Figma 236:1282)
+  edge: number
   size: number
   refraction: number
   dispersion: number
@@ -53,6 +55,7 @@ export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
   // Empty means brand blue (--color-baton-blue); the debug panel can pick another
   color: '',
+  edge: 0.65,
   size: 340,
   refraction: 0,
   dispersion: 1,
@@ -76,6 +79,7 @@ export const glassInteractions: GlassInteraction[] = ['drag', 'follow', 'static'
 
 // Sliders in the debug panel: key, label, range and step
 export const glassSliders: { key: keyof GlassTuning; label: string; min: number; max: number; step: number }[] = [
+  { key: 'edge', label: 'Edge glow', min: 0, max: 1, step: 0.05 },
   { key: 'size', label: 'Size', min: 160, max: 400, step: 5 },
   { key: 'refraction', label: 'Refraction', min: 0, max: 2, step: 0.05 },
   { key: 'dispersion', label: 'Dispersion', min: 0, max: 1, step: 0.05 },
