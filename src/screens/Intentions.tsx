@@ -277,22 +277,32 @@ function Bubble({ label, glass, picked, x, y, delay, onTap }: BubbleProps) {
       style={{ left: x - SIZE / 2, top: y - SIZE / 2, width: SIZE, height: SIZE, animationDelay: `${delay}ms` }}
       className="absolute animate-fade-in rounded-full outline-none transition-[scale] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-95"
     >
-      {glass && <img
-        src={glass}
-        alt=""
-        draggable={false}
-        className="pointer-events-none absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 animate-fade-in select-none"
-        style={{ width: BOX, height: BOX }}
-      />}
+      {/* The glass, faded out once picked so the blue reads clean, with no
+          rim or border around it (Figma 322:8877, Keller Oct 19) */}
+      <span
+        aria-hidden
+        className={cx('pointer-events-none absolute inset-0 transition-opacity duration-300', picked ? 'opacity-0' : 'opacity-100')}
+      >
+        {glass && (
+          <img
+            src={glass}
+            alt=""
+            draggable={false}
+            className="absolute left-1/2 top-1/2 max-w-none -translate-x-1/2 -translate-y-1/2 animate-fade-in select-none"
+            style={{ width: BOX, height: BOX }}
+          />
+        )}
+      </span>
       <span
         aria-hidden
         className={cx(
           'absolute inset-0 rounded-full transition-[scale,opacity] duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)]',
-          picked ? 'scale-100 opacity-100' : 'scale-40 opacity-0',
+          picked ? 'scale-100 opacity-100' : 'scale-60 opacity-0',
         )}
+        // Brand blue in the middle, softening to a pale blue at the edge
         style={{
           background:
-            'radial-gradient(circle, var(--color-baton-blue) 0%, color-mix(in srgb, var(--color-baton-blue) 85%, transparent) 55%, color-mix(in srgb, var(--color-baton-blue) 15%, transparent) 70.7%)',
+            'radial-gradient(circle closest-side, var(--color-baton-blue) 0%, color-mix(in srgb, var(--color-baton-blue) 68%, white) 45%, color-mix(in srgb, var(--color-baton-blue) 38%, white) 85%, color-mix(in srgb, var(--color-baton-blue) 30%, white) 100%)',
         }}
       />
       <span className="relative mx-auto block w-[93px] text-center text-[18px] leading-[21px] tracking-[-0.011em] text-baton-navy">
