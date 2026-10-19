@@ -1,16 +1,11 @@
 import { navigate } from '../app/navigate'
-import { useStore } from '../app/store'
-import { chloeGoals } from '../data/intentions'
 import { newcomerNow } from '../data/newcomerNow'
 import { ArrowRightIcon, Button, cx, StageTag, TAB_PATH, TAB_WIDTH } from '../ui'
 
 // "You're a Newcomer now": shown after LA Wrapped. Her LA folder slides aside
-// and a new, empty New York folder lands on top of it, then the heading, her
-// three goals for New York as plain chips, and on to Today.
+// and a new, empty New York folder lands on top of it, then the heading and
+// on to Today.
 export function NewcomerNow() {
-  const picked = useStore().goals
-  const goals = picked.length ? picked : chloeGoals
-
   return (
     <div className="relative flex h-full flex-col items-center bg-baton-paper font-display text-baton-navy">
       <div className="relative mt-[56px] h-[230px] w-[320px] shrink-0">
@@ -30,20 +25,9 @@ export function NewcomerNow() {
         <p className="mt-2 w-[290px] text-center text-callout text-wrap-faint">{newcomerNow.subtitle}</p>
       </div>
 
-      <div className="mt-7 flex animate-splash-rise flex-col items-center" style={{ animationDelay: '1350ms' }}>
-        <p className="text-footnote text-wrap-faint">{newcomerNow.goalsLabel}</p>
-        <ul className="mt-2.5 flex w-[330px] flex-wrap justify-center gap-2">
-          {goals.map((goal) => (
-            <li key={goal} className="rounded-full bg-white px-3.5 py-1.5 text-subhead shadow-pill">
-              {goal}
-            </li>
-          ))}
-        </ul>
-      </div>
-
       <div
         className="absolute inset-x-0 bottom-[36px] flex animate-splash-rise justify-center"
-        style={{ animationDelay: '1600ms' }}
+        style={{ animationDelay: '1400ms' }}
       >
         <Button variant="glow" size="cta" onClick={() => navigate('today')} className="w-[309px]">
           {newcomerNow.cta}
