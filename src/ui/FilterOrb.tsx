@@ -15,9 +15,11 @@ type FilterOrbProps<Id extends string> = {
 }
 
 const ORB_SIZE = 250
-// The glass is drawn larger than the orb so its rim falls outside the circle
-// (Fluid Glass caps the lens at 36% of its box, so 1.42x puts it just past the edge)
-const GLASS_SIZE = Math.round(ORB_SIZE * 1.42)
+// Same setup as Today's glass circle (PromptWindow): Fluid Glass draws its rim
+// a little past the size it's given and fills only 72% of its canvas, so the
+// canvas is bigger than the orb and isn't cropped, letting the rim show.
+const RIM_RATIO = 370 / 330
+const GLASS_SIZE = Math.ceil((ORB_SIZE * RIM_RATIO) / 0.72)
 // Resolution of the orb picture the glass refracts
 const PICTURE = 360
 // Where each color's blob sits at rest, in degrees (0 = right, -90 = top)
@@ -58,6 +60,10 @@ function closestToTop<T extends { color: OrbColor }>(filters: T[], rotation: num
   return filters.reduce((best, filter) => (topness(filter.color, rotation) > topness(best.color, rotation) ? filter : best))
 }
 
+function token(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
+}
+
 function rgba(hex: string, alpha: number) {
   const value = parseInt(hex.replace('#', ''), 16)
   return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`
@@ -75,6 +81,13 @@ function drawPicture(canvas: HTMLCanvasElement, rotation: number, focus: number)
   const size = canvas.width
   const center = size / 2
   const radius = (size / 2) * (ORB_SIZE / GLASS_SIZE)
+  // Only the orb's circle is painted; the rest stays clear, because the glass
+  // shows this picture outside its lens too (over the photos)
+  context.clearRect(0, 0, size, size)
+  context.save()
+  context.beginPath()
+  context.arc(center, center, radius, 0, Math.PI * 2)
+  context.clip()
   context.fillStyle = token('baton-paper')
   context.fillRect(0, 0, size, size)
 
@@ -104,6 +117,7 @@ function drawPicture(canvas: HTMLCanvasElement, rotation: number, focus: number)
     context.fillStyle = gradient
     context.fillRect(0, 0, size, size)
   }
+  context.restore()
 }
 
 type Gesture = {
@@ -114,8 +128,8 @@ type Gesture = {
   mode: 'pending' | 'turn' | 'swipe'
 }
 
-// The tricolor orb at the bottom of a city's photo cloud: a Fluid Glass lens
-// over three color blobs. Start turning it to enter filter mode: whichever
+// The tricolor orb at the bottom of a city's photo cloud: a lens of liquid
+// glass (Fluid Glass, set up like Today's circle) over three color blobs. Start turning it to enter filter mode: whichever
 // color comes to the top swells to fill the orb and focuses its filter, and
 // letting go settles on the nearest one. Swipe it up to leave filter mode and
 // go back to all three colors evenly. The page gets a wash of the focused
@@ -266,29 +280,37 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
           active ? '-bottom-[125px] scale-80' : '-bottom-[110px] scale-100',
         )}
       >
-        <div className="relative size-full overflow-hidden rounded-full">
-          <div
-            style={{ width: GLASS_SIZE, height: GLASS_SIZE }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-          >
-            <FluidGlass
-              canvas={picture}
-              canvasFrame={frame}
-              text=""
-              shape="lens"
-              size={ORB_SIZE * 1.1}
-              interaction="static"
-              morphOnClick={false}
-              idle={false}
-              intro={false}
-              spin={0}
-              wobble={0}
-              shadow={0}
-              refraction={0.25}
-              dispersion={0.4}
-              reflection={0.6}
-            />
-          </div>
+        {/* The glass canvas spills past the orb (uncropped) so its rim shows */}
+        <div
+          style={{ width: GLASS_SIZE, height: GLASS_SIZE }}
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          <FluidGlass
+            canvas={picture}
+            canvasFrame={frame}
+            text=""
+            shape="lens"
+            size={ORB_SIZE}
+            // Outside the lens the canvas is clear, so only the glass shows
+            transparentOutside
+            background={token('--color-baton-paper')}
+            // Today's glass, lighter on the blue: a clear edge band and line,
+            // a touch of blue at the rim, and a slow small morph while it rests
+            color={token('--color-baton-blue')}
+            rim={0.2}
+            ring={1}
+            breathe={0.15}
+            refraction={0.5}
+            dispersion={1}
+            reflection={1.15}
+            shadow={0.1}
+            interaction="static"
+            morphOnClick={false}
+            idle={false}
+            intro={false}
+            spin={0}
+            wobble={0}
+          />
         </div>
         {active && (
           <span
