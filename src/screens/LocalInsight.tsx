@@ -185,7 +185,7 @@ type Shot = { src: string; alt: string; place: string; when: string }
 function Print({ shot, tone, tilt, shown, delay }: { shot: Shot; tone: string; tilt: number; shown: boolean; delay: number }) {
   return (
     <figure
-      className={cx('grain relative rounded-[6px] p-2 pb-3 shadow-rec transition-[opacity,transform] duration-500', tone)}
+      className={cx('grain relative rounded-card p-2 pb-3 shadow-rec transition-[opacity,transform] duration-500', tone)}
       style={{
         opacity: shown ? 1 : 0,
         transform: shown ? `rotate(${tilt}deg)` : `translateY(24px) rotate(${tilt * 2}deg)`,
@@ -195,7 +195,7 @@ function Print({ shot, tone, tilt, shown, delay }: { shot: Shot; tone: string; t
     >
       <span aria-hidden className="absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper" />
       {/* Square, like the photo the prompt asked for */}
-      <img src={shot.src} alt={shot.alt} className="aspect-square w-full rounded-[3px] object-cover" />
+      <img src={shot.src} alt={shot.alt} className="aspect-square w-full rounded-tile object-cover" />
       <figcaption className="mt-2.5 px-1">
         <span className="block text-today-card font-medium">{shot.place}</span>
         <span className="block text-today-detail opacity-70">{shot.when}</span>

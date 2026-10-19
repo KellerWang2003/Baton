@@ -124,7 +124,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
         type="button"
         onClick={onClick}
         className={cx(
-          'grain relative flex w-full flex-col gap-2.5 rounded-[6px] p-2.5 pb-4 text-left shadow-rec transition active:scale-[0.98]',
+          'grain relative flex w-full flex-col gap-2.5 rounded-card p-2.5 pb-4 text-left shadow-rec transition active:scale-[0.98]',
           toneFill[tone],
           tilts[index % tilts.length],
         )}
@@ -133,7 +133,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
           aria-hidden
           className={cx('absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper')}
         />
-        <div className={cx('relative w-full shrink-0 overflow-hidden rounded-[3px]', recSizes[size].photo)}>
+        <div className={cx('relative w-full shrink-0 overflow-hidden rounded-tile', recSizes[size].photo)}>
           <img src={photo} alt="" draggable={false} className="size-full object-cover" />
         </div>
         <div className="flex flex-col gap-1 px-1">
