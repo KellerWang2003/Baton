@@ -60,7 +60,10 @@ export function TodoCard({ kind, title, subtitle, tips, done, onToggleDone, copy
             {!tips.length && <p className="px-1 text-today-detail text-today-muted">{copy.noTips}</p>}
             <button
               type="button"
-              onClick={onToggleDone}
+              onClick={() => {
+                if (!done) setOpen(false)
+                onToggleDone()
+              }}
               className="self-start rounded-full px-1 pt-1 text-subhead font-medium text-highlight active:opacity-50"
             >
               {done ? copy.markUndone : copy.markDone}

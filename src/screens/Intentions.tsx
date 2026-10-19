@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import { goBack } from '../app/navigate'
+import { navigate } from '../app/navigate'
 import { setState, toggleIn, useStore } from '../app/store'
 import { goalBubbles, intentions } from '../data/intentions'
 import { ArrowRightIcon, Button, FluidGlass } from '../ui'
@@ -34,6 +34,20 @@ const FINGER_REACH = 110
 const BUBBLE_SPRING = 0.07
 const BUBBLE_DAMPING = 0.2
 
+// Recording shortcut: leave a clean beat before the normal entrance plays.
+export function IntentionsVideo() {
+  const { intentionsVideoRun } = useStore()
+  const [readyRun, setReadyRun] = useState<number | null>(null)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReadyRun(intentionsVideoRun), 1500)
+    return () => window.clearTimeout(timer)
+  }, [intentionsVideoRun])
+
+  return readyRun === intentionsVideoRun
+    ? <Intentions />
+    : <div className="h-full bg-baton-paper" />
+}
+
 // Choosing her intentions for New York (Figma "choosing intentions", 322:8877),
 // before her last night in LA; opened from Profile. A canvas of glass bubbles
 // in a loosely spaced cloud that she pans around in any direction, tapping as
@@ -48,7 +62,7 @@ export function Intentions() {
   const ready = picked.length >= intentions.minPicks
   const done = () => {
     setState({ goals: picked })
-    goBack('profile')
+    navigate('intentions-set')
   }
 
   return (

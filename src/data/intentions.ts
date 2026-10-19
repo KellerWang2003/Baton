@@ -13,6 +13,10 @@ export const intentions = {
   // The Profile row that opens it
   row: 'Intentions for New York',
   rowEmpty: 'Set before you leave LA',
+  confirmation: {
+    title: 'Your goals for New York are set.',
+    cta: 'Let’s make it happen',
+  },
 }
 
 // Bubble centers in canvas points (status bar included). A loose cloud of the

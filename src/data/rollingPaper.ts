@@ -30,9 +30,9 @@ export const rollingPaper = {
 // fit (Figma shows 13; the last five run on below them).
 export const paperSheet = { left: 20, top: 80, width: 362, height: 1170 }
 
-// Where the sheet comes out: the middle of the expanded island (11pt down,
-// 62.6pt tall), so it looks like it prints from inside it
-export const paperSlotY = 42
+// Paper exits at the middle of the expanded island (11pt down, 98pt tall),
+// below the real bezel's camera cutout so it cannot cover the emerging notes.
+export const paperSlotY = 60
 
 // In paint order (later notes sit on top)
 export const paperNotes: PaperNote[] = [

@@ -284,7 +284,14 @@ export function CameraBubble() {
 
           {/* The circle, morphing into the rounded rectangle with the camera in it */}
           <div
-            className="absolute overflow-hidden bg-baton-paper motion-reduce:transition-none"
+            role="button"
+            tabIndex={0}
+            aria-label="Close camera"
+            // Tapping the rectangle closes the camera and goes back to Today
+            // (Keller, Oct 19)
+            onClick={() => expanded && setState({ camera: null })}
+            onKeyDown={(event) => event.key === 'Enter' && expanded && setState({ camera: null })}
+            className="absolute cursor-pointer overflow-hidden bg-baton-paper motion-reduce:transition-none"
             style={{
               left: at.left,
               top: at.top,

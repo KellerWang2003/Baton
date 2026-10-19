@@ -219,7 +219,7 @@ export const relayItems: RelayItem[] = [
   },
   {
     id: 'library',
-    photo: '/relay/library.jpg',
+    photo: '/relay/ana-drawing-spot.jpg',
     source: { kind: 'leaver', leaver: 'ana' },
     title: "Ana's drawing spot",
     quote: 'Free, big tables, and nobody minds a sketchbook.',

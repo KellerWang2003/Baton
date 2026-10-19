@@ -8,7 +8,8 @@ import { Capture } from './screens/Capture'
 import { Community } from './screens/Community'
 import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
-import { Intentions } from './screens/Intentions'
+import { Intentions, IntentionsVideo } from './screens/Intentions'
+import { IntentionsSet } from './screens/IntentionsSet'
 import { LaWrapped } from './screens/LaWrapped'
 import { NewcomerNow } from './screens/NewcomerNow'
 import { LocalInsight } from './screens/LocalInsight'
@@ -61,6 +62,7 @@ export const flow: FlowScreen[] = [
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
   // 6. Before her last night in LA: her intentions for New York (from Profile)
   { id: 'intentions', title: 'Profile: intentions for New York', stage: 'moving', component: Intentions },
+  { id: 'intentions-set', title: 'Your next chapter in New York', stage: 'moving', component: IntentionsSet },
   // 5. Friend follows Chloe's Instagram link to the public note form.
   { id: 'friend-note', title: 'Friend: leave Chloe a note', stage: 'moving', component: FriendNote },
   // 6. Last week in LA: Today shows the legacy card
@@ -79,6 +81,8 @@ export const flow: FlowScreen[] = [
   { id: 'local-splash', title: "Stage change: you're a Local", stage: 'local', component: LocalSplash },
   // ...whose button opens the insight page: LA vs New York, her intention, the café bookend
   { id: 'local-insight', title: 'Local: how your life changed', stage: 'local', component: LocalInsight },
+  // Team-only recording shortcut, outside the normal story sequence.
+  { id: 'intentions-video', title: 'Video: intentions from blank', stage: 'moving', component: IntentionsVideo },
 ]
 
 export const stageLabels: Record<Stage, string> = {

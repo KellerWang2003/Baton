@@ -5,6 +5,7 @@ import { leavers, leaverTips, relayCategories, relayCategory, relayCopy, relayHe
 import { homeSpot, mapNeighborhoods, relaySpots } from '../data/mapSpots'
 import type { RelayCategory, RelayItem } from '../data/relay'
 import { Button, CategoryChip, MapIcon, SearchIcon, cx, relayChipIdle, relayPage } from '../ui'
+import { useRelayEntrance } from '../ui/relayEntrance'
 import { MainLayout } from './MainLayout'
 import { RelayFeed } from './RelayFeed'
 
@@ -32,10 +33,12 @@ function matches(item: RelayItem, query: string) {
 // (the AllTrails list/map pattern) to show the same picks as pins on a map.
 export function Community() {
   const status = useStatus()
-  const { relayMap: mapOpen, relayFilter, relayLook } = useStore()
+  const { relayMap: mapOpen, relayFilter, relayLook, relayEntrance, relayEntranceSpeed } = useStore()
+  const entranceRef = useRef<HTMLDivElement>(null)
   const category = relayFilter as RelayCategory | null
   const [searching, setSearching] = useState(false)
   const [query, setQuery] = useState('')
+  useRelayEntrance(entranceRef, relayEntrance, relayEntranceSpeed, `${status}:${relayLook}:${relayFilter}:${query}:${searching}`)
   const [pinned, setPinned] = useState<string | null>(null)
   const dragFrom = useRef<number | null>(null)
   // How far the sheet is being pulled up right now (negative), while a finger is on it
@@ -63,7 +66,7 @@ export function Community() {
 
   return (
     <MainLayout bleed background={relayPage[relayLook]}>
-      <div className="relative min-h-0 flex-1 overflow-hidden">
+      <div ref={entranceRef} className="relative min-h-0 flex-1 overflow-hidden">
         {/* The map, behind everything; the list slides down to show it */}
         <div className="absolute inset-0" inert={!mapOpen}>
           {/* A real New York to drag and zoom, in the Paper look Keller picked (Oct 18) */}
@@ -136,7 +139,7 @@ export function Community() {
             )}
           >
             {/* Category filters, with search at the end */}
-            <div className="-mb-4 flex flex-col gap-3">
+            <div data-relay-enter className="-mb-4 flex flex-col gap-3">
               <div className="-mx-gutter flex items-center gap-[26px] pr-gutter">
                 <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-gutter [scrollbar-width:none]">
                   <CategoryChip look={relayLook} selected={!category} onClick={() => setCategory(null)}>
@@ -183,7 +186,7 @@ export function Community() {
               <RelayFeed look={relayLook} headers={headers} picks={picks} people={people} onOpen={open} />
 
               {picks.length === 0 && people.length === 0 && (
-                <p className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
+                <p data-relay-enter className="text-subhead text-ink-muted">{relayCopy.noResults}</p>
               )}
             </div>
           </div>
@@ -208,15 +211,17 @@ export function Community() {
 
         {/* Map view, floating just above the tab bar; the list comes back by swiping the sheet up */}
         {!mapOpen && (
-          <Button
-            variant="glow"
-            size="pill"
-            onClick={() => showMap(true)}
-            className="absolute bottom-[103px] left-1/2 z-20 -translate-x-1/2 whitespace-nowrap active:scale-95"
-          >
-            <MapIcon />
-            {relayCopy.map}
-          </Button>
+          <div className="absolute bottom-[103px] left-1/2 z-20 -translate-x-1/2">
+            <Button
+              variant="glow"
+              size="pill"
+              onClick={() => showMap(true)}
+              className="whitespace-nowrap active:scale-95"
+            >
+              <MapIcon />
+              {relayCopy.map}
+            </Button>
+          </div>
         )}
       </div>
     </MainLayout>

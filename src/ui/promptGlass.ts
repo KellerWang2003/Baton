@@ -30,7 +30,7 @@ export type GlassTuning = {
   color: string
   // Ours: how strong the blue is at the rim, fading inward (Figma 236:1282)
   edge: number
-  // Ours: a slow, small morph while it rests (Keller, Oct 19: just a little)
+  // Ours: the strength of the surface morph while it rests.
   breathe: number
   // Ours: the clear band and faint line around the very edge (Figma 236:1282)
   ring: number
@@ -61,7 +61,8 @@ export const defaultGlassTuning: GlassTuning = {
   color: '',
   // Keller, Oct 19: about 60% of the earlier 0.6
   edge: 0.36,
-  breathe: 0.1,
+  // More visible idle motion on Today, while the prompt stays centered.
+  breathe: 0.25,
   ring: 1,
   size: 340,
   // Enough to bend the prompt under it, especially when the glass moves

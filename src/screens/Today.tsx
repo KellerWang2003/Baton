@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
@@ -53,6 +53,40 @@ export function Today({ lastWeek = false }: TodayProps) {
   const prompt = useDailyPrompt()
   const medium = promptMedium(prompt.question)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
+  const todoList = useRef<HTMLDivElement>(null)
+  const todoPositions = useRef(new Map<string, number>())
+
+  // Capture before reordering, then animate each card from its previous slot.
+  const toggleTodo = (id: string) => {
+    const list = todoList.current
+    todoPositions.current.clear()
+    if (list && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      for (const card of Array.from(list.children) as HTMLElement[]) {
+        card.getAnimations().forEach((animation) => animation.cancel())
+        todoPositions.current.set(card.dataset.todoId!, card.offsetTop)
+      }
+    }
+    setState((s) => ({ doneTodos: toggleIn(s.doneTodos, id) }))
+  }
+
+  useLayoutEffect(() => {
+    const list = todoList.current
+    if (!list || !todoPositions.current.size) return
+    for (const card of Array.from(list.children) as HTMLElement[]) {
+      const previous = todoPositions.current.get(card.dataset.todoId!)
+      if (previous === undefined) continue
+      const distance = previous - card.offsetTop
+      if (!distance) continue
+      card.animate(
+        [
+          { transform: `translateY(${distance}px)`, zIndex: 1 },
+          { transform: 'translateY(0)', zIndex: 1 },
+        ],
+        { duration: 500, easing: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+      )
+    }
+    todoPositions.current.clear()
+  }, [doneTodos])
 
   const daysLeft = !lastWeek && !store.leaveDate && store.expectedLeaveMonth ? Infinity : daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
   const leaving = shortDate(leaveDate)
@@ -80,7 +114,10 @@ export function Today({ lastWeek = false }: TodayProps) {
   const setupCount = setupItems.filter((item) => setupDone.includes(item.id)).length
 
   const picked = todos ?? []
-  const pickedTodos = picked.flatMap((id) => allTodos.find((todo) => todo.id === id) ?? [])
+  // Keep the original order within each group, with completed to-dos last.
+  const pickedTodos = picked
+    .flatMap((id) => allTodos.find((todo) => todo.id === id) ?? [])
+    .sort((a, b) => Number(doneTodos.includes(a.id)) - Number(doneTodos.includes(b.id)))
   const suggested = suggestions.items[status].filter(
     (item) => !picked.includes(item.id) && (!item.place || keptPlaces.includes(item.place)),
   )
@@ -127,20 +164,21 @@ export function Today({ lastWeek = false }: TodayProps) {
         {pickedTodos.length > 0 && (
           <section className="flex flex-col gap-4">
             <h2 className="text-section font-normal text-ink">{beforeYouLeave.todosHeader[status]}</h2>
-            <div className="flex flex-col gap-3">
+            <div ref={todoList} className="relative flex flex-col gap-3">
               {pickedTodos.map((item) => {
                 const itemTips = tips[item.id] ?? []
                 return (
-                  <TodoCard
-                    key={item.id}
-                    kind={todoKind[item.id] ?? 'home'}
-                    title={item.title}
-                    subtitle={itemTips.length ? beforeYouLeave.tipCount(itemTips.length) : undefined}
-                    tips={itemTips}
-                    done={doneTodos.includes(item.id)}
-                    onToggleDone={() => setState((s) => ({ doneTodos: toggleIn(s.doneTodos, item.id) }))}
-                    copy={beforeYouLeave}
-                  />
+                  <div key={item.id} data-todo-id={item.id} className="relative">
+                    <TodoCard
+                      kind={todoKind[item.id] ?? 'home'}
+                      title={item.title}
+                      subtitle={itemTips.length ? beforeYouLeave.tipCount(itemTips.length) : undefined}
+                      tips={itemTips}
+                      done={doneTodos.includes(item.id)}
+                      onToggleDone={() => toggleTodo(item.id)}
+                      copy={beforeYouLeave}
+                    />
+                  </div>
                 )
               })}
             </div>

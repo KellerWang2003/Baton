@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useStatus, useStore } from '../app/store'
 import { stageSplash } from '../data/stageSplash'
@@ -11,6 +11,22 @@ import { ArrowRightIcon, Button, Confetti } from '../ui'
 // own screen so the debug panel and arrow keys can reach it. Both stage
 // changes get confetti (style picked in the debug panel, Welcome confetti).
 export function StageSplashView({ stage, onDone }: { stage: Stage; onDone: () => void }) {
+  const [readyStage, setReadyStage] = useState<Stage | null>(null)
+  useEffect(() => {
+    const timer = window.setTimeout(() => setReadyStage(stage), 1500)
+    return () => window.clearTimeout(timer)
+  }, [stage])
+
+  // Keep an opaque blank page beneath the entrance, so the previous screen
+  // never shows through the fade. Mount confetti only when the entrance starts.
+  return (
+    <div className="absolute inset-0 z-50 bg-baton-paper">
+      {readyStage === stage && <StageSplashAnimation key={stage} stage={stage} onDone={onDone} />}
+    </div>
+  )
+}
+
+function StageSplashAnimation({ stage, onDone }: { stage: Stage; onDone: () => void }) {
   const content = stageSplash[stage]
   const { confetti, confettiRun } = useStore()
   const photoRef = useRef<HTMLDivElement>(null)

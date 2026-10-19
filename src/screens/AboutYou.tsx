@@ -23,10 +23,10 @@ export function AboutYou() {
 }
 
 export function AboutYouTags() {
-  const { tags } = useStore()
+  const { tags, onboardingPhotoAccess } = useStore()
 
   return (
-    <OnboardingStep title={about.title} className="onboarding-tags-step" continueDisabled={tags.length === 0} onContinue={() => navigate('photos')}>
+    <OnboardingStep title={about.title} className="onboarding-tags-step" continueDisabled={tags.length === 0} onContinue={() => navigate(onboardingPhotoAccess ? 'photos' : 'welcome')}>
       <div className="onboarding-tag-groups">
         {about.tagGroups.map((group) => (
           <fieldset key={group.title} className="onboarding-tag-group">

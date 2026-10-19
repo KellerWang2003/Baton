@@ -6,6 +6,7 @@ import type { Stage } from '../flow'
 import { defaultGlassTuning } from '../ui/promptGlass'
 import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
 import type { ConfettiVariant } from '../ui/confettiVariants'
+import type { RelayEntrance } from '../ui/relayEntrance'
 import type { RelayLook } from '../ui/relayLooks'
 import type { CloudCategory, CloudView } from '../ui/PhotoCloud'
 
@@ -15,6 +16,9 @@ export type SetupItem = 'archive' | 'todos' | 'leave' | 'instagram'
 
 type State = {
   status: Stage | null
+  // Optional onboarding step, enabled from the debug panel for demos.
+  onboardingPhotoAccess: boolean
+  intentionsVideoRun: number
   tags: string[]
   keptPlaces: string[]
   // null until picked from the setup list on Today
@@ -47,6 +51,8 @@ type State = {
   relayMap: boolean
   relayFilter: string | null
   // Visual treatment for Relay, picked in the team-only Relay looks playground
+  relayEntrance: RelayEntrance
+  relayEntranceSpeed: number
   relayLook: RelayLook
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
@@ -76,6 +82,8 @@ type State = {
 
 let state: State = {
   status: null,
+  onboardingPhotoAccess: false,
+  intentionsVideoRun: 0,
   tags: [],
   keptPlaces: foundPlaces.map((place) => place.id),
   todos: null,
@@ -98,6 +106,9 @@ let state: State = {
   relayFilter: null,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
+  // Keller picked Side sweep (Oct 19).
+  relayEntrance: 'sweep',
+  relayEntranceSpeed: 1,
   // Keller, Oct 18: the whole circle is one big blob of blue-tinted liquid glass
   // Prompt and pill sit together under the glass, so moving it bends them (Keller, Oct 19)
   promptGlass: 'glass',

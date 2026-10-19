@@ -191,9 +191,10 @@ export function PromptWindow({
         onPointerLeave={release}
         // Takes up just the glass itself (it draws about its size), so the space
         // above and below matches Figma 236:1282; the -my-6 is room for its
-        // soft shadow without pushing things apart
+        // soft shadow without pushing things apart. Span the full page gutter
+        // so the lens clips at the screen edge, never at the content padding.
         style={{ height: tuning.size + 60 }}
-        className="relative -mx-4 -my-6 flex items-center justify-center self-stretch overflow-visible"
+        className="relative -mx-gutter -my-6 flex items-center justify-center self-stretch overflow-visible"
       >
         {inside}
       </div>

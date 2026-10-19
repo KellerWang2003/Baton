@@ -8,3 +8,5 @@ npm run dev    # http://localhost:5173, plus a Network URL for testing on a phon
 ```
 
 Everything else (story, key decisions, flows, design system rules, project layout) is in [CLAUDE.md](CLAUDE.md). Daily prompts are in [docs/daily-prompts.md](docs/daily-prompts.md).
+
+Compare Relay entrance animations at `?relay-motion#/community`, or open **Debug → Relay entrances**. The playground has four styles, replay controls, stage previews, and speed options. **Use in Relay** applies a style for the current session; **Try in app** opens the real feed. Device reduced-motion preferences are respected.

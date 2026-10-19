@@ -20,6 +20,8 @@ type DebugPanelProps = {
   toggleKit: () => void
   mapsOpen: boolean
   toggleMaps: () => void
+  motionOpen: boolean
+  toggleMotion: () => void
   looksOpen: boolean
   toggleLooks: () => void
   todayLooksOpen: boolean
@@ -32,9 +34,10 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
+  const { onboardingPhotoAccess } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -123,8 +126,10 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
       <div className="flex flex-col gap-1 border-t border-line pt-3">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
         <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
+        <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
+        <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
       </div>
@@ -158,13 +163,28 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
         <p className="text-xs text-ink-muted">Outside the phone frame. Close Debug with ` before recording.</p>
       </div>
 
+      <div className="border-t border-line pt-3">
+        <button
+          type="button"
+          onClick={() => {
+            setState((s) => ({ intentionsVideoRun: s.intentionsVideoRun + 1, goals: [], stageSplash: null, composing: false }))
+            goTo(flow.findIndex((screen) => screen.id === 'intentions-video'))
+            setOpen(false)
+          }}
+          className="w-full rounded-control bg-surface-muted px-2 py-2 text-left text-xs font-semibold hover:bg-line"
+        >
+          Video: open intentions from blank
+        </button>
+        <p className="px-2 pt-1 text-xs text-ink-muted">1.5 seconds blank, then the intentions entrance. Resets picks.</p>
+      </div>
+
       <PromptPicker />
       <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
       <GlassControls />
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
         {stages.map((stage) => {
-          const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage)
+          const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage && screen.id !== 'intentions-video' && (onboardingPhotoAccess || screen.id !== 'photos'))
           if (screens.length === 0) return null
           return (
             <div key={stage} data-stage={stage}>

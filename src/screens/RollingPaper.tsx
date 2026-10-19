@@ -105,7 +105,7 @@ export function RollingPaper() {
 
   return (
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
-      {/* The sheet comes out from just under the top of the island */}
+      {/* The sheet exits below the physical frame's camera cutout. */}
       <div
         className={cx(
           'absolute inset-x-0 bottom-0',
@@ -163,7 +163,8 @@ export function RollingPaper() {
         style={{
           top: 11 - TOP,
           width: islandOpen ? 342 : 127,
-          height: islandOpen ? 62.6 : 37,
+          // Keep the paper exit at the middle of the thicker expanded slot.
+          height: islandOpen ? (paperSlotY - 11) * 2 : 37,
           transition: 'width 500ms cubic-bezier(0.34, 1.3, 0.64, 1), height 500ms cubic-bezier(0.34, 1.3, 0.64, 1)',
         }}
       />

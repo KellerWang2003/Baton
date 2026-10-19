@@ -8,6 +8,7 @@ import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
 import { StageSplashOverlay } from './screens/StageSplash'
+import { RelayMotion } from './screens/RelayMotion'
 import { RelayLooks } from './screens/RelayLooks'
 import { TodayLooks } from './screens/TodayLooks'
 import { UiKit } from './screens/UiKit'
@@ -23,6 +24,8 @@ function App() {
   const [kitOpen, setKitOpen] = useState(false)
   // Map looks playground (team only): debug panel, or ?maps in the URL
   const [mapsOpen, setMapsOpen] = useState(() => new URLSearchParams(window.location.search).has('maps'))
+  // Relay motion playground (team only): debug panel, or ?relay-motion in the URL
+  const [motionOpen, setMotionOpen] = useState(() => new URLSearchParams(window.location.search).has('relay-motion'))
   // Relay looks playground (team only): debug panel, or ?relay-looks in the URL
   const [looksOpen, setLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('relay-looks'))
   // Today looks playground (team only): debug panel, or ?today-looks in the URL
@@ -69,6 +72,8 @@ function App() {
         toggleKit={() => setKitOpen((open) => !open)}
         mapsOpen={mapsOpen}
         toggleMaps={() => setMapsOpen((open) => !open)}
+        motionOpen={motionOpen}
+        toggleMotion={() => setMotionOpen((open) => !open)}
         looksOpen={looksOpen}
         toggleLooks={() => setLooksOpen((open) => !open)}
         todayLooksOpen={todayLooksOpen}
@@ -79,6 +84,7 @@ function App() {
           <MapPlayground onClose={() => setMapsOpen(false)} />
         </Suspense>
       )}
+      {motionOpen && <RelayMotion onClose={() => setMotionOpen(false)} />}
       {looksOpen && <RelayLooks onClose={() => setLooksOpen(false)} />}
       {todayLooksOpen && <TodayLooks onClose={() => setTodayLooksOpen(false)} />}
     </>
