@@ -17,7 +17,8 @@ type PromptWindowProps = {
   glass?: PromptGlass
   // Fluid Glass settings (debug panel > Today glass)
   tuning?: GlassTuning
-  onClick?: () => void
+  // Gets where the circle is, for opening the camera out of it
+  onClick?: (circle: { cx: number; cy: number; size: number }) => void
   className?: string
 }
 
@@ -52,6 +53,10 @@ export function PromptWindow({
   const down = useRef<{ x: number; y: number } | null>(null)
   const release = () => {
     down.current = null
+  }
+  const circle = () => {
+    const rect = frame.current?.getBoundingClientRect()
+    return { cx: rect ? rect.left + rect.width / 2 : 0, cy: rect ? rect.top + rect.height / 2 : 0, size: tuning.size }
   }
   // Scrolling the page nudges the glass a little with the scroll's speed, as if
   // it had weight, then it springs back (Keller, Oct 19)
@@ -179,9 +184,9 @@ export function PromptWindow({
           const start = down.current
           release()
           // Nudging the glass shouldn't count as a tap that opens the + field
-          if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) <= 6) onClick?.()
+          if (start && Math.hypot(event.clientX - start.x, event.clientY - start.y) <= 6) onClick?.(circle())
         }}
-        onKeyDown={(event) => event.key === 'Enter' && onClick?.()}
+        onKeyDown={(event) => event.key === 'Enter' && onClick?.(circle())}
         onPointerCancel={release}
         onPointerLeave={release}
         // Takes up just the glass itself (it draws about its size), so the space

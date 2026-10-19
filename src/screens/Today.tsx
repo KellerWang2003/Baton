@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
@@ -52,7 +52,6 @@ export function Today({ lastWeek = false }: TodayProps) {
   const status = useStatus()
   const prompt = useDailyPrompt()
   const medium = promptMedium(prompt.question)
-  const camera = useRef<HTMLInputElement>(null)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
 
   const daysLeft = !lastWeek && !store.leaveDate && store.expectedLeaveMonth ? Infinity : daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
@@ -90,22 +89,7 @@ export function Today({ lastWeek = false }: TodayProps) {
 
   return (
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
-      {/* Photo prompts launch the camera; writing prompts open the + field. */}
-      <input
-        ref={camera}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        aria-label="Take a photo for today's prompt"
-        className="hidden"
-        onChange={(event) => {
-          const photo = event.target.files?.[0]
-          event.target.value = ''
-          if (!photo || !photo.type.startsWith('image/')) return
-          setState({ capturePhoto: photo, composing: false })
-          navigate('capture')
-        }}
-      />
+      {/* Photo prompts open the camera inside the bubble; writing prompts open the + field. */}
       <PromptWindow
         className="pb-8 pt-6"
         question={prompt.question}
@@ -113,7 +97,7 @@ export function Today({ lastWeek = false }: TodayProps) {
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
         tuning={glassTuning}
-        onClick={medium === 'photo' ? () => camera.current?.click() : openComposer}
+        onClick={medium === 'photo' ? (circle) => setState({ camera: circle, composing: false }) : openComposer}
       />
 
       {/* Below the prompt, straight on the paper (Figma TODAY 334:10047): the

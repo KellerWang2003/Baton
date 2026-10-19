@@ -59,6 +59,9 @@ type State = {
   composing: boolean
   // Photo taken directly from Today's photo prompt, ready for review in Capture.
   capturePhoto: File | null
+  // The camera open inside Today's bubble: where the circle sits (screen
+  // pixels, center) and how big it is (points); null while it's closed
+  camera: { cx: number; cy: number; size: number } | null
   // photos are ids of the photos she picked
   reflections: { text: string; photos: string[] }[]
   // Stage whose congrats splash is showing over the app (after her stage moves forward)
@@ -103,6 +106,7 @@ let state: State = {
   setupDone: [],
   composing: false,
   capturePhoto: null,
+  camera: null,
   reflections: [],
   stageSplash: null,
   // Picked Oct 19 (the other styles stay in the debug panel)

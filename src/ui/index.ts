@@ -1,4 +1,5 @@
 export { Avatar } from './Avatar'
+export { CameraBubble } from './CameraBubble'
 export { StageTag } from './StageTag'
 export { BottomSheet } from './BottomSheet'
 export { Button } from './Button'

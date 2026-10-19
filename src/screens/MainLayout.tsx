@@ -8,7 +8,7 @@ import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
 import { stageTags } from '../data/stages'
-import { ArchiveIcon, Avatar, MapPinIcon, RelayIcon, Screen, StageTag, TabBar, TodayIcon } from '../ui'
+import { ArchiveIcon, Avatar, CameraBubble, MapPinIcon, RelayIcon, Screen, StageTag, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
   // Tabs have no page title; Today shows its greeting here
@@ -108,6 +108,9 @@ export function TabShell({ activeTab, children }: TabShellProps) {
       <div style={keyboard?.top ? { transform: `translateY(${keyboard.top}px)` } : undefined} className="h-full">
         {children}
       </div>
+
+      {/* Today's camera, opened out of the prompt bubble; covers the tab bar */}
+      <CameraBubble />
 
       {/* While the keyboard is up this layer fills just the part of the screen
           above it, so the dim covers what's visible and the bar sits right on
