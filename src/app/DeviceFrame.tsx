@@ -89,7 +89,7 @@ export function DeviceFrame({ framed, frame, lockRatio, backgroundColor, onboard
         )}
       >
         <div
-          className="absolute flex flex-col overflow-hidden rounded-[64px] bg-canvas"
+          className="absolute flex flex-col overflow-hidden rounded-[56px] bg-canvas"
           style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%` }}
         >
           <StatusBar onboarding={onboardingStatus} showIsland={false} />
