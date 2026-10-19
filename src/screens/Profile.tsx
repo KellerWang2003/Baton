@@ -1,4 +1,4 @@
-import { goBack } from '../app/navigate'
+import { goBack, navigate } from '../app/navigate'
 import { useStatus } from '../app/store'
 import { pages } from '../data/pages'
 import { chloe } from '../data/people'
@@ -22,6 +22,10 @@ export function Profile() {
           <ListRow title="City" value={stageCity[status]} chevron />
           <ListRow title="Lifestyle" value={rows.lifestyle} chevron />
           {rows.intention && <ListRow title="Intention" subtitle={rows.intention} chevron />}
+        </ListSection>
+        <ListSection>
+          <ListRow title={pages.profile.wrappedRow} subtitle={pages.profile.wrappedDetail} chevron onClick={() => navigate('la-wrapped')} />
+          <ListRow title={pages.profile.paperRow} subtitle={pages.profile.paperDetail} chevron onClick={() => navigate('rolling-paper')} />
         </ListSection>
       </div>
     </Screen>

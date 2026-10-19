@@ -82,15 +82,11 @@ export const todayCards: Record<Stage, StageCard[]> = {
   ],
 }
 
-// Archive folders, top to bottom NYC, LA, Seoul (Figma ARCHIVE_default,
-// 236:1107) in every stage. While Moving, New York is already there as the
-// city she's headed to (open-ended dates, nothing in it yet) and LA is still
-// present. After the move LA becomes her legacy. Each city keeps its color in
-// every stage (NYC olive, LA blue, Seoul cream).
-export function archiveFolders(stage: Stage): ArchiveFolder[] {
-  const [ny, la, ...older] = pages.archive.folders
-  if (stage !== 'moving') return [ny, la, ...older]
-  return [{ ...ny, dates: '02.2027-' }, { ...la, dates: '09.2023-present' }, ...older]
+// Archive folders, top to bottom LA, Seoul, Chicago (Figma ARCHIVE_default,
+// 256:196), the same in every stage; there is no New York folder. Each city
+// keeps its color (LA blue, Seoul cream, Chicago olive).
+export function archiveFolders(): ArchiveFolder[] {
+  return pages.archive.folders
 }
 
 // Lifestyle summary on each city folder: one short sentence about how she
@@ -139,12 +135,35 @@ export const archiveSummaries: Record<string, Partial<Record<Stage, ArchiveSumma
       ],
     },
   },
+  // Figma ARCHIVE_SEOUL (302:7451)
   seoul: {
-    newcomer: { parts: ['Convenience-store dinners', [photo('Dinner from the GS25 downstairs')], 'and the last train home.'] },
+    newcomer: {
+      parts: [
+        'Your last months at home, well spent: Han River picnics,',
+        [photo('Picnic by the Han River', 'seoul-han-1'), photo('Han River at sunset', 'seoul-han-2')],
+        'karaoke until 2am,',
+        [photo('Karaoke room in Hongdae', 'seoul-karaoke-1'), photo('Singing at the noraebang', 'seoul-karaoke-2')],
+        'and every café in Seongsu.',
+        [photo('Café in Seongsu', 'seoul-cafe')],
+      ],
+    },
+  },
+  // Figma ARCHIVE_default (256:196)
+  chicago: {
+    newcomer: {
+      parts: [
+        'You know the L by heart',
+        [photo('Brown Line over the Loop', 'chicago-l-train')],
+        'and every skyline rooftop.',
+        [photo('Rooftop at sunset', 'chicago-rooftop-1'), photo('Skyline from a rooftop', 'chicago-rooftop-2')],
+        'Brutal winters, but 10/10 perfect lake summers.',
+        [photo('North Avenue Beach', 'chicago-lake-1'), photo('Lake Michigan in July', 'chicago-lake-2')],
+      ],
+    },
   },
 }
 
-// Seoul doesn't change with her stage, so it falls back to one summary.
+// Older cities don't change with her stage, so they fall back to one summary.
 export function archiveSummary(folderId: string, stage: Stage): ArchiveSummary | undefined {
   const byStage = archiveSummaries[folderId]
   return byStage?.[stage] ?? byStage?.newcomer

@@ -15,11 +15,19 @@
      to the system UI font until the kit is loaded */
   --font-display: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
   --font-body: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; /* phone status bar */
 
   /* iOS text styles (size / line height), e.g. text-large-title, text-body */
   --text-large-title: 34px;
   --text-large-title--line-height: 41px;
   --text-large-title--letter-spacing: 0.01em;
+  /* Clock in the phone status bar (Figma status bar, SF Pro Text Semibold) */
+  --text-status: 17px;
+  --text-status--line-height: 22px;
+  --text-status--letter-spacing: -0.8px;
+  /* City name on the sideways folder tab (Archive detail) */
+  --text-side-tab: 24px;
+  --text-side-tab--line-height: 1;
   /* Big sentence with inline photos (Archive lifestyle summary) */
   --text-summary: 38px; /* 40px in Figma at 402pt wide; 38 keeps the same line breaks at 390 */
   --text-summary--line-height: 1.06;
@@ -34,6 +42,21 @@
   --text-card-body: 14px;
   --text-card-body--line-height: 1.2;
   --text-card-body--letter-spacing: -0.011em;
+  /* LA Wrapped (Figma 236:1250): the dates she lived there */
+  --text-wrap-date: 30px;
+  --text-wrap-date--line-height: 1.2;
+  --text-wrap-date--letter-spacing: -0.011em;
+  /* Friends' notes on the Rolling Paper, small on the sheet and opened big */
+  --text-note: 8px;
+  --text-note--line-height: 10px;
+  --text-note--letter-spacing: -0.011em;
+  --text-note-lg: 24px;
+  --text-note-lg--line-height: 30px;
+  --text-note-lg--letter-spacing: -0.011em;
+  /* Big call-to-action label (Button size cta) */
+  --text-cta: 18px;
+  --text-cta--line-height: 1.5;
+  --text-cta--letter-spacing: -0.011em;
   --text-title-1: 28px;
   --text-title-1--line-height: 34px;
   --text-title-2: 22px;
@@ -68,6 +91,7 @@
   --color-baton-yellow: #ede783;
   --color-baton-olive: #3f4017;
   --color-baton-navy: #222430;
+  --color-device: #000000; /* status bar clock and Dynamic Island */
   --color-baton-paper: #faf9f6; /* page behind the Archive folders and Relay */
   --color-baton-chip: #f0efec; /* Relay filter chips and search on paper */
   /* Relay map (Figma 268:3798): a light street map */
@@ -81,6 +105,18 @@
   --color-on-baton-blue-muted: #233e64;
   --color-on-baton-olive-muted: #b2b2b2;
   --color-on-baton-cream-muted: #7e7e7e;
+  /* Filter names on the Archive photo orb (Figma ARCHIVE_detail feeling / people) */
+  --color-on-baton-pink-muted: #8f7a8b;
+  --color-on-baton-yellow-muted: #85825a;
+  /* LA Wrapped (Figma 236:1250): timeline line, quiet dates and stats */
+  --color-wrap-line: #d9d9d9;
+  --color-wrap-faint: #b2b2b2;
+  /* Notes on paper (LA Wrapped, Rolling Paper): a softer yellow than the brand's */
+  --color-note-yellow: #f4ef9e;
+  /* Glow button (Button variant glow, Figma 278:7144): blue core fading to
+     a pale edge */
+  --color-cta-glow-core: #3396ff;
+  --color-cta-glow-edge: #c0dbff;
 
   /* Neutrals */
   --color-canvas: #f2f2f2; /* systemGroupedBackground: app background */
@@ -125,14 +161,24 @@
 
   /* Motion: Archive summary appearing word by word (TypedSummary) */
   --animate-photo-pop: photo-pop 520ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-photo-float: photo-float 12s ease-in-out infinite;
   --animate-photo-drop: photo-drop 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms both;
   --animate-word-in: word-in 320ms ease-out both;
   --animate-fade-in: fade-in 400ms ease-out both;
+  /* LA Wrapped header spelling itself out (SpellOut) */
+  --animate-letter-in: letter-in 280ms ease-out both;
 
   @keyframes photo-pop {
     0% { opacity: 0; scale: 0.3; rotate: -14deg; }
     55% { opacity: 1; scale: 1.18; rotate: 5deg; }
     100% { opacity: 1; scale: 1; rotate: 0deg; }
+  }
+  /* Archive detail photo cloud: each photo drifts in a small loop */
+  @keyframes photo-float {
+    0%, 100% { translate: 0 0; }
+    25% { translate: 1px -1.5px; }
+    50% { translate: -0.5px -2.5px; }
+    75% { translate: -1.5px -1px; }
   }
   /* The second photo of a pair lands on the first, like a dropped print */
   @keyframes photo-drop {
@@ -143,6 +189,10 @@
   @keyframes word-in {
     from { opacity: 0; translate: 0 0.15em; }
     to { opacity: 1; translate: 0 0; }
+  }
+  @keyframes letter-in {
+    from { opacity: 0; translate: 0 0.3em; filter: blur(3px); }
+    to { opacity: 1; translate: 0 0; filter: blur(0); }
   }
   @keyframes fade-in {
     from { opacity: 0; }
@@ -157,6 +207,9 @@
   /* Today's prompt circle (Figma 236:1282): white glass with a blue glow pooled at its edge */
   --shadow-prompt-glass: inset 0 0 42px 10px rgb(89 161 255 / 0.75), inset 0 2px 2px #ffffff, 0 18px 40px rgb(0 0 0 / 0.06);
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
+  --shadow-paper-sheet: 4px 4px 20px rgb(0 0 0 / 0.05); /* the Rolling Paper sheet */
+  --shadow-note: 4px 4px 10px rgb(0 0 0 / 0.05); /* a Rolling Paper note opened big */
+  --shadow-pill: 2px 2px 4px rgb(0 0 0 / 0.08); /* date pills on the LA Wrapped timeline */
   --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */
 
   /* Relay looks (team playground): warm paper surfaces */

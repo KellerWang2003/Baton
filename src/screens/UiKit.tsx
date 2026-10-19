@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { chloe } from '../data/people'
 import {
   ArrivalGraphic,
+  ArrowRightIcon,
   Avatar,
   BoxesGraphic,
   BottomSheet,
@@ -88,6 +89,10 @@ export function UiKit() {
                 Delete
               </Button>
             </div>
+            <Button variant="glow" size="cta" block>
+              Continue
+              <ArrowRightIcon />
+            </Button>
           </Section>
 
           <Section title="Segmented control (sub nav)">

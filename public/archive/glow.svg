@@ -1,0 +1,41 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="250" height="250" viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Group 2147259914">
+<g id="Mask group">
+<mask id="mask0_0_5" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="250" height="250">
+<circle id="Ellipse 37" cx="125" cy="125" r="125" fill="#D9D9D9"/>
+</mask>
+<g mask="url(#mask0_0_5)">
+<g id="Group 2147259910">
+<g id="Vector" filter="url(#filter0_f_0_5)">
+<path d="M183.863 22.3611C193.173 39.5803 208.618 58.2698 198.818 76.6934C188.968 95.2104 161.11 95.5685 140.406 104.059C117.177 113.584 95.9504 133.291 72.2102 128.611C45.9078 123.426 21.4653 104.408 18.6276 80.0539C15.9418 57.0039 42.0402 39.0427 59.6146 20.5121C71.3551 8.13281 84.8766 -1.60528 101.511 -7.33878C118.048 -13.0387 135.801 -16.7131 151.347 -11.1064C167.407 -5.3146 176.311 8.39293 183.863 22.3611Z" fill-rule="evenodd" clip-rule="evenodd" fill="#60A5FF"/>
+</g>
+<g id="Vector_2" filter="url(#filter1_f_0_5)">
+<path d="M152.153 117.693C168.218 95.6569 176.836 63.9483 199.806 54.9445C223.207 45.7719 240.269 62.8864 252.792 78.2442C263.643 91.5504 266.677 111.049 262.861 132.27C259.417 151.421 245.73 168.548 233.351 186.349C217.783 208.736 205.958 239.436 182.929 247.214C159.639 255.079 145.602 235.113 132.619 220.368C121.328 207.546 111.447 191.833 115.483 170.615C119.239 150.873 138.984 135.758 152.153 117.693Z" fill-rule="evenodd" clip-rule="evenodd" fill="#F3BEEB"/>
+</g>
+<g id="Vector_3" filter="url(#filter2_f_0_5)">
+<path d="M33.4084 85.215C47.1518 73.2213 62.2559 53.2713 81.9769 66.0692C101.827 78.951 98.699 113.065 111.831 136.108C125.733 160.499 156.511 175.382 158.956 201.138C161.461 227.533 141.413 241.925 122.437 247.846C105.533 253.121 85.3127 239.876 65.7108 230.236C45.6459 220.369 21.3139 215.552 9.32669 192.221C-2.56388 169.079 7.84156 147.439 12.5106 126.692C16.3547 109.611 22.2324 94.9683 33.4084 85.215Z" fill-rule="evenodd" clip-rule="evenodd" fill="#EDE783"/>
+</g>
+</g>
+</g>
+</g>
+<g id="Ellipse 36">
+</g>
+</g>
+<defs>
+<filter id="filter0_f_0_5" x="-1.56436" y="-33.8937" width="223.521" height="183.212" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_0_5"/>
+</filter>
+<filter id="filter1_f_0_5" x="94.5628" y="32.3693" width="189.872" height="236.619" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_0_5"/>
+</filter>
+<filter id="filter2_f_0_5" x="-16.1713" y="41.9401" width="195.34" height="227.107" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_0_5"/>
+</filter>
+</defs>
+</svg>

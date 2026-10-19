@@ -18,14 +18,6 @@ export const pages = {
     ],
     folders: [
       {
-        id: 'ny',
-        city: 'NYC',
-        dates: '02.2027-present',
-        tabAlign: 'left' as const,
-        dateAlign: 'right' as const,
-        tone: 'olive' as const,
-      },
-      {
         id: 'la',
         city: 'LA',
         dates: '09.2023-01.2027',
@@ -38,8 +30,16 @@ export const pages = {
         city: 'Seoul',
         dates: '07.2022-08.2023',
         tabAlign: 'left' as const,
-        dateAlign: 'left' as const,
+        dateAlign: 'right' as const,
         tone: 'cream' as const,
+      },
+      {
+        id: 'chicago',
+        city: 'Chicago',
+        dates: '11.2020-06.2022',
+        tabAlign: 'right' as const,
+        dateAlign: 'left' as const,
+        tone: 'olive' as const,
       },
     ],
   },
@@ -50,6 +50,10 @@ export const pages = {
   profile: {
     title: 'Profile',
     purpose: 'Your status decides which features you see. Change it when you move.',
+    wrappedRow: 'LA Wrapped',
+    wrappedDetail: '24 moments, Aug 2023 to Dec 2026',
+    paperRow: 'Rolling Paper',
+    paperDetail: 'Notes from 18 friends',
   },
   capture: {
     title: 'New reflection',

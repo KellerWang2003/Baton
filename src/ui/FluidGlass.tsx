@@ -19,6 +19,10 @@ export interface FluidGlassProps {
   fontWeight?: number | string;
   fontSize?: number;
   src?: string;
+  // Baton: refract a canvas you draw yourself instead of src; bump canvasFrame
+  // after each redraw so the new picture is uploaded (no reload, no flash)
+  canvas?: HTMLCanvasElement | null;
+  canvasFrame?: number;
   fit?: 'cover' | 'contain';
   background?: string;
   shape?: Shape;
@@ -54,6 +58,8 @@ interface Settings {
   fontWeight: number | string;
   fontSize?: number;
   src?: string;
+  canvas?: HTMLCanvasElement | null;
+  canvasFrame: number;
   fit: 'cover' | 'contain';
   background: number[];
   shape: Shape;
@@ -652,6 +658,8 @@ const FluidGlass = ({
   fontWeight = 600,
   fontSize,
   src,
+  canvas: sourceCanvas,
+  canvasFrame = 0,
   fit = 'cover',
   background = 'transparent',
   shape = 'torus',
@@ -693,6 +701,8 @@ const FluidGlass = ({
     fontWeight,
     fontSize,
     src,
+    canvas: sourceCanvas,
+    canvasFrame,
     fit,
     background: parseColor(background) || [0, 0, 0, 0],
     shape: SHAPES.includes(shape) ? shape : 'torus',
@@ -812,10 +822,13 @@ const FluidGlass = ({
       src: string | null | undefined;
       clip: HTMLVideoElement | null;
       image: HTMLImageElement | null;
+      canvas: HTMLCanvasElement | null;
+      canvasFrame: number;
+      dirty: boolean;
       ready: boolean;
       width: number;
       height: number;
-    } = { src: null, clip: null, image: null, ready: false, width: 1, height: 1 };
+    } = { src: null, clip: null, image: null, canvas: null, canvasFrame: -1, dirty: false, ready: false, width: 1, height: 1 };
     const textState = { key: '', ready: false };
 
     const pointer = {
@@ -933,6 +946,22 @@ const FluidGlass = ({
 
     const loadMedia = () => {
       const s = settingsRef.current;
+      // Baton: a live canvas is uploaded whenever its frame number changes
+      if (s.canvas) {
+        if (media.canvas === s.canvas && media.canvasFrame === s.canvasFrame) return;
+        releaseClip();
+        media.src = null;
+        media.image = null;
+        media.canvas = s.canvas;
+        media.canvasFrame = s.canvasFrame;
+        media.width = s.canvas.width || 1;
+        media.height = s.canvas.height || 1;
+        // Uploaded at the start of the next frame, like a video frame
+        media.dirty = true;
+        calm = false;
+        return;
+      }
+      media.canvas = null;
       if (s.src === media.src) return;
       releaseClip();
       media.src = s.src;
@@ -1203,6 +1232,15 @@ const FluidGlass = ({
       body.ripple +=
         ((morph.t < 1 ? 0.05 * s.wobble * Math.sin(Math.PI * morph.t) : 0) - body.ripple) * (1 - Math.exp(-dt / 0.08));
 
+      if (media.canvas && media.dirty) {
+        gl.bindTexture(gl.TEXTURE_2D, mediaTexture);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, media.canvas);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        media.dirty = false;
+        media.ready = true;
+      }
       if (media.clip && media.ready && !media.clip.paused) {
         gl.bindTexture(gl.TEXTURE_2D, mediaTexture);
         gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
