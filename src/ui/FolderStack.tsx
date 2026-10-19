@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
+import { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
 
 export type ArchiveFolder = {
   id: string
@@ -24,72 +25,10 @@ type FolderStackProps = {
   className?: string
 }
 
-// Brand colors from the Figma Archive frame (LA28 Palms, 256:196).
-// body is the text color for content inside the folder, fade the gradient
-// over the bottom of the stack when the folder reaches the bottom edge.
-const toneStyles: Record<
-  ArchiveFolder['tone'],
-  { fill: string; fillText: string; title: string; dates: string; body: string; fade: string }
-> = {
-  olive: {
-    // --folder-fill lets content inside (inline photo outlines) match the folder
-    fill: 'bg-baton-olive [--folder-fill:var(--color-baton-olive)]',
-    fillText: 'text-baton-olive',
-    title: 'text-baton-yellow',
-    dates: 'text-on-baton-olive-muted',
-    body: 'text-baton-cream',
-    fade: 'from-baton-olive/0 to-baton-olive',
-  },
-  blue: {
-    fill: 'bg-baton-blue [--folder-fill:var(--color-baton-blue)]',
-    fillText: 'text-baton-blue',
-    title: 'text-baton-cream',
-    dates: 'text-on-baton-blue-muted',
-    body: 'text-baton-cream',
-    fade: 'from-baton-blue/0 to-baton-blue',
-  },
-  cream: {
-    fill: 'bg-baton-cream [--folder-fill:var(--color-baton-cream)]',
-    fillText: 'text-baton-cream',
-    title: 'text-baton-navy',
-    dates: 'text-on-baton-cream-muted',
-    body: 'text-baton-navy',
-    fade: 'from-baton-cream/0 to-baton-cream',
-  },
-  // The rest of the brand palette (Figma brand frame, 223:175), so folders vary
-  pink: {
-    fill: 'bg-baton-pink [--folder-fill:var(--color-baton-pink)]',
-    fillText: 'text-baton-pink',
-    title: 'text-baton-navy',
-    dates: 'text-baton-navy/60',
-    body: 'text-baton-navy',
-    fade: 'from-baton-pink/0 to-baton-pink',
-  },
-  yellow: {
-    fill: 'bg-baton-yellow [--folder-fill:var(--color-baton-yellow)]',
-    fillText: 'text-baton-yellow',
-    title: 'text-baton-navy',
-    dates: 'text-baton-navy/60',
-    body: 'text-baton-navy',
-    fade: 'from-baton-yellow/0 to-baton-yellow',
-  },
-  navy: {
-    fill: 'bg-baton-navy [--folder-fill:var(--color-baton-navy)]',
-    fillText: 'text-baton-navy',
-    title: 'text-baton-pink',
-    dates: 'text-baton-cream/60',
-    body: 'text-baton-cream',
-    fade: 'from-baton-navy/0 to-baton-navy',
-  },
-}
-
 // Folder tab outline, traced from the Union shapes in the Figma Archive frame
 // (LA28 Palms, 256:196): a long sloped left side, a nearly vertical right side,
 // both with soft rounded turns. The right-aligned tab runs straight into the
 // folder's right edge, so its outline also draws that corner.
-export const TAB_PATH =
-  'M0 52C6.2252 52 11.8852 48.3893 14.5092 42.7441L30.0751 9.2559C32.6991 3.6108 38.3587 0 44.5839 0H180.786C189.336 0 196.376 6.7238 196.769 15.2656L197.756 36.7347C198.148 45.2765 205.188 52 213.739 52V53H0Z'
-export const TAB_WIDTH = 214
 const EDGE_TAB_PATH =
   'M0 52C6.2256 52 11.886 48.3893 14.51 42.7441L30.0756 9.2559C32.6996 3.6108 38.3586 0 44.584 0H180.787C189.337 0 196.377 6.7238 196.77 15.2656L197.807 37.8199C198.171 45.7545 204.71 52 212.653 52C220.862 52 227.516 58.6542 227.516 66.8625V68H0Z'
 const EDGE_TAB_WIDTH = 227.516
@@ -284,7 +223,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
         {folders.map((folder, index) => {
           const isLast = index === folders.length - 1
           const isActive = index === activeIndex
-          const styles = toneStyles[folder.tone]
+          const styles = folderTones[folder.tone]
           const isEdgeTab = folder.tabAlign === 'right'
 
           const stepHeight = isActive ? ACTIVE_STEP_HEIGHT : COMPACT_STEP_HEIGHT
@@ -386,7 +325,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
           style={{ height: `${FADE_HEIGHT}px` }}
           className={cx(
             'pointer-events-none absolute inset-x-0 bottom-0 z-[99] bg-linear-to-b to-70%',
-            toneStyles[folders[bottomIndex].tone].fade,
+            folderTones[folders[bottomIndex].tone].fade,
           )}
         />
       )}
@@ -394,7 +333,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
         <div
           className={cx(
             'pointer-events-none absolute inset-x-0 bottom-[100px] z-[100] flex justify-center transition-opacity duration-300',
-            toneStyles[folders[folders.length - 1].tone].dates,
+            folderTones[folders[folders.length - 1].tone].dates,
             activeIndex === folders.length - 1 ? 'opacity-100' : 'opacity-0',
           )}
         >
@@ -420,7 +359,7 @@ type FolderSideTabProps = {
 }
 
 export function FolderSideTab({ folder, onClick, className }: FolderSideTabProps) {
-  const styles = toneStyles[folder.tone]
+  const styles = folderTones[folder.tone]
   return (
     <button
       type="button"
