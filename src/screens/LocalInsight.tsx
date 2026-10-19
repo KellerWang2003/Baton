@@ -161,9 +161,9 @@ function Bookend() {
     <section ref={ref}>
       <p className="text-card-body text-wrap-faint">{bookend.label}</p>
       <p className="mt-1 text-card-title font-medium">“{bookend.prompt}”</p>
-      <div className="mt-6 flex justify-center gap-3">
-        <Print shot={bookend.then} tilt={-4} shown={inView} delay={150} />
-        <Print shot={bookend.now} tilt={3} shown={inView} delay={450} />
+      <div className="mt-8 flex justify-center gap-4">
+        <Print shot={bookend.then} tone="bg-baton-blue text-baton-navy" tilt={-1.6} shown={inView} delay={150} />
+        <Print shot={bookend.now} tone="bg-baton-yellow text-baton-navy" tilt={1.2} shown={inView} delay={450} />
       </div>
       <p className="mt-5 text-center text-callout text-wrap-faint">{bookend.note}</p>
     </section>
@@ -172,10 +172,12 @@ function Bookend() {
 
 type Shot = { src: string; alt: string; place: string; when: string }
 
-function Print({ shot, tilt, shown, delay }: { shot: Shot; tilt: number; shown: boolean; delay: number }) {
+// In Relay's scrapbook look (Keller, Oct 19): a tilted paper scrap in its
+// city's color, held on with cream tape
+function Print({ shot, tone, tilt, shown, delay }: { shot: Shot; tone: string; tilt: number; shown: boolean; delay: number }) {
   return (
     <figure
-      className="w-[160px] rounded-[18px] bg-white p-2 pb-3 shadow-card transition-[opacity,transform] duration-500"
+      className={cx('grain relative w-[156px] rounded-[6px] p-2.5 pb-4 shadow-rec transition-[opacity,transform] duration-500', tone)}
       style={{
         opacity: shown ? 1 : 0,
         transform: shown ? `rotate(${tilt}deg)` : `translateY(24px) rotate(${tilt * 2}deg)`,
@@ -183,10 +185,11 @@ function Print({ shot, tilt, shown, delay }: { shot: Shot; tilt: number; shown: 
         transitionTimingFunction: 'cubic-bezier(0.34, 1.3, 0.64, 1)',
       }}
     >
-      <img src={shot.src} alt={shot.alt} className="aspect-[3/4] w-full rounded-[12px] object-cover" />
-      <figcaption className="mt-2 px-1">
-        <span className="block text-card-body font-medium">{shot.place}</span>
-        <span className="block text-caption text-wrap-faint">{shot.when}</span>
+      <span aria-hidden className="absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper" />
+      <img src={shot.src} alt={shot.alt} className="aspect-[4/5] w-full rounded-[3px] object-cover" />
+      <figcaption className="mt-2.5 px-1">
+        <span className="block font-display text-card-title font-medium">{shot.place}</span>
+        <span className="block text-card-body opacity-70">{shot.when}</span>
       </figcaption>
     </figure>
   )
