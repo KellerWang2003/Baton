@@ -4,6 +4,7 @@ import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
 import { cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
 import type { GlassTuning } from '../ui'
+import { dailyPrompts } from '../data/pages'
 import { setState, useStatus, useStore } from './store'
 
 type DebugPanelProps = {
@@ -126,6 +127,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
       </div>
 
+      <PromptPicker />
       <GlassControls />
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
@@ -259,5 +261,28 @@ function GlassControls() {
         </div>
       )}
     </div>
+  )
+}
+
+// Which of her stage's daily prompts Today shows, to try different lengths
+function PromptPicker() {
+  const status = useStatus()
+  const { promptIndex } = useStore()
+  const prompts = dailyPrompts[status]
+  return (
+    <label className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Today's prompt</span>
+      <select
+        value={promptIndex % prompts.length}
+        onChange={(event) => setState({ promptIndex: Number(event.target.value) })}
+        className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
+      >
+        {prompts.map((prompt, i) => (
+          <option key={prompt.question} value={i}>
+            {prompt.question}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }

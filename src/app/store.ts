@@ -40,6 +40,8 @@ type State = {
   promptGlass: PromptGlass
   // Fluid Glass settings for that circle, tuned live in the debug panel
   glassTuning: GlassTuning
+  // Which of her stage's daily prompts Today shows (switched in the debug panel)
+  promptIndex: number
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -69,6 +71,7 @@ let state: State = {
   // Prompt and pill sit together under the glass, so moving it bends them (Keller, Oct 19)
   promptGlass: 'glass',
   glassTuning: defaultGlassTuning,
+  promptIndex: 0,
   setupDone: [],
   composing: false,
   reflections: [],
@@ -108,6 +111,8 @@ export function useStatus(): Stage {
 }
 
 // Today's prompt for her stage (also shown above the + field while typing).
+// The debug panel can pick another of the stage's prompts.
 export function useDailyPrompt() {
-  return dailyPrompts[useStatus()][0]
+  const prompts = dailyPrompts[useStatus()]
+  return prompts[useStore().promptIndex % prompts.length]
 }

@@ -1,7 +1,7 @@
-import { setState, useStatus, useStore } from '../app/store'
+import { setState, useDailyPrompt, useStatus, useStore } from '../app/store'
 import { greeting, timeOfDay } from '../data/greetings'
 import { setup } from '../data/onboarding'
-import { dailyPrompts, promptMedium, promptMediumLabel } from '../data/pages'
+import { promptMedium, promptMediumLabel } from '../data/pages'
 import { chloe } from '../data/people'
 import { daysUntil, leave, mockToday } from '../data/today'
 import { Avatar, PromptWindow, cx, promptGlasses } from '../ui'
@@ -13,7 +13,7 @@ import { Avatar, PromptWindow, cx, promptGlasses } from '../ui'
 export function TodayLooks({ onClose }: { onClose: () => void }) {
   const status = useStatus()
   const { promptGlass, glassTuning } = useStore()
-  const prompt = dailyPrompts[status][0]
+  const prompt = useDailyPrompt()
   const medium = promptMedium(prompt.question)
   const hello = greeting(status, timeOfDay(), daysUntil(mockToday.normal, leave.defaultDate))
 
