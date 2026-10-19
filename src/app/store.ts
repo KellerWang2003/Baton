@@ -72,6 +72,8 @@ type State = {
   reflections: { text: string; photos: string[] }[]
   // Stage whose congrats splash is showing over the app (after her stage moves forward)
   stageSplash: Stage | null
+  // Status bar drawn light, over a dark full-bleed page (the Local splash)
+  lightStatusBar: boolean
   // Confetti on the Welcome to New York splash, picked in the debug panel; bump
   // confettiRun to play it again
   confetti: ConfettiVariant
@@ -120,6 +122,7 @@ let state: State = {
   camera: null,
   reflections: [],
   stageSplash: null,
+  lightStatusBar: false,
   // Picked Oct 19 (the other styles stay in the debug panel)
   confetti: 'pop',
   confettiRun: 0,

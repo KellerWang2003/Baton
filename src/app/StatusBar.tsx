@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useStore } from './store'
 
 // "9:41" style: 12-hour, no AM/PM, like the iPhone status bar
 function clock(date: Date) {
@@ -30,6 +31,7 @@ function useClock() {
 // it), so screens that run up under it (--status-bar) show through.
 export function StatusBar({ onboarding = false, showIsland = true }: { onboarding?: boolean; showIsland?: boolean }) {
   const time = useClock()
+  const { lightStatusBar } = useStore()
   if (onboarding) {
     return (
       <div className="onboarding-status flex h-[54px] shrink-0 items-center justify-between px-9 text-sm font-semibold text-ink">
@@ -40,7 +42,8 @@ export function StatusBar({ onboarding = false, showIsland = true }: { onboardin
     )
   }
   return (
-    <div className="pointer-events-none relative z-20 h-[54px] shrink-0 text-device">
+    // Above everything in the app, so full-bleed pages (the stage splashes) run under it
+    <div className={`pointer-events-none relative z-[60] h-[54px] shrink-0 text-device ${lightStatusBar ? 'invert' : ''}`}>
       <span className="absolute top-[18px] left-[57.5px] -translate-x-1/2 font-system text-status font-semibold whitespace-nowrap tabular-nums">
         {time}
       </span>
