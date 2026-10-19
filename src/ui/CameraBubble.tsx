@@ -282,19 +282,6 @@ export function CameraBubble() {
             <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
           </div>
 
-          {/* Close, top left */}
-          <button
-            type="button"
-            aria-label="Close camera"
-            onClick={() => setState({ camera: null })}
-            className="absolute right-[30px] top-[54px] flex size-10 items-center justify-center rounded-full bg-white text-baton-navy shadow-md transition-opacity duration-300 active:scale-95 motion-reduce:transition-none"
-            style={{ opacity: expanded ? 1 : 0, transitionDelay: expanded ? '300ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
-          >
-            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
-
           {/* The shutter */}
           <button
             type="button"
