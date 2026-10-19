@@ -45,6 +45,8 @@ export const wrapped = {
   summaryTitle: '24 moments in LA',
   summaryStats: '16 photos · 8 notes · 1,215 days',
   cta: 'Continue',
+  // Hint at the bottom of the first screen (Keller, Oct 19)
+  tapHint: 'Tap to see your LA chapter',
 }
 
 const full: Crop = { w: 100, h: 133.33, left: 0, top: 0 }

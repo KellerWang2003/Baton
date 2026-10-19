@@ -124,6 +124,17 @@ export function LaWrapped() {
           />
         )}
       </div>
+
+      {/* Hint at the bottom of the first screen; fades out once it opens */}
+      <p
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-[40px] text-center text-callout text-wrap-faint transition-opacity duration-300"
+        style={{ opacity: open ? 0 : 1 }}
+      >
+        <span className="inline-block animate-splash-rise" style={{ animationDelay: '900ms' }}>
+          {wrapped.tapHint}
+        </span>
+      </p>
     </div>
   )
 }
