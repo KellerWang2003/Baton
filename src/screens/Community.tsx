@@ -131,14 +131,14 @@ export function Community() {
           <div
             ref={listRef}
             className={cx(
-              'flex h-full flex-col gap-10 overscroll-y-contain px-6 pb-44 transition-[padding] duration-500',
+              'flex h-full flex-col gap-10 overscroll-y-contain px-gutter pb-44 transition-[padding] duration-500',
               mapOpen ? 'overflow-hidden pt-4' : 'overflow-y-auto pt-4',
             )}
           >
             {/* Category filters, with search at the end */}
             <div className="-mb-4 flex flex-col gap-3">
-              <div className="-mx-6 flex items-center gap-[26px] pr-6">
-                <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-6 [scrollbar-width:none]">
+              <div className="-mx-gutter flex items-center gap-[26px] pr-gutter">
+                <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-gutter [scrollbar-width:none]">
                   <CategoryChip look={relayLook} selected={!category} onClick={() => setCategory(null)}>
                     {relayCopy.all}
                   </CategoryChip>
@@ -198,7 +198,7 @@ export function Community() {
           >
             <img src={pinnedItem.photo ?? relayPlaceholderPhoto} alt="" className="size-16 shrink-0 rounded-tile object-cover" />
             <div className="min-w-0">
-              <p className="truncate font-display text-headline font-bold text-baton-navy">{pinnedItem.title}</p>
+              <p className="truncate font-display text-headline font-medium text-baton-navy">{pinnedItem.title}</p>
               <p className="line-clamp-2 text-footnote text-ink-muted">
                 {pinnedItem.quote ? `“${pinnedItem.quote}”` : pinnedItem.source.kind === 'baton' ? pinnedItem.source.why : pinnedItem.body}
               </p>

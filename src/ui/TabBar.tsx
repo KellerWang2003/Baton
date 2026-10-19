@@ -223,7 +223,7 @@ export function TabBar({
               tabIndex={composing ? 0 : -1}
               onPointerDown={(event) => event.preventDefault()}
               // Reads as saving to her archive, not sending a message (Keller, Oct 19)
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-brand px-4 text-subhead font-semibold text-on-brand transition disabled:bg-surface-muted disabled:text-ink-muted"
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-brand px-4 text-subhead font-medium text-on-brand transition disabled:bg-surface-muted disabled:text-ink-muted"
             >
               {saveLabel}
             </button>

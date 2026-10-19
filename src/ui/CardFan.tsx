@@ -70,7 +70,7 @@ export function CardFan<T extends string>({ options, value, onChange, className 
             </span>
             <span
               className={cx(
-                'pt-2 text-footnote font-semibold text-ink transition-all',
+                'pt-2 text-footnote font-medium text-ink transition-all',
                 // In the open fan, side labels hug the outer edge so the overlap never covers them
                 selected < 0 && i === 0 ? 'text-left' : selected < 0 && i === options.length - 1 ? 'text-right' : 'text-center',
               )}

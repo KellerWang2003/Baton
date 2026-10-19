@@ -195,7 +195,7 @@ export function LiveMap({
             <span
               key={label.name}
               className={cx(
-                'absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-body text-[10px] font-semibold uppercase tracking-[0.12em]',
+                'absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap font-body text-[10px] font-medium uppercase tracking-[0.12em]',
                 dark ? 'text-baton-cream/60' : 'text-baton-navy/45',
               )}
               style={{ left: point.x, top: point.y }}
@@ -276,7 +276,7 @@ export function PinMark({ design, tone, active, title, dark, index = 0 }: PinMar
     return (
       <span
         className={cx(
-          'grain absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[3px] font-display font-bold shadow-paper transition-all duration-200',
+          'grain absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-[3px] font-display font-medium shadow-paper transition-all duration-200',
           toneBg[tone],
           stickyTilts[index % stickyTilts.length],
           !title ? 'size-6' : 'max-w-44 whitespace-nowrap px-2.5 pb-1.5 pt-2 text-caption leading-tight',
@@ -332,7 +332,7 @@ export function PinMark({ design, tone, active, title, dark, index = 0 }: PinMar
       <span className="absolute bottom-0 left-0 flex -translate-x-1/2 flex-col items-center">
         <span
           className={cx(
-            'whitespace-nowrap rounded-full font-body font-semibold shadow-float transition-all duration-200',
+            'whitespace-nowrap rounded-full font-body font-medium shadow-float transition-all duration-200',
             toneBg[tone],
             !title ? 'size-3.5' : active ? 'px-3 py-1.5 text-subhead' : 'px-3 py-1.5 text-caption',
             dark && 'ring-2 ring-baton-cream/80',

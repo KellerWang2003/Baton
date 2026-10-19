@@ -21,7 +21,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-40 overflow-y-auto bg-baton-paper font-body text-baton-navy">
       <header className="sticky top-0 z-10 flex flex-wrap items-center gap-x-6 gap-y-3 bg-baton-paper/90 px-6 py-4 backdrop-blur">
         <div className="mr-auto">
-          <h1 className="font-display text-title-2 font-bold">Today looks</h1>
+          <h1 className="font-display text-title-2 font-medium">Today looks</h1>
           <p className="text-subhead text-ink-muted">
             The prompt circle in React Bits Fluid Glass. Move the pointer over each circle. “Use in Today” puts that one on the real page.
           </p>
@@ -29,7 +29,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full bg-baton-navy px-4 py-2 text-subhead font-semibold text-on-brand hover:opacity-90"
+          className="rounded-full bg-baton-navy px-4 py-2 text-subhead font-medium text-on-brand hover:opacity-90"
         >
           Close
         </button>
@@ -42,7 +42,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
             <section key={option.id} className="flex w-[390px] flex-col gap-3">
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
-                  <h2 className="font-display text-title-3 font-bold">
+                  <h2 className="font-display text-title-3 font-medium">
                     {i + 1}. {option.name}
                   </h2>
                   <p className="min-h-[40px] text-footnote text-ink-muted">{option.blurb}</p>
@@ -51,7 +51,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                   type="button"
                   onClick={() => setState({ promptGlass: option.id })}
                   className={cx(
-                    'shrink-0 rounded-full px-3 py-1.5 text-footnote font-semibold',
+                    'shrink-0 rounded-full px-3 py-1.5 text-footnote font-medium',
                     inUse ? 'bg-baton-blue text-baton-navy' : 'bg-baton-chip text-ink hover:bg-surface-muted',
                   )}
                 >

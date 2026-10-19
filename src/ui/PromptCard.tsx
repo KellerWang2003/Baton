@@ -21,10 +21,10 @@ export function PromptCard({ question, meta, reason, image = false, arrow = fals
   return (
     <Card tone="stage" className={cx('flex flex-col gap-3', className)}>
       {image && <div aria-hidden className="aspect-[16/9] rounded-tile bg-placeholder" />}
-      {meta && <p className="text-footnote font-semibold uppercase text-stage">{meta}</p>}
+      {meta && <p className="text-footnote font-medium text-stage">{meta}</p>}
       <div className="flex items-start gap-3">
         <div className="flex flex-1 flex-col gap-1.5">
-          <p className="font-display text-title-3 font-semibold text-ink">{question}</p>
+          <p className="font-display text-title-3 font-medium text-ink">{question}</p>
           {reason && (
             <p className="flex items-center gap-1 text-footnote text-ink-muted">
               <MapPinIcon className="size-4 shrink-0" />

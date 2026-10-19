@@ -19,7 +19,7 @@ export function PickCard({ title, detail, picked, onToggle }: PickCardProps) {
       role="checkbox"
       aria-checked={picked}
       onClick={onToggle}
-      className="flex min-h-[68px] w-full items-center gap-3 rounded-[16px] bg-today-panel px-4 py-3 text-left shadow-today-card transition active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="flex min-h-[68px] w-full items-center gap-3 rounded-card bg-today-panel px-4 py-3 text-left shadow-today-card transition active:scale-[0.99] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
         <span className="text-today-card font-medium text-ink">{title}</span>

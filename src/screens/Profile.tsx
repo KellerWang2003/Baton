@@ -22,7 +22,7 @@ export function Profile() {
             <Avatar name={chloe.name} src={chloe.avatar} size="lg" />
             <StageTag stage={status} label={stageTags[status]} size="md" className="absolute -bottom-2.5 left-1/2 -translate-x-1/2" />
           </div>
-          <p className="text-title-3 font-semibold text-ink">{chloe.name}</p>
+          <p className="text-title-3 font-medium text-ink">{chloe.name}</p>
         </div>
         <ListSection footer={pages.profile.purpose}>
           <ListRow title="Status" value={stageNames[status]} chevron />

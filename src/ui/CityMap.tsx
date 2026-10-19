@@ -91,7 +91,7 @@ export function CityMap({ pins, selected, onSelect, you, className }: CityMapPro
         ))}
       </g>
 
-      <g className="fill-ink-muted text-[6px] font-semibold tracking-[0.08em]" style={{ fontFamily: 'var(--font-body)' }}>
+      <g className="fill-ink-muted text-[6px] font-medium tracking-[0.08em]" style={{ fontFamily: 'var(--font-body)' }}>
         <text x={104} y={430}>JERSEY CITY</text>
         <text x={262} y={480}>WILLIAMSBURG</text>
         <text x={226} y={612}>PARK SLOPE</text>

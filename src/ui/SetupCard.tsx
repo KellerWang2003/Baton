@@ -30,12 +30,12 @@ export function SetupCard({ icon, tone = 'blue', title, subtitle, done = false, 
       disabled={done}
       aria-label={`${title}${done ? ', completed' : ''}`}
       className={cx(
-        'flex size-[163px] shrink-0 snap-start flex-col gap-[13px] rounded-[12px] bg-today-panel p-4 text-left shadow-setup-card transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+        'flex size-[163px] shrink-0 snap-start flex-col gap-[13px] rounded-tile bg-today-panel p-4 text-left shadow-setup-card transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
         done && 'opacity-60',
       )}
     >
       <div className="flex w-full items-center justify-between">
-        <span className={cx('inline-flex size-9 items-center justify-center rounded-full', tones[tone])}>{icon}</span>
+        <span className={cx('inline-flex size-10 items-center justify-center rounded-full', tones[tone])}>{icon}</span>
         {done && <CheckCircle checked />}
       </div>
       <div className="flex flex-col gap-1">

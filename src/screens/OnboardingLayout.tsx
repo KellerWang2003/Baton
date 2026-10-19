@@ -20,7 +20,7 @@ export function OnboardingLayout({ title, body, onBack = () => goBack(), backLab
     <Screen onBack={onBack} backLabel={backLabel} action={action} background={background} footer={<div className="flex flex-col gap-2">{footer}</div>}>
       <div className="flex flex-col gap-6 pt-1">
         <div className="flex flex-col gap-3 px-1">
-          <h1 className="font-display text-title-1 font-bold text-ink">{title}</h1>
+          <h1 className="font-display text-large-title font-normal text-ink">{title}</h1>
           {body && <p className="text-body text-ink-muted">{body}</p>}
         </div>
         {children}

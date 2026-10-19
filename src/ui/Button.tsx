@@ -17,8 +17,8 @@ const variants = {
 // md: large full-weight button (50pt, rounded rect). sm: compact capsule.
 // pill: compact floating capsule (Relay's Map view). cta: 52pt pill with the label on the left and an icon (arrow) on the right.
 const sizes = {
-  md: 'h-[50px] justify-center rounded-button px-5 text-headline font-semibold',
-  sm: 'h-8 justify-center rounded-full px-3.5 text-subhead font-semibold',
+  md: 'h-[50px] justify-center rounded-button px-5 text-headline font-medium',
+  sm: 'h-8 justify-center rounded-full px-3.5 text-subhead font-medium',
   pill: 'h-11 justify-center gap-2 rounded-full px-5 text-callout font-medium',
   cta: 'h-[52px] justify-between rounded-button pr-5 pl-[31px] text-cta font-medium',
 }

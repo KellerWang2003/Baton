@@ -72,7 +72,7 @@ export function Intentions() {
 
       {/* Pinned over the canvas, which slides under them and fades out */}
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-linear-to-b from-baton-paper from-70% to-baton-paper/0 pb-8">
-        <h1 className="animate-splash-rise pt-9 text-center text-[30px] font-medium leading-[30px] tracking-[-0.011em]">
+        <h1 className="animate-splash-rise pt-9 text-center text-greeting font-normal">
           {intentions.title.map((line) => (
             <span key={line} className="block">
               {line}
@@ -80,7 +80,7 @@ export function Intentions() {
           ))}
         </h1>
       </header>
-      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-linear-to-t from-baton-paper from-55% to-baton-paper/0 px-6 pb-9 pt-14">
+      <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-linear-to-t from-baton-paper from-55% to-baton-paper/0 px-gutter pb-9 pt-14">
         <Button block variant="glow" size="cta" onClick={done} disabled={!ready} className="pointer-events-auto">
           {ready ? intentions.cta : intentions.ctaNeedMore}
           <ArrowRightIcon />
