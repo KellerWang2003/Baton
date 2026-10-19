@@ -27,6 +27,7 @@ export type GlassInteraction = 'follow' | 'drag' | 'static'
 
 export type GlassTuning = {
   shape: GlassShape
+  color: string
   size: number
   refraction: number
   dispersion: number
@@ -46,19 +47,19 @@ export type GlassTuning = {
   intro: boolean
 }
 
-// Keller's settings from the React Bits demo (Oct 18, "Clear" preset). Its
-// motion settings (follow the pointer, idle drift, morph on click) are off:
-// they move the glass off the circle and its blue rim, and change its shape
-// on every tap. It nudges a little when dragged instead (Keller, Oct 18).
+// Keller's settings from the React Bits demo (Oct 18, "Amber" preset with a
+// light blue color). Its "follow the pointer" interaction stays off: the glass
+// would leave its spot. It nudges a little when dragged instead (Keller, Oct 18).
 export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
-  size: 350,
-  refraction: 0.45,
-  dispersion: 0.85,
-  reflection: 0.05,
+  // Empty means the --color-glass-tint token; the debug panel can pick another
+  color: '',
+  size: 330,
+  refraction: 1,
+  dispersion: 0.25,
+  reflection: 1,
   frost: 0,
-  // The only blue: the glass tints itself (Keller: one layer, not a blue blob behind it)
-  tint: 0.2,
+  tint: 0.55,
   shadow: 0.5,
   elevation: 0.4,
   interaction: 'drag',
@@ -68,7 +69,7 @@ export const defaultGlassTuning: GlassTuning = {
   spin: 0.3,
   idle: false,
   morphOnClick: false,
-  intro: true,
+  intro: false,
 }
 
 export const glassShapes: GlassShape[] = ['lens', 'blob', 'cube', 'pill', 'torus', 'prism', 'diamond']

@@ -39,7 +39,7 @@ export function PromptWindow({
   onClick,
   className,
 }: PromptWindowProps) {
-  const { give, ...glassProps } = tuning
+  const { give, color, ...glassProps } = tuning
   const drawn = tuning.size * rimRatio
   const box = Math.ceil(drawn / 0.72)
   // With no give (or no dragging), the rim stays put
@@ -94,7 +94,9 @@ export function PromptWindow({
             textColor={token('--color-baton-navy')}
             fontSize={17}
             fontWeight={500}
-            color={token('--color-baton-blue')}
+            color={color || token('--color-glass-tint')}
+            // The page's paper, drawn into the canvas so the glass has light to tint
+            background={token('--color-baton-paper')}
             {...glassProps}
             // Default is a drag that gives a little, then springs back
             give={give}

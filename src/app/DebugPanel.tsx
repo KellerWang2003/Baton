@@ -212,6 +212,15 @@ function GlassControls() {
               ))}
             </select>
           </label>
+          <label className="flex items-center justify-between gap-2">
+            Color
+            <input
+              type="color"
+              value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-glass-tint').trim()}
+              onChange={(event) => set({ color: event.target.value })}
+              className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
+            />
+          </label>
           {glassSliders.map((slider) => {
             const value = tuning[slider.key] as number
             return (

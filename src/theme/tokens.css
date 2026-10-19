@@ -93,6 +93,7 @@
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
   --color-glass: rgb(255 255 255 / 0.8); /* tab bar capsules over a blur: white enough to read over vibrant folders */
+  --color-glass-tint: #7bc9e7; /* Today's liquid glass circle (Keller, Oct 19, from the React Bits demo) */
   --color-tab-idle: #6e6f78; /* tabs that aren't showing, and + */
 
   /* Stage accents (Moving -> Newcomer -> Local): gray for now, colors come later */
