@@ -59,7 +59,8 @@ export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
   // Empty means brand blue (--color-baton-blue); the debug panel can pick another
   color: '',
-  edge: 0.6,
+  // Keller, Oct 19: about 60% of the earlier 0.6
+  edge: 0.36,
   breathe: 0.1,
   ring: 1,
   size: 340,

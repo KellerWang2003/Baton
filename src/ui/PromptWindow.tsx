@@ -211,9 +211,11 @@ function drawPrompt(box: number, question: string, medium: 'photo' | 'write', la
   const lineHeight = Math.round(fontSize * 1.1)
   const pillHeight = 32
   const pillGap = 8
-  // Pill and prompt centered together, so the group sits at the glass's middle
+  // Pill and prompt centered together, then nudged up a little to the
+  // optical center, which sits just above the geometric one
   const groupHeight = pillHeight + pillGap + lines.length * lineHeight
-  const top = box / 2 - groupHeight / 2 + pillHeight + pillGap
+  const opticalLift = size * 0.035
+  const top = box / 2 - groupHeight / 2 + pillHeight + pillGap - opticalLift
   ctx.fillStyle = navy
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
