@@ -41,7 +41,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
   const status = useStatus()
   const greeting = title && (
     // One sentence in one style, the second part on its own line (Figma TODAY 236:1282)
-    <header className="flex items-start justify-between gap-3 pb-2 pt-3">
+    <header className="flex items-start justify-between gap-3 px-[7px] pb-2 pt-3">
       <h1 className="min-w-0 flex-1 font-display text-title-1 font-normal text-baton-navy">
         {title}
         {subtitle && (

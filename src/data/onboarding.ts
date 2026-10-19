@@ -191,7 +191,7 @@ export const setup = {
   items: {
     archive: { title: 'Organize your archive', subtitle: 'Check the places we found in your photos' },
     todos: {
-      moving: { title: 'Pick your moving to-dos', subtitle: 'Lease, boxes, accounts' },
+      moving: { title: 'Plan your move our tasks', subtitle: 'Lease, boxes, accounts' },
       newcomer: { title: 'Pick your arrival to-dos', subtitle: 'Home, transit, accounts' },
     },
     instagram: { title: 'Share your Rolling Paper', subtitle: 'Invite friends to leave you notes' },

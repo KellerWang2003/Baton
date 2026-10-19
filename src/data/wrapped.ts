@@ -57,7 +57,8 @@ export const wrapMoments: WrapMoment[] = [
   { kind: 'note', date: 'Nov.18', color: 'pink', text: 'Finally bought a car! Now I can go to places without worrying about the uber price.', cx: 306.5, cy: 462.4, rotate: 8.96 },
   { kind: 'photo', year: '2024', date: 'Jan.04', color: 'blue', src: '/wrapped/m03-jan04.jpg', x: 30, y: 569.5, crop: { w: 135.43, h: 101.57, left: -17.72, top: -1.57 } },
   { kind: 'photo', date: 'Mar.11', color: 'yellow', src: '/wrapped/m04-mar11.jpg', x: 237, y: 679.5, crop: { w: 100, h: 177.78, left: 0, top: -48.57 } },
-  { kind: 'photo', date: 'May.03', color: 'pink', src: '/wrapped/m05-may03.jpg', x: 30, y: 789.5, crop: { w: 100, h: 177.78, left: 0, top: -77.78 } },
+  // This square photo was exported at 337×600; restore its original proportions.
+  { kind: 'photo', date: 'May.03', color: 'pink', src: '/wrapped/m05-may03.jpg', x: 30, y: 789.5, crop: { w: 100, h: 100, left: 0, top: 0 } },
   { kind: 'note', date: 'Aug.14', color: 'blue', text: 'It’s been so hot lately, so I went to the beach with my friend.', cx: 306.5, cy: 965.4, rotate: -7.92 },
   { kind: 'photo', date: 'Oct.26', color: 'pink', src: '/wrapped/m07-oct26.jpg', x: 26, y: 1009, crop: { ...full, top: -13.81 } },
   { kind: 'note', date: 'Dec.07', color: 'blue', text: 'Friendsgiving at Jisoo’s. Way too much food, not enough chairs.', cx: 307, cy: 1183, rotate: 9 },
