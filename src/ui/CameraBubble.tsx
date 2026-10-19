@@ -10,17 +10,66 @@ const placeholderPhoto = '/archive/la-sunset.jpg'
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
-// The rectangle grows from the circle around the circle's own center, so it is
-// a pure shape morph: as wide as the screen allows, and as tall as fits between
-// the prompt above and the shutter below
+// Where the rectangle ends up on the 402×874 screen, as fractions of it (Figma:
+// the prompt on top, a long camera rectangle, the shutter below). It grows out
+// of the circle, so its center moves down a little as it does.
+const rectTop = 0.23
+const rectHeight = 0.555
 const sideMargin = 36
 const rectRadius = 52
 const promptTop = 56
-// Where the rectangle's top may reach, under the moved prompt (three lines)
-const rectTopLimit = 146
-// Narrow enough to clear the close button at the top right
-const promptWidth = 260
-const promptFont = 24
+// The prompt starts exactly as the glass draws it (see drawPrompt in
+// PromptWindow: same font, line breaks and spot) and grows a little as it
+// settles at the top
+const promptGrow = 1.1
+
+type PromptLayout = { lines: string[]; font: number; lineHeight: number; top: number }
+
+// Line breaks and size of the prompt the way PromptWindow's drawPrompt sets
+// them (kept in step with it by hand): up to three lines, 27pt shrinking to
+// 20pt, balanced, in a column 110pt narrower than the glass; and where its
+// block's top sits relative to the circle's center, under the icon.
+function promptLayout(question: string, size: number, centerY: number): PromptLayout {
+  const ctx = document.createElement('canvas').getContext('2d')!
+  const family = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim()
+  const wrapAt = (width: number) => {
+    const out: string[] = []
+    let line = ''
+    for (const word of question.split(' ')) {
+      const next = line ? `${line} ${word}` : word
+      if (line && ctx.measureText(next).width > width) {
+        out.push(line)
+        line = word
+      } else line = next
+    }
+    if (line) out.push(line)
+    return out
+  }
+  const balanced = (maxWidth: number) => {
+    let lines = wrapAt(maxWidth)
+    for (let width = maxWidth; width > maxWidth * 0.6; width -= 4) {
+      const tighter = wrapAt(width)
+      if (tighter.length > lines.length) break
+      lines = tighter
+    }
+    return lines
+  }
+  let font = 27
+  let lines: string[] = []
+  for (; font >= 20; font--) {
+    ctx.font = `500 ${font}px ${family}`
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.011 * font}px`
+    lines = balanced(size - 110)
+    if (lines.length <= 3) break
+  }
+  font = Math.max(font, 20)
+  const lineHeight = Math.round(font * 1.2)
+  const iconSize = 24
+  const iconGap = 16
+  const groupHeight = iconSize + iconGap + lines.length * lineHeight
+  const top = centerY - groupHeight / 2 + iconSize + iconGap - size * 0.035 - lines.length * lineHeight
+  return { lines, font, lineHeight, top }
+}
 
 type Box = { left: number; top: number; width: number; height: number; radius: number }
 
@@ -38,6 +87,7 @@ export function CameraBubble() {
   const [expanded, setExpanded] = useState(false)
   const [origin, setOrigin] = useState<Box | null>(null)
   const [target, setTarget] = useState<Box | null>(null)
+  const [text, setText] = useState<PromptLayout | null>(null)
   const [live, setLive] = useState(false)
   const [mirror, setMirror] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -67,13 +117,12 @@ export function CameraBubble() {
         height: size,
         radius: size / 2,
       })
-      const centerY = (camera.cy - bounds.top) / scale
-      const height = Math.max(240, Math.round(2 * (centerY - rectTopLimit)))
+      setText(promptLayout(prompt.question, size, (camera.cy - bounds.top) / scale))
       setTarget({
         left: sideMargin,
-        top: Math.round(centerY - height / 2),
+        top: Math.round(box.offsetHeight * rectTop),
         width: box.offsetWidth - sideMargin * 2,
-        height,
+        height: Math.round(box.offsetHeight * rectHeight),
         radius: rectRadius,
       })
       setMounted(true)
@@ -87,7 +136,7 @@ export function CameraBubble() {
     stop()
     const timer = setTimeout(() => setMounted(false), 700)
     return () => clearTimeout(timer)
-  }, [camera])
+  }, [camera, prompt.question])
 
   // Start the camera once the rectangle is on its way
   useEffect(() => {
@@ -171,23 +220,30 @@ export function CameraBubble() {
             style={{ opacity: expanded ? 1 : 0 }}
           />
 
-          {/* The prompt, sliding up from the middle of the circle to the top */}
-          <div
-            className="absolute left-1/2 z-10 motion-reduce:transition-none"
-            style={{
-              width: promptWidth,
-              top: expanded ? promptTop : origin!.top + origin!.height / 2 + 4,
-              transform: `translate(-50%, ${expanded ? '0%' : '-50%'})`,
-              transition: `top 650ms ${ease}, transform 650ms ${ease}`,
-            }}
-          >
-            <p
-              className="text-balance text-center font-display font-medium leading-[1.1] tracking-[-0.011em] text-baton-navy"
-              style={{ fontSize: promptFont }}
+          {/* The prompt: set exactly where the glass drew it, then it slides up and
+              grows a little while the circle becomes the rectangle */}
+          {text && (
+            <div
+              className="absolute left-1/2 z-10 motion-reduce:transition-none"
+              style={{
+                top: expanded ? promptTop : text.top,
+                transform: `translateX(-50%) scale(${expanded ? promptGrow : 1})`,
+                transformOrigin: '50% 0',
+                transition: `top 650ms ${ease}, transform 650ms ${ease}`,
+              }}
             >
-              {prompt.question}
-            </p>
-          </div>
+              <p
+                className="whitespace-nowrap text-center font-display font-medium tracking-[-0.011em] text-baton-navy"
+                style={{ fontSize: text.font, lineHeight: `${text.lineHeight}px` }}
+              >
+                {text.lines.map((line, i) => (
+                  <span key={i} className="block">
+                    {line}
+                  </span>
+                ))}
+              </p>
+            </div>
+          )}
 
           {/* The circle, morphing into the rounded rectangle with the camera in it */}
           <div
@@ -245,7 +301,7 @@ export function CameraBubble() {
             aria-label="Take photo"
             onClick={shoot}
             className="group absolute left-1/2 flex size-20 -translate-x-1/2 items-center justify-center rounded-full border-[3px] border-baton-blue/40 transition-opacity duration-300 motion-reduce:transition-none"
-            style={{ top: target.top + target.height + 28, opacity: expanded ? 1 : 0, transitionDelay: expanded ? '320ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
+            style={{ bottom: 56, opacity: expanded ? 1 : 0, transitionDelay: expanded ? '320ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
           >
             <span className="size-16 rounded-full bg-baton-blue transition-transform duration-150 group-active:scale-90" />
           </button>
