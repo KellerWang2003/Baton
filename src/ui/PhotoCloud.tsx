@@ -16,6 +16,8 @@ type PhotoCloudProps = {
   photos: CloudPhoto[]
   // Keep only this category's photos sharp and blur the rest (the orb filter)
   focus?: CloudCategory | null
+  // A quick, still tap on a photo (not a drag, pinch or double-tap zoom)
+  onSelect?: (photo: CloudPhoto) => void
   className?: string
 }
 
@@ -49,7 +51,7 @@ type Point = { x: number; y: number }
 // bob gently on their own. Each photo hangs on its own spring and follows your
 // finger: the ones near it move right along with it, the far ones trail behind
 // and wobble back into place.
-export function PhotoCloud({ photos, focus = null, className }: PhotoCloudProps) {
+export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoCloudProps) {
   const height = Math.max(0, ...photos.map((photo) => photo.y + photo.size))
   // The area the photos actually cover on the canvas
   const bounds = {
@@ -69,6 +71,9 @@ export function PhotoCloud({ photos, focus = null, className }: PhotoCloudProps)
   const glide = useRef(0)
   const zoomTween = useRef(0)
   const photoRefs = useRef<(HTMLDivElement | null)[]>([])
+  // Where and when a one-finger press started, and how far it has moved, to
+  // tell a tap from a drag
+  const press = useRef<{ x: number; y: number; at: number; travel: number } | null>(null)
 
   function apply() {
     const canvas = canvasRef.current
@@ -276,6 +281,8 @@ export function PhotoCloud({ photos, focus = null, className }: PhotoCloudProps)
     pointers.current.set(event.pointerId, local(event))
     velocity.current = { x: 0, y: 0 }
     if (pointers.current.size === 2) pinch.current = pinchState()
+    const start = local(event)
+    press.current = pointers.current.size === 1 ? { ...start, at: performance.now(), travel: 0 } : null
 
     if (pointers.current.size === 1) {
       const now = performance.now()
@@ -297,6 +304,7 @@ export function PhotoCloud({ photos, focus = null, className }: PhotoCloudProps)
     if (!previous) return
     const point = local(event)
     pointers.current.set(event.pointerId, point)
+    if (press.current) press.current.travel += Math.hypot(point.x - previous.x, point.y - previous.y)
 
     if (pointers.current.size >= 2 && pinch.current) {
       const next = pinchState()
@@ -323,7 +331,30 @@ export function PhotoCloud({ photos, focus = null, className }: PhotoCloudProps)
     set({ ...view.current, x: view.current.x + dx, y: view.current.y + dy })
   }
 
+  // The photo under a point on screen, if any (topmost first)
+  function photoAt(point: Point) {
+    const { x, y, scale } = view.current
+    const cx = (point.x - x) / scale
+    const cy = (point.y - y) / scale
+    for (let index = photos.length - 1; index >= 0; index--) {
+      const photo = photos[index]
+      const r = photo.size / 2
+      if (Math.hypot(cx - (photo.x + r), cy - (photo.y + r)) <= r) return photo
+    }
+    return null
+  }
+
   function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    const tap = press.current
+    press.current = null
+    if (tap && event.type === 'pointerup' && pointers.current.size === 1 && tap.travel < 6 && performance.now() - tap.at < 350) {
+      const photo = onSelect && photoAt(local(event))
+      if (photo) {
+        pointers.current.delete(event.pointerId)
+        onSelect(photo)
+        return
+      }
+    }
     pointers.current.delete(event.pointerId)
     if (pointers.current.size < 2) pinch.current = null
     if (pointers.current.size === 0) startGlide()

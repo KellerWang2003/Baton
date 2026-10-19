@@ -1,26 +1,6 @@
 @import "tailwindcss";
 @import "./theme/tokens.css";
 
-/* Today setup, Figma 303:6771: edge-to-edge scrolling with the next card
-   peeking in, and sentence-case labels above the dashed cards. */
-.today-setup {
-  margin-inline: 7px;
-  gap: 14px;
-}
-.today-setup > div:first-child {
-  padding-inline: 15px;
-}
-.today-setup > div:first-child h2,
-.today-setup > div:first-child span {
-  color: var(--color-ink);
-  text-transform: none;
-}
-.today-setup > div:last-child {
-  margin-inline: -23px;
-  padding-inline: 23px;
-  scroll-padding-inline: 23px;
-}
-
 @layer base {
   /* Keep touch and keyboard scrolling without visible scrollbar chrome. */
   * {

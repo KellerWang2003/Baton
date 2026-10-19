@@ -37,12 +37,15 @@ const BUBBLE_DAMPING = 0.2
 // Choosing her intentions for New York (Figma "choosing intentions", 322:8877),
 // before her last night in LA; opened from Profile. A canvas of glass bubbles
 // in a loosely spaced cloud that she pans around in any direction, tapping as
-// many as she wants (Keller, Oct 19: free, no limits). The bubbles themselves
+// many as she wants (Keller, Oct 19: free, no upper limit), at least three
+// before the button turns on. The bubbles themselves
 // trail the pan on individual springs. One Fluid Glass lens is rendered once
 // and its still image is every bubble's glass, with the blue fill and goal.
 export function Intentions() {
   const [picked, setPicked] = useState(useStore().goals)
   const shell = useGlassShell()
+  // At least three before she can set them
+  const ready = picked.length >= intentions.minPicks
   const done = () => {
     setState({ goals: picked })
     goBack('profile')
@@ -61,7 +64,7 @@ export function Intentions() {
               x={bubble.x}
               y={bubble.y - TOP}
               delay={i * 25}
-              onTap={() => setPicked(toggleIn(picked, bubble.goal))}
+              onTap={() => setPicked((current) => toggleIn(current, bubble.goal))}
             />
           </div>
         ))}
@@ -78,8 +81,8 @@ export function Intentions() {
         </h1>
       </header>
       <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-linear-to-t from-baton-paper from-55% to-baton-paper/0 px-6 pb-9 pt-14">
-        <Button block variant="glow" size="cta" onClick={done} className="pointer-events-auto">
-          {intentions.cta}
+        <Button block variant="glow" size="cta" onClick={done} disabled={!ready} className="pointer-events-auto">
+          {ready ? intentions.cta : intentions.ctaNeedMore}
           <ArrowRightIcon />
         </Button>
       </footer>
@@ -369,9 +372,11 @@ function useGlassShell() {
         background={token('--color-baton-paper')}
         transparentOutside
         {...glass}
-        // A clearer blue rim than Today's, and no shadow ring (Figma 322:8877)
-        rim={Math.min(edge * 1.6, 1)}
+        // A lighter blue rim (Today's strength), and no shadow ring or light
+        // edge line around it (Figma 322:8877)
+        rim={edge}
         shadow={0}
+        ring={0}
         size={GLASS}
         interaction="static"
         idle={false}

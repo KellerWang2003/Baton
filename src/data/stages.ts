@@ -13,7 +13,7 @@ export const stageNames: Record<Stage, string> = {
 
 // The tag under her profile picture
 export const stageTags: Record<Stage, string> = {
-  moving: 'Moving out',
+  moving: 'Moving',
   newcomer: 'Newcomer',
   local: 'Local',
 }

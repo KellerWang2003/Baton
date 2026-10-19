@@ -40,9 +40,10 @@ const tabIcons: Record<string, ReactNode> = {
 export function MainLayout({ title, subtitle, children, bleed = false, profile = false, background }: MainLayoutProps) {
   const status = useStatus()
   const greeting = title && (
-    // One sentence in one style, the second part on its own line (Figma TODAY 236:1282)
-    <header className="flex items-start justify-between gap-3 px-[7px] pb-2 pt-3">
-      <h1 className="min-w-0 flex-1 font-display text-title-1 font-normal text-baton-navy">
+    // One sentence in one style, the second part on its own line, 30pt in
+    // from the sides (Figma TODAY 334:10106)
+    <header className="flex items-start justify-between gap-3 px-3.5 pb-2 pt-3">
+      <h1 className="min-w-0 flex-1 font-display text-greeting font-normal text-ink">
         {title}
         {subtitle && (
           <>

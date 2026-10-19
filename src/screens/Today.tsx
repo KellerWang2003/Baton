@@ -4,7 +4,7 @@ import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
-import { setup } from '../data/onboarding'
+import { setup, todoKind } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
 import { promptMedium, promptMediumLabel } from '../data/pages'
 import { todayCards } from '../data/stages'
@@ -25,14 +25,13 @@ import {
 import {
   ArrowRightIcon,
   BottomSheet,
-  Button,
   Card,
-  CardRow,
-  CheckCircle,
   ChevronRightIcon,
   ItemCard,
   PromptWindow,
   SetupCard,
+  TodayCard,
+  TodoCard,
 } from '../ui'
 import { MainLayout } from './MainLayout'
 
@@ -41,11 +40,12 @@ type TodayProps = {
   lastWeek?: boolean
 }
 
-// Today, top to bottom (Figma TODAY 236:1282): the daily prompt in a glass
-// circle with its medium above (tap opens the + field), then on a cream panel the setup
-// cards in a dashed outline until they're done, then "Before you leave" as a
-// list of cards: the legacy card in her last week in LA, her to-dos (tap for
-// tips) and suggestions for her stage.
+// Today, top to bottom (Figma TODAY 334:10047): the daily prompt in a glass
+// circle with an icon for its medium (tap opens the camera or the + field),
+// then on the paper the setup cards until they're done, then "Before you
+// leave" as a list of cards: the legacy card in her last week in LA and
+// suggestions from her archive (tap for tips). The to-dos she picked get their
+// own "Moving to-dos" section above it; each opens to show tips.
 export function Today({ lastWeek = false }: TodayProps) {
   const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
@@ -59,21 +59,24 @@ export function Today({ lastWeek = false }: TodayProps) {
   const leaving = shortDate(leaveDate)
   const hello = greeting(status, timeOfDay(), daysLeft)
 
-  // Figma's setup row starts with Instagram. Locals have no logistics to pick;
-  // only Moving has a leave date. Archive organization remains its own flow.
-  const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode }[] = [
-    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" /> },
+  // Figma's setup row (TODAY 334:11110): Instagram, to-dos, leave date, with
+  // Figma's SF Symbol glyphs (public/today/setup-*.svg). Locals
+  // have no logistics to pick; only Moving has a leave date. Archive
+  // organization remains its own flow.
+  const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode; tone: 'blue' | 'pink' | 'olive' }[] = [
+    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={19} height={19} />, tone: 'blue' },
+    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" width={19} height={14} />, tone: 'pink' as const }]),
     ...(status === 'moving'
       ? [
           {
             id: 'leave' as const,
             title: setupCards.leave.title,
             subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : setupCards.leave.subtitle,
-            icon: <img src="/today/setup-leave.svg" alt="" />,
+            icon: <img src="/today/setup-leave.svg" alt="" width={19} height={19} />,
+            tone: 'olive' as const,
           },
         ]
       : []),
-    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" /> }]),
   ]
   const setupCount = setupItems.filter((item) => setupDone.includes(item.id)).length
 
@@ -106,7 +109,6 @@ export function Today({ lastWeek = false }: TodayProps) {
       <PromptWindow
         className="pb-8 pt-6"
         question={prompt.question}
-        seed={prompt.seed}
         medium={medium}
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
@@ -114,27 +116,56 @@ export function Today({ lastWeek = false }: TodayProps) {
         onClick={medium === 'photo' ? () => camera.current?.click() : openComposer}
       />
 
-      {/* Everything else sits on a cream panel that runs to the bottom of the
-          page, under the floating tab bar */}
-      <div className="-mx-4 -mb-30 flex min-h-[420px] flex-col gap-6 rounded-t-panel bg-today-panel px-4 pb-36 pt-8">
+      {/* Below the prompt, straight on the paper (Figma TODAY 334:10047): the
+          setup row, then "Before you leave" */}
+      <div className="flex flex-col gap-10 px-3.5 pt-4">
         {setupCount < setupItems.length && (
-          <CardRow className="today-setup" header={setup.header} detail={setupCards.progress(setupCount, setupItems.length)}>
-            {setupItems.map((item) => (
-              <SetupCard
-                key={item.id}
-                icon={item.icon}
-                title={item.title}
-                subtitle={item.subtitle}
-                done={setupDone.includes(item.id)}
-                onClick={() => navigate(`setup-${item.id}`)}
-              />
-            ))}
-          </CardRow>
+          <section className="flex flex-col gap-4">
+            <h2 className="text-section font-normal text-ink">{setup.header}</h2>
+            {/* Runs to the screen edges so the next card peeks in */}
+            <div className="-mx-[30px] -my-3 flex snap-x snap-mandatory scroll-px-[30px] gap-3 overflow-x-auto px-[30px] py-3 [scrollbar-width:none]">
+              {setupItems.map((item) => (
+                <SetupCard
+                  key={item.id}
+                  icon={item.icon}
+                  tone={item.tone}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                  done={setupDone.includes(item.id)}
+                  onClick={() => navigate(`setup-${item.id}`)}
+                />
+              ))}
+            </div>
+          </section>
         )}
 
-        <section className="flex flex-col gap-1.5">
-          <h2 className="px-4 text-footnote uppercase text-ink-muted">{beforeYouLeave.header[status]}</h2>
-          <div className="flex flex-col gap-2.5">
+        {/* The to-dos she picked; open one for tips from people who did it */}
+        {pickedTodos.length > 0 && (
+          <section className="flex flex-col gap-4">
+            <h2 className="text-section font-normal text-ink">{beforeYouLeave.todosHeader[status]}</h2>
+            <div className="flex flex-col gap-3">
+              {pickedTodos.map((item) => {
+                const itemTips = tips[item.id] ?? []
+                return (
+                  <TodoCard
+                    key={item.id}
+                    kind={todoKind[item.id] ?? 'home'}
+                    title={item.title}
+                    subtitle={itemTips.length ? beforeYouLeave.tipCount(itemTips.length) : undefined}
+                    tips={itemTips}
+                    done={doneTodos.includes(item.id)}
+                    onToggleDone={() => setState((s) => ({ doneTodos: toggleIn(s.doneTodos, item.id) }))}
+                    copy={beforeYouLeave}
+                  />
+                )
+              })}
+            </div>
+          </section>
+        )}
+
+        <section className="flex flex-col gap-4">
+          <h2 className="text-section font-normal text-ink">{beforeYouLeave.header[status]}</h2>
+          <div className="flex flex-col gap-3">
             {status === 'moving' && daysLeft <= lastWeekDays && (
               <ItemCard
                 tone="stage"
@@ -153,68 +184,41 @@ export function Today({ lastWeek = false }: TodayProps) {
               />
             )}
 
-            {/* Placeholder cards for her stage until those flows are built */}
-            {todayCards[status].map((card) => {
-              const to = card.to
-              return (
-                <ItemCard
-                  key={card.id}
-                  tone={card.tone}
-                  thumbnail={!card.tone}
-                  eyebrow={card.eyebrow}
-                  title={card.title}
-                  subtitle={card.subtitle}
-                  trailing={
-                    to && (
-                      <span className="text-line">
-                        <ChevronRightIcon />
-                      </span>
-                    )
-                  }
-                  onClick={
-                    to &&
-                    (() => navigate(to.screen))
-                  }
-                />
-              )
-            })}
+            {/* Placeholder cards for the stages whose flows come later */}
+            {status !== 'moving' &&
+              todayCards[status].map((card) => {
+                const to = card.to
+                return (
+                  <ItemCard
+                    key={card.id}
+                    tone={card.tone}
+                    thumbnail={!card.tone}
+                    eyebrow={card.eyebrow}
+                    title={card.title}
+                    subtitle={card.subtitle}
+                    trailing={
+                      to && (
+                        <span className="text-line">
+                          <ChevronRightIcon />
+                        </span>
+                      )
+                    }
+                    onClick={to && (() => navigate(to.screen))}
+                  />
+                )
+              })}
 
-            {pickedTodos.map((item) => {
-              const count = tips[item.id]?.length ?? 0
-              const done = doneTodos.includes(item.id)
-              return (
-                <ItemCard
-                  key={item.id}
-                  title={item.title}
-                  subtitle={count ? beforeYouLeave.tipCount(count) : undefined}
-                  done={done}
-                  leading={<CheckCircle checked={done} />}
-                  trailing={
-                    <span className="text-line">
-                      <ChevronRightIcon />
-                    </span>
-                  }
-                  onClick={() => setOpenTodo(item.id)}
-                />
-              )
-            })}
-
+            {/* Suggestions from her archive; tap for tips from people who did it */}
             {suggested.map((item) => (
-              <ItemCard
+              <TodayCard
                 key={item.id}
-                thumbnail
-                eyebrow={beforeYouLeave.suggested}
                 title={item.title}
+                highlight={item.highlight}
                 subtitle={item.subtitle}
-                trailing={
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => setState((s) => ({ todos: [...(s.todos ?? []), item.id] }))}
-                  >
-                    {beforeYouLeave.add}
-                  </Button>
-                }
+                photo={item.photo}
+                photoPosition={item.photoPosition}
+                done={doneTodos.includes(item.id)}
+                onClick={() => setOpenTodo(item.id)}
               />
             ))}
           </div>

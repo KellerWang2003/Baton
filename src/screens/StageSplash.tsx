@@ -1,16 +1,19 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { navigate } from '../app/navigate'
-import { setState, useStatus } from '../app/store'
+import { setState, useStatus, useStore } from '../app/store'
 import { stageSplash } from '../data/stageSplash'
 import type { Stage } from '../flow'
-import { ArrowRightIcon, Button } from '../ui'
+import { ArrowRightIcon, Button, Confetti } from '../ui'
 
 // Congrats splash for a stage change (Figma Banner 266:3309 / 266:3704, offsets less the 54pt status bar): the
 // greeting, a round photo with a soft gray rim, one line and the glow button.
 // Pops up over the app when her stage moves forward; also in the flow as its
-// own screen so the debug panel and arrow keys can reach it.
+// own screen so the debug panel and arrow keys can reach it. Both stage
+// changes get confetti (style picked in the debug panel, Welcome confetti).
 export function StageSplashView({ stage, onDone }: { stage: Stage; onDone: () => void }) {
   const content = stageSplash[stage]
+  const { confetti, confettiRun } = useStore()
+  const photoRef = useRef<HTMLDivElement>(null)
   if (!content) return null
 
   return (
@@ -22,7 +25,7 @@ export function StageSplashView({ stage, onDone }: { stage: Stage; onDone: () =>
           </span>
         ))}
       </h1>
-      <div className="relative mt-[42px] size-[328px] shrink-0 animate-splash-photo">
+      <div ref={photoRef} className="relative mt-[42px] size-[328px] shrink-0 animate-splash-photo">
         <img src={content.photo} alt={content.photoAlt} className="size-full rounded-full" />
         <img src="/stage-splash/vignette.svg" alt="" width={328} height={328} className="absolute inset-0" />
       </div>
@@ -45,6 +48,7 @@ export function StageSplashView({ stage, onDone }: { stage: Stage; onDone: () =>
         {content.cta}
         <ArrowRightIcon />
       </Button>
+      <Confetti key={`${confetti}-${confettiRun}`} variant={confetti} around={photoRef} />
     </div>
   )
 }

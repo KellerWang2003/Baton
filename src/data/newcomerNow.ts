@@ -3,8 +3,10 @@
 // new, empty New York folder comes in on top, and on to Today.
 export const newcomerNow = {
   tag: 'Newcomer',
-  title: ['You’re a Newcomer', 'in New York now'],
-  subtitle: 'Your LA chapter is saved. Here’s to the next one.',
+  // The heading, with the Newcomer pill (tag) set inline after `lead`
+  title: { lead: 'You’re a', rest: 'in New York now' },
+  // Two lines: the second starts at "Here’s"
+  subtitle: 'Your LA chapter is saved.\nHere’s to the next one.',
   cta: 'Start in New York',
   // Same colors as their Archive folders (FolderStack's folderTones)
   la: { city: 'LA', dates: '09.2023-01.2027', tone: 'blue' as const },

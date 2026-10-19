@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { goBack } from '../app/navigate'
-import { useStatus, useStore } from '../app/store'
+import { goBack, navigate } from '../app/navigate'
+import { setState, useStatus, useStore } from '../app/store'
+import { archiveMoments } from '../data/archiveMoments'
 import { archiveClouds, cloudFilters } from '../data/archiveCloud'
 import { pages } from '../data/pages'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
@@ -27,7 +28,16 @@ export function ArchiveDetail() {
   if (cloud) {
     return (
       <div className="relative h-full overflow-hidden bg-baton-paper">
-        <PhotoCloud photos={cloud} focus={filter} />
+        <PhotoCloud
+          photos={cloud}
+          focus={filter}
+          // Photos with a moment behind them open it (Figma ARCHIVE_selected)
+          onSelect={(photo) => {
+            if (!archiveMoments[photo.src]) return
+            setState({ selectedPhoto: photo.src })
+            navigate('archive-selected')
+          }}
+        />
         <FolderSideTab folder={folder} onClick={() => goBack('archive')} className="absolute top-6 -left-[7px]" />
         <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />
       </div>

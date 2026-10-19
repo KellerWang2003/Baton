@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
-import { PencilIcon, SmallCameraIcon } from './icons'
+import { CameraFillIcon, cameraFillPath, PencilIcon } from './icons'
 import { defaultGlassTuning } from './promptGlass'
 import type { GlassTuning, PromptGlass } from './promptGlass'
 import { useGlassBackdrop } from './useGlassBackdrop'
@@ -86,16 +86,16 @@ export function PromptWindow({
     if (glass !== 'glass') return
     let alive = true
     document.fonts.ready.then(() => {
-      if (alive) setArt({ key: artKey, url: drawPrompt(box, canvasHeight, question, medium, mediumLabel, tuning.size) })
+      if (alive) setArt({ key: artKey, url: drawPrompt(box, canvasHeight, question, medium, tuning.size) })
     })
     return () => {
       alive = false
     }
   }, [glass, artKey, box, canvasHeight, question, medium, mediumLabel, tuning.size])
+  // Just the icon for what it asks for (Figma TODAY 334:10176)
   const pill = (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-baton-blue/15 px-3 py-1.5 text-subhead font-semibold text-baton-blue">
-      {medium === 'photo' ? <SmallCameraIcon /> : <PencilIcon />}
-      {mediumLabel}
+    <span role="img" aria-label={mediumLabel} className="inline-flex text-baton-blue">
+      {medium === 'photo' ? <CameraFillIcon /> : <PencilIcon className="size-6" />}
     </span>
   )
   const words = (
@@ -199,10 +199,10 @@ export function PromptWindow({
   )
 }
 
-// The prompt and its medium pill on a transparent canvas, leaving the page
-// visible outside the lens: the prompt centered, the pill 8px above
-// it. Returns a data URL for the glass to bend.
-function drawPrompt(box: number, height: number, question: string, medium: 'photo' | 'write', label: string, size: number) {
+// The prompt and its medium's icon on a transparent canvas, leaving the page
+// visible outside the lens: the prompt centered, the icon above it. Returns a
+// data URL for the glass to bend.
+function drawPrompt(box: number, height: number, question: string, medium: 'photo' | 'write', size: number) {
   const ratio = 2
   const canvas = document.createElement('canvas')
   canvas.width = box * ratio
@@ -249,46 +249,36 @@ function drawPrompt(box: number, height: number, question: string, medium: 'phot
     if (lines.length <= 3) break
   }
   fontSize = Math.max(fontSize, 20)
-  const lineHeight = Math.round(fontSize * 1.1)
-  const pillHeight = 32
-  const pillGap = 8
-  // Pill and prompt centered together, then nudged up a little to the
+  const lineHeight = Math.round(fontSize * 1.2)
+  // The medium's icon above the prompt, alone (Figma TODAY 334:10176)
+  const iconSize = 24
+  const iconGap = 16
+  // Icon and prompt centered together, then nudged up a little to the
   // optical center, which sits just above the geometric one
-  const groupHeight = pillHeight + pillGap + lines.length * lineHeight
+  const groupHeight = iconSize + iconGap + lines.length * lineHeight
   const opticalLift = size * 0.035
-  const top = height / 2 - groupHeight / 2 + pillHeight + pillGap - opticalLift
+  const top = height / 2 - groupHeight / 2 + iconSize + iconGap - opticalLift
   ctx.fillStyle = navy
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
   lines.forEach((text, i) => ctx.fillText(text, box / 2, top + lineHeight * (i + 0.5)))
 
-  // The pill: 15px semibold label after a 24px icon, 12px sides, 32px tall
-  ctx.font = `600 15px ${family}`
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
-  const pillWidth = 12 + 24 + 6 + ctx.measureText(label).width + 12
-  const pillX = box / 2 - pillWidth / 2
-  const pillY = top - pillGap - pillHeight
-  ctx.globalAlpha = 0.15
-  ctx.fillStyle = blue
-  ctx.beginPath()
-  ctx.roundRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2)
-  ctx.fill()
-  ctx.globalAlpha = 1
-  ctx.fillStyle = blue
-  ctx.textAlign = 'left'
-  ctx.fillText(label, pillX + 12 + 24 + 6, pillY + pillHeight / 2 + 1)
-  // The icon, from the same 24px line icons as the app
+  // The icon, from the same 24px icons as the app
   ctx.save()
-  ctx.translate(pillX + 12, pillY + 4)
-  ctx.strokeStyle = blue
-  ctx.lineWidth = 1.8
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-  const paths =
-    medium === 'photo'
-      ? ['M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z', 'M15.5 13a3.5 3.5 0 1 1-7 0a3.5 3.5 0 1 1 7 0']
-      : ['M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z', 'M13.5 7l3 3']
-  paths.forEach((d) => ctx.stroke(new Path2D(d)))
+  ctx.translate(box / 2 - iconSize / 2, top - iconGap - iconSize)
+  if (medium === 'photo') {
+    ctx.fillStyle = blue
+    ctx.fill(new Path2D(cameraFillPath), 'evenodd')
+    ctx.beginPath()
+    ctx.arc(12, 13, 2.6, 0, Math.PI * 2)
+    ctx.fill()
+  } else {
+    ctx.strokeStyle = blue
+    ctx.lineWidth = 1.8
+    ctx.lineCap = 'round'
+    ctx.lineJoin = 'round'
+    ;['M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z', 'M13.5 7l3 3'].forEach((d) => ctx.stroke(new Path2D(d)))
+  }
   ctx.restore()
 
   return canvas.toDataURL('image/png')

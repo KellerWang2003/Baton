@@ -5,6 +5,7 @@ import { leave } from '../data/today'
 import type { Stage } from '../flow'
 import { defaultGlassTuning } from '../ui/promptGlass'
 import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
+import type { ConfettiVariant } from '../ui/confettiVariants'
 import type { RelayLook } from '../ui/relayLooks'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
@@ -28,6 +29,8 @@ type State = {
   archiveSegment: 'mine' | 'legacy'
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
+  // Which photo in a city's photo cloud was tapped (its cloud image src)
+  selectedPhoto: string | null
   // Which Relay pick or tip was tapped (opens its detail page)
   selectedRec: string | null
   // Notes she left on Relay picks and tips, by item id
@@ -52,6 +55,10 @@ type State = {
   reflections: { text: string; photos: string[] }[]
   // Stage whose congrats splash is showing over the app (after her stage moves forward)
   stageSplash: Stage | null
+  // Confetti on the Welcome to New York splash, picked in the debug panel; bump
+  // confettiRun to play it again
+  confetti: ConfettiVariant
+  confettiRun: number
   // Her intentions for New York, picked from Profile before her last night in LA
   goals: string[]
 }
@@ -69,6 +76,7 @@ let state: State = {
   leaveDate: leave.defaultDate,
   archiveSegment: 'mine',
   selectedFolder: null,
+  selectedPhoto: null,
   selectedRec: null,
   relayNotes: {},
   relayMap: false,
@@ -85,6 +93,9 @@ let state: State = {
   capturePhoto: null,
   reflections: [],
   stageSplash: null,
+  // Picked Oct 19 (the other styles stay in the debug panel)
+  confetti: 'pop',
+  confettiRun: 0,
   goals: [],
 }
 

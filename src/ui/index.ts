@@ -20,6 +20,9 @@ export type { InlinePhotoItem } from './InlinePhoto'
 export { ItemCard } from './ItemCard'
 export { ListRow, ListSection } from './List'
 export { BatonMark, Logo } from './Logo'
+export { Confetti } from './Confetti'
+export { confettiVariants } from './confettiVariants'
+export type { ConfettiVariant } from './confettiVariants'
 export { FilterOrb } from './FilterOrb'
 export type { OrbFilter } from './FilterOrb'
 export { PhotoCloud } from './PhotoCloud'
@@ -36,6 +39,10 @@ export { RecentPhotos } from './RecentPhotos'
 export type { PhotoItem } from './RecentPhotos'
 export { Screen } from './Screen'
 export { SetupCard } from './SetupCard'
+export { TodayCard } from './TodayCard'
+export { PickCard } from './PickCard'
+export { TodoCard } from './TodoCard'
+export { TodoKindIcon } from './TodoKindIcon'
 export { SpellOut } from './SpellOut'
 export { SegmentedControl } from './SegmentedControl'
 export { Steps } from './Steps'
@@ -55,6 +62,11 @@ export {
   DownloadIcon,
   MicIcon,
   AtIcon,
+  BoxIcon,
+  CardIcon,
+  ChevronDownIcon,
+  GiftIcon,
+  HomeIcon,
   ArrivalGraphic,
   BoxesGraphic,
   CameraIcon,

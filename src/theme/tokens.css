@@ -39,6 +39,17 @@
   --text-orb-label: 20px;
   --text-orb-label--line-height: 1.3;
   --text-orb-label--letter-spacing: -0.011em;
+  /* A photo opened from the Archive cloud (Figma ARCHIVE_selected, 236:234):
+     the prompt it answered, its place and time, and her note */
+  --text-moment-question: 24px;
+  --text-moment-question--line-height: 1.2;
+  --text-moment-question--letter-spacing: -0.011em;
+  --text-moment-meta: 16px;
+  --text-moment-meta--line-height: 1.3;
+  --text-moment-meta--letter-spacing: -0.011em;
+  --text-moment-note: 18px;
+  --text-moment-note--line-height: 1.25;
+  --text-moment-note--letter-spacing: -0.011em;
   /* City name on the sideways folder tab (Archive detail) */
   --text-side-tab: 24px;
   --text-side-tab--line-height: 1;
@@ -67,6 +78,14 @@
   --text-note-lg: 24px;
   --text-note-lg--line-height: 30px;
   --text-note-lg--letter-spacing: -0.011em;
+  /* Today (Figma TODAY 334:10047): the greeting, card titles and the line under them */
+  --text-greeting: 30px;
+  --text-greeting--line-height: 1.1;
+  --text-greeting--letter-spacing: -0.011em;
+  --text-today-card: 18px;
+  --text-today-card--line-height: 1.3;
+  --text-today-detail: 14px;
+  --text-today-detail--line-height: 16px;
   /* Big call-to-action label (Button size cta) */
   --text-cta: 18px;
   --text-cta--line-height: 1.5;
@@ -101,7 +120,9 @@
      with the Archive city folders; the rest of the app stays neutral for now */
   --color-baton-blue: #59a1ff;
   --color-baton-cream: #efe6e2;
-  --color-today-panel: #f0e5e3; /* Today setup panel, Figma 236:1282 */
+  --color-today-panel: #f0e5e3; /* Today's setup and list cards (Figma TODAY 334:10047) */
+  --color-today-muted: #777777; /* the line under a Today card's title */
+  --color-highlight: #378af7; /* places and people picked out in a Today card's title */
   --color-baton-pink: #f3beeb;
   --color-baton-yellow: #ede783;
   --color-baton-olive: #3f4017;
@@ -128,6 +149,7 @@
   --color-wrap-faint: #b2b2b2;
   /* Notes on paper (LA Wrapped, Rolling Paper): a softer yellow than the brand's */
   --color-note-yellow: #f4ef9e;
+  --color-moment-ring: #e2e2e2; /* hairline around an opened photo's glass circle */
   /* Glow button (Button variant glow, Figma 278:7144): blue core fading to
      a pale edge */
   --color-cta-glow-core: #3396ff;
@@ -259,6 +281,11 @@
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
   --shadow-paper-sheet: 4px 4px 20px rgb(0 0 0 / 0.05); /* the Rolling Paper sheet */
   --shadow-note: 4px 4px 10px rgb(0 0 0 / 0.05); /* a Rolling Paper note opened big */
+  --shadow-moment-note: 4px 4px 5px rgb(0 0 0 / 0.08); /* her note under an opened Archive photo */
+  --shadow-note-stuck: 0 1px 2px rgb(0 0 0 / 0.06); /* a note still stuck to the sheet */
+  --shadow-note-peeled: 6px 18px 30px rgb(0 0 0 / 0.16); /* a note peeled off and in the air */
+  --shadow-today-card: 4px 4px 10px rgb(0 0 0 / 0.05); /* Today's list cards (Figma 334:11284) */
+  --shadow-setup-card: 4px 4px 5px rgb(0 0 0 / 0.05); /* Today's setup cards (Figma 334:11111) */
   --shadow-pill: 2px 2px 4px rgb(0 0 0 / 0.08); /* date pills on the LA Wrapped timeline */
   --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */
   --shadow-rec: 0 1px 1px rgb(34 36 48 / 0.05), 0 4px 10px -6px rgb(34 36 48 / 0.18); /* Relay cards: a lighter lift than paper (Keller, Oct 19) */

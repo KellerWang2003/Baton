@@ -111,65 +111,95 @@ export const organize = {
   done: (n: number) => (n === 1 ? 'Keep 1 place' : `Keep ${n} places`),
 }
 
-export type Todo = { id: string; title: string }
-type TodoGroup = { header: string; items: Todo[] }
+export type Todo = { id: string; title: string; detail?: string }
+// Each category has its own icon and color on the picking page
+export type TodoKind = 'home' | 'belongings' | 'accounts' | 'goodbyes' | 'transit'
+export type TodoGroup = { header: string; kind: TodoKind; items: Todo[] }
 
 // Logistics to-dos for leaving (Moving) and for arriving (Newcomer).
 export const todoGroups: Record<'moving' | 'newcomer', TodoGroup[]> = {
   moving: [
     {
       header: 'Home',
+      kind: 'home',
       items: [
-        { id: 'lease', title: 'End lease or find a subletter' },
-        { id: 'furniture', title: 'Sell or give away furniture' },
-        { id: 'deposit', title: 'Get the security deposit back' },
+        { id: 'lease', title: 'End your lease', detail: 'Most landlords want 30 days in writing' },
+        { id: 'landlord', title: 'Tell your landlord your move-out date', detail: 'And book the walk-through' },
+        { id: 'roommate', title: 'Sort things out with your roommate', detail: 'Rent, bills and who keeps what' },
+        { id: 'deposit', title: 'Get your security deposit back', detail: 'Photos of every room help' },
       ],
     },
     {
-      header: 'Stuff',
+      header: 'Belongings',
+      kind: 'belongings',
       items: [
-        { id: 'ship', title: 'Ship boxes to New York' },
-        { id: 'mail', title: 'Forward mail with USPS' },
+        { id: 'ship', title: 'Ship your boxes to New York', detail: 'Books and sketchbooks go cheapest' },
+        { id: 'bedframe', title: 'Sell your bed frame', detail: 'Big pieces take the longest to go' },
+        { id: 'furniture', title: 'Sell or give away the rest', detail: 'Desk, lamp, the plants' },
+        { id: 'mail', title: 'Forward your mail with USPS', detail: 'Takes about a week to start' },
       ],
     },
     {
       header: 'Accounts',
+      kind: 'accounts',
       items: [
-        { id: 'utilities', title: 'Cancel internet and utilities' },
-        { id: 'gym', title: 'Cancel gym membership' },
-        { id: 'bank', title: 'Update address with the bank' },
+        { id: 'utilities', title: 'Cancel Spectrum', detail: 'They want the router back' },
+        { id: 'car-insurance', title: 'Call your car insurance', detail: 'Change your location to New York' },
+        { id: 'gym', title: 'Cancel your gym membership', detail: 'Usually 30 days notice' },
+        { id: 'bank', title: 'Update your address with the bank', detail: 'So your new card ships to NY' },
+      ],
+    },
+    {
+      header: 'Goodbyes',
+      kind: 'goodbyes',
+      items: [
+        { id: 'gift-professors', title: 'Get thank-you gifts for your professors', detail: 'Something small from LA' },
+        { id: 'studio-cards', title: 'Write cards for your studio friends', detail: 'They’ll keep them longer than you think' },
+        { id: 'goodbye-dinner', title: 'Plan a goodbye dinner', detail: 'Pick the date before the last week fills up' },
+        { id: 'roommate-gift', title: 'Leave something for your roommate', detail: 'A plant, a note, the good pan' },
       ],
     },
   ],
   newcomer: [
     {
       header: 'Home',
+      kind: 'home',
       items: [
-        { id: 'insurance', title: "Get renter's insurance" },
-        { id: 'internet', title: 'Set up internet' },
+        { id: 'insurance', title: "Get renter's insurance", detail: 'Many landlords ask before move-in' },
+        { id: 'internet', title: 'Set up internet', detail: 'Installs are booked two weeks out' },
       ],
     },
     {
       header: 'Getting around',
+      kind: 'transit',
       items: [
-        { id: 'omny', title: 'Set up OMNY for the subway' },
-        { id: 'grocery', title: 'Find a grocery store nearby' },
+        { id: 'omny', title: 'Set up OMNY for the subway', detail: 'Just tap your phone' },
+        { id: 'grocery', title: 'Find a grocery store nearby', detail: 'One you can walk to' },
       ],
     },
     {
       header: 'Accounts',
+      kind: 'accounts',
       items: [
-        { id: 'address', title: 'Update your address everywhere' },
-        { id: 'doctor', title: 'Find a doctor in network' },
+        { id: 'address', title: 'Update your address everywhere', detail: 'USPS, bank, phone first' },
+        { id: 'doctor', title: 'Find a doctor in network', detail: 'Filter by accepting new patients' },
       ],
     },
   ],
 }
 
+// Which category each to-do is in, for its icon on Today
+export const todoKind: Record<string, TodoKind> = Object.fromEntries(
+  Object.values(todoGroups).flatMap((groups) => groups.flatMap((group) => group.items.map((item) => [item.id, group.kind]))),
+)
+
 export const todos = {
-  title: { moving: 'Before you leave LA', newcomer: 'Settling into New York' },
-  body: "Pick what you still need to sort out. They'll sit on Today until they're done.",
+  title: { moving: 'What’s left before you leave LA?', newcomer: 'What’s left to set up in New York?' },
+  body: 'Pick what’s on your plate. Tips included!',
   cta: (n: number) => (n === 0 ? 'Pick at least one' : `Add ${n} to Today`),
+  selectAll: 'Add all',
+  clear: 'Clear',
+  tips: (n: number) => (n === 1 ? '1 tip' : `${n} tips`),
 }
 
 export const instagram = {
@@ -191,9 +221,9 @@ export const setup = {
   items: {
     archive: { title: 'Organize your archive', subtitle: 'Check the places we found in your photos' },
     todos: {
-      moving: { title: 'Plan your move our tasks', subtitle: 'Lease, boxes, accounts' },
+      moving: { title: 'Pick your moving to-dos', subtitle: 'Lease, boxes, accounts' },
       newcomer: { title: 'Pick your arrival to-dos', subtitle: 'Home, transit, accounts' },
     },
-    instagram: { title: 'Share your Rolling Paper', subtitle: 'Invite friends to leave you notes' },
+    instagram: { title: 'Add your Instagram tag', subtitle: 'So friends can leave you notes' },
   },
 }
