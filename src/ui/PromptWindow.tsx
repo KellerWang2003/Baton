@@ -96,9 +96,10 @@ export function PromptWindow({
             fontSize={17}
             fontWeight={500}
             color={tint}
-            // What the glass sits on: the page's paper, with a heavier blue at
-            // the rim fading inward (Figma 236:1282), so it's all one glass
-            src={edgeGlow(box, tuning.size, tint, token('--color-baton-paper'), edge)}
+            // The page's paper, drawn into the canvas so the glass has light to tint
+            background={token('--color-baton-paper')}
+            // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)
+            rim={edge}
             {...glassProps}
             // Default is a drag that gives a little, then springs back
             give={give}
@@ -144,23 +145,6 @@ export function PromptWindow({
       {seed && <p className="text-subhead text-baton-navy/55">{seed}</p>}
     </div>
   )
-}
-
-// A square of paper the size of the glass canvas with a blue ring under the
-// glass's rim, darkest at the edge and fading toward the middle
-function edgeGlow(box: number, size: number, blue: string, paper: string, strength: number) {
-  const r = size / 2
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${box}" height="${box}" viewBox="0 0 ${box} ${box}">
-    <defs><radialGradient id="g" cx="50%" cy="50%" r="50%">
-      <stop offset="0.62" stop-color="${paper}"/>
-      <stop offset="0.86" stop-color="${blue}" stop-opacity="${0.3 * strength}"/>
-      <stop offset="1" stop-color="${blue}" stop-opacity="${strength}"/>
-    </radialGradient></defs>
-    <rect width="100%" height="100%" fill="${paper}"/>
-    <circle cx="${box / 2}" cy="${box / 2}" r="${r}" fill="${paper}"/>
-    <circle cx="${box / 2}" cy="${box / 2}" r="${r}" fill="url(#g)"/>
-  </svg>`
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`
 }
 
 // Breaks the prompt into short lines for the glass canvas, which draws text

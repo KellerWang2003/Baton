@@ -30,6 +30,8 @@ export interface FluidGlassProps {
   frost?: number;
   color?: string;
   tint?: number;
+  // Baton: how strongly the glass shows its color at the rim, fading inward (0..1)
+  rim?: number;
   shadow?: number;
   elevation?: number;
   interaction?: Interaction;
@@ -68,6 +70,7 @@ interface Settings {
   frost: number;
   color: number[];
   tint: number;
+  rim: number;
   shadow: number;
   elevation: number;
   interaction: Interaction;
@@ -237,6 +240,7 @@ uniform float uDispersion;
 uniform float uReflection;
 uniform float uFrost;
 uniform vec4 uTint;
+uniform float uRim;
 uniform float uShadow;
 uniform vec3 uLight;
 uniform float uPresence;
@@ -525,6 +529,12 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   vec4 glass = reflected + transmitted * (1.0 - reflected.a);
   float edge = 1.0 - smoothstep(0.04, 0.3, cosi);
   glass = mix(glass, mirror + background * (1.0 - mirror.a), edge);
+  // Baton: the glass's own color, heaviest at its rim and fading inward
+  // (by distance from the glass's center, so it travels with the glass)
+  float radial = length(tr.p.xy - uCenter.xy) / max(uBound / 1.08, 1.0);
+  float rimTint = smoothstep(0.55, 1.0, radial) * uRim;
+  float rimAlpha = max(glass.a, rimTint);
+  glass = vec4(mix(glass.rgb, uTint.rgb * rimAlpha, rimTint), rimAlpha);
   vec2 facing = normalize(vec2(-0.42, 0.55));
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(tr.n.xy + 1e-5), facing))) * 0.55 * uReflection;
   rimLight *= smoothstep(0.0, 0.08, cosi);
@@ -667,6 +677,7 @@ const FluidGlass = ({
   frost = 0,
   color = '#ffffff',
   tint = 0,
+  rim = 0,
   shadow = 0.5,
   elevation = 0.4,
   interaction = 'follow',
@@ -709,6 +720,7 @@ const FluidGlass = ({
     frost: clamp(frost, 0, 1),
     color: parseColor(color) || [1, 1, 1, 1],
     tint: clamp(tint, 0, 1),
+    rim: clamp(rim, 0, 1),
     shadow: clamp(shadow, 0, 1),
     elevation: clamp(elevation, 0, 3),
     interaction,
@@ -1311,6 +1323,7 @@ const FluidGlass = ({
       gl.uniform1f(u.uReflection, s.reflection);
       gl.uniform1f(u.uFrost, s.frost);
       gl.uniform4f(u.uTint, s.color[0], s.color[1], s.color[2], s.tint * 1.6);
+      gl.uniform1f(u.uRim, s.rim);
       gl.uniform1f(u.uShadow, s.shadow);
       const light = [-0.42, 0.55, 1];
       const length = Math.hypot(...light);
