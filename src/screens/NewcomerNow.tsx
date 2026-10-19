@@ -14,7 +14,7 @@ export function NewcomerNow() {
       </div>
 
       <div className="mt-8 flex animate-splash-rise flex-col items-center" style={{ animationDelay: '1100ms' }}>
-        <StageTag stage="newcomer" label={newcomerNow.tag} size="md" />
+        <StageTag stage="newcomer" label={newcomerNow.tag} size="lg" />
         <h1 className="mt-3 text-center text-[24px] leading-[1.36] tracking-[-0.011em]">
           {newcomerNow.title.map((line) => (
             <span key={line} className="block">
