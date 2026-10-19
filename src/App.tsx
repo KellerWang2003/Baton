@@ -2,6 +2,8 @@ import { Suspense, lazy, useState } from 'react'
 import { DebugPanel } from './app/DebugPanel'
 import { DeviceFrame } from './app/DeviceFrame'
 import { useStore } from './app/store'
+import { ScrollJoystick } from './app/ScrollJoystick'
+import { useFrameSize } from './app/useFrameSize'
 import { usePersistentToggle } from './app/usePersistentToggle'
 import { useScreenIndex } from './app/useScreenIndex'
 import { tabs } from './data/pages'
@@ -19,6 +21,8 @@ const MapPlayground = lazy(() => import('./screens/MapPlayground').then((m) => (
 function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
+  const [frame, updateFrame] = useFrameSize()
+  const [joystick, toggleJoystick] = usePersistentToggle('baton:joystick', false)
   const [lockRatio, toggleLockRatio] = usePersistentToggle('baton:lock-ratio', true)
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null)
   const [kitOpen, setKitOpen] = useState(false)
@@ -43,7 +47,7 @@ function App() {
 
   return (
     <>
-      <DeviceFrame framed={framed} lockRatio={lockRatio} backgroundColor={backgroundColor} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
+      <DeviceFrame framed={framed} frame={frame} lockRatio={lockRatio} backgroundColor={backgroundColor} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
         <div data-stage={status ?? stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />
@@ -64,6 +68,10 @@ function App() {
         goTo={goToScreen}
         framed={framed}
         toggleFrame={toggleFrame}
+        frame={frame}
+        updateFrame={updateFrame}
+        joystick={joystick}
+        toggleJoystick={toggleJoystick}
         lockRatio={lockRatio}
         toggleLockRatio={toggleLockRatio}
         backgroundColor={backgroundColor}
@@ -79,6 +87,7 @@ function App() {
         todayLooksOpen={todayLooksOpen}
         toggleTodayLooks={() => setTodayLooksOpen((open) => !open)}
       />
+      {joystick && <ScrollJoystick />}
       {mapsOpen && (
         <Suspense>
           <MapPlayground onClose={() => setMapsOpen(false)} />

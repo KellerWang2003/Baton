@@ -5,6 +5,8 @@ import { stageNames } from '../data/stages'
 import { confettiVariants, cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
 import type { GlassTuning } from '../ui'
 import { dailyPrompts } from '../data/pages'
+import { frameLimits } from './useFrameSize'
+import type { FrameSettings } from './useFrameSize'
 import { changeStage, setState, useStatus, useStore } from './store'
 
 type DebugPanelProps = {
@@ -12,6 +14,10 @@ type DebugPanelProps = {
   goTo: (index: number) => void
   framed: boolean
   toggleFrame: () => void
+  frame: FrameSettings
+  updateFrame: (patch: Partial<FrameSettings>) => void
+  joystick: boolean
+  toggleJoystick: () => void
   lockRatio: boolean
   toggleLockRatio: () => void
   backgroundColor: string | null
@@ -34,7 +40,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
   const { onboardingPhotoAccess } = useStore()
@@ -125,7 +131,40 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
 
       <div className="flex flex-col gap-1 border-t border-line pt-3">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
+        {framed && (
+          <div className="flex flex-col gap-1.5 px-2 py-1">
+            <div role="radiogroup" aria-label="Frame preset" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+              {(['iphone', 'custom'] as const).map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  role="radio"
+                  aria-checked={frame.preset === preset}
+                  onClick={() => updateFrame({ preset })}
+                  className={cx('flex-1 rounded-full px-2 py-1 text-xs font-semibold transition', frame.preset === preset ? 'bg-ink text-surface' : 'text-ink hover:bg-surface')}
+                >
+                  {preset === 'iphone' ? 'iPhone' : 'Custom'}
+                </button>
+              ))}
+            </div>
+            {frame.preset === 'custom' && (
+              <>
+                <div className="flex items-center gap-2 text-xs">
+                  <SizeInput label="W" value={frame.width} onChange={(width) => updateFrame({ width })} />
+                  <SizeInput label="H" value={frame.height} onChange={(height) => updateFrame({ height })} />
+                  <button type="button" aria-label="Swap width and height" onClick={() => updateFrame({ width: frame.height, height: frame.width })} className="rounded-control bg-surface-muted px-2 py-1 font-semibold hover:bg-line">⇄</button>
+                </div>
+                <div className="flex gap-1">
+                  {[['Phone', 402, 874], ['Tablet', 820, 1180], ['Wide', 1280, 800]].map(([name, width, height]) => (
+                    <button key={name} type="button" onClick={() => updateFrame({ width: Number(width), height: Number(height) })} className="flex-1 rounded-control bg-surface-muted px-1 py-1 text-xs font-semibold hover:bg-line">{name}</button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
         <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
+        <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
         <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
@@ -206,6 +245,22 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
 
       <p className="border-t border-line pt-2 text-xs text-ink-muted">` panel · ← → screens · 1 2 3 stage · F frame</p>
     </aside>
+  )
+}
+
+function SizeInput({ label, value, onChange }: { label: string; value: number; onChange: (value: number) => void }) {
+  return (
+    <label className="flex flex-1 items-center gap-1 font-semibold text-ink-muted">
+      {label}
+      <input
+        type="number"
+        min={frameLimits.min}
+        max={frameLimits.max}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="w-full min-w-0 rounded-control bg-surface-muted px-1.5 py-1 font-normal text-ink"
+      />
+    </label>
   )
 }
 
