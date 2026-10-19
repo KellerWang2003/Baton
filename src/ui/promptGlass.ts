@@ -74,7 +74,7 @@ export const defaultGlassTuning: GlassTuning = {
   shadow: 0.1,
   elevation: 0,
   interaction: 'drag',
-  give: 0.1,
+  give: 0.24,
   smoothness: 1,
   wobble: 0.5,
   spin: 0.3,

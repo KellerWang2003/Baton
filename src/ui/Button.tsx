@@ -5,12 +5,14 @@ import { cx } from './cx'
 // blue with a bright core (Continue on LA Wrapped, Figma 278:7144).
 const variants = {
   primary: 'bg-brand text-on-brand active:opacity-80',
+  blue: 'bg-baton-blue text-ink active:opacity-80',
   tinted: 'bg-brand/15 text-brand active:opacity-70',
   secondary: 'bg-surface-muted text-brand active:opacity-70',
   ghost: 'text-brand active:opacity-50',
   stage: 'bg-stage text-on-stage active:opacity-80',
   destructive: 'bg-danger/15 text-danger active:opacity-70',
   glow: 'bg-white bg-[radial-gradient(281px_111px_at_center,var(--color-cta-glow-core),var(--color-cta-glow-edge))] text-white active:opacity-80',
+  onboarding: 'onboarding-continue active:opacity-80',
 }
 
 // md: large full-weight button (50pt, rounded rect). sm: compact capsule.

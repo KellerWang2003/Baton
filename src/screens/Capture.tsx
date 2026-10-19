@@ -1,36 +1,29 @@
 import { useEffect, useRef, useState } from 'react'
 import { goBack } from '../app/navigate'
-import { useDailyPrompt } from '../app/store'
+import { setState, useDailyPrompt, useStore } from '../app/store'
 import { pages } from '../data/pages'
 import { CameraIcon, ListSection, Screen, TextArea, VisibilityBadge } from '../ui'
 
 const copy = pages.capture
 
 // Pushed page (no tab bar) for answering today's prompt: add photos and/or
-// write a short reflection. Opened from the + button and the prompt card.
+// write a short reflection. Photo prompts open the camera first, then review here.
 // Nothing is stored yet; Save just goes back.
 export function Capture() {
   const dailyPrompt = useDailyPrompt()
-  const [photos, setPhotos] = useState<string[]>([])
+  const { capturePhoto } = useStore()
+  const [photos, setPhotos] = useState<File[]>(() => capturePhoto ? [capturePhoto] : [])
   const [text, setText] = useState('')
-  const photosRef = useRef(photos)
-
-  useEffect(() => {
-    photosRef.current = photos
-  }, [photos])
-
-  // Free the preview URLs when leaving the page.
-  useEffect(() => () => photosRef.current.forEach((url) => URL.revokeObjectURL(url)), [])
+  useEffect(() => () => setState({ capturePhoto: null }), [])
 
   const addPhotos = (files: FileList | null) => {
     if (!files) return
-    const urls = Array.from(files).map((file) => URL.createObjectURL(file))
-    setPhotos((current) => [...current, ...urls])
+    const images = Array.from(files).filter((file) => file.type.startsWith('image/'))
+    setPhotos((current) => [...current, ...images])
   }
 
-  const removePhoto = (url: string) => {
-    URL.revokeObjectURL(url)
-    setPhotos((current) => current.filter((u) => u !== url))
+  const removePhoto = (index: number) => {
+    setPhotos((current) => current.filter((_, i) => i !== index))
   }
 
   const canSave = photos.length > 0 || text.trim().length > 0
@@ -55,12 +48,12 @@ export function Capture() {
 
         <ListSection header={copy.photosLabel}>
           <div className="grid grid-cols-3 gap-2 p-2">
-            {photos.map((url) => (
-              <div key={url} className="relative aspect-square overflow-hidden rounded-tile bg-surface-muted">
-                <img src={url} alt="" className="size-full object-cover" />
+            {photos.map((photo, index) => (
+              <div key={`${photo.name}-${photo.lastModified}-${index}`} className="relative aspect-square overflow-hidden rounded-tile bg-surface-muted">
+                <PhotoPreview photo={photo} />
                 <button
                   type="button"
-                  onClick={() => removePhoto(url)}
+                  onClick={() => removePhoto(index)}
                   aria-label="Remove photo"
                   className="absolute right-1 top-1 inline-flex size-6 items-center justify-center rounded-full bg-scrim text-caption text-on-brand"
                 >
@@ -99,4 +92,14 @@ export function Capture() {
       </div>
     </Screen>
   )
+}
+
+function PhotoPreview({ photo }: { photo: File }) {
+  const image = useRef<HTMLImageElement>(null)
+  useEffect(() => {
+    const preview = URL.createObjectURL(photo)
+    if (image.current) image.current.src = preview
+    return () => URL.revokeObjectURL(preview)
+  }, [photo])
+  return <img ref={image} alt="Photo for today's prompt" className="size-full object-cover" />
 }

@@ -38,7 +38,7 @@ function App() {
 
   return (
     <>
-      <DeviceFrame framed={framed} lockRatio={lockRatio}>
+      <DeviceFrame framed={framed} lockRatio={lockRatio} onboardingStatus={['signup', 'about', 'about-tags', 'photos', 'welcome'].includes(id)}>
         <div data-stage={status ?? stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />

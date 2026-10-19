@@ -1,32 +1,25 @@
 import { navigate } from '../app/navigate'
 import { photos } from '../data/onboarding'
-import { Button, Card, PhotosIcon } from '../ui'
-import { OnboardingLayout } from './OnboardingLayout'
+import { PhotosIcon } from '../ui'
+import { OnboardingStep } from '../ui/OnboardingStep'
 
-// Last onboarding step: photo access, then the welcome splash. The places found seed the private
-// archive, which she organizes later from the setup list on Today.
 export function PhotoAccess() {
+  const next = () => navigate('welcome')
+
   return (
-    <OnboardingLayout
+    <OnboardingStep
       title={photos.title}
       body={photos.body}
-      footer={
-        <>
-          <Button block onClick={() => navigate('welcome')}>
-            {photos.allow}
-          </Button>
-          <Button block variant="ghost" onClick={() => navigate('welcome')}>
-            {photos.later}
-          </Button>
-        </>
-      }
+      className="onboarding-photos"
+      continueLabel={photos.allow}
+      onContinue={next}
+      footer={<button type="button" className="onboarding-text-action" onClick={next}>{photos.later}</button>}
     >
-      <Card className="flex flex-col items-center gap-3 py-8 text-center">
-        <span className="text-ink">
-          <PhotosIcon />
-        </span>
-        <p className="px-4 text-subhead text-ink-muted">{photos.privacy}</p>
-      </Card>
-    </OnboardingLayout>
+      <div className="onboarding-photo-stack" aria-hidden="true">
+        <div className="onboarding-photo-back" />
+        <div className="onboarding-photo-card"><PhotosIcon /></div>
+      </div>
+      <p className="onboarding-privacy">{photos.privacy}</p>
+    </OnboardingStep>
   )
 }

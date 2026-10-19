@@ -75,7 +75,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                       </h3>
                     </div>
                     <span className="rounded-full shadow-float">
-                      <Avatar name={chloe.name} size="sm" />
+                      <Avatar name={chloe.name} src={chloe.avatar} size="sm" />
                     </span>
                   </header>
                   <PromptWindow

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
@@ -24,7 +24,6 @@ import {
 } from '../data/today'
 import {
   ArrowRightIcon,
-  AtIcon,
   BottomSheet,
   Button,
   Card,
@@ -32,11 +31,8 @@ import {
   CheckCircle,
   ChevronRightIcon,
   ItemCard,
-  ListIcon,
-  PlaneIcon,
   PromptWindow,
   SetupCard,
-  StackIcon,
 } from '../ui'
 import { MainLayout } from './MainLayout'
 
@@ -56,27 +52,28 @@ export function Today({ lastWeek = false }: TodayProps) {
   const status = useStatus()
   const prompt = useDailyPrompt()
   const medium = promptMedium(prompt.question)
+  const camera = useRef<HTMLInputElement>(null)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
 
   const daysLeft = daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
   const leaving = shortDate(leaveDate)
   const hello = greeting(status, timeOfDay(), daysLeft)
 
-  // Setup cards. Locals have no logistics to pick; only Moving has a leave date.
+  // Figma's setup row starts with Instagram. Locals have no logistics to pick;
+  // only Moving has a leave date. Archive organization remains its own flow.
   const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode }[] = [
-    { id: 'archive', ...setup.items.archive, icon: <StackIcon /> },
-    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <ListIcon /> }]),
+    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" /> },
     ...(status === 'moving'
       ? [
           {
             id: 'leave' as const,
             title: setupCards.leave.title,
             subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : setupCards.leave.subtitle,
-            icon: <PlaneIcon />,
+            icon: <img src="/today/setup-leave.svg" alt="" />,
           },
         ]
       : []),
-    { id: 'instagram', ...setup.items.instagram, icon: <AtIcon /> },
+    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" /> }]),
   ]
   const setupCount = setupItems.filter((item) => setupDone.includes(item.id)).length
 
@@ -90,7 +87,22 @@ export function Today({ lastWeek = false }: TodayProps) {
 
   return (
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
-      {/* Tapping the circle opens the + field in the tab bar, like tapping a widget */}
+      {/* Photo prompts launch the camera; writing prompts open the + field. */}
+      <input
+        ref={camera}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        aria-label="Take a photo for today's prompt"
+        className="hidden"
+        onChange={(event) => {
+          const photo = event.target.files?.[0]
+          event.target.value = ''
+          if (!photo || !photo.type.startsWith('image/')) return
+          setState({ capturePhoto: photo, composing: false })
+          navigate('capture')
+        }}
+      />
       <PromptWindow
         className="pb-8 pt-6"
         question={prompt.question}
@@ -99,14 +111,14 @@ export function Today({ lastWeek = false }: TodayProps) {
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
         tuning={glassTuning}
-        onClick={openComposer}
+        onClick={medium === 'photo' ? () => camera.current?.click() : openComposer}
       />
 
       {/* Everything else sits on a cream panel that runs to the bottom of the
           page, under the floating tab bar */}
-      <div className="-mx-4 -mb-30 flex min-h-[420px] flex-col gap-6 rounded-t-panel bg-baton-cream px-4 pb-36 pt-7">
+      <div className="-mx-4 -mb-30 flex min-h-[420px] flex-col gap-6 rounded-t-panel bg-today-panel px-4 pb-36 pt-8">
         {setupCount < setupItems.length && (
-          <CardRow header={setup.header} detail={setupCards.progress(setupCount, setupItems.length)}>
+          <CardRow className="today-setup" header={setup.header} detail={setupCards.progress(setupCount, setupItems.length)}>
             {setupItems.map((item) => (
               <SetupCard
                 key={item.id}

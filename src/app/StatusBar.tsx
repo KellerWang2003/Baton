@@ -27,8 +27,17 @@ function useClock() {
 // live time at left, the Dynamic Island, then signal, wifi and battery
 // (public/status/icons-right.svg, exported from Figma) at right. 54pt tall on
 // the paper color the screens sit on.
-export function StatusBar() {
+export function StatusBar({ onboarding = false }: { onboarding?: boolean }) {
   const time = useClock()
+  if (onboarding) {
+    return (
+      <div className="onboarding-status flex h-[54px] shrink-0 items-center justify-between px-9 text-sm font-semibold text-ink">
+        <span>{time}</span>
+        <span aria-hidden className="absolute left-1/2 top-[11px] h-[37px] w-[126px] -translate-x-1/2 rounded-full bg-ink" />
+        <img src="/onboarding/status-icons.svg" alt="" width="75.401" height="13" />
+      </div>
+    )
+  }
   return (
     <div className="relative h-[54px] shrink-0 bg-baton-paper text-device">
       <span className="absolute top-[18px] left-[57.5px] -translate-x-1/2 font-system text-status font-semibold whitespace-nowrap tabular-nums">

@@ -1,35 +1,58 @@
+import { useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { auth } from '../data/onboarding'
-import { Button, Screen } from '../ui'
+import { Button } from '../ui'
 
-// Sign up or log in. No back button: the feature overview is behind you.
-// Every option continues to the next step in the prototype.
+// These entry points continue the prototype; no external authentication runs.
 export function SignUp() {
+  const [email, setEmail] = useState('')
+  const emailInput = useRef<HTMLInputElement>(null)
   const next = () => navigate('about')
 
   return (
-    <Screen
-      footer={
-        <div className="flex flex-col gap-2">
-          <Button block onClick={next}>
-            {auth.apple}
+    <main className="onboarding-step account-page">
+      <header className="account-header">
+        <img src="/onboarding/account-mark.svg" width="79" height="79" alt="Baton" />
+        <h1>{auth.title}</h1>
+      </header>
+      <section className="account-options" aria-label="Sign-in options">
+        <form noValidate onSubmit={(event) => { event.preventDefault(); next() }}>
+          <div className="account-email-field">
+            <input
+              ref={emailInput}
+              type="email"
+              name="email"
+              autoComplete="email"
+              autoCapitalize="none"
+              spellCheck={false}
+              aria-label={auth.emailPlaceholder}
+              placeholder={auth.emailPlaceholder}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+            />
+            {email && (
+              <button type="button" className="account-clear" aria-label="Clear email address" onClick={() => { setEmail(''); emailInput.current?.focus() }}>
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                  <circle cx="9" cy="9" r="9" fill="currentColor" opacity="0.45" />
+                  <path d="m6 6 6 6m0-6-6 6" stroke="var(--color-baton-paper)" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
+          </div>
+          <Button type="submit" block variant="onboarding" className="account-continue">{auth.continue}</Button>
+        </form>
+        <p className="account-divider">{auth.divider}</p>
+        <div className="account-providers">
+          <Button block variant="secondary" className="account-provider" onClick={next}>
+            <img src="/onboarding/google-logo.png" width="22" height="22" alt="" />
+            <span>{auth.google}</span>
           </Button>
-          <Button block variant="secondary" onClick={next}>
-            {auth.email}
+          <Button block variant="secondary" className="account-provider" onClick={next}>
+            <img src="/onboarding/apple-logo.svg" width="22" height="22" alt="" />
+            <span>{auth.apple}</span>
           </Button>
-          <p className="pt-2 text-center text-subhead text-ink-muted">
-            {auth.login}{' '}
-            <button type="button" onClick={next} className="font-semibold text-brand active:opacity-50">
-              {auth.loginAction}
-            </button>
-          </p>
         </div>
-      }
-    >
-      <div className="flex flex-col gap-3 px-1 pt-14">
-        <h1 className="font-display text-title-1 font-bold text-ink">{auth.title}</h1>
-        <p className="text-body text-ink-muted">{auth.body}</p>
-      </div>
-    </Screen>
+      </section>
+    </main>
   )
 }

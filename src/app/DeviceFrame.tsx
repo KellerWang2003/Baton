@@ -19,6 +19,7 @@ type DeviceFrameProps = {
   // Keep the phone's proportions on short windows by scaling it down whole,
   // instead of squashing its height (which made it look fat)
   lockRatio: boolean
+  onboardingStatus?: boolean
   children: ReactNode
 }
 
@@ -30,7 +31,7 @@ type DeviceFrameProps = {
 // The frame's outer size: the 402x874 screen plus the 10px border
 const frameSize = { width: 422, height: 894 }
 
-export function DeviceFrame({ framed, lockRatio, children }: DeviceFrameProps) {
+export function DeviceFrame({ framed, lockRatio, onboardingStatus, children }: DeviceFrameProps) {
   const isPhone = useIsPhone()
   const page = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
@@ -62,7 +63,7 @@ export function DeviceFrame({ framed, lockRatio, children }: DeviceFrameProps) {
           !lockRatio && 'h-[894px] max-h-full w-[422px]',
         )}
       >
-        <StatusBar />
+        <StatusBar onboarding={onboardingStatus} />
         <div className="@container min-h-0 flex-1">{children}</div>
       </div>
     </div>

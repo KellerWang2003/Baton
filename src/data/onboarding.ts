@@ -29,25 +29,37 @@ export const features = {
 }
 
 export const auth = {
-  title: 'Create your account',
-  body: 'Communities are by city, not by school. Anyone moving can join.',
+  title: 'Log in or sign up',
+  emailPlaceholder: 'Email address',
+  continue: 'Continue',
+  divider: 'or',
+  google: 'Continue with Google',
   apple: 'Continue with Apple',
-  email: 'Sign up with email',
-  login: 'Already have an account?',
-  loginAction: 'Log in',
 }
 
 export const about = {
-  title: 'Tell us about yourself',
-  body: "Baton works differently if you're leaving a city, just arrived somewhere new, or settled in.",
+  title: 'Tell us about yourself!',
+  body: 'Baton works differently if you’re leaving a city, just arrived somewhere new, or have settled in.',
   moveOptions: [
-    { id: 'moving', label: 'Moving soon', detail: "Save the places and people you'll miss, then pass them on when you leave." },
+    { id: 'moving', label: 'Moving soon', detail: 'Save the places and people you’ll miss, then pass them on when you leave.' },
     { id: 'newcomer', label: 'Just arrived', detail: 'Get tips from people with your lifestyle who lived here before you.' },
     { id: 'local', label: 'Settled in', detail: "See how far you've come, and keep the small stuff for whoever's next." },
   ] as { id: 'moving' | 'newcomer' | 'local'; label: string; detail: string }[],
   pickHint: 'Tap a card to see what it means.',
-  youHeader: 'You are…',
-  tags: ['Student', 'New grad', 'International', 'Working', 'Moving alone', 'First time in a big city'],
+  tagGroups: [
+    {
+      title: 'Life right now',
+      tags: ['Student', 'New grad', 'Working', 'Freelancing', 'Between jobs'],
+    },
+    {
+      title: 'Your move',
+      tags: ['International', 'First time moving', 'New to city life', 'Moved cities before'],
+    },
+    {
+      title: 'Who’s coming with you',
+      tags: ['Moving alone', 'With a partner', 'With family', 'With friends', 'With a pet'],
+    },
+  ],
 }
 
 export const photos = {
@@ -59,8 +71,7 @@ export const photos = {
 }
 
 export const splash = {
-  welcome: 'Welcome to',
-  tagline: 'Leave a story. Start another.',
+  welcome: 'Welcome to Baton',
 }
 
 export type FoundPlace = {
@@ -158,15 +169,15 @@ export const todos = {
 }
 
 export const instagram = {
-  title: 'Let friends leave you a note',
-  body: 'Add your Baton tag to your Instagram bio. Friends who tap it can write you a note before you go.',
-  sealed: "You'll open them after you land.",
-  handleLabel: 'Instagram',
-  handlePlaceholder: 'your.handle',
-  previewHeader: 'What friends see',
-  previewTitle: (name: string, city: string) => `Leave ${name} a note before she leaves ${city}`,
-  link: (handle: string) => `baton.city/${handle || 'you'}`,
-  add: 'Add tag to my bio',
+  title: 'Share your Rolling Paper',
+  body: 'Send your link to friends so they can add a note to your Rolling Paper.',
+  sealed: 'Their notes stay sealed until you land in your new city.',
+  done: 'Done',
+  socials: [
+    { name: 'Instagram', url: 'https://www.instagram.com/' },
+    { name: 'WhatsApp', url: 'https://web.whatsapp.com/' },
+    { name: 'TikTok', url: 'https://www.tiktok.com/' },
+  ],
 }
 
 // The "finish setting up" list on Today, right after onboarding.
@@ -179,6 +190,6 @@ export const setup = {
       moving: { title: 'Pick your moving to-dos', subtitle: 'Lease, boxes, accounts' },
       newcomer: { title: 'Pick your arrival to-dos', subtitle: 'Home, transit, accounts' },
     },
-    instagram: { title: 'Add your Instagram tag', subtitle: 'So friends can leave you notes' },
+    instagram: { title: 'Share your Rolling Paper', subtitle: 'Invite friends to leave you notes' },
   },
 }

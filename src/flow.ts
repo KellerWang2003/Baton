@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import { AboutYou } from './screens/AboutYou'
+import { AboutYou, AboutYouTags } from './screens/AboutYou'
 import { Archive } from './screens/Archive'
 import { ArchiveDetail } from './screens/ArchiveDetail'
 import { Capture } from './screens/Capture'
@@ -7,6 +7,7 @@ import { Community } from './screens/Community'
 import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
 import { LaWrapped } from './screens/LaWrapped'
+import { FriendNote } from './screens/FriendNote'
 import { LeaveDate } from './screens/LeaveDate'
 import { PhotoAccess } from './screens/PhotoAccess'
 import { Places } from './screens/Places'
@@ -36,6 +37,7 @@ export const flow: FlowScreen[] = [
   { id: 'features', title: 'Onboarding: feature overview', stage: 'moving', component: Features },
   { id: 'signup', title: 'Onboarding: sign up / log in', stage: 'moving', component: SignUp },
   { id: 'about', title: 'Onboarding: about you', stage: 'moving', component: AboutYou },
+  { id: 'about-tags', title: 'Onboarding: about you tags', stage: 'moving', component: AboutYouTags },
   { id: 'photos', title: 'Onboarding: photo access', stage: 'moving', component: PhotoAccess },
   { id: 'welcome', title: 'Onboarding: welcome splash', stage: 'moving', component: Splash },
   // 2. Today, Moving, with the setup list (each item opens a setup page)
@@ -49,6 +51,8 @@ export const flow: FlowScreen[] = [
   { id: 'community', title: 'Relay', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
+  // 5. Friend follows Chloe's Instagram link to the public note form.
+  { id: 'friend-note', title: 'Friend: leave Chloe a note', stage: 'moving', component: FriendNote },
   // 6. Last week in LA: Today shows the legacy card
   { id: 'today-last-week', title: 'Today: last week in LA', stage: 'moving', component: TodayLastWeek, tab: 'today' },
   // 7. Landing: LA Wrapped, opened from Profile (dots zoom open into the timeline)

@@ -14,7 +14,7 @@ export function Profile() {
     <Screen title={pages.profile.title} onBack={() => goBack()}>
       <div className="flex flex-col gap-6 pt-2">
         <div className="flex flex-col items-center gap-2">
-          <Avatar name={chloe.name} size="lg" />
+          <Avatar name={chloe.name} src={chloe.avatar} size="lg" />
           <p className="text-title-3 font-semibold text-ink">{chloe.name}</p>
         </div>
         <ListSection footer={pages.profile.purpose}>

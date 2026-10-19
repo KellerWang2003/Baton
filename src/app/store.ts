@@ -19,6 +19,7 @@ type State = {
   todos: string[] | null
   doneTodos: string[]
   instagram: string
+  friendNotes: { name: string; message: string }[]
   // When she leaves LA: her flight, or just a date she imagines (ISO date)
   leaveMode: 'flight' | 'date'
   flight: string
@@ -45,6 +46,8 @@ type State = {
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
+  // Photo taken directly from Today's photo prompt, ready for review in Capture.
+  capturePhoto: File | null
   // photos are ids of the photos she picked
   reflections: { text: string; photos: string[] }[]
 }
@@ -56,6 +59,7 @@ let state: State = {
   todos: null,
   doneTodos: [],
   instagram: '',
+  friendNotes: [],
   leaveMode: 'flight',
   flight: '',
   leaveDate: leave.defaultDate,
@@ -74,6 +78,7 @@ let state: State = {
   promptIndex: 0,
   setupDone: [],
   composing: false,
+  capturePhoto: null,
   reflections: [],
 }
 

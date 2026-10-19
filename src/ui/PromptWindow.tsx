@@ -5,6 +5,7 @@ import FluidGlass from './FluidGlass'
 import { PencilIcon, SmallCameraIcon } from './icons'
 import { defaultGlassTuning } from './promptGlass'
 import type { GlassTuning, PromptGlass } from './promptGlass'
+import { useGlassBackdrop } from './useGlassBackdrop'
 
 type PromptWindowProps = {
   question: string
@@ -22,8 +23,10 @@ type PromptWindowProps = {
 
 // Fluid Glass draws a bit wider than the size it's given (its rim runs past
 // it), and fills only 72% of its own canvas, so the canvas is bigger than the
-// circle and spills past the screen edges (clipped there)
+// circle and spills past the screen edges (clipped there). Extra vertical room
+// lets the tethered lens travel over neighboring content without hitting a crop.
 const rimRatio = 370 / 330
+const dragRoom = 240
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18-19): the
@@ -42,6 +45,9 @@ export function PromptWindow({
   const { give, color, edge, ...glassProps } = tuning
   const drawn = tuning.size * rimRatio
   const box = Math.ceil(drawn / 0.72)
+  const canvasHeight = box + dragRoom * 2
+  const overlay = useRef<HTMLDivElement>(null)
+  const backdrop = useGlassBackdrop(overlay, box, canvasHeight, glass !== 'css')
   // Where a press started, so a drag of the glass doesn't count as a tap
   const down = useRef<{ x: number; y: number } | null>(null)
   const release = () => {
@@ -75,17 +81,17 @@ export function PromptWindow({
   // The prompt and pill drawn as one picture for the glass to bend, once the
   // brand font has loaded
   const [art, setArt] = useState<{ key: string; url: string } | null>(null)
-  const artKey = [question, medium, mediumLabel, box].join('|')
+  const artKey = [question, medium, mediumLabel, box, canvasHeight].join('|')
   useEffect(() => {
     if (glass !== 'glass') return
     let alive = true
     document.fonts.ready.then(() => {
-      if (alive) setArt({ key: artKey, url: drawPrompt(box, question, medium, mediumLabel, tuning.size) })
+      if (alive) setArt({ key: artKey, url: drawPrompt(box, canvasHeight, question, medium, mediumLabel, tuning.size) })
     })
     return () => {
       alive = false
     }
-  }, [glass, artKey, box, question, medium, mediumLabel, tuning.size])
+  }, [glass, artKey, box, canvasHeight, question, medium, mediumLabel, tuning.size])
   const pill = (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-baton-blue/15 px-3 py-1.5 text-subhead font-semibold text-baton-blue">
       {medium === 'photo' ? <SmallCameraIcon /> : <PencilIcon />}
@@ -118,27 +124,37 @@ export function PromptWindow({
     const tint = color || token('--color-baton-blue')
     inside = (
       <>
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: box, height: box }}>
-          <FluidGlass
-            text=""
-            // Under the glass: the prompt and pill, drawn into its canvas so it bends them
-            src={crisp ? undefined : art?.key === artKey ? art.url : undefined}
-            color={tint}
-            // The page's paper, drawn into the canvas so the glass has light to tint
-            background={token('--color-baton-paper')}
-            // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)
-            rim={edge}
-            {...glassProps}
-            // Default is a drag that gives a little, then springs back
-            give={give}
-            pushRef={push}
-          />
+        <div
+          data-glass-overlay
+          data-html2canvas-ignore
+          className="pointer-events-none absolute inset-x-0 top-1/2 z-20 -translate-y-1/2 overflow-x-clip"
+          style={{ height: canvasHeight }}
+        >
+          <div ref={overlay} className="absolute left-1/2 h-full -translate-x-1/2" style={{ width: box }}>
+            <FluidGlass
+              text=""
+              // The prompt artwork and page backdrop share the same coordinates.
+              src={crisp ? undefined : art?.key === artKey ? art.url : undefined}
+              backdrop={backdrop}
+              color={tint}
+              // Paper fills the parts of the backdrop outside the page content.
+              background={token('--color-baton-paper')}
+              transparentOutside
+              // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)
+              rim={edge}
+              {...glassProps}
+              // Default is a drag that gives a little, then springs back
+              give={give}
+              pushRef={push}
+            />
+          </div>
         </div>
         {/* For the prompt-on-top look only: pill and prompt over the glass,
             the prompt at the glass's center and the pill above it */}
         <span
+          data-html2canvas-ignore={crisp || undefined}
           style={{ width: drawn, height: drawn }}
-          className="pointer-events-none relative flex select-none items-center justify-center rounded-full px-10"
+          className={cx('pointer-events-none relative flex select-none items-center justify-center rounded-full px-10', crisp && 'z-30')}
         >
           {crisp && (
             <span className="relative flex justify-center">
@@ -152,7 +168,7 @@ export function PromptWindow({
   }
 
   return (
-    <div className={cx('flex flex-col items-center gap-4', className)}>
+    <div className={cx('relative z-10 flex flex-col items-center gap-4', className)}>
       <div
         ref={frame}
         role="button"
@@ -172,7 +188,7 @@ export function PromptWindow({
         // above and below matches Figma 236:1282; the -my-6 is room for its
         // soft shadow without pushing things apart
         style={{ height: tuning.size + 60 }}
-        className="relative -mx-4 -my-6 flex items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
+        className="relative -mx-4 -my-6 flex items-center justify-center self-stretch overflow-visible"
       >
         {inside}
       </div>
@@ -183,22 +199,20 @@ export function PromptWindow({
   )
 }
 
-// The prompt and its medium pill, drawn on paper the size of the glass
-// canvas: the prompt centered, the pill 8px above
+// The prompt and its medium pill on a transparent canvas, leaving the page
+// visible outside the lens: the prompt centered, the pill 8px above
 // it. Returns a data URL for the glass to bend.
-function drawPrompt(box: number, question: string, medium: 'photo' | 'write', label: string, size: number) {
+function drawPrompt(box: number, height: number, question: string, medium: 'photo' | 'write', label: string, size: number) {
   const ratio = 2
   const canvas = document.createElement('canvas')
-  canvas.width = canvas.height = box * ratio
+  canvas.width = box * ratio
+  canvas.height = height * ratio
   const ctx = canvas.getContext('2d')
   if (!ctx) return ''
   ctx.scale(ratio, ratio)
   const family = token('--font-display')
   const navy = token('--color-baton-navy')
   const blue = token('--color-baton-blue')
-
-  ctx.fillStyle = token('--color-baton-paper')
-  ctx.fillRect(0, 0, box, box)
 
   // Wrap the prompt to fit inside the circle. It starts a little smaller than
   // the 30px type on top, since the glass magnifies it, and shrinks for long
@@ -242,7 +256,7 @@ function drawPrompt(box: number, question: string, medium: 'photo' | 'write', la
   // optical center, which sits just above the geometric one
   const groupHeight = pillHeight + pillGap + lines.length * lineHeight
   const opticalLift = size * 0.035
-  const top = box / 2 - groupHeight / 2 + pillHeight + pillGap - opticalLift
+  const top = height / 2 - groupHeight / 2 + pillHeight + pillGap - opticalLift
   ctx.fillStyle = navy
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'

@@ -3,8 +3,8 @@
 // Fluid Glass from React Bits (TS + Tailwind variant):
 // https://reactbits.dev/components/fluid-glass
 // A WebGL glass shape that refracts what it's given (text, or an image or video
-// via src) inside its own canvas, not the page behind it. Use it for Liquid
-// Glass moments in content (Archive details and other pages), not navigation.
+// via src) inside its own canvas. A supplied backdrop raster lets it refract
+// surrounding page content too. Use it for Liquid Glass moments in content.
 
 import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 
@@ -23,8 +23,12 @@ export interface FluidGlassProps {
   // after each redraw so the new picture is uploaded (no reload, no flash)
   canvas?: HTMLCanvasElement | null;
   canvasFrame?: number;
+  // A raster of the content behind the lens, aligned to this canvas.
+  backdrop?: HTMLCanvasElement;
   fit?: 'cover' | 'contain';
   background?: string;
+  // Keep the page visible outside the glass while retaining its lit backdrop inside.
+  transparentOutside?: boolean;
   shape?: Shape;
   shapes?: Shape[];
   size?: number;
@@ -72,8 +76,10 @@ interface Settings {
   src?: string;
   canvas?: HTMLCanvasElement | null;
   canvasFrame: number;
+  backdrop?: HTMLCanvasElement;
   fit: 'cover' | 'contain';
   background: number[];
+  transparentOutside: boolean;
   shape: Shape;
   cycle: Shape[];
   size: number;
@@ -268,6 +274,9 @@ uniform sampler2D uText;
 uniform float uTextOn;
 uniform vec4 uBackground;
 uniform float uPass;
+uniform float uTransparentOutside;
+uniform sampler2D uBackdrop;
+uniform float uBackdropOn;
 uniform sampler2D uShadowMap;
 uniform vec4 uShadowBox;
 uniform vec2 uShadowSize;
@@ -300,11 +309,11 @@ vec3 normalAt(vec3 w) {
   );
 }
 
-vec4 content(vec2 w, vec2 gx, vec2 gy) {
+vec4 contentLayer(vec2 w, vec2 gx, vec2 gy, vec4 base) {
   vec2 uv = vec2(w.x, uView.y - w.y) / uView;
   vec2 dx = vec2(gx.x, -gx.y) / uView;
   vec2 dy = vec2(gy.x, -gy.y) / uView;
-  vec4 color = uBackground;
+  vec4 color = base;
   if (uMediaOn > 0.5) {
     vec2 m = (uv - uMediaRect.xy) / uMediaRect.zw;
     vec2 inside = step(vec2(0.0), m) * step(m, vec2(1.0));
@@ -316,6 +325,16 @@ vec4 content(vec2 w, vec2 gx, vec2 gy) {
     color = text + color * (1.0 - text.a);
   }
   return color;
+}
+
+vec4 content(vec2 w, vec2 gx, vec2 gy) {
+  vec4 base = uBackground;
+  if (uBackdropOn > 0.5) {
+    vec2 uv = vec2(w.x, uView.y - w.y) / uView;
+    vec4 page = textureGrad(uBackdrop, uv, vec2(gx.x, -gx.y) / uView, vec2(gy.x, -gy.y) / uView);
+    base = page + base * (1.0 - page.a);
+  }
+  return contentLayer(w, gx, gy, base);
 }
 
 vec4 frosted(vec2 w, vec2 gx, vec2 gy) {
@@ -503,11 +522,14 @@ float bandOf(float cosi, float scatter) {
 }
 
 vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, vec2 ty, vec2 rx, vec2 ry) {
-  if (tr.mode < 0.5) return background;
+  vec4 exterior = uTransparentOutside > 0.5
+    ? shade(contentLayer(w, dFdx(w), dFdy(w), vec4(0.0)), lighting(w, 1.0))
+    : background;
+  if (tr.mode < 0.5) return exterior;
   vec3 mirrorDir = reflect(rd, tr.n);
   if (tr.mode < 1.5) {
     vec4 edgeTone = tone * uReflection * 0.8 + light(mirrorDir, uReflection) * 0.5;
-    return mix(background, edgeTone + background * (1.0 - edgeTone.a), tr.cover * 0.7);
+    return mix(exterior, edgeTone + exterior * (1.0 - edgeTone.a), tr.cover * 0.7);
   }
   float cosi = clamp(-dot(rd, tr.n), 0.0, 1.0);
   float f0 = pow((uIor - 1.0) / (uIor + 1.0), 2.0);
@@ -565,7 +587,7 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(tr.n.xy + 1e-5), facing))) * 0.55 * uReflection;
   rimLight *= smoothstep(0.0, 0.08, cosi);
   glass = vec4(rimLight) + glass * (1.0 - rimLight);
-  return mix(background, glass, uPresence);
+  return mix(exterior, glass, uPresence);
 }
 
 void main() {
@@ -694,8 +716,10 @@ const FluidGlass = ({
   src,
   canvas: sourceCanvas,
   canvasFrame = 0,
+  backdrop,
   fit = 'cover',
   background = 'transparent',
+  transparentOutside = false,
   shape = 'torus',
   shapes,
   size = 260,
@@ -742,8 +766,10 @@ const FluidGlass = ({
     src,
     canvas: sourceCanvas,
     canvasFrame,
+    backdrop,
     fit,
     background: parseColor(background) || [0, 0, 0, 0],
+    transparentOutside,
     shape: SHAPES.includes(shape) ? shape : 'torus',
     cycle: cycle.length ? cycle : SHAPES,
     size: Math.max(16, size),
@@ -849,6 +875,8 @@ const FluidGlass = ({
     };
     const mediaTexture = makeTexture();
     const textTexture = makeTexture();
+    const backdropTexture = makeTexture();
+    let uploadedBackdrop: HTMLCanvasElement | undefined;
     const shadowMap = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, shadowMap);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -905,7 +933,8 @@ const FluidGlass = ({
       vtiltX: 0,
       tiltY: 0,
       vtiltY: 0,
-      scale: 0,
+      // Keep the springy entrance, with a smaller pop into place.
+      scale: 0.85,
       vscale: 0
     };
     let placed = false;
@@ -1089,13 +1118,24 @@ const FluidGlass = ({
       return Math.min(s.size / 2, Math.min(view.width, view.height) * 0.36);
     };
 
-    const bindContent = (u: Uniforms, s: Settings) => {
+    const bindContent = (u: Uniforms, s: Settings, exteriorOnly = false) => {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, mediaTexture);
       gl.uniform1i(u.uMedia, 0);
       gl.activeTexture(gl.TEXTURE1);
       gl.bindTexture(gl.TEXTURE_2D, textTexture);
       gl.uniform1i(u.uText, 1);
+      gl.activeTexture(gl.TEXTURE3);
+      gl.bindTexture(gl.TEXTURE_2D, backdropTexture);
+      if (s.backdrop && s.backdrop !== uploadedBackdrop) {
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, s.backdrop);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        uploadedBackdrop = s.backdrop;
+      }
+      gl.uniform1i(u.uBackdrop, 3);
+      gl.uniform1f(u.uBackdropOn, s.backdrop ? 1 : 0);
       gl.uniform2f(u.uView, view.width, view.height);
       gl.uniform1f(u.uRatio, view.ratio);
       let rect = [0, 0, 1, 1];
@@ -1113,8 +1153,9 @@ const FluidGlass = ({
       gl.uniform4f(u.uMediaRect, rect[0], rect[1], rect[2], rect[3]);
       gl.uniform1f(u.uMediaOn, media.ready ? 1 : 0);
       gl.uniform1f(u.uTextOn, textState.ready ? 1 : 0);
-      const bg = s.background;
+      const bg = exteriorOnly && s.transparentOutside ? [0, 0, 0, 0] : s.background;
       gl.uniform4f(u.uBackground, bg[0] * bg[3], bg[1] * bg[3], bg[2] * bg[3], bg[3]);
+      gl.uniform1f(u.uTransparentOutside, s.transparentOutside ? 1 : 0);
     };
 
     const settle = () => {
@@ -1307,7 +1348,7 @@ const FluidGlass = ({
           gl.clear(gl.COLOR_BUFFER_BIT);
           gl.useProgram(fallback.program);
           gl.bindVertexArray(vao);
-          bindContent(fallback.uniforms as Uniforms, s);
+          bindContent(fallback.uniforms as Uniforms, s, true);
           gl.drawArrays(gl.TRIANGLES, 0, 3);
         }
         if (visible && pageVisible) raf = requestAnimationFrame(frame);
@@ -1481,6 +1522,7 @@ const FluidGlass = ({
       pointer.down = true;
       const near = Math.hypot(spot.x - body.x, spot.y - body.y) < radius() * 1.1;
       if (s.interaction === 'drag' && near) {
+        event.preventDefault();
         pointer.grabbed = true;
         container.setAttribute('data-grabbing', '');
         flying = false;
@@ -1528,7 +1570,7 @@ const FluidGlass = ({
       wake();
     };
     window.addEventListener('pointermove', onPointerMove, { passive: true });
-    window.addEventListener('pointerdown', onPointerDown, { passive: true });
+    window.addEventListener('pointerdown', onPointerDown, { passive: false });
     window.addEventListener('pointerup', onPointerUp, { passive: true });
     window.addEventListener('pointercancel', onLeave, { passive: true });
     document.documentElement.addEventListener('pointerleave', onLeave);
@@ -1611,6 +1653,7 @@ const FluidGlass = ({
         gl.deleteShader(vertex);
         gl.deleteTexture(mediaTexture);
         gl.deleteTexture(textTexture);
+        gl.deleteTexture(backdropTexture);
         gl.deleteTexture(shadowMap);
         gl.deleteFramebuffer(shadowTarget);
         gl.deleteVertexArray(vao);
@@ -1630,7 +1673,7 @@ const FluidGlass = ({
       <div
         ref={handleRef}
         className={
-          HANDLE[interaction === 'drag' ? 'drag' : interaction === 'static' && morphOnClick ? 'button' : 'none']
+          `${HANDLE[interaction === 'drag' ? 'drag' : interaction === 'static' && morphOnClick ? 'button' : 'none']} ${interaction === 'drag' || (interaction === 'static' && morphOnClick) ? 'pointer-events-auto' : ''}`
         }
         aria-hidden="true"
       />

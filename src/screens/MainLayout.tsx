@@ -16,7 +16,7 @@ type MainLayoutProps = {
   children: ReactNode
   // Full-bleed body that stretches to the bottom edge (e.g. Archive folders)
   bleed?: boolean
-  // Floating profile button (Today only; Archive and Relay are just content)
+  // Profile button beside the greeting (Today only)
   profile?: boolean
   // Page background class (Relay sits on the paper color, like Archive)
   background?: string
@@ -34,13 +34,13 @@ const tabIcons: Record<string, ReactNode> = {
 }
 
 // Page layout for the three tab pages. No top bar: on Today the greeting
-// scrolls with the page and the profile avatar floats at top right over it.
+// and profile avatar scroll together with the page.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
 export function MainLayout({ title, subtitle, children, bleed = false, profile = false, background }: MainLayoutProps) {
   const greeting = title && (
     // One sentence in one style, the second part on its own line (Figma TODAY 236:1282)
-    <header className="pr-14 pb-2 pt-3">
-      <h1 className="font-display text-title-1 font-normal text-baton-navy">
+    <header className="flex items-start justify-between gap-3 pb-2 pt-3">
+      <h1 className="min-w-0 flex-1 font-display text-title-1 font-normal text-baton-navy">
         {title}
         {subtitle && (
           <>
@@ -49,6 +49,16 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           </>
         )}
       </h1>
+      {profile && (
+        <button
+          type="button"
+          onClick={() => navigate('profile')}
+          aria-label="Profile"
+          className="inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-[0_2px_8px_rgb(34_36_48_/_0.10)] transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
+        >
+          <Avatar name={chloe.name} src={chloe.avatar} size="md" />
+        </button>
+      )}
     </header>
   )
 
@@ -59,22 +69,12 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           <div className="flex min-h-0 flex-1 flex-col">{children}</div>
         ) : (
           // Room so the last content can scroll above the floating tab bar
-          <div className="pb-24">
+          <div className="pb-24" data-glass-scene>
             {greeting || <div className="h-3" />}
             {children}
           </div>
         )}
       </Screen>
-      {profile && (
-        <button
-          type="button"
-          onClick={() => navigate('profile')}
-          aria-label="Profile"
-          className="absolute right-4 top-3 z-10 rounded-full shadow-float active:opacity-80"
-        >
-          <Avatar name={chloe.name} size="sm" />
-        </button>
-      )}
     </div>
   )
 }

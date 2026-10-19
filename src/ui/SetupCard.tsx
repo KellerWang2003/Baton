@@ -19,13 +19,14 @@ export function SetupCard({ icon, title, subtitle, done = false, onClick }: Setu
       type="button"
       onClick={done ? undefined : onClick}
       disabled={done}
+      aria-label={`${title}${done ? ', completed' : ''}`}
       className={cx(
-        'flex w-[44%] min-w-36 shrink-0 snap-start flex-col gap-6 rounded-card border-[1.5px] border-dashed border-line p-4 text-left transition active:scale-[0.98]',
+        'flex h-[177px] w-[163px] min-w-36 shrink-0 snap-start flex-col gap-6 rounded-card border-[1.5px] border-dashed border-line bg-surface/60 p-4 text-left transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
         done && 'opacity-60',
       )}
     >
-      <div className="flex items-center justify-between">
-        <span className="inline-flex size-9 items-center justify-center rounded-full bg-stage/12 text-stage">{icon}</span>
+      <div className="flex w-full items-center justify-between">
+        <span className="inline-flex size-9 items-center justify-center rounded-full bg-baton-blue/20 text-stage">{icon}</span>
         <CheckCircle checked={done} />
       </div>
       <div className="flex flex-col gap-0.5">

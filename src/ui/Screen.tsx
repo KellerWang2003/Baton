@@ -53,7 +53,7 @@ export function Screen({ title, subtitle, eyebrow, onBack, backLabel = 'Back', b
           {!onBack && action && <div className="pb-1">{action}</div>}
         </header>
       )}
-      <main className={cx('flex-1', bleed ? 'flex flex-col overflow-hidden' : 'overflow-y-auto px-4 pb-6', className)}>{children}</main>
+      <main className={cx('min-w-0 flex-1', bleed ? 'flex flex-col overflow-hidden' : 'overflow-x-hidden overflow-y-auto px-4 pb-6', className)}>{children}</main>
       {footer && <footer className="px-4 pb-6 pt-3">{footer}</footer>}
     </div>
   )

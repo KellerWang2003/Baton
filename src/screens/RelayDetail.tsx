@@ -95,7 +95,7 @@ export function RelayDetail() {
               ...mine.map((text) => ({ from: relayCopy.you, detail: relayCopy.youDetail, text })),
             ].map((note, index) => (
               <div key={index} className="flex gap-3 rounded-card bg-surface p-4 animate-fade-in">
-                <Avatar name={note.from === relayCopy.you ? chloe.name : note.from} size="sm" />
+                <Avatar name={note.from === relayCopy.you ? chloe.name : note.from} src={note.from === relayCopy.you ? chloe.avatar : undefined} size="sm" />
                 <div className="min-w-0">
                   <p className="text-subhead">
                     <span className="font-semibold text-baton-navy">{note.from}</span>

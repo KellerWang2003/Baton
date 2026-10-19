@@ -120,7 +120,7 @@ export function UiKit() {
           <ListSection header="Grouped list" footer="Footnote under a group explains the setting.">
             <ListRow title="Status" value="Moving" chevron onClick={() => {}} />
             <ListRow title="City" value="Los Angeles" chevron onClick={() => {}} />
-            <ListRow title={chloe.name} subtitle={`Leaving ${chloe.from} on ${chloe.leavingOn}`} leading={<Avatar name={chloe.name} />} />
+            <ListRow title={chloe.name} subtitle={`Leaving ${chloe.from} on ${chloe.leavingOn}`} leading={<Avatar name={chloe.name} src={chloe.avatar} />} />
           </ListSection>
 
           <Section title="Chips">
@@ -176,7 +176,7 @@ export function UiKit() {
 
           <Section title="Cards and badges">
             <Card className="flex items-center gap-3">
-              <Avatar name={chloe.name} />
+              <Avatar name={chloe.name} src={chloe.avatar} />
               <p className="min-w-0 flex-1 text-body">Why I love this place</p>
               <VisibilityBadge visibility="private" />
             </Card>
