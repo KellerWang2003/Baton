@@ -309,17 +309,17 @@ export function CameraBubble() {
               className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live ? 'opacity-100' : 'opacity-0')}
               style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
             />
-            {/* The glass look: a blue rim fading inward, over the picture (not on
-                the plain green, which has to stay one clean color to be keyed out) */}
-            {!greenScreen && (
+            {/* The glass look: a blue rim fading inward, over the picture or the green screen */}
             <div
               className="pointer-events-none absolute inset-0"
               style={{
                 borderRadius: 'inherit',
-                boxShadow: 'inset 0 0 30px 6px rgb(89 161 255 / 0.5), inset 0 1px 2px rgb(255 255 255 / 0.9)',
+                // Strong enough to show on a saturated green screen too
+                boxShadow: greenScreen
+                  ? 'inset 0 0 26px 12px rgb(89 161 255 / 0.95), inset 0 1px 2px rgb(255 255 255 / 0.9)'
+                  : 'inset 0 0 30px 6px rgb(89 161 255 / 0.5), inset 0 1px 2px rgb(255 255 255 / 0.9)',
               }}
             />
-            )}
             <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
           </div>
 
