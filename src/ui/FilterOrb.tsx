@@ -15,11 +15,17 @@ type FilterOrbProps<Id extends string> = {
 }
 
 const ORB_SIZE = 250
-// The glass is drawn larger than the orb so its rim falls outside the circle
-// (Fluid Glass caps the lens at 36% of its box, so 1.42x puts it just past the edge)
-const GLASS_SIZE = Math.round(ORB_SIZE * 1.42)
+// Same setup as Today's glass circle (PromptWindow): Fluid Glass draws its rim
+// a little past the size it's given and fills only 72% of its canvas, so the
+// canvas is bigger than the orb and isn't cropped, letting the rim show.
+const RIM_RATIO = 370 / 330
+const GLASS_SIZE = Math.ceil((ORB_SIZE * RIM_RATIO) / 0.72)
+// The glass paints its picture around the lens too, so the canvas is masked
+// to a circle just past the lens edge (the rim), feathered by a few points
+const LENS_RADIUS = (ORB_SIZE * RIM_RATIO) / 2
+const LENS_MASK = `radial-gradient(circle at 50% 50%, black ${LENS_RADIUS + 1}px, transparent ${LENS_RADIUS + 4}px)`
 // Resolution of the orb picture the glass refracts
-const PICTURE = 360
+const PICTURE = 512
 // Where each color's blob sits at rest, in degrees (0 = right, -90 = top)
 const BLOB_ANGLE: Record<OrbColor, number> = { blue: -90, pink: 30, yellow: 150 }
 // A drag shorter than this is a tap (and does nothing)
@@ -58,52 +64,131 @@ function closestToTop<T extends { color: OrbColor }>(filters: T[], rotation: num
   return filters.reduce((best, filter) => (topness(filter.color, rotation) > topness(best.color, rotation) ? filter : best))
 }
 
-function rgba(hex: string, alpha: number) {
-  const value = parseInt(hex.replace('#', ''), 16)
-  return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`
+function token(name: string) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
 }
 
-// The orb's picture: three soft color blobs, turned by `rotation`. With
-// `focus` at 0 they share the orb evenly; at 1 the color on top swells to fill
-// most of it and the other two shrink into the bottom corners (Figma
-// ARCHIVE_detail feeling / people / places). Colors come from the brand tokens.
-function drawPicture(canvas: HTMLCanvasElement, rotation: number, focus: number) {
+// The color field is worked out on a small grid, then scaled up smoothly over
+// the whole picture, which keeps it fast enough to redraw every frame
+const FIELD = 170
+const field = typeof document !== 'undefined' ? document.createElement('canvas') : null
+if (field) {
+  field.width = FIELD
+  field.height = FIELD
+}
+// The picture spans the glass canvas, which is wider than the orb
+const SPAN = GLASS_SIZE / ORB_SIZE
+
+function rgbOf(hex: string): [number, number, number] {
+  const value = parseInt(hex.replace('#', ''), 16)
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255]
+}
+
+// The orb's picture: three colors flowing into each other like ink in water,
+// turned by `rotation` and always drifting with `time` (seconds). Each color
+// pulls on the points near its center (plus a smaller second lobe that drifts
+// on its own); the points are first swirled and pushed through three layers of
+// moving waves (domain warping), so the borders
+// curl into uneven, living shapes that keep folding into each other, and
+// where colors meet they mix softly. Toward the edge all three haze together.
+// With `focus` at 0 the colors share the orb evenly; at 1 the color on top
+// swells to fill most of it and the other two shrink into the bottom corners
+// (Figma ARCHIVE_detail feeling / people / places). Colors come from the brand
+// tokens. The colors run past the orb's edge on purpose: the glass bends what
+// is just outside its rim in, so a hard stop there shows as a broken edge.
+function drawPicture(canvas: HTMLCanvasElement, rotation: number, focus: number, time: number) {
   const context = canvas.getContext('2d')
-  if (!context) return
+  const fieldContext = field?.getContext('2d')
+  if (!context || !field || !fieldContext) return
   const styles = getComputedStyle(document.documentElement)
   const token = (name: string) => styles.getPropertyValue(`--color-${name}`).trim()
-  const size = canvas.width
-  const center = size / 2
-  const radius = (size / 2) * (ORB_SIZE / GLASS_SIZE)
-  context.fillStyle = token('baton-paper')
-  context.fillRect(0, 0, size, size)
+  const t = time * 0.35
 
-  const blobs = (['blue', 'pink', 'yellow'] as const).map((color) => {
+  // Blob centers and reach, in orb units (-1..1 across the orb), each
+  // wandering a little on its own
+  const blobs = (['blue', 'pink', 'yellow'] as const).map((color, index) => {
     const top = topness(color, rotation)
     const grow = focus * top ** 3
     const shrink = focus * (1 - top)
-    const distance = radius * (0.42 * (1 - grow) + 0.1 * grow + 0.35 * shrink)
+    const distance = 0.42 * (1 - grow) + 0.1 * grow + 0.35 * shrink
     const angle = toRadians(BLOB_ANGLE[color] + rotation)
+    const reach = (0.8 + 0.75 * grow) * (1 - 0.35 * shrink)
+    const wander = 0.09 * (1 - 0.6 * grow)
     return {
-      color,
-      grow,
-      x: center + Math.cos(angle) * distance,
+      rgb: rgbOf(token(`baton-${color}`)),
+      x: Math.cos(angle) * distance + wander * Math.sin(t * 0.9 + index * 2.1),
       // In filter mode only the top half shows, so the other two rise to its bottom corners
-      y: center + Math.sin(angle) * distance - radius * 0.45 * shrink,
-      size: radius * (0.8 + 0.75 * grow) * (1 - 0.35 * shrink),
+      y: Math.sin(angle) * distance - 0.45 * shrink + wander * Math.cos(t * 0.7 + index * 1.3),
+      pull: 1 / (reach * reach),
     }
   })
-  // The swelling color goes down first so the other two still peek over its edges
-  blobs.sort((a, b) => b.grow - a.grow)
-  for (const blob of blobs) {
-    const hex = token(`baton-${blob.color}`)
-    const gradient = context.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, blob.size)
-    gradient.addColorStop(0, rgba(hex, 1))
-    gradient.addColorStop(0.5, rgba(hex, 1))
-    gradient.addColorStop(1, rgba(hex, 0))
-    context.fillStyle = gradient
-    context.fillRect(0, 0, size, size)
+  // Each color also has a smaller second lobe that drifts around the orb on
+  // its own, so colors break into each other's areas instead of keeping
+  // three tidy slices. They fade out as a filter takes over the orb.
+  const lobes = (['blue', 'pink', 'yellow'] as const).map((color, index) => {
+    const angle = toRadians(BLOB_ANGLE[color] + rotation + 140 + 45 * Math.sin(t * 0.45 + index * 2.4))
+    const distance = 0.58 + 0.12 * Math.sin(t * 0.8 + index)
+    const reach = 0.42 * (1 - 0.8 * focus)
+    return {
+      rgb: blobs[index].rgb,
+      x: Math.cos(angle) * distance,
+      y: Math.sin(angle) * distance,
+      pull: 1 / Math.max(0.01, reach * reach),
+    }
+  })
+  const sources = [...blobs, ...lobes]
+  // The three mixed together, a soft lavender-gray, hazes in toward the edge
+  const mist = [0, 1, 2].map((channel) => blobs.reduce((sum, blob) => sum + blob.rgb[channel], 0) / blobs.length)
+  // Turning the orb stirs the colors too
+  const stir = toRadians(rotation) * 0.6
+  const swirlAmount = 1.5 + 0.35 * Math.sin(t * 0.6)
+
+  const image = fieldContext.createImageData(FIELD, FIELD)
+  const data = image.data
+  for (let row = 0; row < FIELD; row++) {
+    for (let column = 0; column < FIELD; column++) {
+      let x = (((column + 0.5) / FIELD) * 2 - 1) * SPAN
+      let y = (((row + 0.5) / FIELD) * 2 - 1) * SPAN
+      const r = Math.hypot(x, y)
+      // Swirl: points turn more toward the middle, curling the borders
+      const swirl = swirlAmount * Math.max(0, 1 - r) ** 1.3
+      const cos = Math.cos(swirl)
+      const sin = Math.sin(swirl)
+      ;[x, y] = [x * cos - y * sin, x * sin + y * cos]
+      // Two layers of moving waves, the second riding on the first
+      const ax = x + 0.3 * Math.sin(1.7 * y + t * 1.1 + stir + Math.sin(2.3 * x - t * 0.7))
+      const ay = y + 0.3 * Math.sin(1.9 * x - t * 0.9 - stir + Math.sin(2.1 * y + t * 0.5))
+      const bx = ax + 0.13 * Math.sin(3.4 * ay - t * 1.4)
+      const by = ay + 0.13 * Math.sin(3.1 * ax + t * 1.2)
+      // A finer third layer so the borders ripple at small scale too
+      const wx = bx + 0.05 * Math.sin(7.3 * by + t * 1.9)
+      const wy = by + 0.05 * Math.sin(6.7 * bx - t * 1.7)
+      // Each color's share falls off with distance; sharpness keeps the
+      // regions bold with soft, mixed edges between them
+      let total = 0
+      let red = 0
+      let green = 0
+      let blue = 0
+      for (const blob of sources) {
+        const d2 = ((wx - blob.x) ** 2 + (wy - blob.y) ** 2) * blob.pull
+        const share = Math.exp(-12 * d2)
+        total += share
+        red += share * blob.rgb[0]
+        green += share * blob.rgb[1]
+        blue += share * blob.rgb[2]
+      }
+      const haze = 0.35 * Math.min(1, Math.max(0, (r - 0.68) / 0.32)) ** 2
+      const index = (row * FIELD + column) * 4
+      data[index] = (red / total) * (1 - haze) + mist[0] * haze
+      data[index + 1] = (green / total) * (1 - haze) + mist[1] * haze
+      data[index + 2] = (blue / total) * (1 - haze) + mist[2] * haze
+      data[index + 3] = 255
+    }
   }
+  fieldContext.putImageData(image, 0, 0)
+  context.imageSmoothingEnabled = true
+  context.imageSmoothingQuality = 'high'
+  context.drawImage(field, 0, 0, canvas.width, canvas.height)
 }
 
 type Gesture = {
@@ -114,8 +199,8 @@ type Gesture = {
   mode: 'pending' | 'turn' | 'swipe'
 }
 
-// The tricolor orb at the bottom of a city's photo cloud: a Fluid Glass lens
-// over three color blobs. Start turning it to enter filter mode: whichever
+// The tricolor orb at the bottom of a city's photo cloud: a lens of liquid
+// glass (Fluid Glass, set up like Today's circle) over three color blobs. Start turning it to enter filter mode: whichever
 // color comes to the top swells to fill the orb and focuses its filter, and
 // letting go settles on the nearest one. Swipe it up to leave filter mode and
 // go back to all three colors evenly. The page gets a wash of the focused
@@ -128,7 +213,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
     const canvas = document.createElement('canvas')
     canvas.width = PICTURE
     canvas.height = PICTURE
-    drawPicture(canvas, startRotation, startFocus)
+    drawPicture(canvas, startRotation, startFocus, 0)
     return canvas
   })
   const [frame, setFrame] = useState(0)
@@ -141,8 +226,11 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
   const target = useRef<{ rotation: number | null; focus: number }>({ rotation: null, focus: startFocus })
   const loop = useRef(0)
 
+  // Seconds the colors have been drifting (frozen with reduced motion)
+  const time = useRef(0)
+
   function redraw() {
-    drawPicture(picture, rotation.current, focus.current)
+    drawPicture(picture, rotation.current, focus.current, time.current)
     setFrame((count) => count + 1)
   }
 
@@ -171,6 +259,28 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
   }
 
   useEffect(() => () => cancelAnimationFrame(loop.current), [])
+
+  // The colors keep slowly swirling on their own, redrawn about 30 times a
+  // second (not at all with reduced motion)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    let raf = 0
+    let last = performance.now()
+    let drawn = 0
+    const tick = (now: number) => {
+      time.current += (now - last) / 1000
+      last = now
+      if (now - drawn > 33) {
+        drawn = now
+        redraw()
+      }
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+    // redraw only reads refs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function angleOf(event: React.PointerEvent) {
     const rect = orbRef.current!.getBoundingClientRect()
@@ -266,35 +376,41 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
           active ? '-bottom-[125px] scale-80' : '-bottom-[110px] scale-100',
         )}
       >
-        <div className="relative size-full overflow-hidden rounded-full">
-          <div
-            style={{ width: GLASS_SIZE, height: GLASS_SIZE }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-          >
-            <FluidGlass
-              canvas={picture}
-              canvasFrame={frame}
-              text=""
-              shape="lens"
-              size={ORB_SIZE * 1.1}
-              interaction="static"
-              morphOnClick={false}
-              idle={false}
-              intro={false}
-              spin={0}
-              wobble={0}
-              shadow={0}
-              refraction={0.25}
-              dispersion={0.4}
-              reflection={0.6}
-            />
-          </div>
+        {/* The glass canvas spills past the orb so its rim shows, masked
+            just outside the rim */}
+        <div
+          style={{ width: GLASS_SIZE, height: GLASS_SIZE, maskImage: LENS_MASK, WebkitMaskImage: LENS_MASK }}
+          className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        >
+          <FluidGlass
+            canvas={picture}
+            canvasFrame={frame}
+            text=""
+            shape="lens"
+            size={ORB_SIZE}
+            // Today's glass without its edge line or blue rim, so the colors run
+            // to the edge, and a slow small morph while it rests
+            color={token('--color-baton-blue')}
+            rim={0}
+            ring={0}
+            breathe={0.15}
+            refraction={0.5}
+            dispersion={1}
+            reflection={1.15}
+            shadow={0.1}
+            interaction="static"
+            morphOnClick={false}
+            idle={false}
+            intro={false}
+            spin={0}
+            wobble={0}
+          />
         </div>
         {active && (
           <span
             key={active.id}
             className={cx(
-              'pointer-events-none absolute inset-x-0 top-[40px] animate-fade-in text-center text-body',
+              'pointer-events-none absolute inset-x-0 top-[40px] animate-fade-in text-center font-display text-orb-label',
               labelColor[active.color],
             )}
           >

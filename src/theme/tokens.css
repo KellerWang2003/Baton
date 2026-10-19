@@ -34,6 +34,11 @@
   --text-status: 17px;
   --text-status--line-height: 22px;
   --text-status--letter-spacing: -0.8px;
+  /* Filter name on the Archive photo orb: 16pt in Figma (ARCHIVE_detail
+     feeling, 267:5758), set at 20 because the orb draws at 80% in filter mode */
+  --text-orb-label: 20px;
+  --text-orb-label--line-height: 1.3;
+  --text-orb-label--letter-spacing: -0.011em;
   /* City name on the sideways folder tab (Archive detail) */
   --text-side-tab: 24px;
   --text-side-tab--line-height: 1;
