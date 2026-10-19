@@ -12,7 +12,7 @@ export function AboutYou() {
   return (
     <OnboardingStep title={about.title} body={about.body} onContinue={() => {
       setState({ status: selected })
-      navigate('about-tags')
+      navigate(selected === 'moving' ? 'about-leave' : 'about-tags')
     }}>
       <StageCardDeck value={selected} onChange={(next) => setState({ status: next })} />
       <p className="onboarding-stage-detail" aria-live="polite">

@@ -25,6 +25,7 @@ type State = {
   leaveMode: 'flight' | 'date'
   flight: string
   leaveDate: string
+  expectedLeaveMonth: string
   // Which Archive segment opens (the legacy card on Today opens Legacy)
   archiveSegment: 'mine' | 'legacy'
   // Which city folder in Archive was tapped (opens the detail page next)
@@ -74,6 +75,7 @@ let state: State = {
   leaveMode: 'flight',
   flight: '',
   leaveDate: leave.defaultDate,
+  expectedLeaveMonth: '',
   archiveSegment: 'mine',
   selectedFolder: null,
   selectedPhoto: null,

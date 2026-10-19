@@ -9,6 +9,7 @@ import { OnboardingLayout } from './OnboardingLayout'
 export function LeaveDate() {
   const { leaveMode, flight, leaveDate } = useStore()
   const done = () => {
+    setState({ expectedLeaveMonth: leaveDate.slice(0, 7) })
     completeSetup('leave')
     navigate('today')
   }
