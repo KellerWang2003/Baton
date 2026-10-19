@@ -532,7 +532,8 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   // Baton: the glass's own color, heaviest at its rim and fading inward
   // (by distance from the glass's center, so it travels with the glass)
   float radial = length(tr.p.xy - uCenter.xy) / max(uBound / 1.08, 1.0);
-  float rimTint = smoothstep(0.55, 1.0, radial) * uRim;
+  // Only the outer ~fifth, easing in, so the middle stays clear (Figma 236:1282)
+  float rimTint = pow(smoothstep(0.72, 1.0, radial), 1.6) * uRim;
   float rimAlpha = max(glass.a, rimTint);
   glass = vec4(mix(glass.rgb, uTint.rgb * rimAlpha, rimTint), rimAlpha);
   vec2 facing = normalize(vec2(-0.42, 0.55));

@@ -55,13 +55,14 @@ export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
   // Empty means brand blue (--color-baton-blue); the debug panel can pick another
   color: '',
-  edge: 0.65,
+  edge: 0.8,
   size: 340,
   refraction: 0,
   dispersion: 1,
   reflection: 1.15,
   frost: 0,
-  tint: 0.15,
+  // No tint across the whole glass, so its middle stays white like the design
+  tint: 0,
   shadow: 0.1,
   elevation: 0,
   interaction: 'drag',
