@@ -8,6 +8,7 @@ import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
 import { Intentions } from './screens/Intentions'
 import { LaWrapped } from './screens/LaWrapped'
+import { NewcomerNow } from './screens/NewcomerNow'
 import { LocalInsight } from './screens/LocalInsight'
 import { FriendNote } from './screens/FriendNote'
 import { LeaveDate } from './screens/LeaveDate'
@@ -66,6 +67,8 @@ export const flow: FlowScreen[] = [
   { id: 'rolling-paper', title: 'Rolling Paper', stage: 'newcomer', component: RollingPaper },
   // ...and its button opens LA Wrapped (dots zoom open into the timeline)
   { id: 'la-wrapped', title: 'LA Wrapped', stage: 'newcomer', component: LaWrapped },
+  // ...and its Continue: her LA folder hands off to a new New York one, with her goals
+  { id: 'newcomer-now', title: "You're a Newcomer now", stage: 'newcomer', component: NewcomerNow },
   // 9. Recommendation detail: a Relay pick or tip, with notes on it
   { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail },
   // 10. Local: the congrats splash as she becomes a Local

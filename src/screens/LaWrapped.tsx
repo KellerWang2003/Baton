@@ -146,7 +146,7 @@ export function LaWrapped() {
           style={{ animationDelay: `${EXPAND + 300}ms` }}
         >
           <SaveButton label={wrapped.save} />
-          <Button variant="glow" size="cta" onClick={() => navigate('today')} className="pointer-events-auto w-[309px]">
+          <Button variant="glow" size="cta" onClick={() => navigate('newcomer-now')} className="pointer-events-auto w-[309px]">
             {wrapped.cta}
             <ArrowRightIcon />
           </Button>

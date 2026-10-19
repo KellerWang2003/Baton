@@ -180,6 +180,9 @@
   /* Stage change congrats splash (StageSplash): photo swells in, lines rise after it */
   --animate-splash-photo: splash-photo 700ms cubic-bezier(0.34, 1.4, 0.64, 1) 120ms both;
   --animate-splash-rise: splash-rise 500ms ease-out both;
+  /* You're a Newcomer now: LA folder slides aside, the new New York one lands on top */
+  --animate-folder-aside: folder-aside 900ms cubic-bezier(0.34, 1.2, 0.64, 1) 300ms both;
+  --animate-folder-arrive: folder-arrive 900ms cubic-bezier(0.34, 1.3, 0.64, 1) 650ms both;
   /* Rolling Paper doodles, drawn on one by one: lines along their length, marks scribbled in place */
   --animate-doodle-line: doodle-line 700ms cubic-bezier(0.45, 0.05, 0.55, 0.95) both;
   --animate-doodle-mark: doodle-mark 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
@@ -213,6 +216,14 @@
   @keyframes splash-photo {
     0% { opacity: 0; scale: 0.6; }
     100% { opacity: 1; scale: 1; }
+  }
+  @keyframes folder-aside {
+    from { translate: 0 0; rotate: 0deg; }
+    to { translate: -34px -10px; rotate: -8deg; }
+  }
+  @keyframes folder-arrive {
+    from { opacity: 0; translate: 60px 70px; rotate: 14deg; }
+    to { opacity: 1; translate: 26px 34px; rotate: 5deg; }
   }
   @keyframes doodle-line {
     from { clip-path: inset(0 0 100% 0); }

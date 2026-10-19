@@ -87,9 +87,9 @@ const toneStyles: Record<
 // (LA28 Palms, 256:196): a long sloped left side, a nearly vertical right side,
 // both with soft rounded turns. The right-aligned tab runs straight into the
 // folder's right edge, so its outline also draws that corner.
-const TAB_PATH =
+export const TAB_PATH =
   'M0 52C6.2252 52 11.8852 48.3893 14.5092 42.7441L30.0751 9.2559C32.6991 3.6108 38.3587 0 44.5839 0H180.786C189.336 0 196.376 6.7238 196.769 15.2656L197.756 36.7347C198.148 45.2765 205.188 52 213.739 52V53H0Z'
-const TAB_WIDTH = 214
+export const TAB_WIDTH = 214
 const EDGE_TAB_PATH =
   'M0 52C6.2256 52 11.886 48.3893 14.51 42.7441L30.0756 9.2559C32.6996 3.6108 38.3586 0 44.584 0H180.787C189.337 0 196.377 6.7238 196.77 15.2656L197.807 37.8199C198.171 45.7545 204.71 52 212.653 52C220.862 52 227.516 58.6542 227.516 66.8625V68H0Z'
 const EDGE_TAB_WIDTH = 227.516
