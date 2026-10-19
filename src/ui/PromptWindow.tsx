@@ -141,14 +141,17 @@ export function PromptWindow({
         onKeyDown={(event) => event.key === 'Enter' && onClick?.()}
         onPointerCancel={release}
         onPointerLeave={release}
-        // Room under the glass for its shadow
-        style={{ height: drawn + 100 }}
-        className="relative -mx-4 flex items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
+        // Takes up just the glass itself (it draws about its size), so the space
+        // above and below matches Figma 236:1282; the -my-6 is room for its
+        // soft shadow without pushing things apart
+        style={{ height: tuning.size + 60 }}
+        className="relative -mx-4 -my-6 flex items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
       >
         {inside}
       </div>
 
-      {seed && <p className="text-subhead text-baton-navy/55">{seed}</p>}
+      {/* Above the glass canvas, which spills a little past the circle */}
+      {seed && <p className="relative z-10 text-subhead text-baton-navy/55">{seed}</p>}
     </div>
   )
 }
@@ -170,11 +173,9 @@ function drawPrompt(box: number, question: string, medium: 'photo' | 'write', la
   ctx.fillStyle = token('--color-baton-paper')
   ctx.fillRect(0, 0, box, box)
 
-  // Wrap the prompt to fit inside the circle
-  // A little smaller than the 30px type on top, since the glass magnifies it
-  ctx.font = `500 27px ${family}`
-  if ('letterSpacing' in ctx) ctx.letterSpacing = '-0.3px'
-  // Balanced like text-wrap: balance, so no word is left alone on the last line
+  // Wrap the prompt to fit inside the circle. It starts a little smaller than
+  // the 30px type on top, since the glass magnifies it, and shrinks for long
+  // prompts so they stay within three lines (down to 20px)
   const wrapAt = (width: number) => {
     const out: string[] = []
     let line = ''
@@ -188,15 +189,31 @@ function drawPrompt(box: number, question: string, medium: 'photo' | 'write', la
     if (line) out.push(line)
     return out
   }
-  const maxWidth = size - 110
-  let lines = wrapAt(maxWidth)
-  for (let width = maxWidth; width > maxWidth * 0.6; width -= 4) {
-    const tighter = wrapAt(width)
-    if (tighter.length > lines.length) break
-    lines = tighter
+  // Balanced like text-wrap: balance, so no word is left alone on the last line
+  const balanced = (maxWidth: number) => {
+    let lines = wrapAt(maxWidth)
+    for (let width = maxWidth; width > maxWidth * 0.6; width -= 4) {
+      const tighter = wrapAt(width)
+      if (tighter.length > lines.length) break
+      lines = tighter
+    }
+    return lines
   }
-  const lineHeight = 30
-  const top = box / 2 - (lines.length * lineHeight) / 2
+  let fontSize = 27
+  let lines: string[] = []
+  for (; fontSize >= 20; fontSize--) {
+    ctx.font = `500 ${fontSize}px ${family}`
+    if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.011 * fontSize}px`
+    lines = balanced(size - 110)
+    if (lines.length <= 3) break
+  }
+  fontSize = Math.max(fontSize, 20)
+  const lineHeight = Math.round(fontSize * 1.1)
+  const pillHeight = 32
+  const pillGap = 8
+  // Pill and prompt centered together, so the group sits at the glass's middle
+  const groupHeight = pillHeight + pillGap + lines.length * lineHeight
+  const top = box / 2 - groupHeight / 2 + pillHeight + pillGap
   ctx.fillStyle = navy
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
@@ -206,9 +223,8 @@ function drawPrompt(box: number, question: string, medium: 'photo' | 'write', la
   ctx.font = `600 15px ${family}`
   if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
   const pillWidth = 12 + 24 + 6 + ctx.measureText(label).width + 12
-  const pillHeight = 32
   const pillX = box / 2 - pillWidth / 2
-  const pillY = top - 8 - pillHeight
+  const pillY = top - pillGap - pillHeight
   ctx.globalAlpha = 0.15
   ctx.fillStyle = blue
   ctx.beginPath()

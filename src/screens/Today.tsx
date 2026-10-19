@@ -92,7 +92,7 @@ export function Today({ lastWeek = false }: TodayProps) {
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
       {/* Tapping the circle opens the + field in the tab bar, like tapping a widget */}
       <PromptWindow
-        className="pb-10 pt-2"
+        className="pb-8 pt-6"
         question={prompt.question}
         seed={prompt.seed}
         medium={medium}

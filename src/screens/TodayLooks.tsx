@@ -79,7 +79,7 @@ export function TodayLooks({ onClose }: { onClose: () => void }) {
                     </span>
                   </header>
                   <PromptWindow
-                    className="pb-10 pt-2"
+                    className="pb-8 pt-6"
                     question={prompt.question}
                     seed={prompt.seed}
                     medium={medium}
