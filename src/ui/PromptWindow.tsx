@@ -42,19 +42,10 @@ export function PromptWindow({
   const { give, color, edge, ...glassProps } = tuning
   const drawn = tuning.size * rimRatio
   const box = Math.ceil(drawn / 0.72)
-  // With no give (or no dragging), the rim stays put
-  const follow = tuning.interaction === 'drag' ? give || 1 : 0
+  // Where a press started, so a drag of the glass doesn't count as a tap
   const down = useRef<{ x: number; y: number } | null>(null)
-  // The pill moves with the glass while it's nudged
-  const rim = useRef<HTMLSpanElement>(null)
-  const nudge = (x: number, y: number, settle = false) => {
-    if (!rim.current) return
-    rim.current.style.transition = settle ? 'transform 600ms cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 120ms ease-out'
-    rim.current.style.transform = (x || y) && follow ? `translate(${x * follow}px, ${y * follow}px)` : ''
-  }
   const release = () => {
     down.current = null
-    nudge(0, 0, true)
   }
   const pill = (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-baton-blue/15 px-3 py-1.5 text-subhead font-semibold text-baton-blue">
@@ -105,14 +96,21 @@ export function PromptWindow({
             give={give}
           />
         </div>
-        {/* The pill (and the prompt, if it sits on top), over the glass */}
+        {/* The pill (and the prompt, if it sits on top), over the glass. They
+            stay put while only the glass gives under a drag (Keller, Oct 19),
+            and the prompt itself sits at the glass's center, the pill above it */}
         <span
-          ref={rim}
           style={{ width: drawn, height: drawn }}
-          className="pointer-events-none relative flex flex-col items-center justify-center gap-2 rounded-full px-10"
+          className="pointer-events-none relative flex select-none items-center justify-center rounded-full px-10"
         >
-          <span className={crisp ? undefined : 'absolute top-[13%]'}>{pill}</span>
-          {crisp && words}
+          {crisp ? (
+            <span className="relative flex justify-center">
+              <span className="absolute bottom-full mb-2">{pill}</span>
+              {words}
+            </span>
+          ) : (
+            <span className="absolute top-[13%]">{pill}</span>
+          )}
         </span>
       </>
     )
@@ -125,7 +123,6 @@ export function PromptWindow({
         tabIndex={0}
         aria-label={question}
         onPointerDown={(event) => (down.current = { x: event.clientX, y: event.clientY })}
-        onPointerMove={(event) => down.current && nudge(event.clientX - down.current.x, event.clientY - down.current.y)}
         onPointerUp={(event) => {
           const start = down.current
           release()
