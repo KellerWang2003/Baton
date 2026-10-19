@@ -62,6 +62,12 @@ export const about = {
   ],
 }
 
+export const departure = {
+  title: 'When do you expect to leave?',
+  body: 'Just the month is fine. You can add an exact date later.',
+  label: 'Expected departure',
+}
+
 export const photos = {
   title: 'Start with the photos you already have',
   body: 'Baton looks at where your photos were taken to find the places your life keeps returning to.',

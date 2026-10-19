@@ -55,7 +55,7 @@ export function Today({ lastWeek = false }: TodayProps) {
   const camera = useRef<HTMLInputElement>(null)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
 
-  const daysLeft = daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
+  const daysLeft = !lastWeek && !store.leaveDate && store.expectedLeaveMonth ? Infinity : daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
   const leaving = shortDate(leaveDate)
   const hello = greeting(status, timeOfDay(), daysLeft)
 
@@ -71,7 +71,7 @@ export function Today({ lastWeek = false }: TodayProps) {
           {
             id: 'leave' as const,
             title: setupCards.leave.title,
-            subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : setupCards.leave.subtitle,
+            subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : store.expectedLeaveMonth ? `Around ${new Date(`${store.expectedLeaveMonth}-01T12:00:00`).toLocaleDateString('en-US', { month: 'long' })} · Add a date` : setupCards.leave.subtitle,
             icon: <img src="/today/setup-leave.svg" alt="" width={21} height={21} />,
             tone: 'olive' as const,
           },

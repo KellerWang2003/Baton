@@ -625,3 +625,17 @@
 .account-options .account-provider { height: 51px; gap: 12px; padding: 12px 20px; border-radius: 99px; background: var(--color-surface); color: var(--color-baton-navy); box-shadow: var(--shadow-onboarding-chip); font-size: 18px; font-weight: 500; line-height: 1.5; letter-spacing: -0.198px; }
 .account-provider img { flex-shrink: 0; object-fit: contain; }
 @container (max-width: 370px) { .account-options { padding-inline: 24px; } }
+
+.departure-selection { margin: 40px 30px 0; }
+.departure-calendar { padding: 16px 12px; border-radius: 24px; background: var(--color-surface); box-shadow: var(--shadow-onboarding-card); }
+.departure-month { display: flex; align-items: center; justify-content: space-between; padding-left: 8px; margin-bottom: 12px; }
+.departure-month h2 { font-size: 20px; line-height: 26px; font-weight: 500; letter-spacing: -0.22px; }
+.departure-month-actions { display: flex; }
+.departure-month-actions button { display: flex; align-items: center; justify-content: center; width: 40px; height: 44px; color: var(--color-onboarding-action); border-radius: 99px; cursor: pointer; }
+.departure-months { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 8px; }
+.departure-months button { height: 52px; width: 100%; border-radius: 99px; font-size: 18px; line-height: 24px; color: var(--color-baton-navy); cursor: pointer; }
+.departure-months button[aria-pressed="true"] { background: var(--color-baton-blue); color: var(--color-baton-paper); box-shadow: var(--shadow-onboarding-chip); }
+.departure-months button:disabled, .departure-month-actions button:disabled { opacity: 0.3; cursor: default; }
+.departure-months button:enabled:active { background: var(--color-baton-cream); }
+.departure-selected { margin-top: 24px; min-height: 24px; text-align: center; font-size: 18px; line-height: 24px; font-weight: 500; color: var(--color-onboarding-action); }
+@container (max-width: 370px) { .departure-selection { margin-inline: 24px; } }

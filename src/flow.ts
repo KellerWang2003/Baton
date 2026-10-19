@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react'
 import { AboutYou, AboutYouTags } from './screens/AboutYou'
+import { ExpectedDeparture } from './screens/ExpectedDeparture'
 import { Archive } from './screens/Archive'
 import { ArchiveDetail } from './screens/ArchiveDetail'
 import { ArchiveSelected } from './screens/ArchiveSelected'
@@ -42,6 +43,7 @@ export const flow: FlowScreen[] = [
   { id: 'features', title: 'Onboarding: feature overview', stage: 'moving', component: Features },
   { id: 'signup', title: 'Onboarding: sign up / log in', stage: 'moving', component: SignUp },
   { id: 'about', title: 'Onboarding: about you', stage: 'moving', component: AboutYou },
+  { id: 'about-leave', title: 'Onboarding: expected departure', stage: 'moving', component: ExpectedDeparture },
   { id: 'about-tags', title: 'Onboarding: about you tags', stage: 'moving', component: AboutYouTags },
   { id: 'photos', title: 'Onboarding: photo access', stage: 'moving', component: PhotoAccess },
   { id: 'welcome', title: 'Onboarding: welcome splash', stage: 'moving', component: Splash },
