@@ -89,8 +89,8 @@ export function DeviceFrame({ framed, frame, lockRatio, backgroundColor, onboard
         )}
       >
         <div
-          className="absolute flex flex-col overflow-hidden bg-canvas"
-          style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%`, boxShadow: '0 0 0 6px var(--color-canvas)' }}
+          className="absolute flex flex-col overflow-hidden rounded-[52px] bg-canvas"
+          style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%`, boxShadow: '0 0 0 3px var(--color-canvas)' }}
         >
           <StatusBar onboarding={onboardingStatus} showIsland={false} />
           {/* Screens can extend their backgrounds under the status bar. */}
