@@ -540,6 +540,7 @@
   height: 256px;
   object-fit: cover;
 }
+.onboarding-welcome-source { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .onboarding-welcome-title {
   /* The video frame has blue room around the mark, so pull the title up to it. */
   margin-top: -40px;
