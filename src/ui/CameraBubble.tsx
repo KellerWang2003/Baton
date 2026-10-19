@@ -7,11 +7,19 @@ import { cx } from './cx'
 // permission refused), so the flow still works when recording the demo.
 const placeholderPhoto = '/archive/la-sunset.jpg'
 
-// For now the camera shows a plain chroma-key green instead of the live camera
-// (Keller, Oct 19), so a real picture can be keyed in when the video is edited.
-// Set to false to use the real camera again.
+// For now the camera shows a plain color instead of the live camera (Keller,
+// Oct 19), so a real picture can be keyed in when the video is edited. It is
+// the same color as the debug panel's Background color (Green screen button),
+// or the recording green when that isn't set. Set to false to use the real
+// camera again.
 const greenScreen = true
-const chromaGreen = '#00b140'
+
+// The debug panel's background color, which DeviceFrame sets on the page behind
+// the phone, or the recording green
+function screenColor(from: Element | null) {
+  const set = from?.closest<HTMLElement>('[data-device-page]')?.style.backgroundColor
+  return set || getComputedStyle(document.documentElement).getPropertyValue('--color-recording-green').trim()
+}
 
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
@@ -99,6 +107,8 @@ export function CameraBubble() {
   const [flash, setFlash] = useState(false)
   // No camera to use: show the stand-in photo instead
   const [noCamera, setNoCamera] = useState(false)
+  // The color of the green screen, following the debug panel's setting
+  const [green, setGreen] = useState('')
 
   const stop = () => {
     stream.current?.getTracks().forEach((track) => track.stop())
@@ -170,6 +180,16 @@ export function CameraBubble() {
     }
   }, [camera, expanded])
 
+  // Follow the debug panel's background color while it's open
+  useEffect(() => {
+    const page = root.current?.closest<HTMLElement>('[data-device-page]')
+    setGreen(screenColor(root.current))
+    if (!page) return
+    const observer = new MutationObserver(() => setGreen(screenColor(root.current)))
+    observer.observe(page, { attributes: true, attributeFilter: ['style'] })
+    return () => observer.disconnect()
+  }, [])
+
   // Turn the camera off if she leaves Today while it's open
   useEffect(() => stop, [])
 
@@ -191,7 +211,7 @@ export function CameraBubble() {
       canvas.height = Math.round((800 * target.height) / target.width)
       const ctx = canvas.getContext('2d')
       if (ctx) {
-        ctx.fillStyle = chromaGreen
+        ctx.fillStyle = green
         ctx.fillRect(0, 0, canvas.width, canvas.height)
         blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
       }
@@ -275,7 +295,7 @@ export function CameraBubble() {
             }}
           >
             {/* Plain green for now; otherwise the live camera, or a photo when there isn't one */}
-            {greenScreen && <div className="absolute inset-0" style={{ background: chromaGreen }} />}
+            {greenScreen && <div className="absolute inset-0" style={{ background: green }} />}
             <img
               src={placeholderPhoto}
               alt=""

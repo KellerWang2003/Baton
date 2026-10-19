@@ -56,7 +56,7 @@ export function DeviceFrame({ framed, lockRatio, backgroundColor, onboardingStat
   }
 
   return (
-    <div ref={page} style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
+    <div ref={page} data-device-page style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
       <div
         style={lockRatio ? { ...frameSize, flexShrink: 0, transform: `scale(${scale})` } : undefined}
         className={cx(
