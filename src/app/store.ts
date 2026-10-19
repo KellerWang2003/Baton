@@ -52,6 +52,8 @@ type State = {
   reflections: { text: string; photos: string[] }[]
   // Stage whose congrats splash is showing over the app (after her stage moves forward)
   stageSplash: Stage | null
+  // Her intentions for New York, picked from Profile before her last night in LA
+  goals: string[]
 }
 
 let state: State = {
@@ -83,6 +85,7 @@ let state: State = {
   capturePhoto: null,
   reflections: [],
   stageSplash: null,
+  goals: [],
 }
 
 const listeners = new Set<() => void>()

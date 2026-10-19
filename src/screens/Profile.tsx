@@ -1,5 +1,6 @@
 import { goBack, navigate } from '../app/navigate'
-import { useStatus } from '../app/store'
+import { useStatus, useStore } from '../app/store'
+import { chloeGoals, intentions } from '../data/intentions'
 import { pages } from '../data/pages'
 import { chloe } from '../data/people'
 import { profileRows, stageCity, stageNames, stageTags } from '../data/stages'
@@ -9,6 +10,9 @@ import { Avatar, ListRow, ListSection, Screen, StageTag } from '../ui'
 export function Profile() {
   const status = useStatus()
   const rows = profileRows[status]
+  // Her picks; once she's in New York the demo shows the three she set in LA
+  const picked = useStore().goals
+  const goals = picked.length ? picked : status === 'moving' ? [] : chloeGoals
 
   return (
     <Screen title={pages.profile.title} onBack={() => goBack()}>
@@ -24,7 +28,12 @@ export function Profile() {
           <ListRow title="Status" value={stageNames[status]} chevron />
           <ListRow title="City" value={stageCity[status]} chevron />
           <ListRow title="Lifestyle" value={rows.lifestyle} chevron />
-          {rows.intention && <ListRow title="Intention" subtitle={rows.intention} chevron />}
+          <ListRow
+            title={intentions.row}
+            subtitle={goals.length ? goals.join(' · ') : intentions.rowEmpty}
+            chevron
+            onClick={() => navigate('intentions')}
+          />
         </ListSection>
         <ListSection>
           <ListRow title={pages.profile.wrappedRow} subtitle={pages.profile.wrappedDetail} chevron onClick={() => navigate('la-wrapped')} />
