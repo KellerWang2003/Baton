@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { navigate } from '../app/navigate'
-import { localInsight, type Goal, type GoalTone } from '../data/localInsight'
-import { ArrowRightIcon, BatonMark, Button, cx } from '../ui'
+import { localInsight } from '../data/localInsight'
+import { ArrowRightIcon, BatonMark, Button, cx, TypedSummary } from '../ui'
 
-const { goals, bookend, close } = localInsight
+const { la, ny, intention, bookend, close } = localInsight
 
 // True once the element has scrolled into view (stays true), so each part
 // plays as she reaches it
@@ -25,13 +25,15 @@ function useInView<T extends Element>() {
   return [ref, inView] as const
 }
 
+// Inline photos are outlined in the color behind them
+const paperOutline = { '--folder-fill': 'var(--color-baton-paper)' } as CSSProperties
+
 // Local insight: what "You're a Local now!" opens. A scrolling page on the
-// paper color: a card for each of the three goals she set on her last night
-// in LA (how far she got, proof, and LA then), the café-seat prompt from both
-// cities, then the hand-off line.
+// paper color: her LA snapshot against New York now, her intention and how
+// far she got, the café-seat prompt from both cities, then the hand-off line.
 export function LocalInsight() {
   return (
-    <div className="h-full overflow-y-auto bg-baton-paper font-display text-baton-navy">
+    <div className="h-full overflow-y-auto bg-baton-paper font-display text-baton-navy" style={paperOutline}>
       <div className="mx-auto flex max-w-[402px] flex-col gap-14 px-6 pt-10 pb-12">
         <header className="animate-splash-rise">
           <p className="text-callout text-wrap-faint">{localInsight.eyebrow}</p>
@@ -44,7 +46,8 @@ export function LocalInsight() {
           </h1>
         </header>
 
-        <Goals />
+        <ThenAndNow />
+        <Intention />
         <Bookend />
         <Close />
       </div>
@@ -52,92 +55,75 @@ export function LocalInsight() {
   )
 }
 
-const toneCard: Record<GoalTone, string> = {
-  blue: 'bg-baton-blue text-white',
-  yellow: 'bg-baton-yellow text-baton-navy',
-  pink: 'bg-baton-pink text-baton-navy',
-}
-const toneMuted: Record<GoalTone, string> = {
-  blue: 'text-on-baton-blue-muted',
-  yellow: 'text-on-baton-yellow-muted',
-  pink: 'text-on-baton-pink-muted',
-}
-const toneDot: Record<GoalTone, string> = {
-  blue: 'bg-white',
-  yellow: 'bg-baton-navy',
-  pink: 'bg-baton-navy',
+function CityLabel({ dot, label, when }: { dot: string; label: string; when: string }) {
+  return (
+    <p className="flex items-center gap-2 text-card-body">
+      <span className={cx('size-2.5 rounded-full', dot)} />
+      <span className="font-medium">{label}</span>
+      <span className="text-wrap-faint">{when}</span>
+    </p>
+  )
 }
 
-function Goals() {
+function ThenAndNow() {
+  const [ref, inView] = useInView<HTMLElement>()
   return (
-    <section className="flex flex-col gap-4">
-      <p className="animate-splash-rise text-card-body text-wrap-faint" style={{ animationDelay: '200ms' }}>
-        {localInsight.goalsLabel}
-      </p>
-      {goals.map((goal, index) => (
-        <GoalCard key={goal.goal} goal={goal} index={index} />
-      ))}
+    <section ref={ref} className="flex flex-col gap-5">
+      <div className="animate-splash-rise" style={{ animationDelay: '200ms' }}>
+        <CityLabel dot="bg-baton-blue" label={la.label} when={la.when} />
+        <TypedSummary parts={la.parts} play={false} className="mt-2 text-[26px] leading-[1.15] text-wrap-faint" />
+      </div>
+      <div>
+        <CityLabel dot="bg-baton-olive" label={ny.label} when={ny.when} />
+        {inView && <TypedSummary parts={ny.parts} play className="mt-2 text-[26px] leading-[1.15]" />}
+      </div>
+      <div className={cx('flex flex-col gap-3 transition-opacity duration-500', inView ? 'opacity-100 delay-[2400ms]' : 'opacity-0')}>
+        <TagRow label="Stayed" tags={localInsight.stayed} tone="bg-baton-chip" />
+        <TagRow label="New" tags={localInsight.fresh} tone="bg-baton-yellow" />
+      </div>
     </section>
   )
 }
 
-// One goal: how it went, the number, a dot per week (or day) filling in for
-// the ones she did it, proof from her archive and how it was in LA
-function GoalCard({ goal, index }: { goal: Goal; index: number }) {
-  const [ref, inView] = useInView<HTMLElement>()
-  const filled = new Set(goal.dots.filled)
-  const columns = goal.dots.total / 2
+function TagRow({ label, tags, tone }: { label: string; tags: string[]; tone: string }) {
   return (
-    <article
-      ref={ref}
-      className={cx('rounded-[32px] px-6 pt-5 pb-6 transition-[opacity,transform] duration-500 ease-out', toneCard[goal.tone])}
-      style={{
-        opacity: inView ? 1 : 0,
-        transform: inView ? 'none' : 'translateY(24px)',
-        transitionDelay: `${index === 0 ? 300 : 0}ms`,
-      }}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <p className="text-card-title font-medium">“{goal.goal}”</p>
-        <span className="mt-0.5 shrink-0 rounded-full bg-white/40 px-2.5 py-1 text-caption font-medium">{goal.status}</span>
+    <div className="flex items-start gap-3">
+      <span className="w-12 shrink-0 pt-1.5 text-card-body text-wrap-faint">{label}</span>
+      <div className="flex flex-wrap gap-1.5">
+        {tags.map((tag) => (
+          <span key={tag} className={cx('rounded-full px-3 py-1.5 text-card-body', tone)}>
+            {tag}
+          </span>
+        ))}
       </div>
+    </div>
+  )
+}
 
-      <div className="mt-5 flex items-end gap-4">
-        <div className="min-w-0 flex-1">
-          <p className="text-[44px] leading-none font-medium tracking-[-0.02em]">{goal.stat}</p>
-          <p className={cx('mt-1 text-callout', toneMuted[goal.tone])}>{goal.statLabel}</p>
-        </div>
-        <div className="flex shrink-0">
-          {goal.photos.map((photo, i) => (
-            <img
-              key={photo.src}
-              src={photo.src}
-              alt={photo.alt}
-              className={cx('size-[64px] rounded-[16px] border-2 border-white object-cover shadow-card', i > 0 && '-ml-5 rotate-[8deg]')}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div
-        className="mt-5 grid gap-1.5"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
-        aria-hidden
-      >
-        {Array.from({ length: goal.dots.total }, (_, i) => (
-          <span key={i} className="aspect-square rounded-full border border-current/25">
-            {filled.has(i) && (
+// Her intention, and one dot per Thursday since she landed: they fill in,
+// one by one, for the weeks she went drawing
+function Intention() {
+  const [ref, inView] = useInView<HTMLElement>()
+  const went = new Set(intention.went)
+  return (
+    <section ref={ref} className="rounded-[32px] bg-baton-yellow px-6 pt-6 pb-7">
+      <p className="text-card-body text-on-baton-yellow-muted">{intention.label}</p>
+      <p className="mt-1 text-section font-medium">“{intention.quote}”</p>
+      <div className="mt-6 grid grid-cols-[repeat(13,1fr)] gap-1.5" aria-hidden>
+        {Array.from({ length: intention.thursdays }, (_, week) => (
+          <span key={week} className="aspect-square rounded-full border border-baton-navy/20">
+            {went.has(week) && (
               <span
-                className={cx('block size-full rounded-full transition-transform duration-300', toneDot[goal.tone], inView ? 'scale-100' : 'scale-0')}
-                style={{ transitionDelay: `${500 + i * 40}ms`, transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
+                className={cx('block size-full rounded-full bg-baton-navy transition-transform duration-300', inView ? 'scale-100' : 'scale-0')}
+                style={{ transitionDelay: `${300 + week * 60}ms`, transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
               />
             )}
           </span>
         ))}
       </div>
-      <p className={cx('mt-2 text-card-body', toneMuted[goal.tone])}>{goal.dots.label}</p>
-      <p className="mt-4 border-t border-current/15 pt-3 text-callout">{goal.la}</p>
-    </article>
+      <p className="mt-6 text-card-title font-medium">{intention.headline}</p>
+      <p className="mt-1 text-callout text-on-baton-yellow-muted">{intention.detail}</p>
+    </section>
   )
 }
 

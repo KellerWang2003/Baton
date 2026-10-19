@@ -1,11 +1,12 @@
-// Local insight page: what "You're a Local now!" opens. On her last night in
-// LA Chloe picked three goals for New York (from the list below); 180 days
-// later each one gets a card with how far she got, proof from her archive and
-// how it compares with her LA snapshot. Then the café-seat prompt from both
-// cities side by side. Written by hand, standing in for what Baton would
-// generate.
+// Local insight page: what "You're a Local now!" opens. It compares her LA
+// lifestyle snapshot (captured on her last night in LA) with how she lives in
+// New York now, shows her progress on the intention she set that night, and
+// puts the café-seat prompt from both cities side by side. Written by hand,
+// standing in for what Baton would generate.
+import type { SummaryPart } from '../ui'
 
-// Goals she can pick from on her last night in LA (Keller, Oct 19)
+// Goals she can pick from before she leaves LA (Keller, Oct 19); she picks
+// three on the intentions screen (src/data/intentions.ts)
 export const goalOptions = [
   'Say yes to more invites',
   'Work out 3× a week',
@@ -16,65 +17,54 @@ export const goalOptions = [
   'Build a morning routine',
 ]
 
-export type GoalTone = 'blue' | 'yellow' | 'pink'
-
-export type Goal = {
-  goal: string
-  tone: GoalTone
-  // How it went, in a word or two
-  status: string
-  // The big number and what it counts
-  stat: string
-  statLabel: string
-  // One dot per week (or day) since she landed; filled = she did it
-  dots: { total: number; filled: number[]; label: string }
-  la: string
-  photos: { src: string; alt: string }[]
-}
+const photo = (alt: string, src?: string) => ({ alt, src })
 
 export const localInsight = {
   eyebrow: '180 days in New York',
   title: ['How your life', 'changed since LA'],
-  goalsLabel: 'The 3 goals you set on your last night in LA',
 
-  goals: [
-    {
-      goal: 'Work out 3× a week',
-      tone: 'blue',
-      status: 'Kept it',
-      stat: '2.8×',
-      statLabel: 'a week, on average',
-      dots: { total: 26, filled: [1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], label: '24 of 26 weeks' },
-      la: 'In LA: about once a week.',
-      photos: [
-        { src: '/relay/gym.jpg', alt: 'Crunch on 14th St, with the Trader Joe’s next door' },
-        { src: '/relay/gym-late.jpg', alt: 'The gym late at night' },
-      ],
-    },
-    {
-      goal: 'Find people who share my hobby',
-      tone: 'yellow',
-      status: 'Found them',
-      stat: '3 friends',
-      statLabel: 'you draw with every Thursday',
-      dots: { total: 26, filled: [3, 5, 6, 8, 11, 12, 14, 17, 19, 20, 23, 25], label: '12 Thursdays at Spring Studio' },
-      la: 'In LA: you mostly drew alone.',
-      photos: [
-        { src: '/relay/studio.jpg', alt: 'Figure drawing at Spring Studio' },
-        { src: '/relay/blick.jpg', alt: 'Picking up supplies at Blick' },
-      ],
-    },
-    {
-      goal: 'Build a morning routine',
-      tone: 'pink',
-      status: 'On its way',
-      stat: '9 mornings',
-      statLabel: 'out walking in the last 30 days',
-      dots: { total: 30, filled: [4, 9, 13, 16, 19, 21, 24, 27, 29], label: 'More of them lately' },
-      la: 'In LA: you were never up before 9.',
-      photos: [{ src: '/relay/greenway.jpg', alt: 'Morning on the Hudson River Greenway' }],
-    },
-  ] satisfies Goal[],
+  // Then and now: the LA sentence is the Archive's, the New York one is hers now
+  la: {
+    label: 'Los Angeles',
+    when: 'Your snapshot · Dec 18',
+    parts: [
+      'You chased sunsets',
+      [photo('Sunset on the walk home', '/archive/la-sunset.jpg')],
+      'and late night street tacos,',
+      [photo('Tacos at Grand Central Market', '/archive/la-tacos-1.jpg'), photo('Tacos from the truck on Colorado', '/archive/la-tacos-2.jpg')],
+      'and became the life of every',
+      [photo('Studio party', '/archive/la-party-1.jpg')],
+      'party.',
+    ] satisfies SummaryPart[],
+  },
+  ny: {
+    label: 'New York',
+    when: 'You now · Jun 17',
+    parts: [
+      'You found a gym',
+      [photo('Gym with the Trader Joe’s next door', '/relay/gym.jpg')],
+      'with Trader Joe’s next door, a new window seat',
+      [photo('Window seat at Devoción', '/relay/cafe.jpg')],
+      'and Thursdays drawing with strangers who became friends.',
+      [photo('Figure drawing at Spring Studio', '/relay/studio.jpg')],
+    ] satisfies SummaryPart[],
+  },
+  stayed: ['A window seat', 'Gym by Trader Joe’s', 'Sunset walks'],
+  fresh: ['Thursday drawing', 'The L train', 'Walking everywhere'],
+
+  // The three goals she picked in the demo; the page follows up on the hobby one
+  goals: [{ goal: 'Work out 3× a week' }, { goal: 'Find people who share my hobby' }, { goal: 'Build a morning routine' }],
+
+  // Her intention from the last night in LA, and how far she got
+  intention: {
+    label: 'Your intention',
+    quote: 'Find people who share my hobby',
+    // One dot per Thursday since she landed; the filled ones she went drawing
+    thursdays: 26,
+    went: [3, 5, 6, 8, 11, 12, 14, 17, 19, 20, 23, 25],
+    headline: '12 Thursdays at Spring Studio',
+    detail: 'And 3 people you draw with now: Ana, Theo and Min.',
+  },
 
   // The demo bookend: the same daily prompt, asked in both cities.
   // Placeholder photos until the real café shots are in.
