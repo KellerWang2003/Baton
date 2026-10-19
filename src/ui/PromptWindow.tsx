@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
-import { CameraFillIcon, cameraFillPath, PencilIcon } from './icons'
+import { PencilIcon, PromptCameraIcon, promptCameraHeight, promptCameraPath, promptCameraWidth } from './icons'
 import { defaultGlassTuning } from './promptGlass'
 import type { GlassTuning, PromptGlass } from './promptGlass'
 import { useGlassBackdrop } from './useGlassBackdrop'
@@ -95,7 +95,7 @@ export function PromptWindow({
   // Just the icon for what it asks for (Figma TODAY 334:10176)
   const pill = (
     <span role="img" aria-label={mediumLabel} className="inline-flex text-baton-blue">
-      {medium === 'photo' ? <CameraFillIcon /> : <PencilIcon className="size-6" />}
+      {medium === 'photo' ? <PromptCameraIcon /> : <PencilIcon className="size-6" />}
     </span>
   )
   const words = (
@@ -267,11 +267,10 @@ function drawPrompt(box: number, height: number, question: string, medium: 'phot
   ctx.save()
   ctx.translate(box / 2 - iconSize / 2, top - iconGap - iconSize)
   if (medium === 'photo') {
+    // Centered in the 24px icon box, at its own width like the SVG
+    ctx.translate((iconSize - promptCameraWidth) / 2, (iconSize - promptCameraHeight) / 2)
     ctx.fillStyle = blue
-    ctx.fill(new Path2D(cameraFillPath), 'evenodd')
-    ctx.beginPath()
-    ctx.arc(12, 13, 2.6, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.fill(new Path2D(promptCameraPath))
   } else {
     ctx.strokeStyle = blue
     ctx.lineWidth = 1.8
