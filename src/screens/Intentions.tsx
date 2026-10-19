@@ -3,7 +3,7 @@ import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { goBack } from '../app/navigate'
 import { setState, toggleIn, useStore } from '../app/store'
 import { goalBubbles, intentions } from '../data/intentions'
-import { ArrowRightIcon, Button, ChevronLeftIcon, FluidGlass } from '../ui'
+import { ArrowRightIcon, Button, FluidGlass } from '../ui'
 import { cx } from '../ui/cx'
 import { defaultGlassTuning } from '../ui/promptGlass'
 
@@ -62,15 +62,7 @@ export function Intentions() {
 
       {/* Pinned over the canvas, which slides under them and fades out */}
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-linear-to-b from-baton-paper from-70% to-baton-paper/0 pb-8">
-        <button
-          type="button"
-          onClick={() => goBack('profile')}
-          className="pointer-events-auto ml-2 mt-1 inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-body text-brand active:opacity-50"
-        >
-          <ChevronLeftIcon />
-          Profile
-        </button>
-        <h1 className="animate-splash-rise text-center text-[30px] font-medium leading-[30px] tracking-[-0.011em]">
+        <h1 className="animate-splash-rise pt-9 text-center text-[30px] font-medium leading-[30px] tracking-[-0.011em]">
           {intentions.title.map((line) => (
             <span key={line} className="block">
               {line}
