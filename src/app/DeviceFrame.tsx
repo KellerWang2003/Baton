@@ -1,5 +1,6 @@
-import { useSyncExternalStore } from 'react'
+import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
+import { cx } from '../ui/cx'
 import { StatusBar } from './StatusBar'
 
 // On a real phone (opened over wifi) the app fills the screen, frame or not.
@@ -15,6 +16,9 @@ function useIsPhone() {
 
 type DeviceFrameProps = {
   framed: boolean
+  // Keep the phone's proportions on short windows by scaling it down whole,
+  // instead of squashing its height (which made it look fat)
+  lockRatio: boolean
   children: ReactNode
 }
 
@@ -23,15 +27,41 @@ type DeviceFrameProps = {
 // Unframed: the app fills the window and responds to its width.
 // Both are size containers, so screens should use container variants
 // (@md:, @lg:) rather than viewport ones (md:, lg:).
-export function DeviceFrame({ framed, children }: DeviceFrameProps) {
+// The frame's outer size: the 402x874 screen plus the 10px border
+const frameSize = { width: 422, height: 894 }
+
+export function DeviceFrame({ framed, lockRatio, children }: DeviceFrameProps) {
   const isPhone = useIsPhone()
+  const page = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  // Fit the whole phone inside the page, never larger than real size
+  useLayoutEffect(() => {
+    const element = page.current
+    if (!element || !lockRatio) return
+    const fit = () => {
+      const pad = 32
+      setScale(Math.min(1, (element.clientWidth - pad) / frameSize.width, (element.clientHeight - pad) / frameSize.height))
+    }
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [lockRatio, framed, isPhone])
+
   if (!framed || isPhone) {
     return <div className="@container h-full w-full bg-canvas">{children}</div>
   }
 
   return (
-    <div className="flex h-full w-full items-center justify-center p-4">
-      <div className="relative flex h-[894px] max-h-full w-[422px] flex-col overflow-hidden rounded-[72px] border-[10px] border-ink bg-canvas shadow-float">
+    <div ref={page} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
+      <div
+        style={lockRatio ? { ...frameSize, flexShrink: 0, transform: `scale(${scale})` } : undefined}
+        className={cx(
+          'relative flex flex-col overflow-hidden rounded-[72px] border-[10px] border-ink bg-canvas shadow-float',
+          !lockRatio && 'h-[894px] max-h-full w-[422px]',
+        )}
+      >
         <StatusBar />
         <div className="@container min-h-0 flex-1">{children}</div>
       </div>

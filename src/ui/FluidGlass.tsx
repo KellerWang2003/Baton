@@ -34,9 +34,21 @@ export interface FluidGlassProps {
   frost?: number;
   color?: string;
   tint?: number;
+  // Baton: how strongly the glass shows its color at the rim, fading inward (0..1)
+  rim?: number;
+  // Baton: a slow, small surface wobble while it rests, so it looks alive (0..1)
+  breathe?: number;
+  // Baton: a clear band with a faint gray line around the very edge (0..1)
+  ring?: number;
+  // Baton: receives a function that pushes the glass with a velocity (px/s),
+  // e.g. from the page scrolling; it springs back home when tethered
+  pushRef?: { current: ((vx: number, vy: number) => void) | null };
   shadow?: number;
   elevation?: number;
   interaction?: Interaction;
+  // Baton: with drag, 0..1 tethers the glass to its spot. It follows the
+  // finger only this fraction of the way and springs back home on release
+  give?: number;
   smoothness?: number;
   wobble?: number;
   spin?: number;
@@ -71,9 +83,14 @@ interface Settings {
   frost: number;
   color: number[];
   tint: number;
+  rim: number;
+  breathe: number;
+  ring: number;
+  pushRef?: FluidGlassProps['pushRef'];
   shadow: number;
   elevation: number;
   interaction: Interaction;
+  give: number;
   smoothness: number;
   wobble: number;
   spin: number;
@@ -239,6 +256,8 @@ uniform float uDispersion;
 uniform float uReflection;
 uniform float uFrost;
 uniform vec4 uTint;
+uniform float uRim;
+uniform float uRing;
 uniform float uShadow;
 uniform vec3 uLight;
 uniform float uPresence;
@@ -527,6 +546,21 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   vec4 glass = reflected + transmitted * (1.0 - reflected.a);
   float edge = 1.0 - smoothstep(0.04, 0.3, cosi);
   glass = mix(glass, mirror + background * (1.0 - mirror.a), edge);
+  // Baton: the glass's own color, heaviest at its rim and fading inward
+  // (by distance from the glass's center, so it travels with the glass)
+  // 1 at the silhouette (measured: the surface there sits at 0.89 of the bound)
+  float radial = length(tr.p.xy - uCenter.xy) / max(uBound / 1.08 * 0.89, 1.0);
+  // Only the outer ~fifth, easing in, so the middle stays clear (Figma 236:1282)
+  float rimTint = pow(smoothstep(0.72, 1.0 - 0.012 * uRing, radial), 1.6) * uRim;
+  float rimAlpha = max(glass.a, rimTint);
+  glass = vec4(mix(glass.rgb, uTint.rgb * rimAlpha, rimTint), rimAlpha);
+  // Baton: a clear, whitish band around the very edge, outside the blue, with
+  // a faint gray line at the silhouette (Figma 236:1282)
+  // Blends out of the blue (no hard step), so it reads as the glass's own edge
+  float ring = smoothstep(0.972, 0.99, radial) * uRing;
+  glass.rgb = mix(glass.rgb, vec3(0.97) * glass.a, ring * 0.8);
+  float hairline = smoothstep(0.995, 0.999, radial) * uRing;
+  glass.rgb = mix(glass.rgb, vec3(0.88) * glass.a, hairline * 0.6);
   vec2 facing = normalize(vec2(-0.42, 0.55));
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(tr.n.xy + 1e-5), facing))) * 0.55 * uReflection;
   rimLight *= smoothstep(0.0, 0.08, cosi);
@@ -671,9 +705,14 @@ const FluidGlass = ({
   frost = 0,
   color = '#ffffff',
   tint = 0,
+  rim = 0,
+  breathe = 0,
+  ring = 0,
+  pushRef,
   shadow = 0.5,
   elevation = 0.4,
   interaction = 'follow',
+  give = 0,
   smoothness = 0.5,
   wobble = 0.5,
   spin = 0.3,
@@ -714,9 +753,14 @@ const FluidGlass = ({
     frost: clamp(frost, 0, 1),
     color: parseColor(color) || [1, 1, 1, 1],
     tint: clamp(tint, 0, 1),
+    rim: clamp(rim, 0, 1),
+    breathe: clamp(breathe, 0, 1),
+    ring: clamp(ring, 0, 1),
+    pushRef,
     shadow: clamp(shadow, 0, 1),
     elevation: clamp(elevation, 0, 3),
     interaction,
+    give: clamp(give, 0, 1),
     smoothness: clamp(smoothness, 0, 1),
     wobble: clamp(wobble, 0, 1),
     spin,
@@ -1144,7 +1188,7 @@ const FluidGlass = ({
       }
 
       const size = radius();
-      if (!pointer.grabbed && s.interaction !== 'drag') {
+      if (!pointer.grabbed && (s.interaction !== 'drag' || s.give > 0)) {
         body.anchorX = s.position[0] * view.width;
         body.anchorY = s.position[1] * view.height;
       }
@@ -1166,6 +1210,10 @@ const FluidGlass = ({
       if (pointer.grabbed) {
         goalX = pointer.x - pointer.offsetX;
         goalY = pointer.y - pointer.offsetY;
+        if (s.give > 0) {
+          goalX = body.anchorX + (goalX - body.anchorX) * s.give;
+          goalY = body.anchorY + (goalY - body.anchorY) * s.give;
+        }
         flying = false;
       }
       if (flying) {
@@ -1214,6 +1262,7 @@ const FluidGlass = ({
       busy = step('tiltX', clamp(body.vy * tiltGain, -0.7, 0.7), 9, 0.5, dt) || busy;
       busy = step('tiltY', clamp(body.vx * tiltGain, -0.7, 0.7), 9, 0.5, dt) || busy;
       if (!reduced && (morph.to === 'blob' || (morph.from === 'blob' && morph.t < 1))) busy = true;
+      if (!reduced && s.breathe > 0) busy = true;
       if (!reduced && s.spin) {
         body.spin += dt * s.spin;
         busy = true;
@@ -1332,13 +1381,15 @@ const FluidGlass = ({
       const bound = size * scale * maxScale * 1.08 + 2;
       gl.uniform1f(u.uBound, bound);
       gl.uniform1f(u.uMorph, eased);
-      gl.uniform1f(u.uRipple, body.ripple);
+      gl.uniform1f(u.uRipple, body.ripple + (reduced ? 0 : s.breathe * 0.06));
       gl.uniform1f(u.uTime, reduced ? 0 : time);
       gl.uniform1f(u.uIor, s.ior);
       gl.uniform1f(u.uDispersion, s.dispersion);
       gl.uniform1f(u.uReflection, s.reflection);
       gl.uniform1f(u.uFrost, s.frost);
       gl.uniform4f(u.uTint, s.color[0], s.color[1], s.color[2], s.tint * 1.6);
+      gl.uniform1f(u.uRim, s.rim);
+      gl.uniform1f(u.uRing, s.ring);
       gl.uniform1f(u.uShadow, s.shadow);
       const light = [-0.42, 0.55, 1];
       const length = Math.hypot(...light);
@@ -1389,6 +1440,15 @@ const FluidGlass = ({
       resize();
       wake();
     };
+    const pushRef = settingsRef.current.pushRef;
+    if (pushRef)
+      pushRef.current = (vx: number, vy: number) => {
+        if (pointer.grabbed) return;
+        body.vx += vx;
+        body.vy += vy;
+        calm = false;
+        wake();
+      };
 
     const locate = (event: PointerEvent) => {
       const rect = container.getBoundingClientRect();
@@ -1442,8 +1502,8 @@ const FluidGlass = ({
       if (pointer.grabbed) {
         pointer.grabbed = false;
         container.removeAttribute('data-grabbing');
-        flying = Math.hypot(body.vx, body.vy) > 60;
-        if (!flying) settle();
+        flying = s.give === 0 && Math.hypot(body.vx, body.vy) > 60;
+        if (!flying && s.give === 0) settle();
       }
       if (!moved && near && spot.inside) {
         spring.vstretch -= 3 * s.wobble;
@@ -1530,6 +1590,7 @@ const FluidGlass = ({
     return () => {
       cancelAnimationFrame(raf);
       wakeRef.current = null;
+      if (pushRef) pushRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
       themeObserver.disconnect();

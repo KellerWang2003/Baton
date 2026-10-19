@@ -51,7 +51,7 @@ type TodayProps = {
 // list of cards: the legacy card in her last week in LA, her to-dos (tap for
 // tips) and suggestions for her stage.
 export function Today({ lastWeek = false }: TodayProps) {
-  const { todos, doneTodos, setupDone, keptPlaces, ...store } = useStore()
+  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
@@ -92,11 +92,13 @@ export function Today({ lastWeek = false }: TodayProps) {
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
       {/* Tapping the circle opens the + field in the tab bar, like tapping a widget */}
       <PromptWindow
-        className="pb-12 pt-6"
+        className="pb-8 pt-6"
         question={prompt.question}
         seed={prompt.seed}
         medium={medium}
         mediumLabel={promptMediumLabel[medium]}
+        glass={promptGlass}
+        tuning={glassTuning}
         onClick={openComposer}
       />
 

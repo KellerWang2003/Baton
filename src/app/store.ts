@@ -3,6 +3,8 @@ import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
 import { leave } from '../data/today'
 import type { Stage } from '../flow'
+import { defaultGlassTuning } from '../ui/promptGlass'
+import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
 import type { RelayLook } from '../ui/relayLooks'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
@@ -34,6 +36,12 @@ type State = {
   relayFilter: string | null
   // Visual treatment for Relay, picked in the team-only Relay looks playground
   relayLook: RelayLook
+  // How Today's prompt circle is drawn, picked in the team-only Today looks playground
+  promptGlass: PromptGlass
+  // Fluid Glass settings for that circle, tuned live in the debug panel
+  glassTuning: GlassTuning
+  // Which of her stage's daily prompts Today shows (switched in the debug panel)
+  promptIndex: number
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -59,6 +67,11 @@ let state: State = {
   relayFilter: null,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
+  // Keller, Oct 18: the whole circle is one big blob of blue-tinted liquid glass
+  // Prompt and pill sit together under the glass, so moving it bends them (Keller, Oct 19)
+  promptGlass: 'glass',
+  glassTuning: defaultGlassTuning,
+  promptIndex: 0,
   setupDone: [],
   composing: false,
   reflections: [],
@@ -98,6 +111,8 @@ export function useStatus(): Stage {
 }
 
 // Today's prompt for her stage (also shown above the + field while typing).
+// The debug panel can pick another of the stage's prompts.
 export function useDailyPrompt() {
-  return dailyPrompts[useStatus()][0]
+  const prompts = dailyPrompts[useStatus()]
+  return prompts[useStore().promptIndex % prompts.length]
 }

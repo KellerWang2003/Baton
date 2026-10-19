@@ -2,14 +2,18 @@ import { useEffect, useState } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
-import { cx } from '../ui'
-import { setState, useStatus } from './store'
+import { cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
+import type { GlassTuning } from '../ui'
+import { dailyPrompts } from '../data/pages'
+import { setState, useStatus, useStore } from './store'
 
 type DebugPanelProps = {
   index: number
   goTo: (index: number) => void
   framed: boolean
   toggleFrame: () => void
+  lockRatio: boolean
+  toggleLockRatio: () => void
   kitOpen: boolean
   toggleKit: () => void
   mapsOpen: boolean
@@ -26,7 +30,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
 
@@ -116,11 +120,15 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, kitOpen, toggleKi
 
       <div className="flex flex-col gap-1 border-t border-line pt-3">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
+        <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
       </div>
+
+      <PromptPicker />
+      <GlassControls />
 
       <nav className="flex flex-col gap-2 border-t border-line pt-3">
         {stages.map((stage) => {
@@ -166,5 +174,115 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
         <span className="size-4 rounded-full bg-surface" />
       </span>
     </button>
+  )
+}
+
+// Live Fluid Glass settings for Today's prompt circle, the controls React Bits
+// shows for the component. They reset on reload like everything else.
+function GlassControls() {
+  const { glassTuning: tuning } = useStore()
+  const [open, setOpen] = useState(false)
+  const set = (patch: Partial<GlassTuning>) => setState((s) => ({ glassTuning: { ...s.glassTuning, ...patch } }))
+  const select = 'rounded-full bg-surface-muted px-2 py-1 text-xs'
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-line pt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-wide text-ink-muted"
+      >
+        Today glass
+        <span>{open ? '−' : '+'}</span>
+      </button>
+      {open && (
+        <div className="flex flex-col gap-2 px-2">
+          <label className="flex items-center justify-between gap-2">
+            Shape
+            <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
+              {glassShapes.map((shape) => (
+                <option key={shape}>{shape}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            Interaction
+            <select
+              value={tuning.interaction}
+              onChange={(event) => set({ interaction: event.target.value as GlassTuning['interaction'] })}
+              className={select}
+            >
+              {glassInteractions.map((interaction) => (
+                <option key={interaction}>{interaction}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center justify-between gap-2">
+            Color
+            <input
+              type="color"
+              value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-baton-blue').trim()}
+              onChange={(event) => set({ color: event.target.value })}
+              className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
+            />
+          </label>
+          {glassSliders.map((slider) => {
+            const value = tuning[slider.key] as number
+            return (
+              <label key={slider.key} className="flex flex-col gap-0.5">
+                <span className="flex justify-between text-xs">
+                  {slider.label}
+                  <span className="tabular-nums text-ink-muted">{value}</span>
+                </span>
+                <input
+                  type="range"
+                  min={slider.min}
+                  max={slider.max}
+                  step={slider.step}
+                  value={value}
+                  onChange={(event) => set({ [slider.key]: Number(event.target.value) })}
+                  className="accent-baton-blue"
+                />
+              </label>
+            )
+          })}
+          <div className="-mx-2 flex flex-col">
+            <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
+            <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
+            <DebugToggle label="Intro" on={tuning.intro} onClick={() => set({ intro: !tuning.intro })} />
+          </div>
+          <button
+            type="button"
+            onClick={() => setState({ glassTuning: defaultGlassTuning })}
+            className="self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
+          >
+            Reset
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Which of her stage's daily prompts Today shows, to try different lengths
+function PromptPicker() {
+  const status = useStatus()
+  const { promptIndex } = useStore()
+  const prompts = dailyPrompts[status]
+  return (
+    <label className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Today's prompt</span>
+      <select
+        value={promptIndex % prompts.length}
+        onChange={(event) => setState({ promptIndex: Number(event.target.value) })}
+        className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
+      >
+        {prompts.map((prompt, i) => (
+          <option key={prompt.question} value={i}>
+            {prompt.question}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }
