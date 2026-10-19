@@ -68,61 +68,64 @@ export function LaWrapped() {
   const [open, setOpen] = useState(false)
 
   return (
-    <div className={cx('relative h-full bg-baton-paper', open ? 'overflow-y-auto' : 'overflow-hidden')}>
-      <div className="relative mx-auto w-[402px] font-display text-baton-navy" style={{ height: wrapSummary.height - TOP }}>
-        <Header open={open} />
+    <div className="relative h-full bg-baton-paper font-display text-baton-navy">
+      <div className={cx('absolute inset-0', open ? 'overflow-y-auto' : 'overflow-hidden')}>
+        {/* Extra room at the end so the pinned Continue doesn't cover the summary */}
+        <div className="relative mx-auto w-[402px]" style={{ height: wrapSummary.height - TOP + 60 }}>
+          <Header open={open} />
 
-        <div
-          aria-hidden
-          className="absolute w-px origin-top bg-wrap-line motion-reduce:transition-none"
-          style={{
-            left: wrapLine.x - 0.5,
-            top: wrapLine.top - TOP,
-            height: wrapLine.height,
-            transform: open ? 'scaleY(1)' : 'scaleY(0)',
-            transition: open ? `transform ${LINE_DRAW}ms linear ${LINE_DELAY}ms` : 'none',
-          }}
-        />
-
-        {wrapMoments.map((moment, index) => (
-          <Pills key={`pill-${moment.date}`} moment={moment} index={index} open={open} />
-        ))}
-        {wrapMoments.map((moment, index) => (
-          <Moment key={moment.date} moment={moment} index={index} open={open} />
-        ))}
-        {wrapDoodles.map((doodle) => (
           <div
-            key={`${doodle.x}-${doodle.y}`}
             aria-hidden
-            className="pointer-events-none absolute overflow-hidden transition-opacity duration-500 motion-reduce:transition-none"
+            className="absolute w-px origin-top bg-wrap-line motion-reduce:transition-none"
             style={{
-              left: doodle.x,
-              top: doodle.y - TOP,
-              width: doodle.w,
-              height: doodle.h,
-              opacity: open ? 1 : 0,
-              transitionDelay: open ? `${EXPAND + 300}ms` : '0ms',
+              left: wrapLine.x - 0.5,
+              top: wrapLine.top - TOP,
+              height: wrapLine.height,
+              transform: open ? 'scaleY(1)' : 'scaleY(0)',
+              transition: open ? `transform ${LINE_DRAW}ms linear ${LINE_DELAY}ms` : 'none',
             }}
-          >
-            <img
-              src={doodle.src}
-              alt=""
-              className="absolute max-w-none"
-              style={{ width: `${doodle.crop.w}%`, height: `${doodle.crop.h}%`, left: `${doodle.crop.left}%`, top: `${doodle.crop.top}%` }}
-            />
-          </div>
-        ))}
-
-        {open && <Summary />}
-
-        {!open && (
-          <button
-            type="button"
-            aria-label="Open your LA moments"
-            onClick={() => setOpen(true)}
-            className="absolute inset-0 cursor-pointer"
           />
-        )}
+
+          {wrapMoments.map((moment, index) => (
+            <Pills key={`pill-${moment.date}`} moment={moment} index={index} open={open} />
+          ))}
+          {wrapMoments.map((moment, index) => (
+            <Moment key={moment.date} moment={moment} index={index} open={open} />
+          ))}
+          {wrapDoodles.map((doodle) => (
+            <div
+              key={`${doodle.x}-${doodle.y}`}
+              aria-hidden
+              className="pointer-events-none absolute overflow-hidden transition-opacity duration-500 motion-reduce:transition-none"
+              style={{
+                left: doodle.x,
+                top: doodle.y - TOP,
+                width: doodle.w,
+                height: doodle.h,
+                opacity: open ? 1 : 0,
+                transitionDelay: open ? `${EXPAND + 300}ms` : '0ms',
+              }}
+            >
+              <img
+                src={doodle.src}
+                alt=""
+                className="absolute max-w-none"
+                style={{ width: `${doodle.crop.w}%`, height: `${doodle.crop.h}%`, left: `${doodle.crop.left}%`, top: `${doodle.crop.top}%` }}
+              />
+            </div>
+          ))}
+
+          {open && <Summary />}
+
+          {!open && (
+            <button
+              type="button"
+              aria-label="Open your LA moments"
+              onClick={() => setOpen(true)}
+              className="absolute inset-0 cursor-pointer"
+            />
+          )}
+        </div>
       </div>
 
       {/* Hint at the bottom of the first screen; fades out once it opens */}
@@ -135,6 +138,22 @@ export function LaWrapped() {
           {wrapped.tapHint}
         </span>
       </p>
+
+      {/* Continue stays pinned to the bottom of the screen once it opens (Keller, Oct 19) */}
+      {open && (
+        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] flex justify-center">
+          <Button
+            variant="glow"
+            size="cta"
+            onClick={() => navigate('today')}
+            className="pointer-events-auto w-[309px] animate-splash-rise"
+            style={{ animationDelay: `${EXPAND + 300}ms` }}
+          >
+            {wrapped.cta}
+            <ArrowRightIcon />
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
@@ -267,10 +286,6 @@ function Summary() {
           <span key={moment.date} className={cx('size-[9px] rounded-full', summaryFill[moment.color])} />
         ))}
       </div>
-      <Button variant="glow" size="cta" onClick={() => navigate('today')} className="mt-[30px] w-[309px]">
-        {wrapped.cta}
-        <ArrowRightIcon />
-      </Button>
     </div>
   )
 }
