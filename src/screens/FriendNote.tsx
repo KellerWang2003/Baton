@@ -13,10 +13,10 @@ export function FriendNote() {
   return (
     <Screen background="bg-baton-paper">
       <div className="mx-auto flex max-w-md flex-col gap-6 py-8">
-        <p className="text-center text-headline font-semibold text-baton-navy">Baton</p>
+        <p className="text-center text-headline font-medium text-baton-navy">Baton</p>
         <div className="flex flex-col items-center gap-3 text-center">
           <Avatar name={chloe.name} src={chloe.avatar} size="md" />
-          <h1 className="font-display text-title-1 font-semibold text-ink">
+          <h1 className="font-display text-large-title font-normal text-ink">
             {sent ? 'A little piece of LA, sealed.' : 'Leave Chloe a note'}
           </h1>
           <p className="text-body text-ink-muted">
@@ -27,7 +27,7 @@ export function FriendNote() {
         </div>
         {sent ? (
           <Card className="bg-baton-blue/10 text-center">
-            <p className="text-headline font-semibold">Thanks for being part of her LA story.</p>
+            <p className="text-headline font-medium">Thanks for being part of her LA story.</p>
             <p className="mt-2 text-subhead text-ink-muted">Only Chloe will see your note.</p>
           </Card>
         ) : (
@@ -42,7 +42,7 @@ export function FriendNote() {
           >
             <TextField label="Your name" value={name} onChange={(event) => setName(event.target.value)} required maxLength={80} autoComplete="name" placeholder="So Chloe knows who it’s from" />
             <TextArea label="Your note to Chloe" value={message} onChange={(event) => setMessage(event.target.value)} required maxLength={2000} rows={7} placeholder="I’ll always remember…" />
-            <p className="px-1 text-footnote text-ink-muted">Just for Chloe. Your note stays sealed until she lands. No account needed.</p>
+            <p className="text-footnote text-ink-muted">Just for Chloe. Your note stays sealed until she lands. No account needed.</p>
             <Button type="submit" block variant="glow" size="cta" disabled={!name.trim() || !message.trim()}>
               Seal your note
               <ArrowRightIcon />

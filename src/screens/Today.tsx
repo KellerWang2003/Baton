@@ -118,12 +118,12 @@ export function Today({ lastWeek = false }: TodayProps) {
 
       {/* Below the prompt, straight on the paper (Figma TODAY 334:10047): the
           setup row, then "Before you leave" */}
-      <div className="flex flex-col gap-10 px-3.5 pt-4">
+      <div className="flex flex-col gap-10 pt-4">
         {setupCount < setupItems.length && (
           <section className="flex flex-col gap-4">
             <h2 className="text-section font-normal text-ink">{setup.header}</h2>
             {/* Runs to the screen edges so the next card peeks in */}
-            <div className="-mx-[30px] -my-3 flex snap-x snap-mandatory scroll-px-[30px] gap-3 overflow-x-auto px-[30px] py-3 [scrollbar-width:none]">
+            <div className="-mx-gutter -my-3 flex snap-x snap-mandatory scroll-px-gutter gap-3 overflow-x-auto px-gutter py-3 [scrollbar-width:none]">
               {setupItems.map((item) => (
                 <SetupCard
                   key={item.id}
@@ -237,7 +237,7 @@ export function Today({ lastWeek = false }: TodayProps) {
                 setState((s) => ({ doneTodos: toggleIn(s.doneTodos, sheetTodo.id) }))
                 setOpenTodo(null)
               }}
-              className="text-body font-semibold text-brand active:opacity-50"
+              className="text-body font-medium text-brand active:opacity-50"
             >
               {sheetDone ? tipSheet.markUndone : tipSheet.markDone}
             </button>
@@ -246,7 +246,7 @@ export function Today({ lastWeek = false }: TodayProps) {
       >
         {sheetTodo && (
           <div className="flex flex-col gap-4 pt-2">
-            <h3 className="px-1 font-display text-title-2 font-bold text-ink">{sheetTodo.title}</h3>
+            <h3 className="px-1 font-display text-title-2 font-medium text-ink">{sheetTodo.title}</h3>
             {(tips[sheetTodo.id] ?? []).map((tip) => (
               <Card key={tip.text} className="flex flex-col gap-1.5">
                 <p className="text-body text-ink">{tip.text}</p>

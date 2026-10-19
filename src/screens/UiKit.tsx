@@ -30,11 +30,11 @@ import type { Stage } from '../flow'
 const stages: Stage[] = ['moving', 'newcomer', 'local']
 
 const textStyles = [
-  ['text-large-title font-bold', 'Large title'],
-  ['text-title-1 font-bold', 'Title 1'],
-  ['text-title-2 font-bold', 'Title 2'],
-  ['text-title-3 font-semibold', 'Title 3'],
-  ['text-headline font-semibold', 'Headline'],
+  ['text-large-title font-medium', 'Large title'],
+  ['text-title-1 font-medium', 'Title 1'],
+  ['text-title-2 font-medium', 'Title 2'],
+  ['text-title-3 font-medium', 'Title 3'],
+  ['text-headline font-medium', 'Headline'],
   ['text-body', 'Body'],
   ['text-subhead text-ink-muted', 'Subhead'],
   ['text-footnote text-ink-muted', 'Footnote'],
@@ -199,7 +199,7 @@ export function UiKit() {
         title={sheet === 'large' ? 'Large sheet' : 'Medium sheet'}
         detent={sheet ?? 'medium'}
         action={
-          <button type="button" onClick={() => setSheet(null)} className="text-body font-semibold text-brand">
+          <button type="button" onClick={() => setSheet(null)} className="text-body font-medium text-brand">
             Done
           </button>
         }
@@ -216,7 +216,7 @@ export function UiKit() {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="px-1 text-title-3 font-semibold">{title}</h2>
+      <h2 className="px-1 text-title-3 font-medium">{title}</h2>
       {children}
     </section>
   )

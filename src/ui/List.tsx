@@ -14,8 +14,8 @@ type ListSectionProps = {
 export function ListSection({ header, footer, children, className }: ListSectionProps) {
   return (
     <section className={cx('flex flex-col gap-1.5', className)}>
-      {header && <h2 className="px-4 text-footnote uppercase text-ink-muted">{header}</h2>}
-      <div className="overflow-hidden rounded-card bg-surface [&>*:first-child_[data-row-body]]:border-t-0">
+      {header && <h2 className="px-4 text-footnote text-ink-muted">{header}</h2>}
+      <div className="overflow-hidden rounded-card bg-card shadow-card [&>*:first-child_[data-row-body]]:border-t-0">
         {children}
       </div>
       {footer && <p className="px-4 text-footnote text-ink-muted">{footer}</p>}

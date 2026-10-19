@@ -30,7 +30,7 @@ export function Todos() {
         </Button>
       }
     >
-      <div className="flex flex-col gap-10 px-3.5 pb-4 pt-2">
+      <div className="flex flex-col gap-10 pb-4 pt-2">
         <header className="flex flex-col gap-3">
           <h1 className="text-balance font-display text-greeting font-normal text-ink">{copy.title[stage]}</h1>
           <p className="text-callout text-today-muted">{copy.body}</p>

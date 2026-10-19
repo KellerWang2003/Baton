@@ -49,7 +49,7 @@ export function RelayDetail() {
           />
 
           <div className="flex flex-col gap-3 px-1">
-            <h1 className="font-display text-large-title font-bold text-baton-navy">{item.title}</h1>
+            <h1 className="font-display text-large-title font-normal text-baton-navy">{item.title}</h1>
             {item.quote && <p className="font-display text-title-2 text-baton-navy">“{item.quote}”</p>}
             {item.place && (
               <p className="flex items-center gap-1 text-subhead text-ink-muted">
@@ -61,12 +61,12 @@ export function RelayDetail() {
           </div>
 
           {/* Who it came from */}
-          <div className="flex items-center gap-3 rounded-card bg-surface p-4">
+          <div className="flex items-center gap-3 rounded-card bg-card p-4 shadow-card">
             {leaver ? (
               <>
                 <Avatar name={leaver.name} src={relayPlaceholderAvatar} />
                 <div className="min-w-0">
-                  <p className="text-headline font-semibold text-baton-navy">{relayCopy.legacy(leaver.name)}</p>
+                  <p className="text-headline font-medium text-baton-navy">{relayCopy.legacy(leaver.name)}</p>
                   <p className="text-footnote text-ink-muted">
                     {leaver.left} · {leaver.match}
                   </p>
@@ -78,7 +78,7 @@ export function RelayDetail() {
                   <BatonMark className="size-6! text-baton-navy!" />
                 </span>
                 <div className="min-w-0">
-                  <p className="text-headline font-semibold text-baton-navy">{relayCopy.pickedBy}</p>
+                  <p className="text-headline font-medium text-baton-navy">{relayCopy.pickedBy}</p>
                   <p className="text-footnote text-ink-muted">{item.source.kind === 'baton' && item.source.why}</p>
                 </div>
               </>
@@ -86,20 +86,20 @@ export function RelayDetail() {
           </div>
 
           <section className="flex flex-col gap-2.5">
-            <h2 className="px-1 font-display text-title-3 font-bold text-baton-navy">
+            <h2 className="font-display text-title-3 font-medium text-baton-navy">
               {relayCopy.notesHeader}
               <span className="ml-1.5 font-normal text-ink-muted">{item.notes.length + mine.length}</span>
             </h2>
-            {item.notes.length + mine.length === 0 && <p className="px-1 text-subhead text-ink-muted">{relayCopy.noNotes}</p>}
+            {item.notes.length + mine.length === 0 && <p className="text-subhead text-ink-muted">{relayCopy.noNotes}</p>}
             {[
               ...item.notes,
               ...mine.map((text) => ({ from: relayCopy.you, detail: relayCopy.youDetail, text })),
             ].map((note, index) => (
-              <div key={index} className="flex gap-3 rounded-card bg-surface p-4 animate-fade-in">
+              <div key={index} className="flex gap-3 rounded-card bg-card p-4 shadow-card animate-fade-in">
                 <Avatar name={note.from === relayCopy.you ? chloe.name : note.from} src={note.from === relayCopy.you ? chloe.avatar : undefined} size="sm" />
                 <div className="min-w-0">
                   <p className="text-subhead">
-                    <span className="font-semibold text-baton-navy">{note.from}</span>
+                    <span className="font-medium text-baton-navy">{note.from}</span>
                     <span className="text-ink-muted"> · {note.detail}</span>
                   </p>
                   <p className="text-body text-ink">{note.text}</p>
@@ -115,13 +115,13 @@ export function RelayDetail() {
         onClose={() => setWriting(false)}
         title={relayCopy.noteSheetTitle}
         action={
-          <button type="button" onClick={post} disabled={!draft.trim()} className="text-body font-semibold text-brand disabled:opacity-30">
+          <button type="button" onClick={post} disabled={!draft.trim()} className="text-body font-medium text-brand disabled:opacity-30">
             {relayCopy.notePost}
           </button>
         }
       >
         <div className="flex flex-col gap-3 pt-2">
-          <p className="px-1 text-subhead text-ink-muted">On “{item.title}”</p>
+          <p className="text-subhead text-ink-muted">On “{item.title}”</p>
           <div className="flex flex-wrap gap-2">
             {relayCopy.noteStarters.map((starter) => (
               <Chip key={starter} onClick={() => setDraft((text) => (text ? text : `${starter}: `))}>

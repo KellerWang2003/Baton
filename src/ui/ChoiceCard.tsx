@@ -20,13 +20,13 @@ export function ChoiceCard({ title, subtitle, leading, selected, onSelect }: Cho
       aria-checked={selected}
       onClick={onSelect}
       className={cx(
-        'flex w-full items-center gap-3 rounded-card bg-surface p-4 text-left ring-2 transition active:opacity-80',
+        'flex w-full items-center gap-3 rounded-card bg-card p-4 text-left ring-2 transition active:opacity-80',
         selected ? 'ring-brand' : 'ring-transparent',
       )}
     >
       {leading}
       <div className="min-w-0 flex-1">
-        <p className="text-headline font-semibold text-ink">{title}</p>
+        <p className="text-headline font-medium text-ink">{title}</p>
         {subtitle && <p className="text-subhead text-ink-muted">{subtitle}</p>}
       </div>
       <CheckCircle checked={selected} />

@@ -1,9 +1,9 @@
 import { cx } from './cx'
 
 const sizes = {
-  sm: 'size-8 text-xs',
-  md: 'size-10 text-sm',
-  lg: 'size-14 text-lg',
+  sm: 'size-8 text-caption',
+  md: 'size-10 text-subhead',
+  lg: 'size-14 text-headline',
 }
 
 type AvatarProps = {
@@ -24,7 +24,7 @@ export function Avatar({ name, src, size = 'md', className }: AvatarProps) {
   return (
     <span
       className={cx(
-        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink-muted font-display font-semibold text-on-brand',
+        'inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-ink-muted font-display font-medium text-on-brand',
         sizes[size],
         className,
       )}

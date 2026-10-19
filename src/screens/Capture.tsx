@@ -32,7 +32,7 @@ export function Capture() {
       type="button"
       onClick={() => goBack()}
       disabled={!canSave}
-      className="px-2 py-1 text-body font-semibold text-brand active:opacity-50 disabled:text-ink-muted"
+      className="px-2 py-1 text-body font-medium text-brand active:opacity-50 disabled:text-ink-muted"
     >
       Save
     </button>
@@ -42,8 +42,8 @@ export function Capture() {
     <Screen title={copy.title} onBack={() => goBack()} backLabel="Cancel" backChevron={false} action={save}>
       <div className="flex flex-col gap-6 pt-2">
         <div className="flex flex-col gap-1 px-1" data-stage="moving">
-          <p className="text-footnote font-semibold uppercase text-stage">{dailyPrompt.seed}</p>
-          <p className="text-title-3 font-semibold text-ink">{dailyPrompt.question}</p>
+          <p className="text-footnote font-medium text-stage">{dailyPrompt.seed}</p>
+          <p className="text-title-3 font-medium text-ink">{dailyPrompt.question}</p>
         </div>
 
         <ListSection header={copy.photosLabel}>

@@ -35,10 +35,10 @@ export function TodayCard({ title, highlight = [], subtitle, photo, photoPositio
       type="button"
       onClick={onClick}
       disabled={!onClick}
-      className="flex min-h-[81px] w-full items-center gap-2.5 rounded-[16px] bg-today-panel p-2.5 text-left shadow-today-card transition active:scale-[0.99] disabled:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+      className="flex min-h-[81px] w-full items-center gap-2.5 rounded-card bg-today-panel p-2.5 text-left shadow-today-card transition active:scale-[0.99] disabled:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       {photo ? (
-        <img src={photo} alt="" className="size-[61px] shrink-0 rounded-[12px] object-cover" style={{ objectPosition: photoPosition }} />
+        <img src={photo} alt="" className="size-[61px] shrink-0 rounded-tile object-cover" style={{ objectPosition: photoPosition }} />
       ) : (
         leading && <span className="flex size-[61px] shrink-0 items-center justify-center">{leading}</span>
       )}

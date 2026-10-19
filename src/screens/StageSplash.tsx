@@ -18,7 +18,7 @@ export function StageSplashView({ stage, onDone }: { stage: Stage; onDone: () =>
 
   return (
     <div className="absolute inset-0 z-50 flex animate-fade-in flex-col items-center bg-baton-paper text-baton-navy">
-      <h1 className="mt-[100px] animate-splash-rise text-center text-[24px] leading-[1.36] tracking-[-0.011em]">
+      <h1 className="mt-[100px] animate-splash-rise text-center text-section leading-[1.36]">
         {content.title.map((line) => (
           <span key={line} className="block">
             {line}

@@ -54,7 +54,7 @@ export function InstagramTag() {
     >
       <Card className="flex flex-col gap-4 bg-baton-blue/10">
         <div className="flex flex-col gap-1">
-          <h2 className="text-headline font-semibold">Your Rolling Paper link</h2>
+          <h2 className="text-headline font-medium">Your Rolling Paper link</h2>
           <p className="text-subhead text-ink-muted">Friends can leave you a private note here. No account needed.</p>
         </div>
         <input
@@ -72,8 +72,8 @@ export function InstagramTag() {
       </Card>
 
       <section className="flex flex-col gap-3" aria-labelledby="social-options">
-        <h2 id="social-options" className="px-1 text-headline font-semibold">Share it with friends</h2>
-        <p className="px-1 text-subhead text-ink-muted">Copy your link, then open an app and paste it into your bio, story, or a message.</p>
+        <h2 id="social-options" className="text-headline font-medium">Share it with friends</h2>
+        <p className="text-subhead text-ink-muted">Copy your link, then open an app and paste it into your bio, story, or a message.</p>
         <div className="grid grid-cols-2 gap-3">
           {instagram.socials.map((social) => (
             <a
@@ -81,21 +81,21 @@ export function InstagramTag() {
               href={social.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex min-h-20 flex-col justify-center gap-1 rounded-card border border-line/50 bg-surface/60 px-4 py-3 transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-baton-blue"
+              className="flex min-h-20 flex-col justify-center gap-1 rounded-card bg-card shadow-card px-4 py-3 transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-baton-blue"
             >
-              <span className="text-headline font-semibold">{social.name}</span>
+              <span className="text-headline font-medium">{social.name}</span>
               <span className="text-footnote text-ink-muted">Open {social.name} ↗</span>
             </a>
           ))}
-          <button type="button" onClick={() => void shareLink()} className="flex min-h-20 flex-col justify-center gap-1 rounded-card border border-line/50 bg-surface/60 px-4 py-3 text-left transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-baton-blue">
-            <span className="text-headline font-semibold">More apps</span>
+          <button type="button" onClick={() => void shareLink()} className="flex min-h-20 flex-col justify-center gap-1 rounded-card bg-card shadow-card px-4 py-3 text-left transition active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-baton-blue">
+            <span className="text-headline font-medium">More apps</span>
             <span className="text-footnote text-ink-muted">Share your link</span>
           </button>
         </div>
-        <p role="status" className="px-1 text-footnote text-ink-muted">{status}</p>
+        <p role="status" className="text-footnote text-ink-muted">{status}</p>
       </section>
 
-      <p className="px-1 text-subhead text-ink-muted">{instagram.sealed}</p>
+      <p className="text-subhead text-ink-muted">{instagram.sealed}</p>
       <Button variant="ghost" block onClick={() => navigate('friend-note')}>Preview your Rolling Paper</Button>
     </OnboardingLayout>
   )

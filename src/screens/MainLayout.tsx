@@ -42,7 +42,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
   const greeting = title && (
     // One sentence in one style, the second part on its own line, 30pt in
     // from the sides (Figma TODAY 334:10106)
-    <header className="flex items-start justify-between gap-3 px-3.5 pb-2 pt-3">
+    <header className="flex items-start justify-between gap-3 pb-2 pt-3">
       <h1 className="min-w-0 flex-1 font-display text-greeting font-normal text-ink">
         {title}
         {subtitle && (
@@ -57,7 +57,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           type="button"
           onClick={() => navigate('profile')}
           aria-label="Profile"
-          className="relative inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-[0_2px_8px_rgb(34_36_48_/_0.10)] transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
+          className="relative inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-sm transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
         >
           <Avatar name={chloe.name} src={chloe.avatar} size="md" />
           {/* Her stage, tucked under the picture */}
@@ -142,7 +142,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
           <div
             className={`mx-4 mb-3 flex flex-col gap-1 px-1 transition duration-300 ${composing ? 'translate-y-0 opacity-100' : 'pointer-events-none translate-y-3 opacity-0'}`}
           >
-            <p className="font-display text-title-1 font-semibold text-ink">{dailyPrompt.question}</p>
+            <p className="font-display text-title-1 font-medium text-ink">{dailyPrompt.question}</p>
             <p className="flex items-center gap-1.5 text-subhead font-medium text-ink">
               <MapPinIcon className="size-4 shrink-0" />
               {dailyPrompt.seed}

@@ -20,8 +20,8 @@ export function Features() {
 
       <div className="relative flex h-full flex-col justify-end px-6 pb-8">
         <div key={index} className="flex flex-col gap-2 pb-8">
-          <p className="text-footnote font-semibold uppercase text-ink-muted">{slide.eyebrow}</p>
-          <p className="font-display text-title-1 font-bold text-ink">{slide.title}</p>
+          <p className="text-footnote font-medium text-ink-muted">{slide.eyebrow}</p>
+          <p className="font-display text-title-1 font-normal text-ink">{slide.title}</p>
           <p className="text-body text-ink-muted">{slide.body}</p>
         </div>
 

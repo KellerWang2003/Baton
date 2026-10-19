@@ -35,7 +35,7 @@ export function LocalInsight() {
   return (
     <div className="relative h-full bg-baton-paper font-display text-baton-navy" style={paperOutline}>
       <div className="h-full overflow-y-auto">
-        <div className="mx-auto flex max-w-[402px] flex-col gap-12 px-6 pt-10 pb-[140px]">
+        <div className="mx-auto flex max-w-[402px] flex-col gap-12 px-gutter pt-10 pb-[140px]">
           {/* Same title and muted line as Today and its to-do page */}
           <header className="flex animate-splash-rise flex-col gap-2">
             <h1 className="text-greeting font-normal">

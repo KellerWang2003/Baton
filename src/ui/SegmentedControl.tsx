@@ -26,7 +26,7 @@ export function SegmentedControl<T extends string>({ segments, value, onChange, 
           onClick={() => onChange(segment.id)}
           className={cx(
             'flex-1 truncate rounded-full px-2 text-footnote transition',
-            segment.id === value ? 'bg-surface font-semibold text-ink shadow-thumb' : 'font-medium text-ink',
+            segment.id === value ? 'bg-surface font-medium text-ink shadow-thumb' : 'font-medium text-ink',
           )}
         >
           {segment.label}

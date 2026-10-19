@@ -32,14 +32,14 @@ export function BottomSheet({ open, onClose, title, detent = 'medium', action, c
         )}
       >
         <div className="mx-auto mt-1.5 h-[5px] w-9 shrink-0 rounded-full bg-line" />
-        <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center px-4 pb-2 pt-2">
+        <header className="grid shrink-0 grid-cols-[1fr_auto_1fr] items-center px-gutter pb-2 pt-2">
           <button type="button" onClick={onClose} className="justify-self-start text-body text-brand active:opacity-50">
             Close
           </button>
-          <h2 className="text-headline font-semibold text-ink">{title}</h2>
+          <h2 className="text-headline font-medium text-ink">{title}</h2>
           <div className="justify-self-end">{action}</div>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto px-gutter pb-6">{children}</div>
       </div>
     </div>
   )

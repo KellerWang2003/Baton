@@ -37,7 +37,7 @@ export function MapPlayground({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-40 overflow-y-auto bg-baton-paper font-body text-baton-navy">
       <header className="sticky top-0 z-10 flex flex-wrap items-center gap-x-6 gap-y-3 bg-baton-paper/90 px-6 py-4 backdrop-blur">
         <div className="mr-auto">
-          <h1 className="font-display text-title-2 font-bold">Relay map looks</h1>
+          <h1 className="font-display text-title-2 font-medium">Relay map looks</h1>
           <p className="text-subhead text-ink-muted">Drag, pinch or scroll on any map. Tap a pin.</p>
         </div>
         <label className="flex items-center gap-2 text-subhead">
@@ -59,7 +59,7 @@ export function MapPlayground({ onClose }: { onClose: () => void }) {
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full bg-baton-navy px-4 py-2 text-subhead font-semibold text-on-brand hover:opacity-90"
+          className="rounded-full bg-baton-navy px-4 py-2 text-subhead font-medium text-on-brand hover:opacity-90"
         >
           Close
         </button>
@@ -72,7 +72,7 @@ export function MapPlayground({ onClose }: { onClose: () => void }) {
           return (
             <section key={look.id} className="flex w-[300px] flex-col gap-3">
               <div>
-                <h2 className="font-display text-title-3 font-bold">
+                <h2 className="font-display text-title-3 font-medium">
                   {i + 1}. {look.name}
                 </h2>
                 <p className="min-h-[60px] text-footnote text-ink-muted">{look.blurb}</p>
@@ -92,10 +92,10 @@ export function MapPlayground({ onClose }: { onClose: () => void }) {
                 />
                 {item && (
                   <div className="absolute inset-x-3 bottom-3 rounded-card bg-surface p-4 shadow-float">
-                    <p className="text-caption font-semibold uppercase tracking-wide text-ink-muted">
+                    <p className="text-caption font-medium uppercase tracking-wide text-ink-muted">
                       {relayCategory(item.category).label}
                     </p>
-                    <p className="font-display text-headline font-bold">{item.title}</p>
+                    <p className="font-display text-headline font-medium">{item.title}</p>
                     {item.place && <p className="text-footnote text-ink-muted">{item.place}</p>}
                   </div>
                 )}

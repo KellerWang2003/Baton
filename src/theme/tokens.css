@@ -12,24 +12,23 @@
  */
 @theme {
   /* About You onboarding, Figma 303:6700. */
-  --color-onboarding-blue: #37a3fe;
-  --color-onboarding-action: #3396ff;
-  --color-onboarding-pink: #febbf0;
-  --color-onboarding-muted: #8a8a8a;
-  --color-onboarding-detail: #000000;
+  /* Folded into the shared palette below so every screen uses the same blues,
+     pink and grays */
+  --color-onboarding-blue: var(--color-baton-blue);
+  --color-onboarding-action: var(--color-brand);
+  --color-onboarding-pink: var(--color-baton-pink);
+  --color-onboarding-muted: var(--color-ink-muted);
+  --color-onboarding-detail: var(--color-ink);
   --color-welcome-text: #f5efec;
-  --shadow-onboarding-card: 4px 4px 20px rgb(0 0 0 / 0.05);
-  --shadow-onboarding-chip: 2px 2px 4px rgb(0 0 0 / 0.08);
+  --shadow-onboarding-card: var(--shadow-lg);
+  --shadow-onboarding-chip: var(--shadow-sm);
   /* Type: Mundial Narrow (Adobe Fonts, embed link in index.html), falling back
      to the system UI font until the kit is loaded */
   --font-display: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, system-ui, sans-serif;
   --font-body: mundial-narrow-variable, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
   --font-system: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif; /* phone status bar */
 
-  /* iOS text styles (size / line height), e.g. text-large-title, text-body */
-  --text-large-title: 34px;
-  --text-large-title--line-height: 41px;
-  --text-large-title--letter-spacing: 0.01em;
+  /* Page-specific text styles (size / line height), on the same steps as the scale below */
   /* Clock in the phone status bar (Figma status bar, SF Pro Text Semibold) */
   --text-status: 17px;
   --text-status--line-height: 22px;
@@ -90,39 +89,60 @@
   --text-cta: 18px;
   --text-cta--line-height: 1.5;
   --text-cta--letter-spacing: -0.011em;
-  --text-title-1: 28px;
-  --text-title-1--line-height: 34px;
-  --text-title-2: 22px;
-  --text-title-2--line-height: 28px;
-  --text-title-3: 20px;
-  --text-title-3--line-height: 25px;
-  --text-headline: 17px;
-  --text-headline--line-height: 22px;
-  --text-body: 17px;
-  --text-body--line-height: 22px;
-  --text-callout: 16px;
-  --text-callout--line-height: 21px;
-  --text-subhead: 15px;
-  --text-subhead--line-height: 20px;
-  --text-footnote: 13px;
-  --text-footnote--line-height: 18px;
-  --text-caption: 12px;
-  --text-caption--line-height: 16px;
 
-  /* Brand: grayscale only until the key visuals land (no color yet) */
-  --color-brand: #1c1c1c; /* tint for buttons, links, selection */
+  /* One type scale for the whole app, from the Figma pages: 30 page titles
+     and greetings, 24 section headings, 20 card titles, 18 lead text and
+     buttons, 16 body, 14 detail lines, 12 captions. The iOS names map onto
+     it; the page-specific sizes above use the same steps */
+  --text-large-title: 30px;
+  --text-large-title--line-height: 1.1;
+  --text-large-title--letter-spacing: -0.011em;
+  --text-title-1: 24px;
+  --text-title-1--line-height: 1.2;
+  --text-title-1--letter-spacing: -0.011em;
+  --text-title-2: 20px;
+  --text-title-2--line-height: 1.2;
+  --text-title-2--letter-spacing: -0.011em;
+  --text-title-3: 20px;
+  --text-title-3--line-height: 1.2;
+  --text-title-3--letter-spacing: -0.011em;
+  --text-headline: 18px;
+  --text-headline--line-height: 1.3;
+  --text-headline--letter-spacing: -0.011em;
+  --text-body: 16px;
+  --text-body--line-height: 1.4;
+  --text-body--letter-spacing: -0.011em;
+  --text-callout: 16px;
+  --text-callout--line-height: 1.4;
+  --text-callout--letter-spacing: -0.011em;
+  --text-subhead: 14px;
+  --text-subhead--line-height: 1.3;
+  --text-subhead--letter-spacing: -0.011em;
+  --text-footnote: 14px;
+  --text-footnote--line-height: 1.3;
+  --text-footnote--letter-spacing: -0.011em;
+  --text-caption: 12px;
+  --text-caption--line-height: 1.3;
+  --text-caption--letter-spacing: -0.011em;
+
+  /* Brand action blue: buttons, links, selection, and places and people
+     picked out in text. Stronger than baton-blue so it reads as text on paper */
+  --color-brand: #3396ff;
   --color-on-brand: #ffffff;
   --color-accent: #636363;
   --color-on-accent: #ffffff;
-  --color-danger: #1c1c1c;
+  --color-danger: var(--color-ink);
 
   /* Brand palette (Keller, Oct 17). Used by the high-fidelity pages, starting
      with the Archive city folders; the rest of the app stays neutral for now */
   --color-baton-blue: #59a1ff;
   --color-baton-cream: #efe6e2;
-  --color-today-panel: #f0e5e3; /* Today's setup and list cards (Figma TODAY 334:10047) */
-  --color-today-muted: #777777; /* the line under a Today card's title */
-  --color-highlight: #378af7; /* places and people picked out in a Today card's title */
+  /* Cards on paper (Today's setup and list cards, Figma TODAY 334:10047, and
+     every Card and grouped list) */
+  --color-card: #f0e5e3;
+  --color-today-panel: var(--color-card);
+  --color-today-muted: var(--color-ink-muted);
+  --color-highlight: var(--color-brand);
   --color-baton-pink: #f3beeb;
   --color-baton-yellow: #ede783;
   --color-baton-olive: #3f4017;
@@ -146,22 +166,25 @@
   --color-on-baton-yellow-muted: #85825a;
   /* LA Wrapped (Figma 236:1250): timeline line, quiet dates and stats */
   --color-wrap-line: #d9d9d9;
-  --color-wrap-faint: #b2b2b2;
+  --color-wrap-faint: var(--color-ink-faint);
   /* Notes on paper (LA Wrapped, Rolling Paper): a softer yellow than the brand's */
   --color-note-yellow: #f4ef9e;
   --color-moment-ring: #e2e2e2; /* hairline around an opened photo's glass circle */
   /* Glow button (Button variant glow, Figma 278:7144): blue core fading to
      a pale edge */
-  --color-cta-glow-core: #3396ff;
+  --color-cta-glow-core: var(--color-brand);
   --color-cta-glow-edge: #c0dbff;
 
   /* Neutrals */
-  --color-canvas: #f2f2f2; /* systemGroupedBackground: app background */
-  --color-surface: #ffffff; /* secondarySystemGroupedBackground: cards, lists, sheets */
-  --color-surface-muted: #e9e9e9; /* fill: gray buttons, segmented track, fields */
+  --color-canvas: var(--color-baton-paper); /* every page sits on the same paper */
+  --color-surface: #ffffff; /* fields, floating pills and anything that has to sit above a card */
+  --color-surface-muted: var(--color-baton-chip); /* fill: gray buttons, segmented track, chips */
   --color-placeholder: #d4d4d4; /* stand-in for images not made yet */
-  --color-ink: #000000; /* label */
-  --color-ink-muted: #8a8a8a; /* secondaryLabel */
+  /* Text: navy, a quiet gray for detail lines, and a faint gray for dates and
+     placeholders */
+  --color-ink: #222430;
+  --color-ink-muted: #777777;
+  --color-ink-faint: #b2b2b2;
   --color-line: #c6c6c6; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
@@ -180,17 +203,20 @@
 
   /* Stage themes: page background per stage (e.g. Tell us about yourself
      once a stage is picked). Grays for now; the stage color plan fills these in */
-  --color-moving-bg: #e9e6e2;
-  --color-newcomer-bg: #e2e4e7;
-  --color-local-bg: #e3e6e2;
+  --color-moving-bg: var(--color-baton-paper);
+  --color-newcomer-bg: var(--color-baton-paper);
+  --color-local-bg: var(--color-baton-paper);
   --color-stage-bg: var(--color-canvas);
+
+  /* Space between the screen's edge and its content on every page (Figma TODAY 334:10047) */
+  --spacing-gutter: 30px;
 
   /* Shape */
   /* Soft and round, like the capsule in the logo */
   --radius-button: 9999px; /* buttons are pills */
-  --radius-control: 20px; /* fields, text areas */
-  --radius-card: 24px; /* grouped lists, cards */
-  --radius-tile: 16px; /* thumbnails and graphics inside cards */
+  --radius-control: 16px; /* fields, text areas */
+  --radius-card: 16px; /* cards and grouped lists (Today's cards, Figma 334:10047) */
+  --radius-tile: 12px; /* thumbnails, setup cards and graphics inside cards */
   --radius-rec: 36px; /* Relay recommendation cards (photo inside is rounded-card) */
   --radius-inline: 9px; /* photos set into a line of text */
   --radius-sheet: 32px; /* bottom sheets */
@@ -272,21 +298,26 @@
   }
 
   /* Depth */
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04);
+  /* Three lifts, from Figma's soft down-right shadows, plus float for things
+     hovering over the page. The named shadows below point at these */
+  --shadow-sm: 2px 2px 4px rgb(0 0 0 / 0.08); /* chips, pills */
+  --shadow-md: 4px 4px 10px rgb(0 0 0 / 0.05); /* cards */
+  --shadow-lg: 4px 4px 20px rgb(0 0 0 / 0.05); /* big cards, sheets of paper */
+  --shadow-card: var(--shadow-md);
   --shadow-float: 0 8px 32px rgb(0 0 0 / 0.16);
   --shadow-sheet: 0 -4px 20px rgb(0 0 0 / 0.08); /* Relay list resting over the map */
   --shadow-glass: 0 2px 12px rgb(0 0 0 / 0.06); /* tab bar: light, the blur does the work */
   /* Today's prompt circle, plain look (Figma 236:1282): white disc with a blue glow pooled at its edge */
   --shadow-prompt-glass: inset 0 0 42px 10px rgb(89 161 255 / 0.75), inset 0 2px 2px #ffffff, 0 18px 40px rgb(0 0 0 / 0.06);
   --shadow-thumb: 0 3px 8px rgb(0 0 0 / 0.12), 0 3px 1px rgb(0 0 0 / 0.04); /* segmented control knob */
-  --shadow-paper-sheet: 4px 4px 20px rgb(0 0 0 / 0.05); /* the Rolling Paper sheet */
-  --shadow-note: 4px 4px 10px rgb(0 0 0 / 0.05); /* a Rolling Paper note opened big */
-  --shadow-moment-note: 4px 4px 5px rgb(0 0 0 / 0.08); /* her note under an opened Archive photo */
+  --shadow-paper-sheet: var(--shadow-lg); /* the Rolling Paper sheet */
+  --shadow-note: var(--shadow-md); /* a Rolling Paper note opened big */
+  --shadow-moment-note: var(--shadow-md); /* her note under an opened Archive photo */
   --shadow-note-stuck: 0 1px 2px rgb(0 0 0 / 0.06); /* a note still stuck to the sheet */
   --shadow-note-peeled: 6px 18px 30px rgb(0 0 0 / 0.16); /* a note peeled off and in the air */
-  --shadow-today-card: 4px 4px 10px rgb(0 0 0 / 0.05); /* Today's list cards (Figma 334:11284) */
-  --shadow-setup-card: 4px 4px 5px rgb(0 0 0 / 0.05); /* Today's setup cards (Figma 334:11111) */
-  --shadow-pill: 2px 2px 4px rgb(0 0 0 / 0.08); /* date pills on the LA Wrapped timeline */
+  --shadow-today-card: var(--shadow-md); /* Today's list cards (Figma 334:11284) */
+  --shadow-setup-card: var(--shadow-md); /* Today's setup cards (Figma 334:11111) */
+  --shadow-pill: var(--shadow-sm); /* date pills on the LA Wrapped timeline */
   --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */
   --shadow-rec: 0 1px 1px rgb(34 36 48 / 0.05), 0 4px 10px -6px rgb(34 36 48 / 0.18); /* Relay cards: a lighter lift than paper (Keller, Oct 19) */
 

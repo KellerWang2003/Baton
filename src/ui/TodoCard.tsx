@@ -23,7 +23,7 @@ export function TodoCard({ kind, title, subtitle, tips, done, onToggleDone, copy
   const [open, setOpen] = useState(false)
 
   return (
-    <div className="overflow-hidden rounded-[16px] bg-today-panel shadow-today-card">
+    <div className="overflow-hidden rounded-card bg-today-panel shadow-today-card">
       <button
         type="button"
         aria-expanded={open}
@@ -52,7 +52,7 @@ export function TodoCard({ kind, title, subtitle, tips, done, onToggleDone, copy
         <div className="min-h-0" inert={!open}>
           <div className="flex flex-col gap-2 px-4 pb-4">
             {tips.map((tip) => (
-              <figure key={tip.text} className="flex flex-col gap-1 rounded-[12px] bg-surface/70 px-3.5 py-3">
+              <figure key={tip.text} className="flex flex-col gap-1 rounded-tile bg-surface/70 px-3.5 py-3">
                 <blockquote className="text-callout text-ink">{tip.text}</blockquote>
                 <figcaption className="text-today-detail text-today-muted">{tip.from}</figcaption>
               </figure>

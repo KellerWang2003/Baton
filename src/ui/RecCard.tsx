@@ -20,7 +20,7 @@ function CategoryTag({ label, className }: { label: string; className?: string }
   return (
     <span
       className={cx(
-        'absolute rounded-full bg-glass px-2.5 py-1 text-caption font-semibold leading-none text-baton-navy backdrop-blur',
+        'absolute rounded-full bg-glass px-2.5 py-1 text-caption font-medium leading-none text-baton-navy backdrop-blur',
         className,
       )}
     >
@@ -137,7 +137,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
           <img src={photo} alt="" draggable={false} className="size-full object-cover" />
         </div>
         <div className="flex flex-col gap-1 px-1">
-          {label && <p className="text-caption font-semibold opacity-60">{label}</p>}
+          {label && <p className="text-caption font-medium opacity-60">{label}</p>}
           <p className="font-display text-card-title font-medium">{title}</p>
           <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
         </div>
@@ -171,7 +171,7 @@ function TicketCard({ title, text, tone, photo, label, size = 'lg', onClick, fro
         <p className="line-clamp-3 text-card-body opacity-60">{text}</p>
       </div>
       {from && (
-        <div className="mt-auto flex items-center justify-between gap-2 rounded-full bg-baton-postcard/30 px-3 py-1.5 text-caption font-semibold">
+        <div className="mt-auto flex items-center justify-between gap-2 rounded-full bg-baton-postcard/30 px-3 py-1.5 text-caption font-medium">
           <span className="truncate">{from}</span>
           <span aria-hidden className="shrink-0 opacity-60">
             → you
@@ -193,13 +193,13 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
         recSizes[size].card,
       )}
     >
-      <div className={cx('relative w-full shrink-0 overflow-hidden rounded-[12px]', recSizes[size].photo)}>
+      <div className={cx('relative w-full shrink-0 overflow-hidden rounded-tile', recSizes[size].photo)}>
         <img src={photo} alt="" draggable={false} className="size-full object-cover" />
       </div>
       {/* Stamp and postmark over the photo's corner */}
       <span aria-hidden className={cx('absolute right-5 top-5 z-10 rotate-3 drop-shadow-sm', size === 'lg' ? 'h-[68px] w-14' : 'h-[54px] w-11')}>
         <span className={cx('stamp-edge flex size-full', toneFill[tone])}>
-          <span className="flex size-full items-end justify-center px-0.5 pb-1 text-center font-display text-[7px] font-bold uppercase leading-[1.05] ring-1 ring-current/30 ring-inset">
+          <span className="flex size-full items-end justify-center px-0.5 pb-1 text-center font-display text-[7px] font-medium uppercase leading-[1.05] ring-1 ring-current/30 ring-inset">
             {label}
           </span>
         </span>
@@ -207,7 +207,7 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
       <span
         aria-hidden
         className={cx(
-          'absolute z-10 flex -rotate-12 items-center justify-center rounded-full border-2 border-baton-navy/45 font-display text-[9px] font-bold uppercase leading-tight tracking-wider text-baton-navy/55',
+          'absolute z-10 flex -rotate-12 items-center justify-center rounded-full border-2 border-baton-navy/45 font-display text-[9px] font-medium uppercase leading-tight tracking-wider text-baton-navy/55',
           size === 'lg' ? 'right-[62px] top-[58px] size-14' : 'right-[48px] top-[44px] size-11',
         )}
       >
@@ -218,7 +218,7 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
       <div className="flex flex-col gap-1 px-1.5">
         <p className="font-display text-card-title font-medium">{title}</p>
         <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
-        {from && <p className="mt-1.5 border-t border-dashed border-baton-navy/20 pt-1.5 text-caption font-semibold text-baton-navy/60">{from}</p>}
+        {from && <p className="mt-1.5 border-t border-dashed border-baton-navy/20 pt-1.5 text-caption font-medium text-baton-navy/60">{from}</p>}
       </div>
     </button>
   )

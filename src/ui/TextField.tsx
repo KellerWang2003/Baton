@@ -43,7 +43,7 @@ function Field({ id, label, hint, className, children }: FieldProps & { id: stri
   return (
     <div className={cx('flex flex-col gap-1.5', className)}>
       {label && (
-        <label htmlFor={id} className="px-4 text-footnote uppercase text-ink-muted">
+        <label htmlFor={id} className="px-4 text-footnote text-ink-muted">
           {label}
         </label>
       )}

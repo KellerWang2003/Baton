@@ -24,13 +24,13 @@ export function ItemCard({ title, subtitle, eyebrow, thumbnail = false, leading,
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
       onClick={onClick}
-      className={cx('flex items-center gap-3 rounded-card p-3', tone === 'stage' ? 'bg-stage/12' : 'bg-surface shadow-card', onClick && 'active:opacity-80')}
+      className={cx('flex items-center gap-3 rounded-card p-3', tone === 'stage' ? 'bg-stage/12' : 'bg-card shadow-card', onClick && 'active:opacity-80')}
     >
       {leading}
       {thumbnail && <div aria-hidden className="size-16 shrink-0 rounded-tile bg-placeholder" />}
       <div className="min-w-0 flex-1">
-        {eyebrow && <p className="text-caption font-semibold uppercase text-ink-muted">{eyebrow}</p>}
-        <p className={cx('text-headline font-semibold', done ? 'text-ink-muted line-through' : 'text-ink')}>{title}</p>
+        {eyebrow && <p className="text-caption font-medium text-ink-muted">{eyebrow}</p>}
+        <p className={cx('text-headline font-medium', done ? 'text-ink-muted line-through' : 'text-ink')}>{title}</p>
         {subtitle && <p className="text-subhead text-ink-muted">{subtitle}</p>}
       </div>
       {trailing}

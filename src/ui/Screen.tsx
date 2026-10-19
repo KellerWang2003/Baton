@@ -44,17 +44,17 @@ export function Screen({ title, subtitle, eyebrow, onBack, backLabel = 'Back', b
         </nav>
       )}
       {(title || eyebrow || (!onBack && action)) && (
-        <header className={cx('flex items-end gap-2 px-4 pb-2', onBack ? 'pt-0' : 'pt-3')}>
+        <header className={cx('flex items-end gap-2 px-gutter pb-2', onBack ? 'pt-0' : 'pt-3')}>
           <div className="min-w-0 flex-1">
-            {eyebrow && <p className="text-footnote font-semibold uppercase text-stage">{eyebrow}</p>}
-            {title && <h1 className="text-balance font-display text-large-title font-bold text-ink">{title}</h1>}
+            {eyebrow && <p className="text-footnote font-medium text-stage">{eyebrow}</p>}
+            {title && <h1 className="text-balance font-display text-large-title font-normal text-ink">{title}</h1>}
             {subtitle && <p className="font-display text-title-3 text-ink-muted">{subtitle}</p>}
           </div>
           {!onBack && action && <div className="pb-1">{action}</div>}
         </header>
       )}
-      <main className={cx('min-w-0 flex-1', bleed ? 'flex flex-col overflow-hidden' : 'overflow-x-hidden overflow-y-auto px-4 pb-6', className)}>{children}</main>
-      {footer && <footer className="px-4 pb-6 pt-3">{footer}</footer>}
+      <main className={cx('min-w-0 flex-1', bleed ? 'flex flex-col overflow-hidden' : 'overflow-x-hidden overflow-y-auto px-gutter pb-6', className)}>{children}</main>
+      {footer && <footer className="px-gutter pb-6 pt-3">{footer}</footer>}
     </div>
   )
 }

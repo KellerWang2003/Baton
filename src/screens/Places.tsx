@@ -29,7 +29,7 @@ export function Places() {
       <Card className="grid grid-cols-3 divide-x divide-line/70 py-3 text-center">
         {organize.stats.map((stat) => (
           <div key={stat.label}>
-            <p className="font-display text-title-2 font-bold text-ink">{stat.value}</p>
+            <p className="font-display text-title-2 font-medium text-ink">{stat.value}</p>
             <p className="text-footnote text-ink-muted">{stat.label}</p>
           </div>
         ))}

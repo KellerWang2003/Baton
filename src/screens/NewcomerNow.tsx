@@ -17,7 +17,7 @@ export function NewcomerNow() {
 
         <div className="mt-8 flex animate-splash-rise flex-col items-center" style={{ animationDelay: '1100ms' }}>
           {/* "You're a [Newcomer] / in New York now", the pill in the sentence */}
-          <h1 className="text-center text-[24px] leading-[1.36] tracking-[-0.011em]">
+          <h1 className="text-center text-section leading-[1.36]">
             <span className="flex items-center justify-center gap-2">
               {newcomerNow.title.lead}
               <StageTag stage="newcomer" label={newcomerNow.tag} size="lg" tone="light" />
@@ -71,7 +71,7 @@ function Folder({ city: id, className }: { city: 'la' | 'ny'; className: string 
         </span>
       </div>
       {/* Just the dates, large, in the middle of the folder */}
-      <div className={cx('flex h-[150px] items-center justify-center rounded-[16px] px-5', styles.fill)}>
+      <div className={cx('flex h-[150px] items-center justify-center rounded-card px-5', styles.fill)}>
         <p className={cx('text-title-1 font-normal tracking-tight', styles.dates)}>{dates}</p>
       </div>
     </div>
