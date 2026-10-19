@@ -1,4 +1,5 @@
 export { Avatar } from './Avatar'
+export { StageTag } from './StageTag'
 export { BottomSheet } from './BottomSheet'
 export { Button } from './Button'
 export { Card } from './Card'
@@ -49,6 +50,7 @@ export {
   ArchiveIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  DownloadIcon,
   MicIcon,
   AtIcon,
   ArrivalGraphic,

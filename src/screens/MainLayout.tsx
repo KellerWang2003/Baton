@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer, registerComposerField } from '../app/composer'
 import { navigate } from '../app/navigate'
-import { setState, useDailyPrompt, useStore } from '../app/store'
+import { setState, useDailyPrompt, useStatus, useStore } from '../app/store'
 import { useKeyboardArea } from '../app/useKeyboardArea'
 import { pages, tabs } from '../data/pages'
 import { chloe } from '../data/people'
 import { recentPhotos } from '../data/photos'
-import { ArchiveIcon, Avatar, MapPinIcon, RelayIcon, Screen, TabBar, TodayIcon } from '../ui'
+import { stageTags } from '../data/stages'
+import { ArchiveIcon, Avatar, MapPinIcon, RelayIcon, Screen, StageTag, TabBar, TodayIcon } from '../ui'
 
 type MainLayoutProps = {
   // Tabs have no page title; Today shows its greeting here
@@ -37,6 +38,7 @@ const tabIcons: Record<string, ReactNode> = {
 // and profile avatar scroll together with the page.
 // Pushed pages (Profile) use Screen directly, without the tab bar.
 export function MainLayout({ title, subtitle, children, bleed = false, profile = false, background }: MainLayoutProps) {
+  const status = useStatus()
   const greeting = title && (
     // One sentence in one style, the second part on its own line (Figma TODAY 236:1282)
     <header className="flex items-start justify-between gap-3 pb-2 pt-3">
@@ -54,9 +56,11 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           type="button"
           onClick={() => navigate('profile')}
           aria-label="Profile"
-          className="inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-[0_2px_8px_rgb(34_36_48_/_0.10)] transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
+          className="relative inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-[0_2px_8px_rgb(34_36_48_/_0.10)] transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
         >
           <Avatar name={chloe.name} src={chloe.avatar} size="md" />
+          {/* Her stage, tucked under the picture */}
+          <StageTag stage={status} label={stageTags[status]} className="absolute -bottom-2 left-1/2 -translate-x-1/2" />
         </button>
       )}
     </header>

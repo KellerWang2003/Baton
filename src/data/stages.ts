@@ -11,6 +11,13 @@ export const stageNames: Record<Stage, string> = {
   local: 'Local',
 }
 
+// The tag under her profile picture
+export const stageTags: Record<Stage, string> = {
+  moving: 'Moving out',
+  newcomer: 'Newcomer',
+  local: 'Local',
+}
+
 export const stageCity: Record<Stage, string> = {
   moving: 'Los Angeles',
   newcomer: 'New York',
