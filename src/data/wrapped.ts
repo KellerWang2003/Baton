@@ -45,6 +45,7 @@ export const wrapped = {
   summaryTitle: '24 moments in LA',
   summaryStats: '16 photos · 8 notes · 1,215 days',
   cta: 'Continue',
+  save: 'Save your LA Wrapped',
   // Hint at the bottom of the first screen (Keller, Oct 19)
   tapHint: 'Tap to see your LA chapter',
 }

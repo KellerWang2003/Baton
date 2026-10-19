@@ -23,7 +23,6 @@ export const rollingPaper = {
   // Button at the bottom once the sheet has settled (Keller, Oct 19: Rolling Paper comes first, then LA Wrapped)
   cta: 'See your LA Wrapped',
   save: 'Save the Rolling Paper',
-  saved: 'Saved to Photos',
 }
 
 // The sheet once it has printed (Figma complete): 362pt wide, 20pt from the

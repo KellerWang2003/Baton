@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { paperDoodles, paperNotes, paperSheet, paperSlotY, rollingPaper, type PaperNote, type PaperNoteColor } from '../data/rollingPaper'
 import { navigate } from '../app/navigate'
-import { ArrowRightIcon, Button, CheckIcon, cx, DownloadIcon } from '../ui'
+import { ArrowRightIcon, Button, cx, SaveButton } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
 const TOP = 54
@@ -50,7 +50,6 @@ type Selected = { note: PaperNote; from: string; closing: boolean }
 export function RollingPaper() {
   const [phase, setPhase] = useState<Phase>(() => (prefersReducedMotion() ? 'done' : 'start'))
   const [selected, setSelected] = useState<Selected | null>(null)
-  const [saved, setSaved] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
   // Runs once on open; each step only moves the phase forward
@@ -149,17 +148,7 @@ export function RollingPaper() {
       {/* Once the sheet has settled: save it, or on to her LA Wrapped */}
       {phase === 'done' && (
         <div className="pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex animate-splash-rise justify-center gap-2.5">
-          <button
-            type="button"
-            aria-label={saved ? rollingPaper.saved : rollingPaper.save}
-            onClick={() => setSaved(true)}
-            className={cx(
-              'pointer-events-auto flex size-[52px] shrink-0 items-center justify-center rounded-full shadow-float transition active:scale-95',
-              saved ? 'bg-baton-blue text-white' : 'bg-white text-baton-blue',
-            )}
-          >
-            {saved ? <CheckIcon /> : <DownloadIcon />}
-          </button>
+          <SaveButton label={rollingPaper.save} />
           <Button
             variant="glow"
             size="cta"
@@ -170,14 +159,6 @@ export function RollingPaper() {
             <ArrowRightIcon />
           </Button>
         </div>
-      )}
-      {saved && (
-        <p
-          role="status"
-          className="pointer-events-none absolute inset-x-0 bottom-[100px] z-10 animate-splash-rise text-center text-footnote text-ink-muted"
-        >
-          {rollingPaper.saved}
-        </p>
       )}
 
       {selected && (

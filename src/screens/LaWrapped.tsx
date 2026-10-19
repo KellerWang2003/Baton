@@ -11,7 +11,7 @@ import {
   type WrapColor,
   type WrapMoment,
 } from '../data/wrapped'
-import { ArrowRightIcon, Button, cx, SpellOut } from '../ui'
+import { ArrowRightIcon, Button, cx, SaveButton, SpellOut } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
 const TOP = 54
@@ -70,7 +70,7 @@ export function LaWrapped() {
   return (
     <div className="relative h-full bg-baton-paper font-display text-baton-navy">
       <div className={cx('absolute inset-0', open ? 'overflow-y-auto' : 'overflow-hidden')}>
-        {/* Extra room at the end so the pinned Continue doesn't cover the summary */}
+        {/* Extra room at the end so the pinned buttons don't cover the summary */}
         <div className="relative mx-auto w-[402px]" style={{ height: wrapSummary.height - TOP + 60 }}>
           <Header open={open} />
 
@@ -139,16 +139,14 @@ export function LaWrapped() {
         </span>
       </p>
 
-      {/* Continue stays pinned to the bottom of the screen once it opens (Keller, Oct 19) */}
+      {/* Save and Continue stay pinned to the bottom of the screen once it opens (Keller, Oct 19) */}
       {open && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] flex justify-center">
-          <Button
-            variant="glow"
-            size="cta"
-            onClick={() => navigate('today')}
-            className="pointer-events-auto w-[309px] animate-splash-rise"
-            style={{ animationDelay: `${EXPAND + 300}ms` }}
-          >
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-[36px] flex animate-splash-rise justify-center gap-2.5"
+          style={{ animationDelay: `${EXPAND + 300}ms` }}
+        >
+          <SaveButton label={wrapped.save} />
+          <Button variant="glow" size="cta" onClick={() => navigate('today')} className="pointer-events-auto w-[309px]">
             {wrapped.cta}
             <ArrowRightIcon />
           </Button>
