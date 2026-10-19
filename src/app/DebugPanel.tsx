@@ -216,7 +216,7 @@ function GlassControls() {
             Color
             <input
               type="color"
-              value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-glass-tint').trim()}
+              value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-baton-blue').trim()}
               onChange={(event) => set({ color: event.target.value })}
               className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
             />

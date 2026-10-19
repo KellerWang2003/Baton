@@ -47,29 +47,28 @@ export type GlassTuning = {
   intro: boolean
 }
 
-// Keller's settings from the React Bits demo (Oct 18, "Amber" preset with a
-// light blue color). Its "follow the pointer" interaction stays off: the glass
-// would leave its spot. It nudges a little when dragged instead (Keller, Oct 18).
+// Keller's settings, tuned in the debug panel (Oct 19). "Follow the pointer"
+// stays off: the glass would leave its spot. It nudges a little when dragged.
 export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
-  // Empty means the --color-glass-tint token; the debug panel can pick another
+  // Empty means brand blue (--color-baton-blue); the debug panel can pick another
   color: '',
-  size: 330,
-  refraction: 1,
-  dispersion: 0.25,
-  reflection: 1,
+  size: 340,
+  refraction: 0,
+  dispersion: 1,
+  reflection: 1.15,
   frost: 0,
-  tint: 0.55,
-  shadow: 0.5,
-  elevation: 0.4,
+  tint: 0.15,
+  shadow: 0.1,
+  elevation: 0,
   interaction: 'drag',
-  give: 0.12,
-  smoothness: 0.5,
+  give: 0.1,
+  smoothness: 1,
   wobble: 0.5,
   spin: 0.3,
   idle: false,
   morphOnClick: false,
-  intro: false,
+  intro: true,
 }
 
 export const glassShapes: GlassShape[] = ['lens', 'blob', 'cube', 'pill', 'torus', 'prism', 'diamond']

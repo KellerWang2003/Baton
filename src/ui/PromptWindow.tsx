@@ -94,7 +94,7 @@ export function PromptWindow({
             textColor={token('--color-baton-navy')}
             fontSize={17}
             fontWeight={500}
-            color={color || token('--color-glass-tint')}
+            color={color || token('--color-baton-blue')}
             // The page's paper, drawn into the canvas so the glass has light to tint
             background={token('--color-baton-paper')}
             {...glassProps}
