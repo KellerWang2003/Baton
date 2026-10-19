@@ -159,6 +159,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
             recentPhotos={recentPhotos}
             fieldRef={registerComposerField}
             placeholder={pages.capture.composerPlaceholder}
+            saveLabel={pages.capture.save}
             onSubmit={(text, photos) => {
               setState((s) => ({ reflections: [...s.reflections, { text, photos }] }))
               setToast(true)

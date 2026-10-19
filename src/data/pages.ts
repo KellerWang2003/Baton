@@ -81,8 +81,9 @@ export const pages = {
     addPhotos: 'Add photos',
     reflectionLabel: 'Reflection',
     reflectionPlaceholder: 'Write a few lines, or just one.',
-    // Shorter, so it fits beside the voice and send buttons in the + field
+    // Shorter, so it fits beside the voice and Save buttons in the + field
     composerPlaceholder: 'Write a line or two.',
+    save: 'Save',
     privacyNote: 'Saved to your private archive. Only you can see it.',
     saved: 'Saved to your private archive',
   },

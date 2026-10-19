@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
-import { ArrowUpIcon, MicIcon, PlusIcon } from './icons'
+import { MicIcon, PlusIcon } from './icons'
 import { RecentPhotos } from './RecentPhotos'
 import type { PhotoItem } from './RecentPhotos'
 import { useDictation } from './useDictation'
@@ -26,6 +26,8 @@ type TabBarProps = {
   recentPhotos?: PhotoItem[]
   fieldRef?: (element: HTMLInputElement | null) => void
   placeholder?: string
+  // Text on the button that saves the answer
+  saveLabel?: string
   onSelect: (id: string) => void
 }
 
@@ -59,6 +61,7 @@ export function TabBar({
   recentPhotos = [],
   fieldRef,
   placeholder,
+  saveLabel = 'Save',
   onSelect,
 }: TabBarProps) {
   // The draft stays if she closes without sending, like Messages
@@ -219,10 +222,10 @@ export function TabBar({
               disabled={!canSend}
               tabIndex={composing ? 0 : -1}
               onPointerDown={(event) => event.preventDefault()}
-              aria-label="Save"
-              className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-brand text-on-brand transition disabled:bg-surface-muted disabled:text-ink-muted"
+              // Reads as saving to her archive, not sending a message (Keller, Oct 19)
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-brand px-4 text-subhead font-semibold text-on-brand transition disabled:bg-surface-muted disabled:text-ink-muted"
             >
-              <ArrowUpIcon />
+              {saveLabel}
             </button>
           </form>
 
