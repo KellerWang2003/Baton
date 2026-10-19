@@ -7,6 +7,12 @@ import { cx } from './cx'
 // permission refused), so the flow still works when recording the demo.
 const placeholderPhoto = '/archive/la-sunset.jpg'
 
+// For now the camera shows a plain chroma-key green instead of the live camera
+// (Keller, Oct 19), so a real picture can be keyed in when the video is edited.
+// Set to false to use the real camera again.
+const greenScreen = true
+const chromaGreen = '#00b140'
+
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
@@ -140,7 +146,7 @@ export function CameraBubble() {
 
   // Start the camera once the rectangle is on its way
   useEffect(() => {
-    if (!camera || !expanded) return
+    if (!camera || !expanded || greenScreen) return
     let cancelled = false
     const devices = navigator.mediaDevices
     // No camera API at all (an insecure page, an old browser): same as refused
@@ -178,7 +184,18 @@ export function CameraBubble() {
     if (!target) return
     const frame = video.current
     let blob: Blob | null = null
-    if (live && frame?.videoWidth) {
+    if (greenScreen) {
+      // The photo is the same green, in the rectangle's shape
+      const canvas = document.createElement('canvas')
+      canvas.width = 800
+      canvas.height = Math.round((800 * target.height) / target.width)
+      const ctx = canvas.getContext('2d')
+      if (ctx) {
+        ctx.fillStyle = chromaGreen
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+      }
+    } else if (live && frame?.videoWidth) {
       // Crop the picture to the rectangle, the way it's shown
       const aspect = target.width / target.height
       let sw = frame.videoWidth
@@ -257,7 +274,8 @@ export function CameraBubble() {
               transition: `left 650ms ${ease}, top 650ms ${ease}, width 650ms ${ease}, height 650ms ${ease}, border-radius 650ms ${ease}`,
             }}
           >
-            {/* The live camera, or a photo when there isn't one */}
+            {/* Plain green for now; otherwise the live camera, or a photo when there isn't one */}
+            {greenScreen && <div className="absolute inset-0" style={{ background: chromaGreen }} />}
             <img
               src={placeholderPhoto}
               alt=""
@@ -271,7 +289,9 @@ export function CameraBubble() {
               className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live ? 'opacity-100' : 'opacity-0')}
               style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
             />
-            {/* The glass look: a blue rim fading inward, over the picture */}
+            {/* The glass look: a blue rim fading inward, over the picture (not on
+                the plain green, which has to stay one clean color to be keyed out) */}
+            {!greenScreen && (
             <div
               className="pointer-events-none absolute inset-0"
               style={{
@@ -279,6 +299,7 @@ export function CameraBubble() {
                 boxShadow: 'inset 0 0 30px 6px rgb(89 161 255 / 0.5), inset 0 1px 2px rgb(255 255 255 / 0.9)',
               }}
             />
+            )}
             <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
           </div>
 
