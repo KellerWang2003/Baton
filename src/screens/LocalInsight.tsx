@@ -3,7 +3,7 @@ import { navigate } from '../app/navigate'
 import { localInsight } from '../data/localInsight'
 import { ArrowRightIcon, BatonMark, Button, cx, TypedSummary } from '../ui'
 
-const { la, ny, intention, bookend, close } = localInsight
+const { la, ny, intentions, bookend, close } = localInsight
 
 // True once the element has scrolled into view (stays true), so each part
 // plays as she reaches it
@@ -33,23 +33,43 @@ const paperOutline = { '--folder-fill': 'var(--color-baton-paper)' } as CSSPrope
 // far she got, the café-seat prompt from both cities, then the hand-off line.
 export function LocalInsight() {
   return (
-    <div className="h-full overflow-y-auto bg-baton-paper font-display text-baton-navy" style={paperOutline}>
-      <div className="mx-auto flex max-w-[402px] flex-col gap-14 px-6 pt-10 pb-12">
-        <header className="animate-splash-rise">
-          <p className="text-callout text-wrap-faint">{localInsight.eyebrow}</p>
-          <h1 className="mt-1 text-wrap-date font-medium">
-            {localInsight.title.map((line) => (
-              <span key={line} className="block">
-                {line}
-              </span>
-            ))}
-          </h1>
-        </header>
+    <div className="relative h-full bg-baton-paper font-display text-baton-navy" style={paperOutline}>
+      <div className="h-full overflow-y-auto">
+        <div className="mx-auto flex max-w-[402px] flex-col gap-14 px-6 pt-10 pb-[140px]">
+          <header className="animate-splash-rise">
+            <p className="text-callout text-wrap-faint">{localInsight.eyebrow}</p>
+            <h1 className="mt-1 text-wrap-date font-medium">
+              {localInsight.title.map((line) => (
+                <span key={line} className="block">
+                  {line}
+                </span>
+              ))}
+            </h1>
+          </header>
 
-        <ThenAndNow />
-        <Intention />
-        <Bookend />
-        <Close />
+          <ThenAndNow />
+          <div className="flex flex-col gap-4">
+            {intentions.map((intention) => (
+              <Intention key={intention.quote} intention={intention} />
+            ))}
+          </div>
+          <Bookend />
+          <Close />
+        </div>
+      </div>
+
+      {/* Continue stays pinned to the bottom of the screen, over a fade of the page (Keller, Oct 19) */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center bg-linear-to-t from-baton-paper from-55% to-transparent pt-12 pb-[36px]">
+        <Button
+          variant="glow"
+          size="cta"
+          onClick={() => navigate('today')}
+          className="pointer-events-auto w-[309px] animate-splash-rise"
+          style={{ animationDelay: '600ms' }}
+        >
+          {close.cta}
+          <ArrowRightIcon />
+        </Button>
       </div>
     </div>
   )
@@ -100,19 +120,25 @@ function TagRow({ label, tags, tone }: { label: string; tags: string[]; tone: st
   )
 }
 
-// Her intention, and one dot per Thursday since she landed: they fill in,
-// one by one, for the weeks she went drawing
-function Intention() {
+const intentionTone = {
+  yellow: { card: 'bg-baton-yellow', muted: 'text-on-baton-yellow-muted' },
+  pink: { card: 'bg-baton-pink', muted: 'text-on-baton-pink-muted' },
+}
+
+// One of her intentions, with a dot per week since she landed: they fill in,
+// one by one, for the weeks she did it
+function Intention({ intention }: { intention: (typeof intentions)[number] }) {
   const [ref, inView] = useInView<HTMLElement>()
-  const went = new Set(intention.went)
+  const done = new Set(intention.done)
+  const tone = intentionTone[intention.tone]
   return (
-    <section ref={ref} className="rounded-[32px] bg-baton-yellow px-6 pt-6 pb-7">
-      <p className="text-card-body text-on-baton-yellow-muted">{intention.label}</p>
+    <section ref={ref} className={cx('rounded-[32px] px-6 pt-6 pb-7', tone.card)}>
+      <p className={cx('text-card-body', tone.muted)}>{intention.label}</p>
       <p className="mt-1 text-section font-medium">“{intention.quote}”</p>
       <div className="mt-6 grid grid-cols-[repeat(13,1fr)] gap-1.5" aria-hidden>
-        {Array.from({ length: intention.thursdays }, (_, week) => (
+        {Array.from({ length: intention.weeks }, (_, week) => (
           <span key={week} className="aspect-square rounded-full border border-baton-navy/20">
-            {went.has(week) && (
+            {done.has(week) && (
               <span
                 className={cx('block size-full rounded-full bg-baton-navy transition-transform duration-300', inView ? 'scale-100' : 'scale-0')}
                 style={{ transitionDelay: `${300 + week * 60}ms`, transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
@@ -122,7 +148,7 @@ function Intention() {
         ))}
       </div>
       <p className="mt-6 text-card-title font-medium">{intention.headline}</p>
-      <p className="mt-1 text-callout text-on-baton-yellow-muted">{intention.detail}</p>
+      <p className={cx('mt-1 text-callout', tone.muted)}>{intention.detail}</p>
     </section>
   )
 }
@@ -178,12 +204,6 @@ function Close() {
       </Reveal>
       <Reveal shown={inView} delay={400}>
         <p className="mt-2 w-[290px] text-callout text-wrap-faint">{close.body}</p>
-      </Reveal>
-      <Reveal shown={inView} delay={600}>
-        <Button variant="glow" size="cta" onClick={() => navigate('today')} className="mt-10 w-[309px]">
-          {close.cta}
-          <ArrowRightIcon />
-        </Button>
       </Reveal>
     </section>
   )

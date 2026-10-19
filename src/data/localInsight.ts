@@ -55,16 +55,28 @@ export const localInsight = {
   // The three goals she picked in the demo; the page follows up on the hobby one
   goals: [{ goal: 'Work out 3× a week' }, { goal: 'Find people who share my hobby' }, { goal: 'Build a morning routine' }],
 
-  // Her intention from the last night in LA, and how far she got
-  intention: {
-    label: 'Your intention',
-    quote: 'Find people who share my hobby',
-    // One dot per Thursday since she landed; the filled ones she went drawing
-    thursdays: 26,
-    went: [3, 5, 6, 8, 11, 12, 14, 17, 19, 20, 23, 25],
-    headline: '12 Thursdays at Spring Studio',
-    detail: 'And 3 people you draw with now: Ana, Theo and Min.',
-  },
+  // Two of her intentions from before she left LA, and how far she got: one
+  // dot per week since she landed, filled for the weeks she did it
+  intentions: [
+    {
+      label: 'Your intention',
+      quote: 'Find people who share my hobby',
+      tone: 'yellow',
+      weeks: 26,
+      done: [3, 5, 6, 8, 11, 12, 14, 17, 19, 20, 23, 25],
+      headline: '12 Thursdays at Spring Studio',
+      detail: 'And 3 people you draw with now: Ana, Theo and Min.',
+    },
+    {
+      label: 'Your intention',
+      quote: 'Work out 3× a week',
+      tone: 'pink',
+      weeks: 26,
+      done: [1, 2, 4, 5, 7, 8, 9, 10, 12, 13, 14, 15, 16, 18, 19, 20, 21, 22, 23, 24, 25],
+      headline: '21 weeks of 3 workouts or more',
+      detail: 'At the gym with a Trader Joe’s next door, from Maya’s legacy.',
+    },
+  ] satisfies { label: string; quote: string; tone: 'yellow' | 'pink'; weeks: number; done: number[]; headline: string; detail: string }[],
 
   // The demo bookend: the same daily prompt, asked in both cities.
   // Placeholder photos until the real café shots are in.
