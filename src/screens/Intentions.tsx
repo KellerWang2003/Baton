@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { goBack } from '../app/navigate'
 import { setState, toggleIn, useStore } from '../app/store'
 import { goalBubbles, intentions } from '../data/intentions'
@@ -13,23 +14,29 @@ const SIZE = 142
 const GLASS = SIZE * (330 / 370)
 const BOX = Math.ceil(SIZE / 0.72)
 // Figma measures from the top of the frame; our page starts under the status
-// bar, minus a little room for the back button
-const TOP = 54 - 12
-const FIELD_HEIGHT = Math.max(...goalBubbles.map((bubble) => bubble.y)) + SIZE / 2 - TOP + 120
+// bar, and the bubbles sit a little higher since the subtitle is gone
+const TOP = 54 + 30
+// The canvas: every bubble's edge, plus a margin to pan past
+const EDGE = SIZE / 2 + 24
+const bounds = {
+  left: Math.min(...goalBubbles.map((bubble) => bubble.x)) - EDGE,
+  right: Math.max(...goalBubbles.map((bubble) => bubble.x)) + EDGE,
+  top: Math.min(...goalBubbles.map((bubble) => bubble.y)) - TOP - EDGE,
+  bottom: Math.max(...goalBubbles.map((bubble) => bubble.y)) - TOP + EDGE,
+}
+// Room the pinned title and button take over the canvas
+const HEADER = 130
+const FOOTER = 110
 
 // Choosing her intentions for New York (Figma "choosing intentions", 322:8877),
-// before her last night in LA; opened from Profile. A field of glass bubbles in
-// loose, overlapping spots, some running off the screen. Tap only, nothing
-// moves (Keller, Oct 19): one Fluid Glass lens is rendered once and its still
-// image is every bubble's glass, with the blue fill and the goal on it.
+// before her last night in LA; opened from Profile. A canvas of glass bubbles
+// in loose, overlapping spots that she pans around in any direction, tapping as
+// many as she wants (Keller, Oct 19: free, no limits). The bubbles themselves
+// don't move: one Fluid Glass lens is rendered once and its still image is
+// every bubble's glass, with the blue fill and the goal on it.
 export function Intentions() {
   const [picked, setPicked] = useState(useStore().goals)
-  const full = picked.length >= intentions.max
   const shell = useGlassShell()
-  const toggle = (goal: string) => {
-    if (!picked.includes(goal) && full) return
-    setPicked(toggleIn(picked, goal))
-  }
   const done = () => {
     setState({ goals: picked })
     goBack('profile')
@@ -37,51 +44,155 @@ export function Intentions() {
 
   return (
     <div className="relative h-full overflow-hidden bg-baton-paper font-display text-baton-navy">
-      <div className="h-full overflow-y-auto overflow-x-hidden">
-        <div className="relative" style={{ height: FIELD_HEIGHT }}>
-          <button
-            type="button"
-            onClick={() => goBack('profile')}
-            className="absolute left-2 top-1 z-20 inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-body text-brand active:opacity-50"
-          >
-            <ChevronLeftIcon />
-            Profile
-          </button>
-          <header className="absolute inset-x-0 animate-splash-rise text-center" style={{ top: 88 - TOP }}>
-            <h1 className="text-[30px] font-medium leading-[30px] tracking-[-0.011em]">
-              {intentions.title.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </h1>
-            <p className="mx-auto mt-3.5 w-[321px] text-callout leading-[18px] text-baton-navy/35">{intentions.subtitle}</p>
-          </header>
-
-          {shell.node}
+      {shell.node}
+      <PanCanvas>
           {goalBubbles.map((bubble, i) => (
-              <Bubble
-                key={bubble.goal}
-                label={bubble.goal}
-                glass={shell.url}
-                picked={picked.includes(bubble.goal)}
-                dim={full && !picked.includes(bubble.goal)}
-                x={bubble.x}
-                y={bubble.y - TOP}
-                delay={i * 35}
-                onTap={() => toggle(bubble.goal)}
-              />
-            ))}
-        </div>
-      </div>
+            <Bubble
+              key={bubble.goal}
+              label={bubble.goal}
+              glass={shell.url}
+              picked={picked.includes(bubble.goal)}
+              x={bubble.x}
+              y={bubble.y - TOP}
+              delay={i * 25}
+              onTap={() => setPicked(toggleIn(picked, bubble.goal))}
+            />
+          ))}
+      </PanCanvas>
 
-      {/* Pinned over the bottom of the field, which fades into the page */}
+      {/* Pinned over the canvas, which slides under them and fades out */}
+      <header className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-linear-to-b from-baton-paper from-70% to-baton-paper/0 pb-8">
+        <button
+          type="button"
+          onClick={() => goBack('profile')}
+          className="pointer-events-auto ml-2 mt-1 inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-body text-brand active:opacity-50"
+        >
+          <ChevronLeftIcon />
+          Profile
+        </button>
+        <h1 className="animate-splash-rise text-center text-[30px] font-medium leading-[30px] tracking-[-0.011em]">
+          {intentions.title.map((line) => (
+            <span key={line} className="block">
+              {line}
+            </span>
+          ))}
+        </h1>
+      </header>
       <footer className="pointer-events-none absolute inset-x-0 bottom-0 z-30 bg-linear-to-t from-baton-paper from-55% to-baton-paper/0 px-6 pb-9 pt-14">
-        <Button block variant="glow" size="cta" disabled={picked.length === 0} onClick={done} className="pointer-events-auto">
+        <Button block variant="glow" size="cta" onClick={done} className="pointer-events-auto">
           {intentions.cta}
           <ArrowRightIcon />
         </Button>
       </footer>
+    </div>
+  )
+}
+
+// Drag (or scroll a trackpad or wheel) to pan the canvas any way, with a glide
+// after letting go. It stops at the canvas's edges, with the pinned title and
+// button counted, and starts on Figma's view.
+function PanCanvas({ children }: { children: ReactNode }) {
+  const viewport = useRef<HTMLDivElement>(null)
+  const layer = useRef<HTMLDivElement>(null)
+  const state = useRef({ x: 0, y: 0, vx: 0, vy: 0, raf: 0, down: null as null | { x: number; y: number; px: number; py: number; t: number }, travel: 0 })
+
+  const clamp = (x: number, y: number) => {
+    const box = viewport.current
+    const width = box?.clientWidth ?? 402
+    const height = box?.clientHeight ?? 820
+    const minX = Math.min(0, width - bounds.right)
+    const maxX = Math.max(0, -bounds.left)
+    const minY = Math.min(0, height - FOOTER - bounds.bottom)
+    const maxY = Math.max(0, HEADER - bounds.top)
+    return [Math.min(maxX, Math.max(minX, x)), Math.min(maxY, Math.max(minY, y))]
+  }
+  const place = (x: number, y: number) => {
+    const s = state.current
+    ;[s.x, s.y] = clamp(x, y)
+    if (layer.current) layer.current.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`
+  }
+  const glide = () => {
+    const s = state.current
+    cancelAnimationFrame(s.raf)
+    const step = () => {
+      s.vx *= 0.94
+      s.vy *= 0.94
+      place(s.x + s.vx, s.y + s.vy)
+      if (Math.hypot(s.vx, s.vy) > 0.2) s.raf = requestAnimationFrame(step)
+    }
+    s.raf = requestAnimationFrame(step)
+  }
+  useEffect(() => {
+    const s = state.current
+    place(s.x, s.y)
+    const box = viewport.current
+    // Wheel and trackpad scrolling pan too (not passive, so the page doesn't scroll)
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      cancelAnimationFrame(s.raf)
+      place(s.x - event.deltaX, s.y - event.deltaY)
+    }
+    box?.addEventListener('wheel', onWheel, { passive: false })
+    return () => {
+      box?.removeEventListener('wheel', onWheel)
+      cancelAnimationFrame(s.raf)
+    }
+  })
+
+  const handlers = {
+    onPointerDown: (event: ReactPointerEvent) => {
+      const s = state.current
+      cancelAnimationFrame(s.raf)
+      s.down = { x: event.clientX - s.x, y: event.clientY - s.y, px: event.clientX, py: event.clientY, t: performance.now() }
+      s.vx = 0
+      s.vy = 0
+      s.travel = 0
+    },
+    onPointerMove: (event: ReactPointerEvent) => {
+      const s = state.current
+      if (!s.down) return
+      const now = performance.now()
+      const dt = Math.max(now - s.down.t, 1)
+      // Velocity in px per frame, for the glide
+      s.vx = ((event.clientX - s.down.px) / dt) * 16
+      s.vy = ((event.clientY - s.down.py) / dt) * 16
+      s.travel += Math.hypot(event.clientX - s.down.px, event.clientY - s.down.py)
+      s.down.px = event.clientX
+      s.down.py = event.clientY
+      s.down.t = now
+      // Only grab the pointer once it's a drag, so a tap still clicks its bubble
+      if (s.travel > 6 && !(event.target as Element).hasPointerCapture?.(event.pointerId)) {
+        viewport.current?.setPointerCapture(event.pointerId)
+      }
+      place(event.clientX - s.down.x, event.clientY - s.down.y)
+    },
+    onPointerUp: () => {
+      const s = state.current
+      if (!s.down) return
+      s.down = null
+      if (Math.hypot(s.vx, s.vy) > 1) glide()
+    },
+    onPointerCancel: () => {
+      state.current.down = null
+    },
+  }
+
+  return (
+    <div
+      ref={viewport}
+      {...handlers}
+      // A drag that ends on a bubble doesn't pick it
+      onClickCapture={(event) => {
+        if (state.current.travel > 6) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }}
+      className="absolute inset-0 cursor-grab touch-none select-none active:cursor-grabbing"
+    >
+      <div ref={layer} className="absolute left-0 top-0 will-change-transform">
+        {children}
+      </div>
     </div>
   )
 }
@@ -104,7 +215,7 @@ function useGlassShell() {
       const still = canvas && copy(canvas)
       if (!alive || !still || (!drawn(still) && tries < 200)) return
       window.clearInterval(timer)
-      setUrl(still.toDataURL('image/png'))
+      setUrl(centered(still).toDataURL('image/png'))
     }, 150)
     return () => {
       alive = false
@@ -113,7 +224,14 @@ function useGlassShell() {
   }, [url])
 
   const node = url ? null : (
-    <div ref={holder} aria-hidden className="pointer-events-none absolute left-0 top-0 opacity-0" style={{ width: BOX, height: BOX }}>
+    // In the middle of the screen: Fluid Glass trims its canvas to what's on
+    // screen, so a lens near an edge would come out off-center
+    <div
+      ref={holder}
+      aria-hidden
+      className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0"
+      style={{ width: BOX, height: BOX }}
+    >
       <FluidGlass
         text=""
         color={color || token('--color-baton-blue')}
@@ -142,7 +260,6 @@ type BubbleProps = {
   // The still glass, once it's drawn (it fades in over the words)
   glass: string | null
   picked: boolean
-  dim: boolean
   x: number
   y: number
   delay: number
@@ -151,17 +268,14 @@ type BubbleProps = {
 
 // One goal: the still glass, then the blue fill (grows from the middle once
 // picked) and the words on it. A tap squishes it a little.
-function Bubble({ label, glass, picked, dim, x, y, delay, onTap }: BubbleProps) {
+function Bubble({ label, glass, picked, x, y, delay, onTap }: BubbleProps) {
   return (
     <button
       type="button"
       aria-pressed={picked}
       onClick={onTap}
       style={{ left: x - SIZE / 2, top: y - SIZE / 2, width: SIZE, height: SIZE, animationDelay: `${delay}ms` }}
-      className={cx(
-        'absolute animate-fade-in rounded-full outline-none transition-[scale,opacity] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-95',
-        dim && 'opacity-45',
-      )}
+      className="absolute animate-fade-in rounded-full outline-none transition-[scale] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] active:scale-95"
     >
       {glass && <img
         src={glass}
@@ -205,6 +319,36 @@ function drawn(still: HTMLCanvasElement) {
   let alpha = 0
   for (let i = 3; i < pixels.length; i += 16) alpha += pixels[i]
   return alpha > (pixels.length / 16) * 255 * 0.2
+}
+
+// The lens cut out square around its own middle, as big as the glass's box.
+// Inside the scaled phone frame Fluid Glass can draw the lens off its canvas's
+// center, so find it by its solid pixels rather than trusting the layout.
+function centered(still: HTMLCanvasElement) {
+  const ctx = still.getContext('2d')
+  const pixels = ctx?.getImageData(0, 0, still.width, still.height).data
+  if (!pixels) return still
+  let left = still.width
+  let right = 0
+  let top = still.height
+  let bottom = 0
+  for (let y = 0; y < still.height; y++) {
+    for (let x = 0; x < still.width; x++) {
+      if (pixels[(y * still.width + x) * 4 + 3] < 200) continue
+      left = Math.min(left, x)
+      right = Math.max(right, x)
+      top = Math.min(top, y)
+      bottom = Math.max(bottom, y)
+    }
+  }
+  if (right <= left) return still
+  // The lens fills 72% of its box, as Fluid Glass draws it
+  const side = Math.round((right - left) / 0.72)
+  const out = document.createElement('canvas')
+  out.width = side
+  out.height = side
+  out.getContext('2d')?.drawImage(still, (left + right) / 2 - side / 2, (top + bottom) / 2 - side / 2, side, side, 0, 0, side, side)
+  return out
 }
 
 // The WebGL glass takes plain color strings, so read them from the brand tokens
