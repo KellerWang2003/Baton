@@ -137,7 +137,7 @@
   --color-line: #c6c6c6; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
-  --color-slot-shade: #737373; /* Rolling Paper: shade where the sheet leaves the island */
+  --color-slot-shade: rgb(34 36 48 / 0.55); /* Rolling Paper: shade where the sheet leaves the island (plain, not multiply: a blended layer left a light line at the slot) */
   --color-glass: rgb(255 255 255 / 0.8); /* tab bar capsules over a blur: white enough to read over vibrant folders */
   --color-tab-idle: #6e6f78; /* tabs that aren't showing, and + */
 
