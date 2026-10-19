@@ -1,19 +1,39 @@
+import { useState } from 'react'
 import { goBack } from '../app/navigate'
 import { useStatus, useStore } from '../app/store'
+import { archiveClouds, cloudFilters } from '../data/archiveCloud'
 import { pages } from '../data/pages'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
-import { ListRow, ListSection, Screen, VisibilityBadge } from '../ui'
+import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, Screen, VisibilityBadge } from '../ui'
+import type { CloudCategory } from '../ui'
 
 const { title: archiveTitle } = pages.archive
 
-// Pushed detail page for a single city folder in Archive. What's inside
-// depends on her stage: a private archive while she lives there, a legacy
-// (public and private pieces, notes on them) once she has left.
+// Pushed detail page for a single city folder in Archive, opened by tapping
+// the open folder. A city with a photo cloud (LA, Figma ARCHIVE_detail
+// default) shows every photo from its archive as circles, with the folder's
+// tab on its side at the left edge to go back and the tricolor glass orb at
+// the bottom to filter them (Feeling, People, Places). Other cities still show the
+// list: a private archive while she lives there, a legacy once she has left.
 export function ArchiveDetail() {
   const { selectedFolder } = useStore()
   const status = useStatus()
-  const folders = archiveFolders(status)
-  const folder = folders.find((item) => item.id === selectedFolder) ?? folders[0]
+  const folders = archiveFolders()
+  // Opened straight from the debug panel or arrow keys, it shows LA (the story)
+  const folder = folders.find((item) => item.id === (selectedFolder ?? 'la')) ?? folders[0]
+  const cloud = archiveClouds[folder.id]
+  const [filter, setFilter] = useState<CloudCategory | null>(null)
+
+  if (cloud) {
+    return (
+      <div className="relative h-full overflow-hidden bg-baton-paper">
+        <PhotoCloud photos={cloud} focus={filter} />
+        <FolderSideTab folder={folder} onClick={() => goBack('archive')} className="absolute top-6 -left-[7px]" />
+        <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />
+      </div>
+    )
+  }
+
   const content = archiveDetail[folder.id]?.[status] ?? olderArchive
 
   return (

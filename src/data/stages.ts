@@ -82,19 +82,11 @@ export const todayCards: Record<Stage, StageCard[]> = {
   ],
 }
 
-// Archive folders: while Moving, LA is the open folder and New York doesn't
-// exist yet. After the move, New York opens on top and LA becomes a legacy.
-// Each city keeps its color in every stage (New York's navy is used by no
-// other city). Tab positions belong to the slot, so tabs still zigzag.
-export function archiveFolders(stage: Stage): ArchiveFolder[] {
-  const slots = pages.archive.folders
-  if (stage !== 'moving') return slots
-  const [, la, ...older] = slots
-  return [{ ...la, dates: '09.2023-present' }, ...older].map((folder, index) => ({
-    ...folder,
-    tabAlign: slots[index].tabAlign,
-    dateAlign: slots[index].dateAlign,
-  }))
+// Archive folders, top to bottom LA, Seoul, Chicago (Figma ARCHIVE_default,
+// 256:196), the same in every stage; there is no New York folder. Each city
+// keeps its color (LA blue, Seoul cream, Chicago olive).
+export function archiveFolders(): ArchiveFolder[] {
+  return pages.archive.folders
 }
 
 // Lifestyle summary on each city folder: one short sentence about how she
@@ -143,17 +135,31 @@ export const archiveSummaries: Record<string, Partial<Record<Stage, ArchiveSumma
       ],
     },
   },
+  // Figma ARCHIVE_SEOUL (302:7451)
   seoul: {
-    newcomer: { parts: ['Convenience-store dinners', [photo('Dinner from the GS25 downstairs')], 'and the last train home.'] },
+    newcomer: {
+      parts: [
+        'Your last months at home, well spent: Han River picnics,',
+        [photo('Picnic by the Han River', 'seoul-han-1'), photo('Han River at sunset', 'seoul-han-2')],
+        'karaoke until 2am,',
+        [photo('Karaoke room in Hongdae', 'seoul-karaoke-1'), photo('Singing at the noraebang', 'seoul-karaoke-2')],
+        'and every café in Seongsu.',
+        [photo('Café in Seongsu', 'seoul-cafe')],
+      ],
+    },
   },
+  // Figma ARCHIVE_default (256:196)
   chicago: {
-    newcomer: { parts: ['Your first real winter', [photo('Snow on the lakefront')], 'and a lot of deep-dish.'] },
-  },
-  taipei: {
-    newcomer: { parts: ['Night markets', [photo('Shilin night market')], 'every Friday, rain or not.'] },
-  },
-  busan: {
-    newcomer: { parts: ['Beach walks', [photo('Haeundae at dusk')], 'after school.'] },
+    newcomer: {
+      parts: [
+        'You know the L by heart',
+        [photo('Brown Line over the Loop', 'chicago-l-train')],
+        'and every skyline rooftop.',
+        [photo('Rooftop at sunset', 'chicago-rooftop-1'), photo('Skyline from a rooftop', 'chicago-rooftop-2')],
+        'Brutal winters, but 10/10 perfect lake summers.',
+        [photo('North Avenue Beach', 'chicago-lake-1'), photo('Lake Michigan in July', 'chicago-lake-2')],
+      ],
+    },
   },
 }
 

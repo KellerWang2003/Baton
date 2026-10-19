@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from '../ui/cx'
+import { StatusBar } from './StatusBar'
 
 // On a real phone (opened over wifi) the app fills the screen, frame or not.
 const phoneQuery = '(max-width: 500px)'
@@ -61,11 +62,7 @@ export function DeviceFrame({ framed, lockRatio, children }: DeviceFrameProps) {
           !lockRatio && 'h-[894px] max-h-full w-[422px]',
         )}
       >
-        <div className="flex h-[54px] shrink-0 items-center justify-between px-9 text-sm font-semibold text-ink">
-          <span>9:41</span>
-          <span aria-hidden className="absolute left-1/2 top-[11px] h-[37px] w-[126px] -translate-x-1/2 rounded-full bg-ink" />
-          <span aria-hidden>●●●</span>
-        </div>
+        <StatusBar />
         <div className="@container min-h-0 flex-1">{children}</div>
       </div>
     </div>

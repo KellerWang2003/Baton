@@ -14,6 +14,8 @@ export type ArchiveFolder = {
 type FolderStackProps = {
   folders: ArchiveFolder[]
   onSelect?: (id: string) => void
+  // Folder in focus when the stack opens (the first one if missing)
+  initialId?: string
   // Extra content under the dates of the open folder (the lifestyle summary)
   renderActive?: (folder: ArchiveFolder, isActive: boolean) => ReactNode
   // Shown once, centered at the bottom of the last folder just above the tab
@@ -23,10 +25,11 @@ type FolderStackProps = {
 }
 
 // Brand colors from the Figma Archive frame (LA28 Palms, 256:196).
-// body is the text color for content inside the open folder.
+// body is the text color for content inside the folder, fade the gradient
+// over the bottom of the stack when the folder reaches the bottom edge.
 const toneStyles: Record<
   ArchiveFolder['tone'],
-  { fill: string; fillText: string; title: string; dates: string; body: string }
+  { fill: string; fillText: string; title: string; dates: string; body: string; fade: string }
 > = {
   olive: {
     // --folder-fill lets content inside (inline photo outlines) match the folder
@@ -35,6 +38,7 @@ const toneStyles: Record<
     title: 'text-baton-yellow',
     dates: 'text-on-baton-olive-muted',
     body: 'text-baton-cream',
+    fade: 'from-baton-olive/0 to-baton-olive',
   },
   blue: {
     fill: 'bg-baton-blue [--folder-fill:var(--color-baton-blue)]',
@@ -42,6 +46,7 @@ const toneStyles: Record<
     title: 'text-baton-cream',
     dates: 'text-on-baton-blue-muted',
     body: 'text-baton-cream',
+    fade: 'from-baton-blue/0 to-baton-blue',
   },
   cream: {
     fill: 'bg-baton-cream [--folder-fill:var(--color-baton-cream)]',
@@ -49,6 +54,7 @@ const toneStyles: Record<
     title: 'text-baton-navy',
     dates: 'text-on-baton-cream-muted',
     body: 'text-baton-navy',
+    fade: 'from-baton-cream/0 to-baton-cream',
   },
   // The rest of the brand palette (Figma brand frame, 223:175), so folders vary
   pink: {
@@ -57,6 +63,7 @@ const toneStyles: Record<
     title: 'text-baton-navy',
     dates: 'text-baton-navy/60',
     body: 'text-baton-navy',
+    fade: 'from-baton-pink/0 to-baton-pink',
   },
   yellow: {
     fill: 'bg-baton-yellow [--folder-fill:var(--color-baton-yellow)]',
@@ -64,6 +71,7 @@ const toneStyles: Record<
     title: 'text-baton-navy',
     dates: 'text-baton-navy/60',
     body: 'text-baton-navy',
+    fade: 'from-baton-yellow/0 to-baton-yellow',
   },
   navy: {
     fill: 'bg-baton-navy [--folder-fill:var(--color-baton-navy)]',
@@ -71,6 +79,7 @@ const toneStyles: Record<
     title: 'text-baton-pink',
     dates: 'text-baton-cream/60',
     body: 'text-baton-cream',
+    fade: 'from-baton-navy/0 to-baton-navy',
   },
 }
 
@@ -98,16 +107,16 @@ const TAB_HEIGHT = 52
 const UNDERLAP_SKIRT = 96
 const BASE_OVERLAP = TAB_HEIGHT + UNDERLAP_SKIRT // 148px
 
-// Shoulder-to-shoulder height of the active folder vs compact folders.
-// At any scroll position, the viewport frames 3 folders: 1 active folder (480px)
-// + 2 compact folders (2 * 96px).
-const ACTIVE_STEP_HEIGHT = 480
-const COMPACT_STEP_HEIGHT = 96
-const VISIBLE_FOLDERS = 3
-
-// Scroll position (in px) of one folder step. Snapped positions are
-// index * SCROLL_TRAVEL_PER_FOLDER; only a scrub sits between them.
-const SCROLL_TRAVEL_PER_FOLDER = 180
+// Figma ARCHIVE_default (256:196): the folder in focus is open, 401px from
+// its tab to the next tab; every other folder is collapsed to a 119px strip.
+// All folders stay on screen: the stack doesn't move, only the focus changes.
+// It starts STACK_TOP down (96 in Figma), or higher (down to the top edge)
+// when that's needed for the last folder to still show a full strip. The bottom fades into the color of
+// the folder there.
+const STACK_TOP = 96
+const ACTIVE_STEP_HEIGHT = 401
+const COMPACT_STEP_HEIGHT = 119
+const FADE_HEIGHT = 81
 
 // Gestures (Keller, Oct 18): the stack never tracks the finger exactly, it
 // only snaps between folders, so nothing flickers mid-drag.
@@ -129,9 +138,11 @@ function tick(ms = 8) {
 
 // Stacked city folders for the Archive screen.
 // - Each folder keeps its own fixed color tone.
-// - The viewport frames 3 folders at a time (1 expanded active folder + 2 compact folders).
+// - Scrolling vertically moves the focus one folder at a time: the folder in
+//   focus expands and the others collapse, all of them staying on screen.
 // - Flick to turn one folder, drag to step through them (see above).
-export function FolderStack({ folders, onSelect, renderActive, footer, className }: FolderStackProps) {
+// - Tap a peeking folder to bring it into focus, tap the open one to select it.
+export function FolderStack({ folders, onSelect, initialId, renderActive, footer, className }: FolderStackProps) {
   const wheelTimerRef = useRef<number | null>(null)
   const wheelAccumRef = useRef(0)
   const dragStateRef = useRef<{
@@ -143,7 +154,20 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
     moved: boolean
   }>({ active: false, pointerId: -1, startY: 0, startTime: 0, startIndex: 0, moved: false })
 
-  const [activeIndex, setActiveIndex] = useState(0)
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
+  )
+  // Height of the stack's frame, to tell which folder sits at the bottom
+  const frameRef = useRef<HTMLDivElement>(null)
+  const [frameHeight, setFrameHeight] = useState(0)
+
+  useEffect(() => {
+    const frame = frameRef.current
+    if (!frame) return
+    const observer = new ResizeObserver(([entry]) => setFrameHeight(entry.contentRect.height))
+    observer.observe(frame)
+    return () => observer.disconnect()
+  }, [])
   // Small stretch in px when pushing past the first or last folder:
   // > 0 pulls the folders DOWN (compress against the bottom),
   // < 0 pulls them UP (compress against the top)
@@ -151,7 +175,6 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
 
   const lastIdx = Math.max(1, folders.length - 1)
   const maxIndex = Math.max(0, folders.length - 1)
-  const maxScroll = lastIdx * SCROLL_TRAVEL_PER_FOLDER
   const clampIndex = (i: number) => Math.min(maxIndex, Math.max(0, i))
 
   useEffect(() => {
@@ -229,17 +252,18 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
     }
   }
 
-  const scrollProgress = maxScroll > 0 ? (activeIndex * SCROLL_TRAVEL_PER_FOLDER) / maxScroll : 0
-
-  // Since 3 folders fit in the viewport at any time (1 active + 2 compact),
-  // scrolling from top to bottom shifts the stack up by (N - 3) compact steps
-  // so at scrollProgress = 1 the last folder (Busan) is framed with the 2
-  // folders above it and bleeds cleanly to the bottom edge.
-  const maxStackShift = Math.max(0, folders.length - VISIBLE_FOLDERS) * COMPACT_STEP_HEIGHT
-  const stackShiftY = -scrollProgress * maxStackShift
+  // Fixed for every focus: the last tab sits the same distance down either way
+  const lastTabOffset = (folders.length - 2) * COMPACT_STEP_HEIGHT + ACTIVE_STEP_HEIGHT
+  // Never above the top edge: on a short screen the last strip shrinks instead
+  const stackShiftY = Math.max(0, Math.min(STACK_TOP, frameHeight - lastTabOffset - COMPACT_STEP_HEIGHT))
+  const tabTop = (index: number) =>
+    stackShiftY + index * COMPACT_STEP_HEIGHT + (index > activeIndex ? ACTIVE_STEP_HEIGHT - COMPACT_STEP_HEIGHT : 0)
+  // The folder whose body reaches the bottom edge sets the fade's color
+  const bottomIndex = folders.reduce((found, _, index) => (tabTop(index) < frameHeight ? index : found), activeIndex)
 
   return (
     <div
+      ref={frameRef}
       onWheel={handleWheel}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -247,7 +271,7 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
       onPointerCancel={endPointerDrag}
       onContextMenu={(event) => event.preventDefault()}
       className={cx(
-        'relative isolate flex flex-1 flex-col justify-start overflow-hidden pt-7 select-none touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]',
+        'relative isolate flex flex-1 flex-col justify-start overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]',
         className,
       )}
     >
@@ -290,7 +314,8 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
               type="button"
               onClick={() => {
                 if (dragStateRef.current.moved) return
-                onSelect?.(folder.id)
+                if (isActive) onSelect?.(folder.id)
+                else goTo(index)
               }}
               style={{
                 zIndex: index + 1,
@@ -346,13 +371,7 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
                   {folder.dates}
                 </span>
                 {renderActive && (
-                  <div
-                    className={cx(
-                      'transition-opacity duration-300',
-                      styles.body,
-                      isActive ? 'opacity-100' : 'pointer-events-none opacity-0',
-                    )}
-                  >
+                  <div className={styles.body}>
                     {renderActive(folder, isActive)}
                   </div>
                 )}
@@ -361,6 +380,16 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
           )
         })}
       </div>
+      {folders.length > 0 && (
+        <div
+          aria-hidden
+          style={{ height: `${FADE_HEIGHT}px` }}
+          className={cx(
+            'pointer-events-none absolute inset-x-0 bottom-0 z-[99] bg-linear-to-b to-70%',
+            toneStyles[folders[bottomIndex].tone].fade,
+          )}
+        />
+      )}
       {footer && folders.length > 0 && (
         <div
           className={cx(
@@ -373,5 +402,49 @@ export function FolderStack({ folders, onSelect, renderActive, footer, className
         </div>
       )}
     </div>
+  )
+}
+
+// The folder's tab turned on its side at the left edge of a city's detail
+// page (Figma ARCHIVE_detail default, 267:5273). Tapping it goes back to the
+// stack. Outline traced from that frame, drawn 90 wide and 65 tall, then
+// turned upright.
+const SIDE_TAB_PATH =
+  'M23.7052 9.69648C26.2266 3.81398 32.011 0 38.4111 0L71.3784 0C79.8856 0 86.9053 6.65722 87.3559 15.1525L90 65H0L23.7052 9.69648Z'
+
+type FolderSideTabProps = {
+  folder: ArchiveFolder
+  onClick: () => void
+  // Positions the tab (absolute or relative); it has no position of its own
+  className: string
+}
+
+export function FolderSideTab({ folder, onClick, className }: FolderSideTabProps) {
+  const styles = toneStyles[folder.tone]
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={`Back to ${folder.city} in your archive`}
+      className={cx('h-[90px] w-[65px] active:opacity-70', className)}
+    >
+      <svg
+        width="90"
+        height="65"
+        viewBox="0 0 90 65"
+        aria-hidden="true"
+        className={cx('absolute top-[12.5px] -left-[12.5px] -scale-y-100 -rotate-90 fill-current', styles.fillText)}
+      >
+        <path d={SIDE_TAB_PATH} />
+      </svg>
+      <span
+        className={cx(
+          'absolute top-1/2 left-[38px] -translate-x-1/2 -translate-y-1/2 rotate-90 font-display text-side-tab font-medium tracking-tight whitespace-nowrap',
+          styles.title,
+        )}
+      >
+        {folder.city}
+      </span>
+    </button>
   )
 }
