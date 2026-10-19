@@ -541,15 +541,16 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   // 1 at the silhouette (measured: the surface there sits at 0.89 of the bound)
   float radial = length(tr.p.xy - uCenter.xy) / max(uBound / 1.08 * 0.89, 1.0);
   // Only the outer ~fifth, easing in, so the middle stays clear (Figma 236:1282)
-  float rimTint = pow(smoothstep(0.72, 1.0 - 0.035 * uRing, radial), 1.6) * uRim;
+  float rimTint = pow(smoothstep(0.72, 1.0 - 0.012 * uRing, radial), 1.6) * uRim;
   float rimAlpha = max(glass.a, rimTint);
   glass = vec4(mix(glass.rgb, uTint.rgb * rimAlpha, rimTint), rimAlpha);
   // Baton: a clear, whitish band around the very edge, outside the blue, with
   // a faint gray line at the silhouette (Figma 236:1282)
-  float ring = smoothstep(0.962, 0.972, radial) * uRing;
-  glass.rgb = mix(glass.rgb, vec3(0.965) * glass.a, ring * 0.92);
-  float hairline = smoothstep(0.988, 0.996, radial) * uRing;
-  glass.rgb = mix(glass.rgb, vec3(0.88) * glass.a, hairline * 0.85);
+  // Blends out of the blue (no hard step), so it reads as the glass's own edge
+  float ring = smoothstep(0.972, 0.99, radial) * uRing;
+  glass.rgb = mix(glass.rgb, vec3(0.97) * glass.a, ring * 0.8);
+  float hairline = smoothstep(0.995, 0.999, radial) * uRing;
+  glass.rgb = mix(glass.rgb, vec3(0.88) * glass.a, hairline * 0.6);
   vec2 facing = normalize(vec2(-0.42, 0.55));
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(tr.n.xy + 1e-5), facing))) * 0.55 * uReflection;
   rimLight *= smoothstep(0.0, 0.08, cosi);
