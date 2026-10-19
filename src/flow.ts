@@ -7,6 +7,7 @@ import { Community } from './screens/Community'
 import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
 import { LaWrapped } from './screens/LaWrapped'
+import { LocalInsight } from './screens/LocalInsight'
 import { FriendNote } from './screens/FriendNote'
 import { LeaveDate } from './screens/LeaveDate'
 import { PhotoAccess } from './screens/PhotoAccess'
@@ -66,6 +67,8 @@ export const flow: FlowScreen[] = [
   { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail },
   // 10. Local: the congrats splash as she becomes a Local
   { id: 'local-splash', title: "Stage change: you're a Local", stage: 'local', component: LocalSplash },
+  // ...whose button opens the insight page: LA vs New York, her intention, the café bookend
+  { id: 'local-insight', title: 'Local: how your life changed', stage: 'local', component: LocalInsight },
 ]
 
 export const stageLabels: Record<Stage, string> = {

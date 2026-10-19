@@ -36,7 +36,7 @@ export type StageCard = {
   title: string
   subtitle: string
   tone?: 'stage'
-  to?: { screen: 'community' } | { screen: 'archive' }
+  to?: { screen: 'community' } | { screen: 'archive' } | { screen: 'local-insight' }
 }
 
 export const todayCards: Record<Stage, StageCard[]> = {
@@ -78,6 +78,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
       title: 'See how your life changed since LA',
       subtitle: 'Compared with your LA snapshot, and your intention.',
       tone: 'stage',
+      to: { screen: 'local-insight' },
     },
     {
       id: 'bookend',

@@ -30,6 +30,6 @@ export const stageSplash: Partial<Record<Stage, StageSplashContent>> = {
     photoAlt: 'Chloe in a knit beanie, smiling over dinner',
     message: 'Continue to document your journey, and help fellow newcomers!',
     cta: 'Let’s go',
-    next: 'today',
+    next: 'local-insight',
   },
 }
