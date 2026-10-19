@@ -50,6 +50,8 @@ type State = {
   capturePhoto: File | null
   // photos are ids of the photos she picked
   reflections: { text: string; photos: string[] }[]
+  // Stage whose congrats splash is showing over the app (after her stage moves forward)
+  stageSplash: Stage | null
 }
 
 let state: State = {
@@ -80,6 +82,7 @@ let state: State = {
   composing: false,
   capturePhoto: null,
   reflections: [],
+  stageSplash: null,
 }
 
 const listeners = new Set<() => void>()
@@ -107,6 +110,17 @@ export function toggleIn(list: string[], id: string) {
 // Mark a setup item on Today as done.
 export function completeSetup(item: SetupItem) {
   setState((s) => ({ setupDone: s.setupDone.includes(item) ? s.setupDone : [...s.setupDone, item] }))
+}
+
+const stageOrder: Stage[] = ['moving', 'newcomer', 'local']
+
+// Change her stage. Moving forward (to Newcomer or Local) pops up the congrats
+// splash; going back, or picking her stage in onboarding, doesn't.
+export function changeStage(next: Stage) {
+  setState((s) => {
+    const forward = stageOrder.indexOf(next) > stageOrder.indexOf(s.status ?? 'moving')
+    return { status: next, stageSplash: forward ? next : null }
+  })
 }
 
 // Her stage: picked in onboarding, or set from the stage switcher in the debug
