@@ -9,10 +9,10 @@ const artwork: Record<Stage, string> = {
 }
 const stages: Stage[] = ['moving', 'newcomer', 'local']
 
-export function StageCardDeck({ value, onChange }: { value: Stage | null; onChange: (stage: Stage) => void }) {
+export function StageCardDeck({ value, onChange }: { value: Stage; onChange: (stage: Stage) => void }) {
   const pointerStart = useRef<number | null>(null)
   const swiped = useRef(false)
-  const selected = value ? stages.indexOf(value) : 0
+  const selected = stages.indexOf(value)
   const advance = (direction: number) => onChange(stages[(selected + direction + stages.length) % stages.length])
 
   return (
@@ -46,7 +46,7 @@ export function StageCardDeck({ value, onChange }: { value: Stage | null; onChan
           role="radio"
           aria-checked={option.id === value}
           aria-label={option.label}
-          tabIndex={index === selected ? 0 : -1}
+          tabIndex={option.id === value ? 0 : -1}
           data-stage-card={option.id}
           data-position={(index - selected + stages.length) % stages.length}
           className="onboarding-stage-card"
