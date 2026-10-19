@@ -244,6 +244,7 @@
   --shadow-note: 4px 4px 10px rgb(0 0 0 / 0.05); /* a Rolling Paper note opened big */
   --shadow-pill: 2px 2px 4px rgb(0 0 0 / 0.08); /* date pills on the LA Wrapped timeline */
   --shadow-paper: 0 1px 1px rgb(34 36 48 / 0.08), 0 8px 16px -8px rgb(34 36 48 / 0.3); /* a card of paper lying on paper (Relay looks) */
+  --shadow-rec: 0 1px 1px rgb(34 36 48 / 0.05), 0 4px 10px -6px rgb(34 36 48 / 0.18); /* Relay cards: a lighter lift than paper (Keller, Oct 19) */
 
   /* Relay looks (team playground): warm paper surfaces */
   --color-baton-postcard: #fffcf6; /* postcard stock */

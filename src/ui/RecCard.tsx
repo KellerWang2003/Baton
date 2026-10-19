@@ -96,7 +96,7 @@ function FlatCard({ title, text, tone, photo, label, size = 'lg', onClick, paper
         toneFill[tone],
         recSizes[size].card,
         // Paper: grain on the card and a soft shadow, lifted off the page (room for it below)
-        paper && 'grain mb-3 shadow-paper',
+        paper && 'grain mb-3 shadow-rec',
         // On the navy band, a thin light edge keeps navy cards from melting in
         edged && 'ring-1 ring-baton-cream/25',
       )}
@@ -123,7 +123,7 @@ function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, inde
         type="button"
         onClick={onClick}
         className={cx(
-          'grain relative flex w-full flex-col gap-2.5 rounded-[6px] p-2.5 pb-4 text-left shadow-paper transition active:scale-[0.98]',
+          'grain relative flex w-full flex-col gap-2.5 rounded-[6px] p-2.5 pb-4 text-left shadow-rec transition active:scale-[0.98]',
           toneFill[tone],
           tilts[index % tilts.length],
         )}
@@ -188,7 +188,7 @@ function PostcardCard({ title, text, tone, photo, label, size = 'lg', onClick, f
       type="button"
       onClick={onClick}
       className={cx(
-        'grain relative mb-3 flex shrink-0 snap-start flex-col gap-3 rounded-[20px] bg-baton-postcard p-3 text-left text-baton-navy shadow-paper transition active:scale-[0.98]',
+        'grain relative mb-3 flex shrink-0 snap-start flex-col gap-3 rounded-[20px] bg-baton-postcard p-3 text-left text-baton-navy shadow-rec transition active:scale-[0.98]',
         recSizes[size].card,
       )}
     >
