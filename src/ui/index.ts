@@ -26,7 +26,7 @@ export type { ConfettiVariant } from './confettiVariants'
 export { FilterOrb } from './FilterOrb'
 export type { OrbFilter } from './FilterOrb'
 export { PhotoCloud } from './PhotoCloud'
-export type { CloudCategory, CloudPhoto } from './PhotoCloud'
+export type { CloudCategory, CloudPhoto, CloudView } from './PhotoCloud'
 export { PromptCard } from './PromptCard'
 export { PromptWindow } from './PromptWindow'
 export { CategoryChip, RecCard, ToneTile } from './RecCard'
@@ -71,6 +71,7 @@ export {
   BoxesGraphic,
   CameraIcon,
   CheckIcon,
+  ArrowLeftIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   PencilIcon,

@@ -352,7 +352,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
   }
 
   return (
-    <div className={cx('pointer-events-none absolute inset-x-0 bottom-0 h-[179px]', className)}>
+    <div data-filter-orb className={cx('pointer-events-none absolute inset-x-0 bottom-0 h-[179px]', className)}>
       {/* Wash of the focused color along the bottom of the page */}
       {filters.map((filter) => (
         <div

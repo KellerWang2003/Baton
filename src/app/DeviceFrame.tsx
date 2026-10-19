@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
-import type { ReactNode } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { cx } from '../ui/cx'
 import { StatusBar } from './StatusBar'
 
@@ -64,7 +64,11 @@ export function DeviceFrame({ framed, lockRatio, onboardingStatus, children }: D
         )}
       >
         <StatusBar onboarding={onboardingStatus} />
-        <div className="@container min-h-0 flex-1">{children}</div>
+        {/* --status-bar: how far a screen can reach up under the status bar
+            (0 without the frame, where there is none) */}
+        <div className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
+          {children}
+        </div>
       </div>
     </div>
   )

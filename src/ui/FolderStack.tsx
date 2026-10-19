@@ -251,6 +251,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
             <button
               key={folder.id}
               type="button"
+              data-folder={folder.id}
               onClick={() => {
                 if (dragStateRef.current.moved) return
                 if (isActive) onSelect?.(folder.id)
@@ -364,6 +365,7 @@ export function FolderSideTab({ folder, onClick, className }: FolderSideTabProps
     <button
       type="button"
       onClick={onClick}
+      data-side-tab
       aria-label={`Back to ${folder.city} in your archive`}
       className={cx('h-[90px] w-[65px] active:opacity-70', className)}
     >
