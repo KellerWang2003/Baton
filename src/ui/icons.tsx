@@ -140,6 +140,14 @@ export function HomeGraphic() {
   )
 }
 
+export function DownloadIcon() {
+  return (
+    <Icon className="size-5">
+      <path d="M12 4v11M7 10.5l5 5 5-5M5 19.5h14" />
+    </Icon>
+  )
+}
+
 export function ArrowUpIcon() {
   return (
     <Icon strokeWidth={2.4} className="size-5">

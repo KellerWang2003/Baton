@@ -137,6 +137,7 @@
   --color-line: #c6c6c6; /* separator */
   --color-backdrop: #d6d6d6; /* behind the phone frame */
   --color-scrim: rgb(0 0 0 / 0.35); /* behind bottom sheets */
+  --color-slot-shade: #737373; /* Rolling Paper: shade where the sheet leaves the island */
   --color-glass: rgb(255 255 255 / 0.8); /* tab bar capsules over a blur: white enough to read over vibrant folders */
   --color-tab-idle: #6e6f78; /* tabs that aren't showing, and + */
 
@@ -179,6 +180,9 @@
   /* Stage change congrats splash (StageSplash): photo swells in, lines rise after it */
   --animate-splash-photo: splash-photo 700ms cubic-bezier(0.34, 1.4, 0.64, 1) 120ms both;
   --animate-splash-rise: splash-rise 500ms ease-out both;
+  /* Rolling Paper doodles, drawn on one by one: lines along their length, marks scribbled in place */
+  --animate-doodle-line: doodle-line 700ms cubic-bezier(0.45, 0.05, 0.55, 0.95) both;
+  --animate-doodle-mark: doodle-mark 420ms cubic-bezier(0.34, 1.4, 0.64, 1) both;
 
   @keyframes photo-pop {
     0% { opacity: 0; scale: 0.3; rotate: -14deg; }
@@ -209,6 +213,15 @@
   @keyframes splash-photo {
     0% { opacity: 0; scale: 0.6; }
     100% { opacity: 1; scale: 1; }
+  }
+  @keyframes doodle-line {
+    from { clip-path: inset(0 0 100% 0); }
+    to { clip-path: inset(0 0 0 0); }
+  }
+  @keyframes doodle-mark {
+    0% { opacity: 0; scale: 0.4; rotate: -12deg; clip-path: inset(0 100% 0 0); }
+    60% { opacity: 1; clip-path: inset(0 0 0 0); }
+    100% { opacity: 1; scale: 1; rotate: 0deg; clip-path: inset(0 0 0 0); }
   }
   @keyframes splash-rise {
     from { opacity: 0; translate: 0 12px; }

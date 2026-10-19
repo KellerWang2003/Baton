@@ -50,6 +50,7 @@ export {
   ArchiveIcon,
   ArrowRightIcon,
   ArrowUpIcon,
+  DownloadIcon,
   MicIcon,
   AtIcon,
   ArrivalGraphic,

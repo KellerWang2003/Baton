@@ -22,6 +22,8 @@ export const rollingPaper = {
   completed: 'Completed on 12.15.2026',
   // Button at the bottom once the sheet has settled (Keller, Oct 19: Rolling Paper comes first, then LA Wrapped)
   cta: 'See your LA Wrapped',
+  save: 'Save the Rolling Paper',
+  saved: 'Saved to Photos',
 }
 
 // The sheet once it has printed (Figma complete): 362pt wide, 20pt from the
@@ -29,8 +31,9 @@ export const rollingPaper = {
 // stays on it.
 export const paperSheet = { left: 20, top: 80, width: 362, height: 920 }
 
-// Where the sheet comes out: just under the top of the expanded island
-export const paperSlotY = 51
+// Where the sheet comes out: the middle of the expanded island (11pt down,
+// 62.6pt tall), so it looks like it prints from inside it
+export const paperSlotY = 42
 
 // In paint order (later notes sit on top)
 export const paperNotes: PaperNote[] = [
@@ -49,11 +52,21 @@ export const paperNotes: PaperNote[] = [
   { name: 'Hana', color: 'pink', cx: 215, cy: 932, rotate: 0, text: 'Congrats on the new job!! You earned every bit of it 🎉' },
 ]
 
-// Hand-drawn hearts, stars and the loop across the sheet, cut from one
-// sprite sheet (box and crop in % of the box, from the sheet's top-left)
-export const paperDoodles = {
-  src: '/rolling-paper/doodles.png',
-  width: 362,
-  height: 794,
-  crop: { w: 167.96, h: 110.19, left: -33.98, top: -9.76 },
-}
+// Hand-drawn hearts, stars and the loop across the sheet, each its own image
+// (cut from one sprite sheet) so they can be drawn on one at a time, in this
+// order. Box in sheet coordinates. Lines are drawn along their length; marks
+// are scribbled on in place.
+export type PaperDoodle = { src: string; left: number; top: number; width: number; height: number; kind: 'line' | 'mark' }
+
+export const paperDoodles: PaperDoodle[] = [
+  { src: '/rolling-paper/doodles/doodle-1.png', left: 28.6, top: 85.8, width: 35.0, height: 43.7, kind: 'mark' }, // blue heart
+  { src: '/rolling-paper/doodles/doodle-2.png', left: 247.3, top: 135.4, width: 90.4, height: 61.2, kind: 'mark' }, // noted
+  { src: '/rolling-paper/doodles/doodle-3.png', left: 142.4, top: 170.4, width: 169.1, height: 177.9, kind: 'line' }, // loop, top half
+  { src: '/rolling-paper/doodles/doodle-4.png', left: 226.9, top: 269.5, width: 49.6, height: 43.7, kind: 'mark' }, // star
+  { src: '/rolling-paper/doodles/doodle-5.png', left: 46.1, top: 295.8, width: 67.1, height: 67.1, kind: 'mark' }, // sun
+  { src: '/rolling-paper/doodles/doodle-6.png', left: 250.3, top: 392.0, width: 52.5, height: 55.4, kind: 'mark' }, // clover
+  { src: '/rolling-paper/doodles/doodle-7.png', left: 101.5, top: 389.1, width: 140.0, height: 227.5, kind: 'line' }, // loop, bottom half
+  { src: '/rolling-paper/doodles/doodle-8.png', left: 151.1, top: 505.7, width: 61.2, height: 55.4, kind: 'mark' }, // sparkles
+  { src: '/rolling-paper/doodles/doodle-9.png', left: 34.5, top: 546.6, width: 46.7, height: 49.6, kind: 'mark' }, // pink heart
+  { src: '/rolling-paper/doodles/doodle-10.png', left: 98.6, top: 654.5, width: 64.2, height: 49.6, kind: 'mark' }, // two hearts
+]

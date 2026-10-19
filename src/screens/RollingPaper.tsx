@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { paperDoodles, paperNotes, paperSheet, paperSlotY, rollingPaper, type PaperNote, type PaperNoteColor } from '../data/rollingPaper'
 import { navigate } from '../app/navigate'
-import { ArrowRightIcon, Button, cx } from '../ui'
+import { ArrowRightIcon, Button, CheckIcon, cx, DownloadIcon } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
 const TOP = 54
@@ -19,6 +19,8 @@ const PRINT = 3600
 const SETTLE = 800
 const SETTLE_AT = PRINT_AT + PRINT + 150
 const DONE_AT = SETTLE_AT + SETTLE
+// Gap between one doodle starting and the next
+const DOODLE_STEP = 260
 
 // Perspective while printing (Figma coming out: 302pt wide at the slot,
 // 341pt at the leading edge 624pt below)
@@ -48,6 +50,7 @@ type Selected = { note: PaperNote; from: string; closing: boolean }
 export function RollingPaper() {
   const [phase, setPhase] = useState<Phase>(() => (prefersReducedMotion() ? 'done' : 'start'))
   const [selected, setSelected] = useState<Selected | null>(null)
+  const [saved, setSaved] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
 
   // Runs once on open; each step only moves the phase forward
@@ -82,7 +85,13 @@ export function RollingPaper() {
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
       {/* The sheet comes out from just under the top of the island */}
       <div
-        className={cx('absolute inset-x-0 bottom-0', phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden')}
+        className={cx(
+          'absolute inset-x-0 bottom-0',
+          // Over the island while printing, so the sheet covers its lower half
+          // and seems to come out of it; under it once it has landed
+          printing ? 'z-10' : 'z-0',
+          phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden',
+        )}
         style={{ top: paperSlotY - TOP }}
       >
         {/* Room under the sheet so the button doesn't cover the last notes */}
@@ -106,15 +115,14 @@ export function RollingPaper() {
           >
             <Sheet phase={phase} onOpen={open} />
             {/* Shade where the sheet leaves the slot; it stays at the slot
-                while the sheet slides under it */}
-            <img
-              src="/rolling-paper/slot-shade.svg"
-              alt=""
+                while the sheet slides under it. A plain band the sheet's full
+                width, so the sheet's own perspective tilts it the same way */}
+            <div
               aria-hidden
-              className="pointer-events-none absolute left-1/2 h-[150px] w-[340px] max-w-none mix-blend-multiply"
+              className="pointer-events-none absolute inset-x-0 h-[150px] bg-linear-to-b from-slot-shade to-transparent mix-blend-multiply"
               style={{
                 top: 0,
-                translate: `-50% ${-pulled}px`,
+                translate: `0 ${-pulled}px`,
                 opacity: printing ? 1 : 0,
                 transition:
                   phase === 'print' ? `translate ${PRINT}ms cubic-bezier(0.45, 0.05, 0.55, 0.95)` : 'opacity 400ms ease-out',
@@ -136,19 +144,38 @@ export function RollingPaper() {
         }}
       />
 
-      {/* Once the sheet has settled: on to her LA Wrapped */}
+      {/* Once the sheet has settled: save it, or on to her LA Wrapped */}
       {phase === 'done' && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex justify-center">
+        <div className="pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex animate-splash-rise justify-center gap-2.5">
+          <button
+            type="button"
+            aria-label={saved ? rollingPaper.saved : rollingPaper.save}
+            onClick={() => setSaved(true)}
+            className={cx(
+              'pointer-events-auto flex size-[52px] shrink-0 items-center justify-center rounded-full shadow-float transition active:scale-95',
+              saved ? 'bg-baton-blue text-white' : 'bg-white text-baton-blue',
+            )}
+          >
+            {saved ? <CheckIcon /> : <DownloadIcon />}
+          </button>
           <Button
             variant="glow"
             size="cta"
             onClick={() => navigate('la-wrapped')}
-            className="pointer-events-auto w-[309px] animate-splash-rise"
+            className="pointer-events-auto w-[309px]"
           >
             {rollingPaper.cta}
             <ArrowRightIcon />
           </Button>
         </div>
+      )}
+      {saved && (
+        <p
+          role="status"
+          className="pointer-events-none absolute inset-x-0 bottom-[100px] z-10 animate-splash-rise text-center text-footnote text-ink-muted"
+        >
+          {rollingPaper.saved}
+        </p>
       )}
 
       {selected && (
@@ -200,30 +227,27 @@ function Sheet({ phase, onOpen }: { phase: Phase; onOpen: (note: PaperNote, elem
         </button>
       ))}
 
-      {/* Scribbled on once the sheet has landed, top to bottom */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute top-0 left-0 overflow-hidden motion-reduce:transition-none"
-        style={{
-          width: paperDoodles.width,
-          height: paperDoodles.height,
-          clipPath: done ? 'inset(0 0 0 0)' : 'inset(0 0 100% 0)',
-          opacity: done ? 1 : 0,
-          transition: 'clip-path 1400ms cubic-bezier(0.33, 1, 0.68, 1) 150ms, opacity 300ms ease-out 150ms',
-        }}
-      >
-        <img
-          src={paperDoodles.src}
-          alt=""
-          className="absolute max-w-none"
-          style={{
-            width: `${paperDoodles.crop.w}%`,
-            height: `${paperDoodles.crop.h}%`,
-            left: `${paperDoodles.crop.left}%`,
-            top: `${paperDoodles.crop.top}%`,
-          }}
-        />
-      </div>
+      {/* Scribbled on one at a time once the sheet has landed */}
+      {done &&
+        paperDoodles.map((doodle, index) => (
+          <img
+            key={doodle.src}
+            src={doodle.src}
+            alt=""
+            aria-hidden
+            className={cx(
+              'pointer-events-none absolute max-w-none motion-reduce:animate-none',
+              doodle.kind === 'line' ? 'animate-doodle-line' : 'animate-doodle-mark',
+            )}
+            style={{
+              left: doodle.left,
+              top: doodle.top,
+              width: doodle.width,
+              height: doodle.height,
+              animationDelay: `${150 + index * DOODLE_STEP}ms`,
+            }}
+          />
+        ))}
     </>
   )
 }
