@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
@@ -26,9 +26,9 @@ type PromptWindowProps = {
 const rimRatio = 370 / 330
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
-// for (Photo or Write) in a small pill above the prompt. Keller (Oct 18): the
-// whole circle is one big blob of liquid glass (React Bits Fluid Glass), tinted
-// blue by the glass itself: one layer, no border and no images.
+// for (Photo or Write) in a small pill above the prompt. Keller (Oct 18-19): the
+// whole circle is one big blob of liquid glass (React Bits Fluid Glass), and
+// the prompt and pill sit under it, so moving the glass bends them.
 export function PromptWindow({
   question,
   seed,
@@ -47,6 +47,20 @@ export function PromptWindow({
   const release = () => {
     down.current = null
   }
+  // The prompt and pill drawn as one picture for the glass to bend, once the
+  // brand font has loaded
+  const [art, setArt] = useState<{ key: string; url: string } | null>(null)
+  const artKey = [question, medium, mediumLabel, box].join('|')
+  useEffect(() => {
+    if (glass !== 'glass') return
+    let alive = true
+    document.fonts.ready.then(() => {
+      if (alive) setArt({ key: artKey, url: drawPrompt(box, question, medium, mediumLabel, tuning.size) })
+    })
+    return () => {
+      alive = false
+    }
+  }, [glass, artKey, box, question, medium, mediumLabel, tuning.size])
   const pill = (
     <span className="inline-flex items-center gap-1.5 rounded-full bg-baton-blue/15 px-3 py-1.5 text-subhead font-semibold text-baton-blue">
       {medium === 'photo' ? <SmallCameraIcon /> : <PencilIcon />}
@@ -81,11 +95,9 @@ export function PromptWindow({
       <>
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ width: box, height: box }}>
           <FluidGlass
-            // Under the glass, the prompt is drawn into its canvas so the lens bends it
-            text={crisp ? '' : wrap(question, 24)}
-            textColor={token('--color-baton-navy')}
-            fontSize={17}
-            fontWeight={500}
+            text=""
+            // Under the glass: the prompt and pill, drawn into its canvas so it bends them
+            src={crisp ? undefined : art?.key === artKey ? art.url : undefined}
             color={tint}
             // The page's paper, drawn into the canvas so the glass has light to tint
             background={token('--color-baton-paper')}
@@ -96,20 +108,17 @@ export function PromptWindow({
             give={give}
           />
         </div>
-        {/* The pill (and the prompt, if it sits on top), over the glass. They
-            stay put while only the glass gives under a drag (Keller, Oct 19),
-            and the prompt itself sits at the glass's center, the pill above it */}
+        {/* For the prompt-on-top look only: pill and prompt over the glass,
+            the prompt at the glass's center and the pill above it */}
         <span
           style={{ width: drawn, height: drawn }}
           className="pointer-events-none relative flex select-none items-center justify-center rounded-full px-10"
         >
-          {crisp ? (
+          {crisp && (
             <span className="relative flex justify-center">
               <span className="absolute bottom-full mb-2">{pill}</span>
               {words}
             </span>
-          ) : (
-            <span className="absolute top-[13%]">{pill}</span>
           )}
         </span>
       </>
@@ -144,19 +153,86 @@ export function PromptWindow({
   )
 }
 
-// Breaks the prompt into short lines for the glass canvas, which draws text
-// line by line without wrapping
-function wrap(text: string, width: number) {
-  const lines: string[] = []
-  let line = ''
-  for (const word of text.split(' ')) {
-    if (line && (line + ' ' + word).length > width) {
-      lines.push(line)
-      line = word
-    } else line = line ? `${line} ${word}` : word
+// The prompt and its medium pill, drawn on paper the size of the glass
+// canvas: the prompt centered, the pill 8px above
+// it. Returns a data URL for the glass to bend.
+function drawPrompt(box: number, question: string, medium: 'photo' | 'write', label: string, size: number) {
+  const ratio = 2
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = box * ratio
+  const ctx = canvas.getContext('2d')
+  if (!ctx) return ''
+  ctx.scale(ratio, ratio)
+  const family = token('--font-display')
+  const navy = token('--color-baton-navy')
+  const blue = token('--color-baton-blue')
+
+  ctx.fillStyle = token('--color-baton-paper')
+  ctx.fillRect(0, 0, box, box)
+
+  // Wrap the prompt to fit inside the circle
+  // A little smaller than the 30px type on top, since the glass magnifies it
+  ctx.font = `500 27px ${family}`
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '-0.3px'
+  // Balanced like text-wrap: balance, so no word is left alone on the last line
+  const wrapAt = (width: number) => {
+    const out: string[] = []
+    let line = ''
+    for (const word of question.split(' ')) {
+      const next = line ? `${line} ${word}` : word
+      if (line && ctx.measureText(next).width > width) {
+        out.push(line)
+        line = word
+      } else line = next
+    }
+    if (line) out.push(line)
+    return out
   }
-  if (line) lines.push(line)
-  return lines.join('\n')
+  const maxWidth = size - 110
+  let lines = wrapAt(maxWidth)
+  for (let width = maxWidth; width > maxWidth * 0.6; width -= 4) {
+    const tighter = wrapAt(width)
+    if (tighter.length > lines.length) break
+    lines = tighter
+  }
+  const lineHeight = 30
+  const top = box / 2 - (lines.length * lineHeight) / 2
+  ctx.fillStyle = navy
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  lines.forEach((text, i) => ctx.fillText(text, box / 2, top + lineHeight * (i + 0.5)))
+
+  // The pill: 15px semibold label after a 24px icon, 12px sides, 32px tall
+  ctx.font = `600 15px ${family}`
+  if ('letterSpacing' in ctx) ctx.letterSpacing = '0px'
+  const pillWidth = 12 + 24 + 6 + ctx.measureText(label).width + 12
+  const pillHeight = 32
+  const pillX = box / 2 - pillWidth / 2
+  const pillY = top - 8 - pillHeight
+  ctx.globalAlpha = 0.15
+  ctx.fillStyle = blue
+  ctx.beginPath()
+  ctx.roundRect(pillX, pillY, pillWidth, pillHeight, pillHeight / 2)
+  ctx.fill()
+  ctx.globalAlpha = 1
+  ctx.fillStyle = blue
+  ctx.textAlign = 'left'
+  ctx.fillText(label, pillX + 12 + 24 + 6, pillY + pillHeight / 2 + 1)
+  // The icon, from the same 24px line icons as the app
+  ctx.save()
+  ctx.translate(pillX + 12, pillY + 4)
+  ctx.strokeStyle = blue
+  ctx.lineWidth = 1.8
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  const paths =
+    medium === 'photo'
+      ? ['M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z', 'M15.5 13a3.5 3.5 0 1 1-7 0a3.5 3.5 0 1 1 7 0']
+      : ['M4 20l1-4.5L15.5 5a2.1 2.1 0 0 1 3 3L8 18.5z', 'M13.5 7l3 3']
+  paths.forEach((d) => ctx.stroke(new Path2D(d)))
+  ctx.restore()
+
+  return canvas.toDataURL('image/png')
 }
 
 // The WebGL glass takes plain color strings, so read them from the brand tokens
