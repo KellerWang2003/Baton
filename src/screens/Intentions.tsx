@@ -27,13 +27,19 @@ const bounds = {
 // Room the pinned title and button take over the canvas
 const HEADER = 130
 const FOOTER = 110
+// Match the Archive detail photo cloud's spring response.
+const LAG_PER_SPEED = 0.8
+const MAX_BUBBLE_LAG = 20
+const FINGER_REACH = 110
+const BUBBLE_SPRING = 0.07
+const BUBBLE_DAMPING = 0.2
 
 // Choosing her intentions for New York (Figma "choosing intentions", 322:8877),
 // before her last night in LA; opened from Profile. A canvas of glass bubbles
-// in loose, overlapping spots that she pans around in any direction, tapping as
+// in a loosely spaced cloud that she pans around in any direction, tapping as
 // many as she wants (Keller, Oct 19: free, no limits). The bubbles themselves
-// don't move: one Fluid Glass lens is rendered once and its still image is
-// every bubble's glass, with the blue fill and the goal on it.
+// trail the pan on individual springs. One Fluid Glass lens is rendered once
+// and its still image is every bubble's glass, with the blue fill and goal.
 export function Intentions() {
   const [picked, setPicked] = useState(useStore().goals)
   const shell = useGlassShell()
@@ -46,9 +52,9 @@ export function Intentions() {
     <div className="relative h-full overflow-hidden bg-baton-paper font-display text-baton-navy">
       {shell.node}
       <PanCanvas>
-          {goalBubbles.map((bubble, i) => (
+        {goalBubbles.map((bubble, i) => (
+          <div key={bubble.goal} data-intention-bubble className="absolute left-0 top-0">
             <Bubble
-              key={bubble.goal}
               label={bubble.goal}
               glass={shell.url}
               picked={picked.includes(bubble.goal)}
@@ -57,7 +63,8 @@ export function Intentions() {
               delay={i * 25}
               onTap={() => setPicked(toggleIn(picked, bubble.goal))}
             />
-          ))}
+          </div>
+        ))}
       </PanCanvas>
 
       {/* Pinned over the canvas, which slides under them and fades out */}
@@ -82,11 +89,106 @@ export function Intentions() {
 
 // Drag (or scroll a trackpad or wheel) to pan the canvas any way, with a glide
 // after letting go. It stops at the canvas's edges, with the pinned title and
-// button counted, and starts on Figma's view.
+// button counted, and starts on the center of the intention cloud.
 function PanCanvas({ children }: { children: ReactNode }) {
   const viewport = useRef<HTMLDivElement>(null)
   const layer = useRef<HTMLDivElement>(null)
   const state = useRef({ x: 0, y: 0, vx: 0, vy: 0, raf: 0, down: null as null | { x: number; y: number; px: number; py: number; t: number }, travel: 0 })
+
+  // Convert screen coordinates to canvas points when the phone frame is scaled.
+  const local = (event: ReactPointerEvent) => {
+    const box = viewport.current!
+    const rect = box.getBoundingClientRect()
+    const scale = box.clientWidth / rect.width || 1
+    return { x: (event.clientX - rect.left) * scale, y: (event.clientY - rect.top) * scale }
+  }
+
+  // Measure the actual canvas velocity, so dragging, wheel scrolling and the
+  // release glide all feed the same springs. Nearby bubbles follow the finger
+  // more closely; distant ones lag a little, with varied weights.
+  useEffect(() => {
+    const nodes = Array.from(layer.current?.querySelectorAll<HTMLElement>('[data-intention-bubble]') ?? [])
+    const offsets = new Float32Array(nodes.length * 2)
+    const speeds = new Float32Array(nodes.length * 2)
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let previousX = state.current.x
+    let previousY = state.current.y
+    let previousFinger: { x: number; y: number } | null = null
+    let flowX = 0
+    let flowY = 0
+    let followX = 0
+    let followY = 0
+    let previousTime = performance.now()
+    let settled = true
+    let frame = 0
+
+    const step = (now: number) => {
+      frame = requestAnimationFrame(step)
+      const dt = Math.max(0.25, Math.min(3, (now - previousTime) / 16.67))
+      previousTime = now
+      const s = state.current
+      const moveX = (s.x - previousX) / dt
+      const moveY = (s.y - previousY) / dt
+      previousX = s.x
+      previousY = s.y
+      const finger = s.down ? { x: s.down.px, y: s.down.py } : null
+      const fingerX = finger && previousFinger ? (finger.x - previousFinger.x) / dt : 0
+      const fingerY = finger && previousFinger ? (finger.y - previousFinger.y) / dt : 0
+      previousFinger = finger
+      // Filter event bursts into a continuous flow, including when the finger
+      // lifts. This avoids a sudden change in each bubble's spring target.
+      const blend = 1 - Math.exp(-dt / 2)
+      flowX += (moveX - flowX) * blend
+      flowY += (moveY - flowY) * blend
+      followX += (fingerX - followX) * blend
+      followY += (fingerY - followY) * blend
+      if (reducedMotion.matches) {
+        if (!settled) {
+          offsets.fill(0)
+          speeds.fill(0)
+          nodes.forEach((node) => { node.style.transform = '' })
+          settled = true
+        }
+        return
+      }
+      if (settled && moveX === 0 && moveY === 0 && fingerX === 0 && fingerY === 0) return
+
+      let energy = Math.abs(moveX) + Math.abs(moveY) + Math.abs(flowX) + Math.abs(flowY) + Math.abs(followX) + Math.abs(followY)
+      nodes.forEach((node, index) => {
+        const bubble = goalBubbles[index]
+        const distance = finger
+          ? Math.hypot(s.x + bubble.x - finger.x, s.y + bubble.y - TOP - finger.y)
+          : 0
+        const influence = finger ? 1 / (1 + (distance / FINGER_REACH) ** 2) : 0
+        const weight = 0.8 + ((index * 37) % 10) / 22
+        for (let axis = 0; axis < 2; axis++) {
+          const k = index * 2 + axis
+          const move = axis === 0 ? flowX : flowY
+          const follow = (axis === 0 ? followX : followY) * influence
+          const pull = (follow - move) * LAG_PER_SPEED * weight
+          const target = MAX_BUBBLE_LAG * Math.tanh(pull / MAX_BUBBLE_LAG)
+          // Small integration steps keep the spring consistent on slower frames.
+          const steps = Math.ceil(dt * 2)
+          const h = dt / steps
+          const stiffness = BUBBLE_SPRING / weight
+          for (let step = 0; step < steps; step++) {
+            speeds[k] += ((target - offsets[k]) * stiffness - speeds[k] * BUBBLE_DAMPING) * h
+            offsets[k] += speeds[k] * h
+          }
+          energy += Math.abs(offsets[k]) + Math.abs(speeds[k])
+        }
+        node.style.transform = `translate3d(${offsets[index * 2]}px, ${offsets[index * 2 + 1]}px, 0)`
+      })
+      settled = energy < 0.05
+      if (settled) {
+        offsets.fill(0)
+        speeds.fill(0)
+        nodes.forEach((node) => { node.style.transform = '' })
+      }
+    }
+    frame = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(frame)
+  }, [])
 
   const clamp = (x: number, y: number) => {
     const box = viewport.current
@@ -98,19 +200,46 @@ function PanCanvas({ children }: { children: ReactNode }) {
     const maxY = Math.max(0, HEADER - bounds.top)
     return [Math.min(maxX, Math.max(minX, x)), Math.min(maxY, Math.max(minY, y))]
   }
-  const place = (x: number, y: number) => {
+  const place = (x: number, y: number, mode: 'clamp' | 'drag' | 'glide' = 'clamp') => {
     const s = state.current
-    ;[s.x, s.y] = clamp(x, y)
+    const [boundedX, boundedY] = clamp(x, y)
+    // Increasing resistance at the edge, followed by a soft spring return.
+    const resist = (distance: number) => Math.sign(distance) * 42 * (1 - Math.exp(-Math.abs(distance) / 100))
+    s.x = mode === 'drag' ? boundedX + resist(x - boundedX) : mode === 'glide' ? x : boundedX
+    s.y = mode === 'drag' ? boundedY + resist(y - boundedY) : mode === 'glide' ? y : boundedY
     if (layer.current) layer.current.style.transform = `translate3d(${s.x}px, ${s.y}px, 0)`
   }
   const glide = () => {
     const s = state.current
     cancelAnimationFrame(s.raf)
-    const step = () => {
-      s.vx *= 0.94
-      s.vy *= 0.94
-      place(s.x + s.vx, s.y + s.vy)
-      if (Math.hypot(s.vx, s.vy) > 0.2) s.raf = requestAnimationFrame(step)
+    const speed = Math.hypot(s.vx, s.vy)
+    const cap = speed ? (32 * Math.tanh(speed / 32)) / speed : 1
+    s.vx *= cap
+    s.vy *= cap
+    let previousTime = performance.now()
+    let edgeX: number | null = null
+    let edgeY: number | null = null
+    const step = (now: number) => {
+      const dt = Math.max(0.1, Math.min(3, (now - previousTime) / 16.67))
+      previousTime = now
+      const steps = Math.ceil(dt * 2)
+      const h = dt / steps
+      for (let i = 0; i < steps; i++) {
+        const [x, y] = clamp(s.x, s.y)
+        if (x !== s.x) edgeX = x
+        if (y !== s.y) edgeY = y
+        const outsideX = edgeX === null ? 0 : edgeX - s.x
+        const outsideY = edgeY === null ? 0 : edgeY - s.y
+        s.vx = (s.vx + outsideX * 0.12 * h) * Math.pow(edgeX !== null ? 0.72 : 0.94, h)
+        s.vy = (s.vy + outsideY * 0.12 * h) * Math.pow(edgeY !== null ? 0.72 : 0.94, h)
+        place(s.x + s.vx * h, s.y + s.vy * h, 'glide')
+      }
+      const [x, y] = clamp(s.x, s.y)
+      if (Math.hypot(s.vx, s.vy) < 0.04 && Math.hypot((edgeX ?? x) - s.x, (edgeY ?? y) - s.y) < 0.1) {
+        place(edgeX ?? x, edgeY ?? y)
+        return
+      }
+      s.raf = requestAnimationFrame(step)
     }
     s.raf = requestAnimationFrame(step)
   }
@@ -134,8 +263,9 @@ function PanCanvas({ children }: { children: ReactNode }) {
   const handlers = {
     onPointerDown: (event: ReactPointerEvent) => {
       const s = state.current
+      const point = local(event)
       cancelAnimationFrame(s.raf)
-      s.down = { x: event.clientX - s.x, y: event.clientY - s.y, px: event.clientX, py: event.clientY, t: performance.now() }
+      s.down = { x: point.x - s.x, y: point.y - s.y, px: point.x, py: point.y, t: performance.now() }
       s.vx = 0
       s.vy = 0
       s.travel = 0
@@ -143,29 +273,37 @@ function PanCanvas({ children }: { children: ReactNode }) {
     onPointerMove: (event: ReactPointerEvent) => {
       const s = state.current
       if (!s.down) return
+      const point = local(event)
       const now = performance.now()
       const dt = Math.max(now - s.down.t, 1)
-      // Velocity in px per frame, for the glide
-      s.vx = ((event.clientX - s.down.px) / dt) * 16
-      s.vy = ((event.clientY - s.down.py) / dt) * 16
-      s.travel += Math.hypot(event.clientX - s.down.px, event.clientY - s.down.py)
-      s.down.px = event.clientX
-      s.down.py = event.clientY
+      // Time-based smoothing gives slow drags and quick flicks a consistent feel.
+      const blend = 1 - Math.exp(-dt / 35)
+      s.vx += (((point.x - s.down.px) / dt) * 16.67 - s.vx) * blend
+      s.vy += (((point.y - s.down.py) / dt) * 16.67 - s.vy) * blend
+      s.travel += Math.hypot(point.x - s.down.px, point.y - s.down.py)
+      s.down.px = point.x
+      s.down.py = point.y
       s.down.t = now
       // Only grab the pointer once it's a drag, so a tap still clicks its bubble
       if (s.travel > 6 && !(event.target as Element).hasPointerCapture?.(event.pointerId)) {
         viewport.current?.setPointerCapture(event.pointerId)
       }
-      place(event.clientX - s.down.x, event.clientY - s.down.y)
+      place(point.x - s.down.x, point.y - s.down.y, 'drag')
     },
     onPointerUp: () => {
       const s = state.current
       if (!s.down) return
+      const decay = Math.exp(-Math.max(0, performance.now() - s.down.t - 30) / 45)
+      s.vx *= decay
+      s.vy *= decay
       s.down = null
-      if (Math.hypot(s.vx, s.vy) > 1) glide()
+      if (s.travel > 6) glide()
     },
     onPointerCancel: () => {
       state.current.down = null
+      state.current.vx = 0
+      state.current.vy = 0
+      glide()
     },
   }
 

@@ -46,9 +46,10 @@ export const folderTones: Record<
   yellow: {
     fill: 'bg-baton-yellow [--folder-fill:var(--color-baton-yellow)]',
     fillText: 'text-baton-yellow',
-    title: 'text-baton-navy',
-    dates: 'text-baton-navy/60',
-    body: 'text-baton-navy',
+    // Brand olive for text on yellow (Keller, Oct 19)
+    title: 'text-baton-olive',
+    dates: 'text-baton-olive/70',
+    body: 'text-baton-olive',
     fade: 'from-baton-yellow/0 to-baton-yellow',
   },
   navy: {

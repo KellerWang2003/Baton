@@ -72,9 +72,9 @@ export const photos = {
 
 export const splash = {
   welcome: 'Welcome to Baton',
-  // Figma Splash_Blue 337:1181 plays a video of the mark. Figma can't export
-  // it, so until the file is in public/onboarding/ the still frame shows.
-  video: null as string | null,
+  // Figma Splash_Blue 337:1181: a 1.8s video of the mark, with its first
+  // frame as the poster until it plays.
+  video: '/onboarding/welcome-baton.mp4' as string | null,
   poster: '/onboarding/welcome-video-still.png',
 }
 
@@ -191,7 +191,7 @@ export const setup = {
   items: {
     archive: { title: 'Organize your archive', subtitle: 'Check the places we found in your photos' },
     todos: {
-      moving: { title: 'Pick your moving to-dos', subtitle: 'Lease, boxes, accounts' },
+      moving: { title: 'Plan your move our tasks', subtitle: 'Lease, boxes, accounts' },
       newcomer: { title: 'Pick your arrival to-dos', subtitle: 'Home, transit, accounts' },
     },
     instagram: { title: 'Add your Instagram tag', subtitle: 'So friends can leave you notes' },
