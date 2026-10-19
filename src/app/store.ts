@@ -66,7 +66,8 @@ let state: State = {
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
   // Keller, Oct 18: the whole circle is one big blob of blue-tinted liquid glass
-  promptGlass: 'glass',
+  // Prompt and pill sit together on top of the glass (Keller, Oct 19)
+  promptGlass: 'glass-crisp',
   glassTuning: defaultGlassTuning,
   setupDone: [],
   composing: false,

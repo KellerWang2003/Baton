@@ -63,7 +63,7 @@ export function PromptWindow({
     </span>
   )
   const words = (
-    <span className="text-balance text-center font-display text-[25px] font-medium leading-[1.15] tracking-[-0.01em] text-baton-navy">
+    <span className="text-balance text-center font-display text-[30px] font-medium leading-[1.1] tracking-[-0.01em] text-baton-navy">
       {question}
     </span>
   )
@@ -106,7 +106,7 @@ export function PromptWindow({
         <span
           ref={rim}
           style={{ width: drawn, height: drawn }}
-          className="pointer-events-none relative flex flex-col items-center justify-center gap-4 rounded-full px-10"
+          className="pointer-events-none relative flex flex-col items-center justify-center gap-2 rounded-full px-10"
         >
           <span className={crisp ? undefined : 'absolute top-[13%]'}>{pill}</span>
           {crisp && words}

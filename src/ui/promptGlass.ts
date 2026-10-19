@@ -7,14 +7,14 @@ export type PromptGlass = 'glass' | 'glass-crisp' | 'css'
 
 export const promptGlasses: { id: PromptGlass; name: string; blurb: string }[] = [
   {
-    id: 'glass',
-    name: 'Liquid glass',
-    blurb: 'The whole circle is one lens of Fluid Glass, tinted a little blue. The prompt sits under the glass, so it bends a little toward the rim.',
-  },
-  {
     id: 'glass-crisp',
     name: 'Liquid glass, prompt on top',
-    blurb: 'The same glass, but the prompt sits on top of it, so the words stay perfectly sharp.',
+    blurb: 'The prompt and its medium pill sit together on top of the glass, so the words stay sharp. What Today uses (Keller, Oct 19).',
+  },
+  {
+    id: 'glass',
+    name: 'Liquid glass, prompt under it',
+    blurb: 'The whole circle is one lens of Fluid Glass, tinted a little blue. The prompt sits under the glass, so it bends a little toward the rim.',
   },
   { id: 'css', name: 'Plain disc', blurb: 'The earlier white disc with a blue glow, drawn in CSS. No Fluid Glass.' },
 ]
