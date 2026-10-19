@@ -36,6 +36,9 @@ export interface FluidGlassProps {
   breathe?: number;
   // Baton: a clear band with a faint gray line around the very edge (0..1)
   ring?: number;
+  // Baton: receives a function that pushes the glass with a velocity (px/s),
+  // e.g. from the page scrolling; it springs back home when tethered
+  pushRef?: { current: ((vx: number, vy: number) => void) | null };
   shadow?: number;
   elevation?: number;
   interaction?: Interaction;
@@ -77,6 +80,7 @@ interface Settings {
   rim: number;
   breathe: number;
   ring: number;
+  pushRef?: FluidGlassProps['pushRef'];
   shadow: number;
   elevation: number;
   interaction: Interaction;
@@ -696,6 +700,7 @@ const FluidGlass = ({
   rim = 0,
   breathe = 0,
   ring = 0,
+  pushRef,
   shadow = 0.5,
   elevation = 0.4,
   interaction = 'follow',
@@ -741,6 +746,7 @@ const FluidGlass = ({
     rim: clamp(rim, 0, 1),
     breathe: clamp(breathe, 0, 1),
     ring: clamp(ring, 0, 1),
+    pushRef,
     shadow: clamp(shadow, 0, 1),
     elevation: clamp(elevation, 0, 3),
     interaction,
@@ -1396,6 +1402,15 @@ const FluidGlass = ({
       resize();
       wake();
     };
+    const pushRef = settingsRef.current.pushRef;
+    if (pushRef)
+      pushRef.current = (vx: number, vy: number) => {
+        if (pointer.grabbed) return;
+        body.vx += vx;
+        body.vy += vy;
+        calm = false;
+        wake();
+      };
 
     const locate = (event: PointerEvent) => {
       const rect = container.getBoundingClientRect();
@@ -1537,6 +1552,7 @@ const FluidGlass = ({
     return () => {
       cancelAnimationFrame(raf);
       wakeRef.current = null;
+      if (pushRef) pushRef.current = null;
       resizeObserver.disconnect();
       intersection.disconnect();
       themeObserver.disconnect();

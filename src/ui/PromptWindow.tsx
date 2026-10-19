@@ -47,6 +47,30 @@ export function PromptWindow({
   const release = () => {
     down.current = null
   }
+  // Scrolling the page nudges the glass a little with the scroll's speed, as if
+  // it had weight, then it springs back (Keller, Oct 19)
+  const frame = useRef<HTMLDivElement>(null)
+  const push = useRef<((vx: number, vy: number) => void) | null>(null)
+  useEffect(() => {
+    let scroller = frame.current?.parentElement ?? null
+    while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement
+    if (!scroller) return
+    const page = scroller
+    let lastTop = page.scrollTop
+    let lastTime = performance.now()
+    const onScroll = () => {
+      const now = performance.now()
+      const speed = (page.scrollTop - lastTop) / Math.max((now - lastTime) / 1000, 0.008)
+      lastTop = page.scrollTop
+      lastTime = now
+      // The content moves up as she scrolls down, so the glass lags behind it
+      // Small: the glass's spring is soft, so this moves it at most ~15px
+      const kick = Math.max(-60, Math.min(60, speed * 0.03))
+      push.current?.(0, kick)
+    }
+    page.addEventListener('scroll', onScroll, { passive: true })
+    return () => page.removeEventListener('scroll', onScroll)
+  }, [])
   // The prompt and pill drawn as one picture for the glass to bend, once the
   // brand font has loaded
   const [art, setArt] = useState<{ key: string; url: string } | null>(null)
@@ -106,6 +130,7 @@ export function PromptWindow({
             {...glassProps}
             // Default is a drag that gives a little, then springs back
             give={give}
+            pushRef={push}
           />
         </div>
         {/* For the prompt-on-top look only: pill and prompt over the glass,
@@ -128,6 +153,7 @@ export function PromptWindow({
   return (
     <div className={cx('flex flex-col items-center gap-4', className)}>
       <div
+        ref={frame}
         role="button"
         tabIndex={0}
         aria-label={question}
