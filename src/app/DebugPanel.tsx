@@ -235,6 +235,7 @@ function GlassControls() {
           <div className="-mx-2 flex flex-col">
             <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
             <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
+            <DebugToggle label="Intro" on={tuning.intro} onClick={() => set({ intro: !tuning.intro })} />
           </div>
           <button
             type="button"

@@ -24,7 +24,6 @@ type PromptWindowProps = {
 // it), and fills only 72% of its own canvas, so the canvas is bigger than the
 // circle and spills past the screen edges (clipped there)
 const rimRatio = 370 / 330
-const box = Math.ceil((330 * rimRatio) / 0.72)
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18): the
@@ -42,6 +41,7 @@ export function PromptWindow({
 }: PromptWindowProps) {
   const { give, ...glassProps } = tuning
   const drawn = tuning.size * rimRatio
+  const box = Math.ceil(drawn / 0.72)
   // With no give (or no dragging), the rim stays put
   const follow = tuning.interaction === 'drag' ? give || 1 : 0
   const down = useRef<{ x: number; y: number } | null>(null)
@@ -130,7 +130,9 @@ export function PromptWindow({
         onKeyDown={(event) => event.key === 'Enter' && onClick?.()}
         onPointerCancel={release}
         onPointerLeave={release}
-        className="relative -mx-4 flex h-[390px] items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
+        // Room under the glass for its shadow
+        style={{ height: drawn + 100 }}
+        className="relative -mx-4 flex items-center justify-center self-stretch overflow-hidden transition active:scale-[0.98]"
       >
         {inside}
       </div>

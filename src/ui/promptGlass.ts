@@ -36,33 +36,38 @@ export type GlassTuning = {
   shadow: number
   elevation: number
   interaction: GlassInteraction
-  // How far it follows a drag before springing back (0 = all the way, and it can be thrown)
+  // Ours, not React Bits': with drag, how far it follows before springing back (0 = all the way, and it can be thrown)
   give: number
   smoothness: number
   wobble: number
   spin: number
   idle: boolean
   morphOnClick: boolean
+  intro: boolean
 }
 
+// Keller's settings from the React Bits demo (Oct 18, "Clear" preset). Its
+// motion settings (follow the pointer, idle drift, morph on click) are off:
+// they move the glass off the circle and its blue rim, and change its shape
+// on every tap. It nudges a little when dragged instead (Keller, Oct 18).
 export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
-  size: 330,
-  refraction: 0.7,
-  dispersion: 0.3,
-  reflection: 1,
+  size: 350,
+  refraction: 0.45,
+  dispersion: 0.85,
+  reflection: 0.05,
   frost: 0,
-  tint: 0.25,
-  shadow: 0,
+  tint: 0,
+  shadow: 0.5,
   elevation: 0.4,
   interaction: 'drag',
-  // Keller, Oct 18: dragging it reacts just a little
   give: 0.12,
   smoothness: 0.5,
   wobble: 0.5,
   spin: 0.3,
   idle: false,
   morphOnClick: false,
+  intro: true,
 }
 
 export const glassShapes: GlassShape[] = ['lens', 'blob', 'cube', 'pill', 'torus', 'prism', 'diamond']
@@ -70,7 +75,7 @@ export const glassInteractions: GlassInteraction[] = ['drag', 'follow', 'static'
 
 // Sliders in the debug panel: key, label, range and step
 export const glassSliders: { key: keyof GlassTuning; label: string; min: number; max: number; step: number }[] = [
-  { key: 'size', label: 'Size', min: 160, max: 330, step: 5 },
+  { key: 'size', label: 'Size', min: 160, max: 400, step: 5 },
   { key: 'refraction', label: 'Refraction', min: 0, max: 2, step: 0.05 },
   { key: 'dispersion', label: 'Dispersion', min: 0, max: 1, step: 0.05 },
   { key: 'reflection', label: 'Reflection', min: 0, max: 2, step: 0.05 },
