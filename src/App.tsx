@@ -19,6 +19,7 @@ function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
   const [lockRatio, toggleLockRatio] = usePersistentToggle('baton:lock-ratio', true)
+  const [backgroundColor, setBackgroundColor] = useState<string | null>(null)
   const [kitOpen, setKitOpen] = useState(false)
   // Map looks playground (team only): debug panel, or ?maps in the URL
   const [mapsOpen, setMapsOpen] = useState(() => new URLSearchParams(window.location.search).has('maps'))
@@ -39,7 +40,7 @@ function App() {
 
   return (
     <>
-      <DeviceFrame framed={framed} lockRatio={lockRatio} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
+      <DeviceFrame framed={framed} lockRatio={lockRatio} backgroundColor={backgroundColor} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
         <div data-stage={status ?? stage} className="relative h-full">
           {kitOpen ? (
             <UiKit />
@@ -62,6 +63,8 @@ function App() {
         toggleFrame={toggleFrame}
         lockRatio={lockRatio}
         toggleLockRatio={toggleLockRatio}
+        backgroundColor={backgroundColor}
+        setBackgroundColor={setBackgroundColor}
         kitOpen={kitOpen}
         toggleKit={() => setKitOpen((open) => !open)}
         mapsOpen={mapsOpen}

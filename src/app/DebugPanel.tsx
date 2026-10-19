@@ -14,6 +14,8 @@ type DebugPanelProps = {
   toggleFrame: () => void
   lockRatio: boolean
   toggleLockRatio: () => void
+  backgroundColor: string | null
+  setBackgroundColor: (color: string | null) => void
   kitOpen: boolean
   toggleKit: () => void
   mapsOpen: boolean
@@ -30,7 +32,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
 
@@ -125,6 +127,35 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, lockRatio, toggle
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+      </div>
+
+      <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+        <label className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">
+          Background color
+          <input
+            type="color"
+            value={backgroundColor ?? getComputedStyle(document.documentElement).getPropertyValue('--color-backdrop').trim()}
+            onChange={(event) => setBackgroundColor(event.target.value)}
+            className="h-7 w-10 cursor-pointer rounded-control bg-transparent"
+          />
+        </label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setBackgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--color-recording-green').trim())}
+            className="flex-1 rounded-control bg-surface-muted px-2 py-1.5 text-xs font-semibold hover:bg-line"
+          >
+            Green screen
+          </button>
+          <button
+            type="button"
+            onClick={() => setBackgroundColor(null)}
+            className="rounded-control bg-surface-muted px-2 py-1.5 text-xs font-semibold hover:bg-line"
+          >
+            Reset
+          </button>
+        </div>
+        <p className="text-xs text-ink-muted">Outside the phone frame. Close Debug with ` before recording.</p>
       </div>
 
       <PromptPicker />
@@ -296,7 +327,7 @@ function ConfettiPicker({ goToArrived }: { goToArrived: () => void }) {
   )
 }
 
-// Which of her stage's daily prompts Today shows, to try different lengths
+// Which of her stage's prototype prompts Today shows.
 function PromptPicker() {
   const status = useStatus()
   const { promptIndex } = useStore()
@@ -310,7 +341,7 @@ function PromptPicker() {
         className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
       >
         {prompts.map((prompt, i) => (
-          <option key={prompt.question} value={i}>
+          <option key={`${status}-${i}`} value={i}>
             {prompt.question}
           </option>
         ))}

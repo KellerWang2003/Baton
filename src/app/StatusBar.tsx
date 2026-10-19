@@ -28,13 +28,13 @@ function useClock() {
 // (public/status/icons-right.svg, exported from Figma) at right. 54pt tall,
 // with no fill of its own: it sits over the page (the frame is paper behind
 // it), so screens that run up under it (--status-bar) show through.
-export function StatusBar({ onboarding = false }: { onboarding?: boolean }) {
+export function StatusBar({ onboarding = false, showIsland = true }: { onboarding?: boolean; showIsland?: boolean }) {
   const time = useClock()
   if (onboarding) {
     return (
       <div className="onboarding-status flex h-[54px] shrink-0 items-center justify-between px-9 text-sm font-semibold text-ink">
         <span>{time}</span>
-        <span aria-hidden className="absolute left-1/2 top-[11px] h-[37px] w-[126px] -translate-x-1/2 rounded-full bg-ink" />
+        {showIsland && <span aria-hidden className="absolute left-1/2 top-[11px] h-[37px] w-[126px] -translate-x-1/2 rounded-full bg-ink" />}
         <img src="/onboarding/status-icons.svg" alt="" width="75.401" height="13" />
       </div>
     )
@@ -44,7 +44,7 @@ export function StatusBar({ onboarding = false }: { onboarding?: boolean }) {
       <span className="absolute top-[18px] left-[57.5px] -translate-x-1/2 font-system text-status font-semibold whitespace-nowrap tabular-nums">
         {time}
       </span>
-      <span aria-hidden className="absolute top-[11px] left-1/2 h-[37px] w-[127px] -translate-x-1/2 rounded-full bg-device" />
+      {showIsland && <span aria-hidden className="absolute top-[11px] left-1/2 h-[37px] w-[127px] -translate-x-1/2 rounded-full bg-device" />}
       <img
         src="/status/icons-right.svg"
         alt=""

@@ -19,19 +19,20 @@ type DeviceFrameProps = {
   // Keep the phone's proportions on short windows by scaling it down whole,
   // instead of squashing its height (which made it look fat)
   lockRatio: boolean
+  backgroundColor: string | null
   onboardingStatus?: boolean
   children: ReactNode
 }
 
-// Framed: an iPhone 18 Pro sized phone (402x874 pt screen, same as the 17 Pro
-// and the Figma frames) centered on the page, for recording the demo.
+// Framed: an iPhone 16 Pro with a 402x874 pt screen matching the Figma frames.
 // Unframed: the app fills the window and responds to its width.
 // Both are size containers, so screens should use container variants
 // (@md:, @lg:) rather than viewport ones (md:, lg:).
-// The frame's outer size: the 402x874 screen plus the 10px border
-const frameSize = { width: 422, height: 894 }
+// The transparent bezel asset is 1406x2822 at 3x. Its screen starts at
+// (102, 100) and is 1206x2622; keep these aligned with the live app below.
+const frameSize = { width: 1406 / 3, height: 2822 / 3 }
 
-export function DeviceFrame({ framed, lockRatio, onboardingStatus, children }: DeviceFrameProps) {
+export function DeviceFrame({ framed, lockRatio, backgroundColor, onboardingStatus, children }: DeviceFrameProps) {
   const isPhone = useIsPhone()
   const page = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
@@ -55,20 +56,31 @@ export function DeviceFrame({ framed, lockRatio, onboardingStatus, children }: D
   }
 
   return (
-    <div ref={page} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
+    <div ref={page} style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
       <div
         style={lockRatio ? { ...frameSize, flexShrink: 0, transform: `scale(${scale})` } : undefined}
         className={cx(
-          'relative flex flex-col overflow-hidden rounded-[72px] border-[10px] border-ink bg-canvas shadow-float',
-          !lockRatio && 'h-[894px] max-h-full w-[422px]',
+          'relative shrink-0',
+          !lockRatio && 'h-[940.667px] max-h-full w-[468.667px]',
         )}
       >
-        <StatusBar onboarding={onboardingStatus} />
-        {/* --status-bar: how far a screen can reach up under the status bar
-            (0 without the frame, where there is none) */}
-        <div className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
-          {children}
+        <div
+          className="absolute flex flex-col overflow-hidden rounded-[64px] bg-canvas"
+          style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%` }}
+        >
+          <StatusBar onboarding={onboardingStatus} showIsland={false} />
+          {/* Screens can extend their backgrounds under the status bar. */}
+          <div className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
+            {children}
+          </div>
         </div>
+        <img
+          src="/device/iphone-16-pro-black.png"
+          alt=""
+          aria-hidden
+          draggable={false}
+          className="pointer-events-none absolute inset-0 z-30 h-full w-full select-none"
+        />
       </div>
     </div>
   )

@@ -80,9 +80,8 @@ export function promptMedium(question: string): PromptMedium {
 }
 export const promptMediumLabel: Record<PromptMedium, string> = { photo: 'Photo', write: 'Write' }
 
-// Today's light prompts per stage, in the plain verb-first wording from
-// docs/daily-prompts.md. Today shows the first; the rest are for later days.
-// Moving and Local open with the café bookend.
+// Prototype prompts per stage. The debug panel offers each stage's list,
+// and Today shows the selected prompt (the first by default).
 export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]> = {
   moving: [
     {
@@ -90,8 +89,8 @@ export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]
       question: 'Take a photo of the view from the café seat you always sit in.',
     },
     {
-      seed: 'Lake Ave Café, your most-visited place',
-      question: 'Write one tip about this place that took you months to learn.',
+      seed: 'Before you leave LA',
+      question: "Say one thing about LA you won't miss.",
     },
     {
       seed: 'Evening at the ArtCenter studio',
@@ -100,22 +99,30 @@ export const dailyPrompts: Record<'moving' | 'newcomer' | 'local', DailyPrompt[]
   ],
   newcomer: [
     {
-      seed: 'Your first week in New York',
-      question: 'Write one thing that confused you today.',
+      seed: 'A recommended spot in New York',
+      question: 'Take a photo from the seat someone recommended.',
     },
     {
       seed: 'Your first week in New York',
-      question: 'Take a photo of your coffee order here and say how it’s different from LA.',
+      question: "Take a photo of something you'd never see in LA.",
+    },
+    {
+      seed: 'Your first week in New York',
+      question: "Take a photo of something you'd never see in LA.",
     },
   ],
   local: [
     {
       seed: "You're at your usual café again",
-      question: 'Take a photo of the view from the café seat you always sit in.',
+      question: 'Write one tip about this place that took you months to learn.',
     },
     {
       seed: 'Your 30th visit here',
-      question: 'Write when this place stopped feeling new.',
+      question: 'Write down the name of someone you see here all the time.',
+    },
+    {
+      seed: "You're at your usual café again",
+      question: 'Write or capture your go to order.',
     },
   ],
 }
