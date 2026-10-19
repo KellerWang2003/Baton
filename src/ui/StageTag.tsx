@@ -2,9 +2,9 @@ import { cx } from './cx'
 
 export type StageTone = 'moving' | 'newcomer' | 'local'
 
-// The stage colors from the stage plan: Moving pink, Newcomer yellow, Local olive
+// Stage colors: Moving blue (Figma TODAY 334:11626), Newcomer yellow, Local olive
 const tones: Record<StageTone, string> = {
-  moving: 'bg-baton-pink text-baton-navy',
+  moving: 'bg-baton-blue text-white',
   newcomer: 'bg-baton-yellow text-baton-navy',
   local: 'bg-baton-olive text-baton-cream',
 }
@@ -21,8 +21,9 @@ export function StageTag({ stage, label, size = 'sm', className }: StageTagProps
   return (
     <span
       className={cx(
-        'inline-flex items-center whitespace-nowrap rounded-full font-semibold ring-2 ring-white',
-        size === 'sm' ? 'px-1.5 py-px text-[9px] leading-[1.3]' : 'px-2.5 py-0.5 text-caption',
+        'inline-flex items-center whitespace-nowrap rounded-full',
+        // sm: the pill under Today's avatar (Figma TODAY 334:11626)
+        size === 'sm' ? 'h-5 px-3 text-[10px] tracking-[-0.011em] shadow-pill' : 'px-2.5 py-0.5 text-caption font-semibold ring-2 ring-white',
         tones[stage],
         className,
       )}

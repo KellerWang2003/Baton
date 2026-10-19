@@ -194,6 +194,6 @@ export const setup = {
       moving: { title: 'Pick your moving to-dos', subtitle: 'Lease, boxes, accounts' },
       newcomer: { title: 'Pick your arrival to-dos', subtitle: 'Home, transit, accounts' },
     },
-    instagram: { title: 'Share your Rolling Paper', subtitle: 'Invite friends to leave you notes' },
+    instagram: { title: 'Add your Instagram tag', subtitle: 'So friends can leave you notes' },
   },
 }

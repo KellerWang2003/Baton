@@ -175,6 +175,19 @@ export function SmallCameraIcon() {
 }
 
 // Small icons for the setup cards on Today
+// Filled camera (SF camera.fill), for the photo prompt on Today
+export const cameraFillPath =
+  'M3 8.5A1.5 1.5 0 0 1 4.5 7h2.3l1.5-2h7.4l1.5 2h2.3A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5zM16.2 13a4.2 4.2 0 1 0-8.4 0a4.2 4.2 0 1 0 8.4 0z'
+
+export function CameraFillIcon({ className = 'size-6' }: { className?: string }) {
+  return (
+    <Icon className={className} stroke="none" fill="currentColor">
+      <path d={cameraFillPath} fillRule="evenodd" />
+      <circle cx="12" cy="13" r="2.6" />
+    </Icon>
+  )
+}
+
 export function PlaneIcon() {
   return (
     <Icon className="size-5">

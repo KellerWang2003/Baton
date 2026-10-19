@@ -45,7 +45,7 @@ export const setupCards = {
   progress: (done: number, total: number) => `${done} of ${total}`,
   leave: {
     title: 'Add when you leave',
-    subtitle: 'Your flight or a rough date',
+    subtitle: 'Your flight or rough date of the move',
     done: (date: string) => `Leaving ${date}`,
   },
 }
@@ -61,6 +61,11 @@ export type Suggestion = Todo & {
   subtitle: string
   // Shown only if she kept this place when organizing her archive
   place?: string
+  // Places and people picked out in blue in the title
+  highlight?: string[]
+  // A photo from her archive, and which part of it shows in the square
+  photo?: string
+  photoPosition?: string
 }
 
 // The list of cards under the setup row: her to-dos (tap for tips), then
@@ -75,11 +80,33 @@ export const beforeYouLeave = {
 
 export const suggestions: { items: Record<Stage, Suggestion[]> } = {
   items: {
+    // Figma TODAY 334:10047
     moving: [
-      { id: 'last-cafe', title: 'Go to Lake Ave Café one last time', subtitle: 'Your most-visited place · 214 photos', place: 'cafe' },
-      { id: 'last-trail', title: 'Hike Eaton Canyon before you go', subtitle: "You haven't been since August", place: 'trail' },
-      { id: 'last-market', title: 'Get one more lunch at Grand Central Market', subtitle: '31 photos, mostly of food', place: 'market' },
-      { id: 'studio-bye', title: 'Say bye to the people at the studio', subtitle: 'ArtCenter Hillside', place: 'studio' },
+      {
+        id: 'last-cafe',
+        title: 'Go to Philz Coffee one last time',
+        highlight: ['Philz Coffee'],
+        subtitle: 'Your most-visited place · 214 photos',
+        place: 'cafe',
+        photo: '/today/philz.jpg',
+        photoPosition: '50% 0%',
+      },
+      {
+        id: 'last-beach',
+        title: 'Spend a beach day in Malibu',
+        highlight: ['Malibu'],
+        subtitle: 'Your first LA photo was taken here',
+        photo: '/today/malibu.jpg',
+        photoPosition: '50% 55%',
+      },
+      {
+        id: 'last-boba',
+        title: 'Grab boba with Jenna and Keller',
+        highlight: ['Jenna', 'Keller'],
+        subtitle: 'Tagged together in 62 photos',
+        photo: '/today/boba.jpg',
+        photoPosition: '50% 72%',
+      },
     ],
     newcomer: [
       { id: 'find-cafe', title: 'Find a café you could sit in every week', subtitle: 'Like Lake Ave Café in LA' },
@@ -129,9 +156,8 @@ export const tips: Record<string, Tip[]> = {
   address: [{ text: 'Do USPS, your bank, and your phone carrier on day one. The rest can wait.', from: 'Sam · moved to NYC in 2025' }],
   doctor: [{ text: 'Use your insurance app to filter by "accepting new patients". It saves a lot of calls.', from: 'Leo · moved to NYC in 2023' }],
   'last-cafe': [{ text: 'Go at your usual time and sit in your usual seat. Take the photo from there.', from: 'Baton' }],
-  'last-trail': [{ text: 'Go early on a weekday. The parking lot fills by 9 on weekends.', from: 'Daniel · left LA in May' }],
-  'last-market': [{ text: 'Eggslut has the line, but the pupusas at Sarita’s are what people miss.', from: 'Jun · left LA in March' }],
-  'studio-bye': [{ text: 'Bring something small to leave behind. People remember it.', from: 'Priya · left LA in August' }],
+  'last-beach': [{ text: 'Go on a weekday and park on PCH past Zuma. Stay for the sunset.', from: 'Daniel · left LA in May' }],
+  'last-boba': [{ text: 'Take a photo of the three of you. You’ll want it in February.', from: 'Jun · left LA in March' }],
   'find-cafe': [{ text: 'Try one place three times before you decide. The first visit is never the real one.', from: 'Ana · moved to NYC in 2024' }],
   'walk-no-maps': [{ text: 'Pick a direction and turn back after twenty minutes. That’s your first route.', from: 'Leo · moved to NYC in 2023' }],
   'try-gym': [{ text: 'Most gyms here give a free first week. Ask at the desk.', from: 'Sam · moved to NYC in 2025' }],
