@@ -3,12 +3,13 @@ import { Button } from './Button'
 import { ArrowRightIcon } from './icons'
 
 // The two About You steps share the exact type and pinned action from Figma.
-export function OnboardingStep({ title, body, children, onContinue, continueLabel = 'Continue', footer, className = '' }: {
+export function OnboardingStep({ title, body, children, onContinue, continueLabel = 'Continue', continueDisabled = false, footer, className = '' }: {
   title: string
   body?: string
   children: ReactNode
   onContinue: () => void
   continueLabel?: string
+  continueDisabled?: boolean
   footer?: ReactNode
   className?: string
 }) {
@@ -22,7 +23,7 @@ export function OnboardingStep({ title, body, children, onContinue, continueLabe
         {children}
       </main>
       <footer className="onboarding-footer">
-        <Button block variant="glow" size="cta" onClick={onContinue}>
+        <Button block variant="glow" size="cta" disabled={continueDisabled} onClick={onContinue}>
           <span>{continueLabel}</span>
           <ArrowRightIcon />
         </Button>

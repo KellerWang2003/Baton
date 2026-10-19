@@ -7,16 +7,13 @@ import { StageCardDeck } from '../ui/StageCardDeck'
 
 export function AboutYou() {
   const { status } = useStore()
-  const selected = status ?? 'moving'
 
+  // Continue waits for a pick; until then the deck rests on Moving soon with nothing chosen.
   return (
-    <OnboardingStep title={about.title} body={about.body} onContinue={() => {
-      setState({ status: selected })
-      navigate('about-tags')
-    }}>
-      <StageCardDeck value={selected} onChange={(next) => setState({ status: next })} />
+    <OnboardingStep title={about.title} body={about.body} continueDisabled={!status} onContinue={() => navigate('about-tags')}>
+      <StageCardDeck value={status} onChange={(next) => setState({ status: next })} />
       <p className="onboarding-stage-detail" aria-live="polite">
-        {about.moveOptions.find((option) => option.id === selected)?.detail}
+        {about.moveOptions.find((option) => option.id === status)?.detail}
       </p>
     </OnboardingStep>
   )
