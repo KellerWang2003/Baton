@@ -10,12 +10,17 @@ const placeholderPhoto = '/archive/la-sunset.jpg'
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
-// Where the rectangle sits on the 402×874 screen, as fractions of it (Figma:
-// the prompt on top, the camera in a rounded rectangle, the shutter below)
-const rectTop = 0.23
-const rectHeight = 0.555
+// The rectangle grows from the circle around the circle's own center, so it is
+// a pure shape morph: as wide as the screen allows, and as tall as fits between
+// the prompt above and the shutter below
 const sideMargin = 36
 const rectRadius = 52
+const promptTop = 56
+// Where the rectangle's top may reach, under the moved prompt (three lines)
+const rectTopLimit = 146
+// Narrow enough to clear the close button at the top right
+const promptWidth = 260
+const promptFont = 24
 
 type Box = { left: number; top: number; width: number; height: number; radius: number }
 
@@ -62,11 +67,13 @@ export function CameraBubble() {
         height: size,
         radius: size / 2,
       })
+      const centerY = (camera.cy - bounds.top) / scale
+      const height = Math.max(240, Math.round(2 * (centerY - rectTopLimit)))
       setTarget({
         left: sideMargin,
-        top: Math.round(box.offsetHeight * rectTop),
+        top: Math.round(centerY - height / 2),
         width: box.offsetWidth - sideMargin * 2,
-        height: Math.round(box.offsetHeight * rectHeight),
+        height,
         radius: rectRadius,
       })
       setMounted(true)
@@ -164,12 +171,20 @@ export function CameraBubble() {
             style={{ opacity: expanded ? 1 : 0 }}
           />
 
-          {/* The prompt, moved up from the circle */}
+          {/* The prompt, sliding up from the middle of the circle to the top */}
           <div
-            className="absolute inset-x-0 flex items-center justify-center px-9 transition-opacity duration-300 motion-reduce:transition-none"
-            style={{ top: 54, height: target.top - 54 - 12, opacity: expanded ? 1 : 0, transitionDelay: expanded ? '260ms' : '0ms' }}
+            className="absolute left-1/2 z-10 motion-reduce:transition-none"
+            style={{
+              width: promptWidth,
+              top: expanded ? promptTop : origin!.top + origin!.height / 2 + 4,
+              transform: `translate(-50%, ${expanded ? '0%' : '-50%'})`,
+              transition: `top 650ms ${ease}, transform 650ms ${ease}`,
+            }}
           >
-            <p className="text-balance text-center font-display text-[26px] font-medium leading-[1.15] tracking-[-0.01em] text-baton-navy">
+            <p
+              className="text-balance text-center font-display font-medium leading-[1.1] tracking-[-0.011em] text-baton-navy"
+              style={{ fontSize: promptFont }}
+            >
               {prompt.question}
             </p>
           </div>
@@ -216,7 +231,7 @@ export function CameraBubble() {
             type="button"
             aria-label="Close camera"
             onClick={() => setState({ camera: null })}
-            className="absolute left-[30px] top-[54px] flex size-10 items-center justify-center rounded-full bg-white text-baton-navy shadow-md transition-opacity duration-300 active:scale-95 motion-reduce:transition-none"
+            className="absolute right-[30px] top-[54px] flex size-10 items-center justify-center rounded-full bg-white text-baton-navy shadow-md transition-opacity duration-300 active:scale-95 motion-reduce:transition-none"
             style={{ opacity: expanded ? 1 : 0, transitionDelay: expanded ? '300ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
           >
             <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
@@ -229,8 +244,8 @@ export function CameraBubble() {
             type="button"
             aria-label="Take photo"
             onClick={shoot}
-            className="group absolute bottom-14 left-1/2 flex size-20 -translate-x-1/2 items-center justify-center rounded-full border-[3px] border-baton-blue/40 transition-opacity duration-300 motion-reduce:transition-none"
-            style={{ opacity: expanded ? 1 : 0, transitionDelay: expanded ? '320ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
+            className="group absolute left-1/2 flex size-20 -translate-x-1/2 items-center justify-center rounded-full border-[3px] border-baton-blue/40 transition-opacity duration-300 motion-reduce:transition-none"
+            style={{ top: target.top + target.height + 28, opacity: expanded ? 1 : 0, transitionDelay: expanded ? '320ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
           >
             <span className="size-16 rounded-full bg-baton-blue transition-transform duration-150 group-active:scale-90" />
           </button>
