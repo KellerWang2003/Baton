@@ -11,7 +11,11 @@ export function Splash() {
   return (
     <button type="button" onClick={() => navigate('today')} className="onboarding-step onboarding-welcome" aria-label="Welcome to Baton. Continue to Today">
       <div className="onboarding-welcome-content">
-        <img src="/onboarding/welcome-baton.svg" alt="" />
+        {splash.video ? (
+          <video className="onboarding-welcome-video" src={splash.video} poster={splash.poster} autoPlay muted playsInline aria-hidden />
+        ) : (
+          <img className="onboarding-welcome-video" src={splash.poster} alt="" />
+        )}
         <h1 className="onboarding-welcome-title">{splash.welcome}</h1>
       </div>
     </button>
