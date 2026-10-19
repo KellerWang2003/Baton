@@ -35,7 +35,7 @@ export function SetupCard({ icon, tone = 'blue', title, subtitle, done = false, 
       )}
     >
       <div className="flex w-full items-center justify-between">
-        <span className={cx('inline-flex size-9 items-center justify-center rounded-full', tones[tone])}>{icon}</span>
+        <span className={cx('inline-flex size-10 items-center justify-center rounded-full', tones[tone])}>{icon}</span>
         {done && <CheckCircle checked />}
       </div>
       <div className="flex flex-col gap-1">

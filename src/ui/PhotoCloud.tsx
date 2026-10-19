@@ -153,6 +153,19 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
 
   useEffect(() => () => stopMotion(), [])
 
+  // Turning the orb to another filter (or swiping it back to all) brings the
+  // photos back to where they started, however far they were moved or zoomed
+  const firstFocus = useRef(true)
+  useEffect(() => {
+    if (firstFocus.current) {
+      firstFocus.current = false
+      return
+    }
+    stopMotion()
+    animateTo(startView(), 600)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focus])
+
   // Springs: each frame, measure how fast the view is panning (the canvas
   // point under the screen's center, so zooming alone doesn't count) and how
   // fast the finger moves. Each photo wants to move with the finger, less the
@@ -251,11 +264,11 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
   }
 
   // Ease from the current view to `target`
-  function animateTo(target: View) {
+  function animateTo(target: View, duration = 360) {
     const from = { ...view.current }
     const started = performance.now()
     function step(now: number) {
-      const t = Math.min(1, (now - started) / 360)
+      const t = Math.min(1, (now - started) / duration)
       const eased = 1 - Math.pow(1 - t, 3)
       set({
         x: from.x + (target.x - from.x) * eased,

@@ -31,7 +31,7 @@ export function TodoCard({ kind, title, subtitle, tips, done, onToggleDone, copy
         className="flex min-h-[68px] w-full items-center gap-3 px-4 py-3 text-left focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand"
       >
         <span className="relative">
-          <TodoKindIcon kind={kind} className={cx(done && 'opacity-40')} />
+          <TodoKindIcon kind={kind} size="lg" className={cx(done && 'opacity-40')} />
           {done && (
             <span className="absolute -right-1 -bottom-1 inline-flex size-[18px] items-center justify-center rounded-full bg-baton-blue text-white ring-2 ring-today-panel">
               <CheckIcon />

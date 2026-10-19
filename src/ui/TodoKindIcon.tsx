@@ -12,8 +12,8 @@ const kinds: Record<TodoKind, { icon: ComponentType; tone: string }> = {
   transit: { icon: MapPinIcon, tone: 'bg-baton-yellow text-baton-navy' },
 }
 
-// md: 36pt with a 19pt glyph (Today's to-do cards). lg: 40pt with a 22pt
-// glyph (the category headers on the to-do picker)
+// md: 36pt with a 19pt glyph. lg: 40pt with a 22pt glyph (Today's to-do cards
+// and the category headers on the to-do picker)
 const sizes = {
   md: 'size-9 [&_svg]:size-[19px]',
   lg: 'size-10 [&_svg]:size-[22px]',

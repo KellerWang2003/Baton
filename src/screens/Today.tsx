@@ -64,15 +64,15 @@ export function Today({ lastWeek = false }: TodayProps) {
   // have no logistics to pick; only Moving has a leave date. Archive
   // organization remains its own flow.
   const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode; tone: 'blue' | 'pink' | 'olive' }[] = [
-    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={19} height={19} />, tone: 'blue' },
-    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" width={19} height={14} />, tone: 'pink' as const }]),
+    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={21} height={21} />, tone: 'blue' },
+    ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" width={21} height={15} />, tone: 'pink' as const }]),
     ...(status === 'moving'
       ? [
           {
             id: 'leave' as const,
             title: setupCards.leave.title,
             subtitle: setupDone.includes('leave') ? setupCards.leave.done(leaving) : setupCards.leave.subtitle,
-            icon: <img src="/today/setup-leave.svg" alt="" width={19} height={19} />,
+            icon: <img src="/today/setup-leave.svg" alt="" width={21} height={21} />,
             tone: 'olive' as const,
           },
         ]
