@@ -57,7 +57,19 @@ export function ScrollJoystick() {
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(frame)
+    // Never stay pushed if the window loses focus or the tab is hidden mid-drag
+    const stop = () => {
+      target.current = 0
+      setOffset(0)
+      setDragging(false)
+    }
+    window.addEventListener('blur', stop)
+    document.addEventListener('visibilitychange', stop)
+    return () => {
+      cancelAnimationFrame(frame)
+      window.removeEventListener('blur', stop)
+      document.removeEventListener('visibilitychange', stop)
+    }
   }, [])
 
   const move = (event: React.PointerEvent) => {
@@ -89,6 +101,7 @@ export function ScrollJoystick() {
       onPointerMove={move}
       onPointerUp={release}
       onPointerCancel={release}
+      onLostPointerCapture={release}
     >
       <span className="pointer-events-none absolute top-3 text-xs text-ink-muted">▲</span>
       <span className="pointer-events-none absolute bottom-3 text-xs text-ink-muted">▼</span>
