@@ -32,6 +32,8 @@ export interface FluidGlassProps {
   tint?: number;
   // Baton: how strongly the glass shows its color at the rim, fading inward (0..1)
   rim?: number;
+  // Baton: a slow, small surface wobble while it rests, so it looks alive (0..1)
+  breathe?: number;
   shadow?: number;
   elevation?: number;
   interaction?: Interaction;
@@ -71,6 +73,7 @@ interface Settings {
   color: number[];
   tint: number;
   rim: number;
+  breathe: number;
   shadow: number;
   elevation: number;
   interaction: Interaction;
@@ -679,6 +682,7 @@ const FluidGlass = ({
   color = '#ffffff',
   tint = 0,
   rim = 0,
+  breathe = 0,
   shadow = 0.5,
   elevation = 0.4,
   interaction = 'follow',
@@ -722,6 +726,7 @@ const FluidGlass = ({
     color: parseColor(color) || [1, 1, 1, 1],
     tint: clamp(tint, 0, 1),
     rim: clamp(rim, 0, 1),
+    breathe: clamp(breathe, 0, 1),
     shadow: clamp(shadow, 0, 1),
     elevation: clamp(elevation, 0, 3),
     interaction,
@@ -1208,6 +1213,7 @@ const FluidGlass = ({
       busy = step('tiltX', clamp(body.vy * tiltGain, -0.7, 0.7), 9, 0.5, dt) || busy;
       busy = step('tiltY', clamp(body.vx * tiltGain, -0.7, 0.7), 9, 0.5, dt) || busy;
       if (!reduced && (morph.to === 'blob' || (morph.from === 'blob' && morph.t < 1))) busy = true;
+      if (!reduced && s.breathe > 0) busy = true;
       if (!reduced && s.spin) {
         body.spin += dt * s.spin;
         busy = true;
@@ -1317,7 +1323,7 @@ const FluidGlass = ({
       const bound = size * scale * maxScale * 1.08 + 2;
       gl.uniform1f(u.uBound, bound);
       gl.uniform1f(u.uMorph, eased);
-      gl.uniform1f(u.uRipple, body.ripple);
+      gl.uniform1f(u.uRipple, body.ripple + (reduced ? 0 : s.breathe * 0.06));
       gl.uniform1f(u.uTime, reduced ? 0 : time);
       gl.uniform1f(u.uIor, s.ior);
       gl.uniform1f(u.uDispersion, s.dispersion);
