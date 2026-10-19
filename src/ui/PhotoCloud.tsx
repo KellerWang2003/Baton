@@ -1,7 +1,10 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { cx } from './cx'
 
 export type CloudCategory = 'feeling' | 'people' | 'places'
+
+// Where the canvas sits: its offset on screen and zoom
+export type CloudView = { x: number; y: number; scale: number }
 
 export type CloudPhoto = {
   src: string
@@ -16,8 +19,15 @@ type PhotoCloudProps = {
   photos: CloudPhoto[]
   // Keep only this category's photos sharp and blur the rest (the orb filter)
   focus?: CloudCategory | null
-  // A quick, still tap on a photo (not a drag, pinch or double-tap zoom)
-  onSelect?: (photo: CloudPhoto) => void
+  // A quick, still tap on a photo (not a drag, pinch or double-tap zoom), with
+  // where that photo sits on screen right now and where the canvas is
+  onSelect?: (photo: CloudPhoto, rect: DOMRect, view: CloudView) => void
+  // Open where the canvas was left (coming back from a photo) instead of at
+  // the start, and without the photos popping in
+  resume?: CloudView | null
+  // Whether the photos pop in when the page opens (opening the folder plays
+  // its own entrance instead, see folderTransition)
+  pop?: boolean
   className?: string
 }
 
@@ -40,7 +50,7 @@ const FINGER_REACH = 110
 const SPRING_STIFFNESS = 0.07
 const SPRING_DAMPING = 0.2
 
-type View = { x: number; y: number; scale: number }
+type View = CloudView
 type Point = { x: number; y: number }
 
 // A city's photos as small circles scattered over the page (Figma
@@ -51,7 +61,7 @@ type Point = { x: number; y: number }
 // bob gently on their own. Each photo hangs on its own spring and follows your
 // finger: the ones near it move right along with it, the far ones trail behind
 // and wobble back into place.
-export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoCloudProps) {
+export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop = true, className }: PhotoCloudProps) {
   const height = Math.max(0, ...photos.map((photo) => photo.y + photo.size))
   // The area the photos actually cover on the canvas
   const bounds = {
@@ -122,14 +132,21 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
     return { x: (event.clientX - rect.left) * ratio, y: (event.clientY - rect.top) * ratio }
   }
 
-  // Centered horizontally, at the top like the Figma frame
+  // Centered horizontally, at the top like the Figma frame. The viewport
+  // reaches up under the status bar (--status-bar), so start that much lower.
   function startView(): View {
-    return { x: ((viewportRef.current?.clientWidth ?? CANVAS_WIDTH) - CANVAS_WIDTH) / 2, y: 0, scale: 1 }
+    const viewport = viewportRef.current
+    const statusBar = viewport ? parseFloat(getComputedStyle(viewport).getPropertyValue('--status-bar')) || 0 : 0
+    return { x: ((viewport?.clientWidth ?? CANVAS_WIDTH) - CANVAS_WIDTH) / 2, y: statusBar, scale: 1 }
   }
 
+  // Read once, on the first render
+  const [resumeAt] = useState(resume)
+
   useEffect(() => {
-    view.current = startView()
+    view.current = resumeAt ?? startView()
     apply()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   // Wheel: trackpad pinch (ctrlKey) or ctrl+wheel zooms, two-finger scroll moves.
@@ -155,12 +172,11 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
 
   // Turning the orb to another filter (or swiping it back to all) brings the
   // photos back to where they started, however far they were moved or zoomed
-  const firstFocus = useRef(true)
+  // (only on a real change, so mounting, even twice in dev, leaves it alone)
+  const lastFocus = useRef(focus)
   useEffect(() => {
-    if (firstFocus.current) {
-      firstFocus.current = false
-      return
-    }
+    if (lastFocus.current === focus) return
+    lastFocus.current = focus
     stopMotion()
     animateTo(startView(), 600)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -362,9 +378,10 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
     press.current = null
     if (tap && event.type === 'pointerup' && pointers.current.size === 1 && tap.travel < 6 && performance.now() - tap.at < 350) {
       const photo = onSelect && photoAt(local(event))
-      if (photo) {
+      const image = photo && photoRefs.current[photos.indexOf(photo)]?.firstElementChild
+      if (photo && image) {
         pointers.current.delete(event.pointerId)
-        onSelect(photo)
+        onSelect(photo, image.getBoundingClientRect(), { ...view.current })
         return
       }
     }
@@ -380,6 +397,8 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      // Up under the status bar, so photos float behind the time and icons
+      style={{ top: 'calc(-1 * var(--status-bar, 0px))' }}
       className={cx('absolute inset-0 cursor-grab touch-none overflow-hidden select-none active:cursor-grabbing', className)}
     >
       <div
@@ -402,6 +421,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
               animationDuration: `${10 + (index % 7) * 0.8}s`,
               animationDelay: `${-((index * 1.37) % 10)}s`,
             }}
+            data-cloud-photo
             className="absolute animate-photo-float"
           >
             <img
@@ -410,7 +430,8 @@ export function PhotoCloud({ photos, focus = null, onSelect, className }: PhotoC
               draggable={false}
               style={{ animationDelay: `${index * POP_STAGGER_MS}ms` }}
               className={cx(
-                'size-full animate-photo-pop rounded-full bg-placeholder object-cover transition-[filter,opacity] duration-500 ease-out',
+                pop && !resumeAt && 'animate-photo-pop',
+                'size-full rounded-full bg-placeholder object-cover transition-[filter,opacity] duration-500 ease-out',
                 focus && photo.category !== focus && 'opacity-60 blur-[5px]',
               )}
             />

@@ -65,6 +65,9 @@ export interface FluidGlassProps {
   // Baton: keep the drawn frame readable (canvas.toDataURL), to snapshot a
   // still glass once and show it as an image instead of keeping a WebGL canvas
   preserve?: boolean;
+  // Baton: called once, after the first frame with the glass drawn (the
+  // shader compiles in the background, so it can take a moment)
+  onReady?: () => void;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -105,6 +108,7 @@ interface Settings {
   spin: number;
   idle: boolean;
   morphOnClick: boolean;
+  onReady?: () => void;
   onShapeChange?: (shape: Shape) => void;
   position: number[];
   intro: boolean;
@@ -750,6 +754,7 @@ const FluidGlass = ({
   intro = true,
   maxDevicePixelRatio = 2,
   preserve = false,
+  onReady,
   className = '',
   style,
   children
@@ -799,6 +804,7 @@ const FluidGlass = ({
     idle,
     morphOnClick,
     onShapeChange,
+    onReady,
     position: [clamp(position?.[0] ?? 0.5, 0, 1), clamp(position?.[1] ?? 0.5, 0, 1)],
     intro,
     maxRatio: clamp(maxDevicePixelRatio, 0.5, 3)
@@ -954,6 +960,7 @@ const FluidGlass = ({
     };
     let requested = settingsRef.current.shape;
     let presence = settingsRef.current.intro && !reduced && generation === 0 ? 0 : 1;
+    let announced = false;
     if (presence === 1) spring.scale = 1;
     let time = 0;
     let idleClock = Math.random() * 20;
@@ -1464,6 +1471,10 @@ const FluidGlass = ({
       gl.clear(gl.COLOR_BUFFER_BIT);
       gl.uniform1f(u.uPass, 0);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (current && !announced) {
+        announced = true;
+        s.onReady?.();
+      }
 
       calm =
         !pointer.grabbed &&

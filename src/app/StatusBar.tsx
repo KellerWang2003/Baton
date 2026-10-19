@@ -25,8 +25,9 @@ function useClock() {
 
 // iPhone status bar from the Figma frames (LA28 Palms, e.g. 256:222): the
 // live time at left, the Dynamic Island, then signal, wifi and battery
-// (public/status/icons-right.svg, exported from Figma) at right. 54pt tall on
-// the paper color the screens sit on.
+// (public/status/icons-right.svg, exported from Figma) at right. 54pt tall,
+// with no fill of its own: it sits over the page (the frame is paper behind
+// it), so screens that run up under it (--status-bar) show through.
 export function StatusBar({ onboarding = false }: { onboarding?: boolean }) {
   const time = useClock()
   if (onboarding) {
@@ -39,7 +40,7 @@ export function StatusBar({ onboarding = false }: { onboarding?: boolean }) {
     )
   }
   return (
-    <div className="relative h-[54px] shrink-0 bg-baton-paper text-device">
+    <div className="pointer-events-none relative z-20 h-[54px] shrink-0 text-device">
       <span className="absolute top-[18px] left-[57.5px] -translate-x-1/2 font-system text-status font-semibold whitespace-nowrap tabular-nums">
         {time}
       </span>

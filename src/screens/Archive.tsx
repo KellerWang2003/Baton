@@ -1,15 +1,19 @@
+import { useRef } from 'react'
+import { playFolderExit } from '../app/folderTransition'
 import { navigate } from '../app/navigate'
 import { setState, useStatus } from '../app/store'
 import { archiveFolders, archiveSummary } from '../data/stages'
 import { FolderStack, TypedSummary } from '../ui'
 import { MainLayout } from './MainLayout'
 
-
 // City folders with LA in focus at first (Figma ARCHIVE_default). Scrolling
 // vertically brings each city into focus, where it expands. Each folder shows
 // a one-sentence lifestyle summary of that city with photos from her archive.
+// Tapping the open folder dives into it on the way to its city page
+// (folderTransition).
 export function Archive() {
   const status = useStatus()
+  const opening = useRef(false)
 
   return (
     <MainLayout bleed>
@@ -19,8 +23,11 @@ export function Archive() {
         className="bg-baton-paper"
         folders={archiveFolders()}
         initialId="la"
-        onSelect={(id) => {
+        onSelect={async (id) => {
+          if (opening.current) return
+          opening.current = true
           setState({ selectedFolder: id })
+          await playFolderExit(id)
           navigate('archive-detail')
         }}
         renderActive={(folder, isActive) => {

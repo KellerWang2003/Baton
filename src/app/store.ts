@@ -7,6 +7,7 @@ import { defaultGlassTuning } from '../ui/promptGlass'
 import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
 import type { ConfettiVariant } from '../ui/confettiVariants'
 import type { RelayLook } from '../ui/relayLooks'
+import type { CloudCategory, CloudView } from '../ui/PhotoCloud'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
 // that show up on Today). Nothing persists; a reload starts fresh.
@@ -30,8 +31,14 @@ type State = {
   archiveSegment: 'mine' | 'legacy'
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
-  // Which photo in a city's photo cloud was tapped (its cloud image src)
+  // Which photo in a city's photo cloud was tapped (its cloud image src), and
+  // where it sat on screen, so the opened page can grow it from there
   selectedPhoto: string | null
+  selectedPhotoFrom: { x: number; y: number; size: number } | null
+  // The photo cloud as it was when a photo was opened (canvas position and
+  // orb filter), so going back shows it the same; null opens it fresh
+  cloudView: CloudView | null
+  cloudFilter: CloudCategory | null
   // Which Relay pick or tip was tapped (opens its detail page)
   selectedRec: string | null
   // Notes she left on Relay picks and tips, by item id
@@ -79,6 +86,9 @@ let state: State = {
   archiveSegment: 'mine',
   selectedFolder: null,
   selectedPhoto: null,
+  selectedPhotoFrom: null,
+  cloudView: null,
+  cloudFilter: null,
   selectedRec: null,
   relayNotes: {},
   relayMap: false,

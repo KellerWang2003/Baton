@@ -57,11 +57,11 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           type="button"
           onClick={() => navigate('profile')}
           aria-label="Profile"
-          className="relative inline-flex shrink-0 items-center justify-center rounded-full bg-white p-0.5 ring-1 ring-baton-navy/8 shadow-sm transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
+          className="relative inline-flex shrink-0 items-center justify-center rounded-full transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
         >
           <Avatar name={chloe.name} src={chloe.avatar} size="md" />
-          {/* Her stage, tucked under the picture */}
-          <StageTag stage={status} label={stageTags[status]} className="absolute -bottom-2 left-1/2 -translate-x-1/2" />
+          {/* Her stage, hanging just under the picture (Figma TODAY 334:10047) */}
+          <StageTag stage={status} label={stageTags[status]} className="absolute -bottom-[18px] left-1/2 -translate-x-1/2" />
         </button>
       )}
     </header>
