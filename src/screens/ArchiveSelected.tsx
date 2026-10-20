@@ -4,7 +4,7 @@ import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
 import { archiveMoments } from '../data/archiveMoments'
-import { ArrowLeftIcon, FluidGlass, MapPinIcon } from '../ui'
+import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon } from '../ui'
 
 // The glass circle (Figma ARCHIVE_selected, 236:234): a 342pt circle with a
 // hairline. Fluid Glass draws its lens a bit wider than the size it's given
@@ -13,10 +13,8 @@ import { ArrowLeftIcon, FluidGlass, MapPinIcon } from '../ui'
 const CIRCLE = 342
 const LENS = 305
 const BOX = Math.ceil((CIRCLE + 4) / 0.72)
-// The filter color fills this circle, and the pale glass rim runs from its
-// edge (RIM_IN, as a % of the circle's radius) out to the hairline
+// The filter color fills this circle, up to where the glass rim starts
 const GLOW = 329
-const RIM_IN = (GLOW / CIRCLE) * 100
 // The photo layers stop a few points inside the circle's edge (they're under
 // the rim there anyway), so their soft edge can't darken the hairline
 const INSET = 3
@@ -211,19 +209,7 @@ export function ArchiveSelected() {
                 background: `radial-gradient(circle closest-side, transparent 72%, color-mix(in srgb, ${color} 20%, transparent) 88%, color-mix(in srgb, ${color} 45%, transparent) 100%)`,
               }}
             />
-            {/* The rim: a thin band of glass, light gray where it meets the color
-                and fading to white outward, then a faint gray hairline */}
-            <span
-              aria-hidden
-              className="absolute inset-0 rounded-full border"
-              style={{
-                // Solid, not see-through, and the gradient runs under the border
-                // too, so the photo beneath never shows through the hairline
-                borderColor: 'color-mix(in srgb, var(--color-ink) 14%, var(--color-surface))',
-                backgroundOrigin: 'border-box',
-                background: `radial-gradient(circle closest-side, transparent ${RIM_IN - 0.3}%, color-mix(in srgb, var(--color-ink) 16%, var(--color-surface)) ${RIM_IN}%, color-mix(in srgb, var(--color-ink) 7%, var(--color-surface)) ${RIM_IN + 1.7}%, var(--color-surface) ${RIM_IN + 3.2}%)`,
-              }}
-            />
+            <GlassRim size={CIRCLE} />
           </div>
         </div>
 

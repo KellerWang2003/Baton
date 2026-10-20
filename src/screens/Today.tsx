@@ -47,7 +47,7 @@ type TodayProps = {
 // suggestions from her archive (tap for tips). The to-dos she picked get their
 // own "Moving to-dos" section above it; each opens to show tips.
 export function Today({ lastWeek = false }: TodayProps) {
-  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, ...store } = useStore()
+  const { todos, doneTodos, setupDone, keptPlaces, promptGlass, glassTuning, orbMoves, ...store } = useStore()
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
@@ -134,6 +134,7 @@ export function Today({ lastWeek = false }: TodayProps) {
         mediumLabel={promptMediumLabel[medium]}
         glass={promptGlass}
         tuning={glassTuning}
+        moves={orbMoves}
         onClick={medium === 'photo' ? (circle) => setState({ camera: circle, composing: false }) : openComposer}
       />
 

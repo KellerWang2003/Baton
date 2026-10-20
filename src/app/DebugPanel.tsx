@@ -52,7 +52,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
-  const { onboardingPhotoAccess, hideNav, hideStatusBar, fewBubbles } = useStore()
+  const { onboardingPhotoAccess, hideNav, hideStatusBar, fewBubbles, orbMoves } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -183,6 +183,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+        <DebugToggle label="Today orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
         <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
         <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
         <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />

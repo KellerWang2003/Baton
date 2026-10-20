@@ -19,6 +19,9 @@ type State = {
   status: Stage | null
   // Optional onboarding step, enabled from the debug panel for demos.
   onboardingPhotoAccess: boolean
+  // Debug: Today's orb moves like before (drag, wobble, spin, scroll nudge)
+  // instead of holding still in its rim
+  orbMoves: boolean
   intentionsVideoRun: number
   tags: string[]
   keptPlaces: string[]
@@ -96,6 +99,7 @@ type State = {
 let state: State = {
   status: null,
   onboardingPhotoAccess: false,
+  orbMoves: false,
   intentionsVideoRun: 0,
   tags: [],
   keptPlaces: foundPlaces.map((place) => place.id),

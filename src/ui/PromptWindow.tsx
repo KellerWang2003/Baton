@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
+import { GlassRim } from './GlassRim'
 import { PencilIcon, PromptCameraIcon, promptCameraHeight, promptCameraPath, promptCameraWidth } from './icons'
-import { defaultGlassTuning } from './promptGlass'
+import { defaultGlassTuning, movingGlass } from './promptGlass'
 import type { GlassTuning, PromptGlass } from './promptGlass'
 import { useGlassBackdrop } from './useGlassBackdrop'
 
@@ -19,6 +20,8 @@ type PromptWindowProps = {
   tuning?: GlassTuning
   // Gets where the circle is, for opening the camera out of it
   onClick?: (circle: { cx: number; cy: number; size: number }) => void
+  // Debug > Today orb moves: the motion from before Oct 20 instead of holding still
+  moves?: boolean
   className?: string
 }
 
@@ -28,6 +31,8 @@ type PromptWindowProps = {
 // lets the tethered lens travel over neighboring content without hitting a crop.
 const rimRatio = 370 / 330
 const dragRoom = 240
+// The prompt's size as drawn under the glass (25px once the lens magnifies it)
+const PROMPT_SIZE = 23
 
 // Today's prompt in a round window (Figma TODAY 236:1282), with what it asks
 // for (Photo or Write) in a small pill above the prompt. Keller (Oct 18-19): the
@@ -39,12 +44,20 @@ export function PromptWindow({
   medium,
   mediumLabel,
   glass = 'glass',
-  tuning = defaultGlassTuning,
+  tuning: baseTuning = defaultGlassTuning,
   onClick,
+  moves = false,
   className,
 }: PromptWindowProps) {
+  const tuning = moves ? { ...baseTuning, ...movingGlass } : baseTuning
   const { give, color, edge, ...glassProps } = tuning
   const drawn = tuning.size * rimRatio
+  // The rim around the glass: its outline lands about 4pt inside the size it's
+  // given (measured), so this puts that edge under the rim's band with room to
+  // breathe. The glass is clipped 3pt inside the hairline, as on the Archive's
+  // opened photos, so its soft edge can't darken it
+  const rimSize = tuning.size - 4
+  const mask = `radial-gradient(circle at 50% 50%, black ${rimSize / 2 - 4}px, transparent ${rimSize / 2 - 3}px)`
   const box = Math.ceil(drawn / 0.72)
   const canvasHeight = box + dragRoom * 2
   const overlay = useRef<HTMLDivElement>(null)
@@ -58,11 +71,12 @@ export function PromptWindow({
     const rect = frame.current?.getBoundingClientRect()
     return { cx: rect ? rect.left + rect.width / 2 : 0, cy: rect ? rect.top + rect.height / 2 : 0, size: tuning.size }
   }
-  // Scrolling the page nudges the glass a little with the scroll's speed, as if
-  // it had weight, then it springs back (Keller, Oct 19)
   const frame = useRef<HTMLDivElement>(null)
+  // When it moves, scrolling the page nudges the glass a little with the
+  // scroll's speed, as if it had weight, then it springs back (Keller, Oct 19)
   const push = useRef<((vx: number, vy: number) => void) | null>(null)
   useEffect(() => {
+    if (!moves) return
     let scroller = frame.current?.parentElement ?? null
     while (scroller && !/(auto|scroll)/.test(getComputedStyle(scroller).overflowY)) scroller = scroller.parentElement
     if (!scroller) return
@@ -74,15 +88,13 @@ export function PromptWindow({
       const speed = (page.scrollTop - lastTop) / Math.max((now - lastTime) / 1000, 0.008)
       lastTop = page.scrollTop
       lastTime = now
-      // The content moves up as she scrolls down, so the glass lags behind it
-      // Tiny: the glass's spring is soft, so this moves it at most ~4px and
-      // it stays mostly in place (Keller, Oct 19)
-      const kick = Math.max(-16, Math.min(16, speed * 0.008))
-      push.current?.(0, kick)
+      // The content moves up as she scrolls down, so the glass lags behind it,
+      // at most ~4px since the glass's spring is soft
+      push.current?.(0, Math.max(-16, Math.min(16, speed * 0.008)))
     }
     page.addEventListener('scroll', onScroll, { passive: true })
     return () => page.removeEventListener('scroll', onScroll)
-  }, [])
+  }, [moves])
   // The prompt and pill drawn as one picture for the glass to bend, once the
   // brand font has loaded
   const [art, setArt] = useState<{ key: string; url: string } | null>(null)
@@ -104,7 +116,7 @@ export function PromptWindow({
     </span>
   )
   const words = (
-    <span className="text-balance text-center font-display text-[30px] font-medium leading-[1.1] tracking-[-0.01em] text-baton-navy">
+    <span className="text-balance text-center font-display text-[30px] font-normal leading-[1.1] tracking-[-0.01em] text-baton-navy">
       {question}
     </span>
   )
@@ -135,8 +147,17 @@ export function PromptWindow({
           className="pointer-events-none absolute inset-x-0 top-1/2 z-20 -translate-y-1/2 overflow-x-clip"
           style={{ height: canvasHeight }}
         >
-          <div ref={overlay} className="absolute left-1/2 h-full -translate-x-1/2" style={{ width: box }}>
+          {/* Clipped just inside the circle, so the glass bulges and breathes
+              under a rim that holds still, like the Archive's opened photos */}
+          <div
+            ref={overlay}
+            className="absolute left-1/2 h-full -translate-x-1/2"
+            // Moving, it has no rim and isn't clipped, so it can travel
+            style={moves ? { width: box } : { width: box, maskImage: mask, WebkitMaskImage: mask }}
+          >
             <FluidGlass
+              // Set up again when switching, so the new motion takes hold
+              key={moves ? 'moves' : 'still'}
               text=""
               // The prompt artwork and page backdrop share the same coordinates.
               src={crisp ? undefined : art?.key === artKey ? art.url : undefined}
@@ -148,12 +169,12 @@ export function PromptWindow({
               // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)
               rim={edge}
               {...glassProps}
-              // Default is a drag that gives a little, then springs back
               give={give}
               pushRef={push}
             />
           </div>
         </div>
+        {!moves && <GlassRim size={rimSize} className="z-[21]" />}
         {/* For the prompt-on-top look only: pill and prompt over the glass,
             the prompt at the glass's center and the pill above it */}
         <span
@@ -246,15 +267,17 @@ function drawPrompt(box: number, height: number, question: string, medium: 'phot
     }
     return lines
   }
-  let fontSize = 27
+  // The lens magnifies its middle about 1.08x, so 23px drawn reads as 25px on
+  // screen (Keller, Oct 20); long prompts shrink to fit three lines
+  let fontSize = PROMPT_SIZE
   let lines: string[] = []
-  for (; fontSize >= 20; fontSize--) {
-    ctx.font = `500 ${fontSize}px ${family}`
+  for (; fontSize >= 18; fontSize--) {
+    ctx.font = `400 ${fontSize}px ${family}`
     if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.011 * fontSize}px`
     lines = balanced(size - 110)
     if (lines.length <= 3) break
   }
-  fontSize = Math.max(fontSize, 20)
+  fontSize = Math.max(fontSize, 18)
   const lineHeight = Math.round(fontSize * 1.2)
   // The medium's icon above the prompt, alone (Figma TODAY 334:10176)
   const iconSize = 24

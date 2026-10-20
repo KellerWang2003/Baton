@@ -53,17 +53,18 @@ export type GlassTuning = {
   intro: boolean
 }
 
-// Keller's settings, tuned in the debug panel (Oct 19). "Follow the pointer"
-// stays off: the glass would leave its spot. It nudges a little when dragged.
+// Keller's settings, tuned in the debug panel (Oct 19). Oct 20: it holds still
+// like the Archive's opened photos (static, a slight breathe, no wobble, spin,
+// drag or scroll nudge), since moving more made it feel liquid.
 export const defaultGlassTuning: GlassTuning = {
   shape: 'lens',
   // Empty means brand blue (--color-baton-blue); the debug panel can pick another
   color: '',
   // Keller, Oct 19: about 60% of the earlier 0.6
   edge: 0.36,
-  // More visible idle motion on Today, while the prompt stays centered.
-  breathe: 0.25,
-  ring: 1,
+  breathe: 0.1,
+  // The rim is GlassRim over the glass (it holds still), not the glass's own
+  ring: 0,
   size: 340,
   // Enough to bend the prompt under it, especially when the glass moves
   refraction: 0.5,
@@ -74,14 +75,26 @@ export const defaultGlassTuning: GlassTuning = {
   tint: 0,
   shadow: 0,
   elevation: 0,
-  interaction: 'drag',
-  give: 0.24,
+  interaction: 'static',
+  give: 0,
   smoothness: 1,
-  wobble: 0.5,
-  spin: 0.3,
+  wobble: 0,
+  spin: 0,
   idle: false,
   morphOnClick: false,
   intro: true,
+}
+
+// Debug > Today orb moves: the orb as it was before Oct 20, layered over the
+// tuning. Dragging gives a little and springs back, it breathes, wobbles and
+// spins more, and it has no rim, just the blue glass fading to its edge
+export const movingGlass: Partial<GlassTuning> = {
+  interaction: 'drag',
+  give: 0.24,
+  breathe: 0.25,
+  wobble: 0.5,
+  spin: 0.3,
+  ring: 0,
 }
 
 export const glassShapes: GlassShape[] = ['lens', 'blob', 'cube', 'pill', 'torus', 'prism', 'diamond']
