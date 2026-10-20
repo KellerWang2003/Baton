@@ -13,11 +13,18 @@ import { ArrowLeftIcon, FluidGlass, MapPinIcon } from '../ui'
 const CIRCLE = 342
 const LENS = 305
 const BOX = Math.ceil((CIRCLE + 4) / 0.72)
-const MASK = `radial-gradient(circle at 50% 50%, black ${CIRCLE / 2 - 1}px, transparent ${CIRCLE / 2 + 1}px)`
-// The photo fills this much of the canvas: small enough that the lens (which
-// magnifies its middle) frames about as much of it as Figma's circles do; the
-// full-bleed copy behind it is only there for the glass to bend in at the rim
-const PHOTO = 0.66
+// The filter color fills this circle, and the pale glass rim runs from its
+// edge (RIM_IN, as a % of the circle's radius) out to the hairline
+const GLOW = 329
+const RIM_IN = (GLOW / CIRCLE) * 100
+// The photo layers stop a few points inside the circle's edge (they're under
+// the rim there anyway), so their soft edge can't darken the hairline
+const INSET = 3
+const MASK = `radial-gradient(circle at 50% 50%, black ${CIRCLE / 2 - INSET - 1}px, transparent ${CIRCLE / 2 - INSET}px)`
+// The photo fills this much of the canvas: small, because the lens magnifies
+// its middle, so the whole photo shows through the circle as it did in the
+// cloud; the full-bleed copy behind it is what the glass bends in at the rim
+const PHOTO = 0.5
 const FILTER_TINT = { feeling: 'pink', people: 'yellow', places: 'blue' } as const
 // The tapped cloud photo growing into the circle
 const GROW = { duration: 560, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' }
@@ -72,6 +79,7 @@ export function ArchiveSelected() {
   const moment = archiveMoments[selectedPhoto ?? ''] ?? Object.values(archiveMoments)[0]
   const picture = usePicture(moment.photo)
   const tint = token(`--color-baton-${FILTER_TINT[moment.category]}`)
+  const color = `var(--color-baton-${FILTER_TINT[moment.category]})`
   const circleRef = useRef<HTMLDivElement>(null)
   const growRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
@@ -159,7 +167,7 @@ export function ArchiveSelected() {
           <div ref={growRef} className="pointer-events-none absolute inset-0">
             {/* The plain photo, cropped like the glass shows it (PHOTO of the
                 canvas, seen through the circle), until the glass is drawn */}
-            <div aria-hidden className="absolute inset-0 overflow-hidden rounded-full">
+            <div aria-hidden className="absolute overflow-hidden rounded-full" style={{ inset: INSET }}>
               <img src={moment.photo} alt="" draggable={false} className="size-full object-cover" style={{ scale: Math.max(1, (BOX * PHOTO) / CIRCLE) }} />
             </div>
             <div
@@ -192,13 +200,30 @@ export function ArchiveSelected() {
                 />
               )}
             </div>
-            {/* The filter color glowing in from the edge (Figma's 329pt pink gradient) */}
+            {/* The filter color glowing in from the edge (Figma's 329pt gradient),
+                stopping where the glass rim starts */}
             <span
               aria-hidden
-              className="absolute top-1/2 left-1/2 size-[329px] -translate-x-1/2 -translate-y-1/2 rounded-full"
-              style={{ background: `radial-gradient(circle closest-side, transparent 80%, var(--color-baton-${FILTER_TINT[moment.category]}) 100%)` }}
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+              style={{
+                width: GLOW,
+                height: GLOW,
+                background: `radial-gradient(circle closest-side, transparent 72%, color-mix(in srgb, ${color} 20%, transparent) 88%, color-mix(in srgb, ${color} 45%, transparent) 100%)`,
+              }}
             />
-            <span aria-hidden className="absolute inset-0 rounded-full border border-moment-ring" />
+            {/* The rim: a thin band of glass, light gray where it meets the color
+                and fading to white outward, then a faint gray hairline */}
+            <span
+              aria-hidden
+              className="absolute inset-0 rounded-full border"
+              style={{
+                // Solid, not see-through, and the gradient runs under the border
+                // too, so the photo beneath never shows through the hairline
+                borderColor: 'color-mix(in srgb, var(--color-ink) 14%, var(--color-surface))',
+                backgroundOrigin: 'border-box',
+                background: `radial-gradient(circle closest-side, transparent ${RIM_IN - 0.3}%, color-mix(in srgb, var(--color-ink) 16%, var(--color-surface)) ${RIM_IN}%, color-mix(in srgb, var(--color-ink) 7%, var(--color-surface)) ${RIM_IN + 1.7}%, var(--color-surface) ${RIM_IN + 3.2}%)`,
+              }}
+            />
           </div>
         </div>
 
