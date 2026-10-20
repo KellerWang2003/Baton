@@ -330,7 +330,7 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
   const phoneEl = useRef<HTMLDivElement>(null)
   const wall = useRef<HTMLDivElement>(null)
     const [frac, setFrac] = useState(0)
-  const [open, setOpen] = useState<{ item: WallItem; from: { x: number; y: number; w: number; h: number }; up: boolean } | null>(null)
+  const [open, setOpen] = useState<{ item: WallItem; from: { x: number; y: number; w: number; h: number }; size: number; up: boolean } | null>(null)
   const wallRange = () => (wall.current ? wall.current.scrollWidth - wall.current.clientWidth : 1)
   const jump = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
@@ -343,7 +343,8 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
   const show = (item: WallItem, target: HTMLElement) => {
     const r = target.getBoundingClientRect()
     const p = phoneEl.current!.getBoundingClientRect()
-    setOpen({ item, from: { x: r.left - p.left, y: r.top - p.top, w: r.width, h: r.height }, up: false })
+    const k = p.width / phoneEl.current!.offsetWidth // the phone frame may be scaled down
+    setOpen({ item, from: { x: (r.left - p.left) / k, y: (r.top - p.top) / k, w: r.width / k, h: r.height / k }, size: phoneEl.current!.offsetWidth - 60, up: false })
     requestAnimationFrame(() => requestAnimationFrame(() => setOpen((o) => o && { ...o, up: true })))
   }
   const hide = () => {
@@ -406,12 +407,12 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
             style={{
               left: open.up ? 30 : open.from.x,
               top: open.up ? 100 : open.from.y,
-              width: open.up ? 300 : open.from.w,
-              height: open.up ? 300 : open.from.h,
+              width: open.up ? open.size : open.from.w,
+              height: open.up ? open.size : open.from.h,
               transition: `all 450ms ${ease}`,
             }}
           />
-          <div className="pointer-events-none absolute inset-x-[30px] top-[424px] transition-all duration-500" style={{ opacity: open.up ? 1 : 0, transform: open.up ? 'none' : 'translateY(12px)', transitionDelay: open.up ? '200ms' : '0ms' }}>
+          <div className="pointer-events-none absolute inset-x-[30px] transition-all duration-500" style={{ top: 124 + open.size, opacity: open.up ? 1 : 0, transform: open.up ? 'none' : 'translateY(12px)', transitionDelay: open.up ? '200ms' : '0ms' }}>
             <p className="text-footnote text-ink-muted">{open.item.city.name} · {open.item.city.years}</p>
             <h4 className="font-display text-title-2">Capture #{open.item.i + 1}</h4>
             <p className="mt-2 text-body text-ink-muted">Place, time and your note would sit here.</p>
@@ -419,7 +420,7 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
           <button
             type="button"
             onClick={hide}
-            className="absolute right-5 top-14 rounded-full bg-neutral-200 px-4 py-2 text-subhead transition-opacity duration-300"
+            className="absolute right-[30px] top-14 rounded-full bg-neutral-200 px-4 py-2 text-subhead transition-opacity duration-300"
             style={{ opacity: open.up ? 1 : 0 }}
           >
             Close
