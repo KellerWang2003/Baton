@@ -310,7 +310,82 @@ function Deck() {
   )
 }
 
+// 9. Scrubber: a color-coded timeline at the bottom; scrubbing it slides the captures sideways
+const reel = [...cities].reverse().flatMap((c) => c.photos.map((src) => ({ src, city: c })))
+
+function Scrubber() {
+  const last = reel.length - 1
+  const [t, setT] = useState(last)
+  const [live, setLive] = useState(false)
+  const at = Math.round(t)
+  const cur = reel[at]
+  const scrub = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    setT(Math.min(last, Math.max(0, ((e.clientX - r.left) / r.width) * last)))
+  }
+  return (
+    <div className={phone}>
+      {title(cur.city.name, cur.city.years)}
+      <div className="relative mt-6 h-[320px]">
+        {reel.map((m, k) => {
+          const d = k - t
+          if (Math.abs(d) > 2.2) return null
+          return (
+            <img
+              key={m.src}
+              src={m.src}
+              alt=""
+              draggable={false}
+              className="absolute left-1/2 top-0 h-[300px] w-[220px] rounded-card object-cover shadow-lg"
+              style={{
+                transform: `translateX(calc(-50% + ${d * 190}px)) scale(${1 - Math.min(Math.abs(d), 2) * 0.12})`,
+                opacity: 1 - Math.min(Math.abs(d), 2) * 0.3,
+                zIndex: 10 - Math.round(Math.abs(d)),
+                transition: live ? 'none' : 'transform 300ms, opacity 300ms',
+              }}
+            />
+          )
+        })}
+      </div>
+      <p className="mx-[30px] mt-2 text-center text-footnote text-ink-muted">
+        {at + 1} of {reel.length} captures · drag the bar below
+      </p>
+      <div className="absolute inset-x-[20px] bottom-8">
+        <div
+          className="relative flex h-12 touch-none select-none gap-1"
+          onPointerDown={(e) => {
+            e.currentTarget.setPointerCapture(e.pointerId)
+            setLive(true)
+            scrub(e)
+          }}
+          onPointerMove={(e) => live && scrub(e)}
+          onPointerUp={() => {
+            setLive(false)
+            setT(Math.round(t))
+          }}
+        >
+          {[...cities].reverse().map((c) => (
+            <div key={c.id} className={cx('rounded-full shadow-sm', c.bg, c.id === 'seoul' && 'border border-baton-navy/20')} style={{ flex: c.photos.length }} />
+          ))}
+          <div
+            className="pointer-events-none absolute -bottom-1 -top-1 w-1.5 -translate-x-1/2 rounded-full bg-baton-navy shadow-md"
+            style={{ left: `${(t / last) * 100}%`, transition: live ? 'none' : 'left 300ms' }}
+          />
+        </div>
+        <div className="mt-2 flex gap-1 text-caption text-ink-muted">
+          {[...cities].reverse().map((c) => (
+            <span key={c.id} style={{ flex: c.photos.length }} className="truncate text-center">
+              {c.name}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const ideas = [
+  { name: 'Scrubber', blurb: 'A timeline along the bottom, colored by city. Drag along it and the captures slide past sideways, in order.', node: <Scrubber /> },
   { name: 'Full-bleed pages', blurb: 'One city per screen, snapping as you swipe up. Big photo, one sentence, the city’s color.', node: <Pages /> },
   { name: 'Route map', blurb: 'The cities as stops on the line she has traveled. Tap a stop for its photos and sentence.', node: <RouteMap /> },
   { name: 'Passport', blurb: 'A stamp per city, with a blank one for the next. Tap a stamp to open that city.', node: <Passport /> },
