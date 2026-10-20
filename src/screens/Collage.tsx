@@ -8,6 +8,7 @@ import type { PointerEvent as ReactPointerEvent } from 'react'
 // Taps and scrolls are scripted into the embedded app.
 
 type Win = Window & typeof globalThis
+const PANEL = 220
 const PHONE = { w: 402, h: 874 }
 
 type Piece = {
@@ -177,10 +178,25 @@ function Live({ piece, playing }: { piece: Piece; playing: boolean }) {
 }
 
 export function Collage({ onClose }: { onClose: () => void }) {
-  const [pos, setPos] = useState(() => Object.fromEntries(pieces.map((p) => [p.id, { x: p.x, y: p.y }])))
+  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>(() => Object.fromEntries(pieces.map((p) => [p.id, { x: p.x, y: p.y }])))
   const [playing, setPlaying] = useState(false)
   const [z, setZ] = useState<string | null>(null)
   const drag = useRef<{ id: string; dx: number; dy: number } | null>(null)
+  const canvas = useRef<HTMLDivElement>(null)
+  // Over the side panel while dragging a piece: letting go puts it back there
+  const [overPanel, setOverPanel] = useState(false)
+  const inPanel = (x: number) => x > window.innerWidth - PANEL
+  const tray = pieces.filter((p) => !pos[p.id])
+  const place = (id: string, x: number, y: number) => setPos((p) => ({ ...p, [id]: { x, y } }))
+  const remove = (id: string) => setPos((p) => { const next = { ...p }; delete next[id]; return next })
+  // Where a new piece lands: its middle at the drop point, in canvas coordinates
+  const drop = (id: string, clientX: number, clientY: number) => {
+    const piece = pieces.find((q) => q.id === id)
+    const box = canvas.current?.getBoundingClientRect()
+    if (!piece || !box) return
+    place(id, Math.max(0, clientX - box.left - piece.w / 2), Math.max(0, clientY - box.top - piece.h / 2))
+    setZ(id)
+  }
 
   const down = (id: string) => (e: ReactPointerEvent) => {
     drag.current = { id, dx: e.clientX - pos[id].x, dy: e.clientY - pos[id].y }
@@ -189,31 +205,66 @@ export function Collage({ onClose }: { onClose: () => void }) {
   }
   const move = (e: ReactPointerEvent) => {
     const d = drag.current
-    if (d) setPos((p) => ({ ...p, [d.id]: { x: e.clientX - d.dx, y: e.clientY - d.dy } }))
+    if (!d) return
+    setPos((p) => ({ ...p, [d.id]: { x: e.clientX - d.dx, y: e.clientY - d.dy } }))
+    setOverPanel(inPanel(e.clientX))
+  }
+  const up = (e: ReactPointerEvent) => {
+    const d = drag.current
+    drag.current = null
+    setOverPanel(false)
+    if (d && inPanel(e.clientX)) remove(d.id)
   }
 
   return (
     <div role="dialog" aria-modal="true" aria-label="Brand collage" className="fixed inset-0 z-40 overflow-auto bg-baton-paper font-body text-ink">
-      <div className="relative" style={{ width: 1100, height: 1160, minWidth: '100%' }}>
-        {pieces.map((p) => (
+      <div
+        ref={canvas}
+        className="relative"
+        style={{ width: 1100, height: 1160, minWidth: `calc(100% - ${PANEL}px)` }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => { const id = e.dataTransfer.getData('text/plain'); if (id) drop(id, e.clientX, e.clientY) }}
+      >
+        {pieces.filter((p) => pos[p.id]).map((p) => (
           <div
             key={p.id}
             role="group"
             aria-label={p.name}
-            className={`absolute overflow-hidden ${p.rounded ? 'rounded-[28px] shadow-lg' : ''}`}
+            className={`group absolute overflow-hidden ${p.rounded ? 'rounded-[28px] shadow-lg' : ''}`}
             style={{ left: pos[p.id].x, top: pos[p.id].y, width: p.w, height: p.h, zIndex: z === p.id ? 10 : 1 }}
           >
             <Live piece={p} playing={playing} />
             {/* Catches the pointer so a piece drags even over its live app */}
-            <div onPointerDown={down(p.id)} onPointerMove={move} onPointerUp={() => { drag.current = null }} className="absolute inset-0 cursor-grab touch-none select-none active:cursor-grabbing" />
+            <button type="button" aria-label={`Remove ${p.name}`} onClick={() => remove(p.id)} className="absolute right-2 top-2 z-10 flex size-7 items-center justify-center rounded-full bg-ink/80 text-subhead leading-none text-surface opacity-0 transition-opacity hover:bg-ink focus-visible:opacity-100 group-hover:opacity-100">×</button>
+            <div onPointerDown={down(p.id)} onPointerMove={move} onPointerUp={up} className="absolute inset-0 cursor-grab touch-none select-none active:cursor-grabbing" />
           </div>
         ))}
       </div>
+      <aside
+        aria-label="Pieces"
+        className={`fixed bottom-0 right-0 top-0 z-30 flex flex-col gap-3 overflow-y-auto border-l border-line px-4 pb-6 pt-20 transition-colors ${overPanel ? 'bg-baton-pink/60' : 'bg-baton-cream/90 backdrop-blur'}`}
+        style={{ width: PANEL }}
+      >
+        <p className="text-footnote text-ink-muted">Pieces</p>
+        {tray.length === 0 && <p className="text-footnote text-ink-faint">Everything is on the canvas. Drag a piece here, or press × on it, to take it off.</p>}
+        {tray.map((p) => (
+          <div
+            key={p.id}
+            draggable
+            onDragStart={(e) => e.dataTransfer.setData('text/plain', p.id)}
+            className="flex cursor-grab items-center justify-between gap-2 rounded-card bg-card px-4 py-3 shadow-sm active:cursor-grabbing"
+          >
+            <span className="text-subhead font-medium">{p.name}</span>
+            <button type="button" onClick={() => place(p.id, p.x, p.y)} aria-label={`Add ${p.name}`} className="rounded-full bg-brand px-3 py-1 text-caption font-medium text-on-brand">Add</button>
+          </div>
+        ))}
+        <p className="mt-auto text-caption text-ink-faint">Drag a piece onto the canvas to add it. Drag a piece on the canvas here to remove it.</p>
+      </aside>
       <div className="fixed left-6 top-5 z-20">
         <h1 className="font-display text-title-2">Brand collage</h1>
         <p className="text-subhead text-ink-muted">The real prototype motion. Drag the pieces anywhere; Play loops them.</p>
       </div>
-      <div className="fixed right-6 top-5 z-20 flex gap-2">
+      <div className="fixed top-5 z-40 flex gap-2" style={{ right: PANEL + 24 }}>
         <button type="button" onClick={() => setPlaying((v) => !v)} className="rounded-full bg-brand px-5 py-2 text-subhead font-medium text-on-brand hover:opacity-90">{playing ? 'Pause' : 'Play'}</button>
         <button type="button" onClick={onClose} className="rounded-full bg-ink px-4 py-2 text-subhead font-medium text-surface">Close</button>
       </div>
