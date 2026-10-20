@@ -73,8 +73,72 @@ const laCloud: CloudPhoto[] = [
   la('6264', 'feeling', 373, 340),
 ]
 
+// Seoul, her home before LA: laid out exactly as Figma ARCHIVE_detail Seoul
+// (472:1452, NEW YORK page), in its layer order. Photos in
+// public/archive/seoul-cloud/ are that frame's circles exported at 3x, named by
+// their IMG number or, for the Unsplash photos in it (CREDITS.md), the node id.
+// The three with a moment take their filter from the moment's rim (karaoke
+// People, IMG_5387 Places, IMG_5975 Feeling); the rest are filed at random.
+const seoul = (file: string, category: CloudCategory, x: number, figmaY: number, size: 40 | 60 = 40): CloudPhoto => ({
+  src: `/archive/seoul-cloud/${file}.jpg`,
+  category,
+  x,
+  y: figmaY - 54,
+  size,
+})
+
+const seoulCloud: CloudPhoto[] = [
+  seoul('2029', 'feeling', 225, 712),
+  seoul('1984', 'people', 211, 326),
+  seoul('1985', 'feeling', 148, 468),
+  seoul('5482', 'people', 190, 449, 60),
+  seoul('6501', 'places', 211, 511),
+  seoul('1988', 'people', 156, 416),
+  seoul('1989', 'places', 126, 576),
+  seoul('1990', 'feeling', 314, 473),
+  seoul('5334', 'places', 335, 407),
+  seoul('1992', 'people', 173, 306),
+  seoul('1993', 'people', 118, 437),
+  seoul('1994', 'people', 235, 551),
+  seoul('1995', 'feeling', 223, 368),
+  seoul('6044', 'places', 197, 407),
+  seoul('1997', 'places', 84, 474, 60),
+  seoul('6089', 'places', 241, 407),
+  seoul('1999', 'feeling', 279, 548),
+  seoul('5975', 'feeling', 137, 512, 60),
+  seoul('5387', 'places', 161, 351, 60),
+  seoul('5528', 'places', 283, 411),
+  seoul('5806', 'people', 235, 597),
+  seoul('6445', 'places', 254, 450),
+  seoul('2005', 'places', 332, 589),
+  seoul('5943', 'feeling', 193, 549),
+  seoul('2007', 'feeling', 288, 369),
+  seoul('2008', 'people', 89, 539),
+  seoul('2009', 'people', 171, 601),
+  seoul('2010', 'feeling', 126, 386),
+  seoul('2011', 'feeling', 200, 240),
+  seoul('2012', 'places', 153, 200),
+  seoul('2013', 'people', 244, 249),
+  seoul('karaoke', 'people', 253, 491, 60),
+  seoul('5259', 'feeling', 113, 310, 60),
+  seoul('5251', 'people', 117, 98),
+  seoul('2017', 'feeling', 253, 334),
+  seoul('5489', 'places', 27, 509),
+  seoul('5299', 'feeling', 238, 293),
+  seoul('2021', 'places', 89, 361),
+  seoul('2022', 'people', -14, 393),
+  seoul('5331', 'people', 312, 322),
+  seoul('9286', 'places', 56, 408),
+  seoul('5789', 'feeling', 101, 641),
+  seoul('5296', 'places', 84, 245),
+  seoul('2027', 'people', 233, 178),
+  seoul('2028', 'feeling', 352, 260),
+  seoul('5509', 'feeling', 69, 322),
+]
+
 export const archiveClouds: Record<string, CloudPhoto[]> = {
   la: laCloud,
+  seoul: seoulCloud,
 }
 
 // The orb's three filters, in the order a tap steps through them. Each takes

@@ -346,11 +346,23 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
 }
 
 // The folder's tab turned on its side at the left edge of a city's detail
-// page (Figma ARCHIVE_detail default, 267:5273). Tapping it goes back to the
-// stack. Outline traced from that frame, drawn 90 wide and 65 tall, then
-// turned upright.
-const SIDE_TAB_PATH =
-  'M23.7052 9.69648C26.2266 3.81398 32.011 0 38.4111 0L71.3784 0C79.8856 0 86.9053 6.65722 87.3559 15.1525L90 65H0L23.7052 9.69648Z'
+// page (Figma ARCHIVE_detail default 334:12257 and ARCHIVE_detail Seoul
+// 472:1452). Tapping it goes back to the stack. Outline traced from those
+// frames, drawn lying down 65 tall, then turned upright. The tab grows with
+// its city name, the way Figma's do (LA 90, Seoul 120): the name starts 22pt
+// from its top, and the straight middle of the outline stretches to fit.
+const SIDE_TAB_MIN = 90
+// Room the tab leaves around the name: 22pt above it, the rest below
+const SIDE_TAB_TEXT_TOP = 22
+const SIDE_TAB_EXTRA = 64
+// The lengths the Figma frames give (the browser sets Mundial a touch shorter
+// than Figma, so measuring alone lands a point or two off); other cities are
+// measured
+const SIDE_TAB_LENGTH: Record<string, number> = { la: 90, seoul: 120 }
+function sideTabPath(length: number) {
+  const d = length - SIDE_TAB_MIN
+  return `M23.7052 9.69648C26.2266 3.81398 32.011 0 38.4111 0L${71.3784 + d} 0C${79.8856 + d} 0 ${86.9053 + d} 6.65722 ${87.3559 + d} 15.1525L${90 + d} 65H0L23.7052 9.69648Z`
+}
 
 type FolderSideTabProps = {
   folder: ArchiveFolder
@@ -361,26 +373,50 @@ type FolderSideTabProps = {
 
 export function FolderSideTab({ folder, onClick, className }: FolderSideTabProps) {
   const styles = folderTones[folder.tone]
+  const nameRef = useRef<HTMLSpanElement>(null)
+  const fixedLength = SIDE_TAB_LENGTH[folder.id]
+  const [measured, setMeasured] = useState(SIDE_TAB_MIN)
+  const length = fixedLength ?? measured
+
+  // Measure the name (it can change size once the web font loads)
+  useEffect(() => {
+    const name = nameRef.current
+    if (!name) return
+    const fit = () => setMeasured(Math.max(SIDE_TAB_MIN, Math.round(name.offsetHeight + SIDE_TAB_EXTRA)))
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(name)
+    return () => observer.disconnect()
+  }, [])
+
+  // The outline lies down `length` wide and 65 tall; turned upright about its
+  // middle, it needs nudging so its corner sits at the button's corner
+  const shift = (length - 65) / 2
   return (
     <button
       type="button"
       onClick={onClick}
       data-side-tab
       aria-label={`Back to ${folder.city} in your archive`}
-      className={cx('h-[90px] w-[65px] active:opacity-70', className)}
+      style={{ height: length }}
+      className={cx('w-[65px] active:opacity-70', className)}
     >
       <svg
-        width="90"
+        width={length}
         height="65"
-        viewBox="0 0 90 65"
+        viewBox={`0 0 ${length} 65`}
         aria-hidden="true"
-        className={cx('absolute top-[12.5px] -left-[12.5px] -scale-y-100 -rotate-90 fill-current', styles.fillText)}
+        style={{ top: shift, left: -shift }}
+        className={cx('absolute -scale-y-100 -rotate-90 fill-current', styles.fillText)}
       >
-        <path d={SIDE_TAB_PATH} />
+        <path d={sideTabPath(length)} />
       </svg>
+      {/* Set sideways, reading top to bottom, starting 22pt down and 38pt in */}
       <span
+        ref={nameRef}
+        style={{ top: SIDE_TAB_TEXT_TOP }}
         className={cx(
-          'absolute top-1/2 left-[38px] -translate-x-1/2 -translate-y-1/2 rotate-90 font-display text-side-tab font-medium tracking-tight whitespace-nowrap',
+          'absolute left-[38px] -translate-x-1/2 font-display text-side-tab font-medium tracking-tight whitespace-nowrap [writing-mode:vertical-rl]',
           styles.title,
         )}
       >

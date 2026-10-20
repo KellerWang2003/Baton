@@ -1,0 +1,51 @@
+# Seoul cloud photos
+
+The circles here are exported from Figma ARCHIVE_detail Seoul (472:1452). Files named by an IMG number are Jenny's own photos. Files named by a Figma node id (like `1984.jpg`) are photos from Unsplash, free to use under the Unsplash License (https://unsplash.com/license), picked for the first version of this page. The Unsplash photos it drew from:
+
+- https://unsplash.com/photos/s6IZr1wtJv0
+- https://unsplash.com/photos/AStrLSqUilU
+- https://unsplash.com/photos/FR_KgLtVFMY
+- https://unsplash.com/photos/fPUa82KVDGo
+- https://unsplash.com/photos/6v3y8BvrWxE
+- https://unsplash.com/photos/Dz4AGFEws6E
+- https://unsplash.com/photos/KZyYD-esIEc
+- https://unsplash.com/photos/d7bPBiGq668
+- https://unsplash.com/photos/oZr30H7HZdU
+- https://unsplash.com/photos/A0n-jNWJxag
+- https://unsplash.com/photos/6LRsrMXu0QI
+- https://unsplash.com/photos/LO1lToLGGFA
+- https://unsplash.com/photos/oXFFPOdmH7c
+- https://unsplash.com/photos/HZ09VYZvAFk
+- https://unsplash.com/photos/Va1wX-D81bM
+- https://unsplash.com/photos/ABxVTtK-guA
+- https://unsplash.com/photos/vb4hxZV3vyo
+- https://unsplash.com/photos/RDAk2GFt2uQ
+- https://unsplash.com/photos/rxOuP58jsoc
+- https://unsplash.com/photos/qExLnus1UPU
+- https://unsplash.com/photos/GxtQKhDTWBA
+- https://unsplash.com/photos/pXNb6Mojvg8
+- https://unsplash.com/photos/gUOmkEOuHe4
+- https://unsplash.com/photos/rAyCBQTH7ws
+- https://unsplash.com/photos/qom5MPOER-I
+- https://unsplash.com/photos/YcYUC4e-sbk
+- https://unsplash.com/photos/cWYpRjFwwzw
+- https://unsplash.com/photos/6w66byzkPBI
+- https://unsplash.com/photos/s35iVx2UAbU
+- https://unsplash.com/photos/ebIZyKzGps8
+- https://unsplash.com/photos/d4-dejlXXcU
+- https://unsplash.com/photos/VlJrfxak8BI
+- https://unsplash.com/photos/mvRf-Df9fe0
+- https://unsplash.com/photos/V0wADrsawno
+- https://unsplash.com/photos/GMOhEy3MQ60
+- https://unsplash.com/photos/hVcfFQM0V4U
+- https://unsplash.com/photos/6zK5f1NVLDQ
+- https://unsplash.com/photos/zylCxLrPRjs
+- https://unsplash.com/photos/PrqlDA95v3s
+- https://unsplash.com/photos/xLLw_aqqcbI
+- https://unsplash.com/photos/jQteagM9KEo
+- https://unsplash.com/photos/IRwp0Pdgxns
+- https://unsplash.com/photos/IlZy859SWN8
+- https://unsplash.com/photos/2Du-53nZKYs
+- https://unsplash.com/photos/dbUCy23Bn8g
+- https://unsplash.com/photos/cv3rLk4aNvc
+- https://unsplash.com/photos/zsCQDymNbgY
