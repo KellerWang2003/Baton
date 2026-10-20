@@ -320,7 +320,7 @@ const slots = wallCities.flatMap((c) => c.photos.concat(c.photos).map((_, k) => 
 const dims = [[96, 120], [130, 96], [80, 80], [110, 150], [150, 110]]
 const wallItems = slots.map((sl, i) => {
   const [w, h] = dims[(i * 3) % dims.length]
-  return { ...sl, i, w, h, x: 30 + i * 78, y: 20 + ((i * 131) % 230) }
+  return { ...sl, i, w, h, x: 30 + i * 78, yf: (i * 0.618) % 1 }
 })
 const wallW = wallItems[wallItems.length - 1].x + 200
 
@@ -363,7 +363,7 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
               type="button"
               onClick={(e) => show(m, e.currentTarget)}
               className={cx('absolute border-2 border-white shadow-sm', tile[m.city.id])}
-              style={{ left: m.x, top: m.y, width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)`, opacity: open?.item.i === m.i ? 0 : 1 }}
+              style={{ left: m.x, top: 12 + m.yf * ((fill ? 570 : 400) - m.h - 36), width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)`, opacity: open?.item.i === m.i ? 0 : 1 }}
             />
           ))}
         </div>
