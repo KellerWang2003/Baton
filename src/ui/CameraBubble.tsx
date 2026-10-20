@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useDailyPrompt, useStore } from '../app/store'
 import { cx } from './cx'
+import { ArrowLeftIcon } from './icons'
 
 // What the camera shows when there's no camera to use (a laptop without one, or
 // permission refused), so the flow still works when recording the demo.
@@ -11,8 +12,8 @@ const placeholderPhoto = '/archive/la-sunset.jpg'
 // Oct 19), so a real picture can be keyed in when the video is edited. It is
 // the same color as the debug panel's Background color (Green screen button),
 // or the recording green when that isn't set. Set to false to use the real
-// camera again.
-const greenScreen = true
+// camera again. Debug > Real-life always uses the real camera.
+const useGreenScreen = true
 
 // The debug panel's background color, which DeviceFrame sets on the page behind
 // the phone, or the recording green
@@ -24,18 +25,19 @@ function screenColor(from: Element | null) {
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
-// Where the rectangle ends up on the 402×874 screen, as fractions of it (Figma:
-// the prompt on top, a long camera rectangle, the shutter below). It grows out
-// of the circle, so its center moves down a little as it does.
-const rectTop = 0.23
-const rectHeight = 0.555
+// Where the rectangle ends up, as fractions of the 820pt under the status bar
+// (Figma camera 494:2163: the prompt on top, a 329×482pt camera rectangle
+// 162pt down, the shutter below). It grows out of the circle, so its center
+// moves down a little as it does.
+const rectTop = 162 / 820
+const rectHeight = 482 / 820
 const sideMargin = 36
 const rectRadius = 52
-const promptTop = 56
-// The prompt starts exactly as the glass draws it (see drawPrompt in
-// PromptWindow: same font, line breaks and spot) and grows a little as it
-// settles at the top
-const promptGrow = 1.1
+const promptTop = 62
+// The prompt starts where the glass draws it (see drawPrompt in PromptWindow:
+// same line breaks and spot) at about the size it reads there, and settles at
+// the top at Figma's 25pt
+const promptGrow = 1
 
 type PromptLayout = { lines: string[]; font: number; lineHeight: number; top: number }
 
@@ -68,7 +70,8 @@ function promptLayout(question: string, size: number, centerY: number): PromptLa
     }
     return lines
   }
-  let font = 27
+  // 23pt drawn under the glass reads as 25pt (it magnifies it)
+  let font = 25
   let lines: string[] = []
   for (; font >= 20; font--) {
     ctx.font = `500 ${font}px ${family}`
@@ -77,7 +80,7 @@ function promptLayout(question: string, size: number, centerY: number): PromptLa
     if (lines.length <= 3) break
   }
   font = Math.max(font, 20)
-  const lineHeight = Math.round(font * 1.2)
+  const lineHeight = Math.round(font * 1.3)
   const iconSize = 24
   const iconGap = 16
   const groupHeight = iconSize + iconGap + lines.length * lineHeight
@@ -92,10 +95,13 @@ type Box = { left: number; top: number; width: number; height: number; radius: n
 // prompt moves to the top, and a round button below takes the photo, which goes
 // on to Capture to be saved. A small close button at the top left goes back.
 export function CameraBubble() {
-  const { camera } = useStore()
+  const { camera, realLife } = useStore()
+  const greenScreen = useGreenScreen && !realLife
   const prompt = useDailyPrompt()
   const root = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
+  // The rounded rectangle the camera shows in
+  const picture = useRef<HTMLDivElement>(null)
   const stream = useRef<MediaStream | null>(null)
   const [mounted, setMounted] = useState(false)
   const [expanded, setExpanded] = useState(false)
@@ -178,7 +184,7 @@ export function CameraBubble() {
     return () => {
       cancelled = true
     }
-  }, [camera, expanded])
+  }, [camera, expanded, greenScreen])
 
   // Follow the debug panel's background color while it's open
   useEffect(() => {
@@ -242,8 +248,12 @@ export function CameraBubble() {
     await new Promise((resolve) => setTimeout(resolve, 160))
     const photo = new File([picked], 'prompt-photo.jpg', { type: picked.type || 'image/jpeg' })
     stop()
-    setState({ capturePhoto: photo, camera: null, composing: false })
-    navigate('capture')
+    // Real-life: where the picture is, so the reflection page can turn it into its orb
+    const shown = picture.current?.getBoundingClientRect()
+    const captureFrom = realLife && shown ? { x: shown.left, y: shown.top, width: shown.width, height: shown.height } : null
+    setState({ capturePhoto: photo, camera: null, composing: false, captureFrom })
+    // Real-life: on to writing a line about it
+    navigate(realLife ? 'reflection' : 'capture')
   }
 
   const at = expanded ? target : origin
@@ -284,6 +294,7 @@ export function CameraBubble() {
 
           {/* The circle, morphing into the rounded rectangle with the camera in it */}
           <div
+            ref={picture}
             role="button"
             tabIndex={0}
             aria-label="Close camera"
@@ -316,19 +327,33 @@ export function CameraBubble() {
               className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live ? 'opacity-100' : 'opacity-0')}
               style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
             />
-            {/* The glass look: a blue rim fading inward, over the picture or the green screen */}
-            <div
-              className="pointer-events-none absolute inset-0"
-              style={{
-                borderRadius: 'inherit',
-                // Strong enough to show on a saturated green screen too
-                boxShadow: greenScreen
-                  ? 'inset 0 0 26px 12px rgb(89 161 255 / 0.95), inset 0 1px 2px rgb(255 255 255 / 0.9)'
-                  : 'inset 0 0 30px 6px rgb(89 161 255 / 0.5), inset 0 1px 2px rgb(255 255 255 / 0.9)',
-              }}
-            />
+            {/* On the green screen, a blue rim fading inward to key around; the
+                live camera is shown plain (Figma camera 494:2163) */}
+            {greenScreen && (
+              <div
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  borderRadius: 'inherit',
+                  // Strong enough to show on a saturated green screen
+                  boxShadow: 'inset 0 0 26px 12px rgb(89 161 255 / 0.95), inset 0 1px 2px rgb(255 255 255 / 0.9)',
+                }}
+              />
+            )}
             <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
           </div>
+
+          {/* Real-life only: a way back to Today without tapping the picture */}
+          {realLife && (
+            <button
+              type="button"
+              aria-label="Back to Today"
+              onClick={() => setState({ camera: null })}
+              className="absolute top-1 left-4 z-10 flex size-11 items-center justify-center rounded-full text-wrap-faint transition-opacity duration-300 active:opacity-50"
+              style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? 'auto' : 'none' }}
+            >
+              <ArrowLeftIcon />
+            </button>
+          )}
 
           {/* The shutter */}
           <button

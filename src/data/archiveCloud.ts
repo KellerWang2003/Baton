@@ -148,3 +148,26 @@ export const cloudFilters: { id: CloudCategory; label: string; color: 'pink' | '
   { id: 'people', label: 'People', color: 'yellow' },
   { id: 'places', label: 'Places', color: 'blue' },
 ]
+
+// Where a photo added to a cloud goes (Real-life, from the reflection page):
+// the first free spot spiraling out from the middle of the cluster, so it
+// lands among the others without covering any
+export function freeSpot(photos: CloudPhoto[], size: number): { x: number; y: number } {
+  const center = (photo: CloudPhoto) => ({ x: photo.x + photo.size / 2, y: photo.y + photo.size / 2 })
+  const middle = photos.reduce((sum, photo) => ({ x: sum.x + center(photo).x, y: sum.y + center(photo).y }), { x: 0, y: 0 })
+  const cx = photos.length ? middle.x / photos.length : 201
+  const cy = photos.length ? middle.y / photos.length : 300
+  for (let step = 0; step < 4000; step++) {
+    const angle = step * 0.35
+    const radius = step * 0.6
+    const x = cx + Math.cos(angle) * radius
+    const y = cy + Math.sin(angle) * radius
+    if (x - size / 2 < 12 || x + size / 2 > 390) continue
+    const clear = photos.every((photo) => {
+      const other = center(photo)
+      return Math.hypot(other.x - x, other.y - y) >= (photo.size + size) / 2 + 4
+    })
+    if (clear) return { x: x - size / 2, y: y - size / 2 }
+  }
+  return { x: cx - size / 2, y: cy - size / 2 }
+}

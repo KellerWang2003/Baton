@@ -72,6 +72,17 @@ export const pages = {
 // seed: why the prompt showed up (usually where she is), shown small under it
 export type DailyPrompt = { seed: string; question: string }
 
+// Debug > Real-life: for filming someone answering a prompt for real, on a
+// phone, with the live camera; then they write a line on the reflection page
+export const realLifePrompt: DailyPrompt = { seed: 'On campus today', question: 'Take a photo of your school building.' }
+export const reflectionCopy = {
+  label: 'Today’s prompt',
+  placeholder: 'Write a line about it…',
+  save: 'Add to archive',
+  // While Claude reads what she wrote
+  reading: 'Reading your note…',
+}
+
 // What a prompt asks for, shown as a small label above it on Today. Read from
 // the verb-first wording ("Take a photo of..." vs "Write...").
 export type PromptMedium = 'photo' | 'write'

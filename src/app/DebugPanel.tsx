@@ -235,6 +235,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <p className="px-2 pt-1 text-xs text-ink-muted">1.5 seconds blank, then the intentions entrance. Resets picks.</p>
       </div>
 
+      <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
       <PromptPicker />
       <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
       <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
@@ -394,6 +395,29 @@ function GlassControls() {
 // video's explorations part (picking one jumps there): the scrubbable photo
 // wall (from the Archive ideas) or a wireframe direction from the Archive
 // sketches
+// Real-life: for filming someone using the app for real on a phone. Today
+// asks for a photo of their school building, the orb opens the live camera
+// (with a back arrow), and the photo goes on to a page to write a line about it
+function RealLife({ goToToday }: { goToToday: () => void }) {
+  const { realLife } = useStore()
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Real-life</span>
+      <DebugToggle
+        label="Today: photo of your school"
+        on={realLife}
+        onClick={() => {
+          setState({ realLife: !realLife, camera: null })
+          if (!realLife) goToToday()
+        }}
+      />
+      <p className="px-2 text-xs text-ink-muted">
+        Live camera, then write a line about it. The camera needs https (the Vercel link) or localhost. On a phone, open the link with ?real-life#/today.
+      </p>
+    </div>
+  )
+}
+
 function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
   const { archiveSketch, archiveWall } = useStore()
   const options = [

@@ -5,6 +5,7 @@ import { Archive } from './screens/Archive'
 import { ArchiveDetail } from './screens/ArchiveDetail'
 import { ArchiveSelected } from './screens/ArchiveSelected'
 import { Capture } from './screens/Capture'
+import { Reflection } from './screens/Reflection'
 import { Community } from './screens/Community'
 import { Features } from './screens/Features'
 import { InstagramTag } from './screens/InstagramTag'
@@ -59,6 +60,8 @@ export const flow: FlowScreen[] = [
   { id: 'archive-selected', title: 'Archive: a photo opened', stage: 'moving', component: ArchiveSelected },
   { id: 'community', title: 'Relay', stage: 'moving', component: Community },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
+  // Debug > Real-life: writing a line about the photo just taken
+  { id: 'reflection', title: 'Real-life: reflection', stage: 'moving', component: Reflection },
   { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
   // 6. Before her last night in LA: her intentions for New York (from Profile)
   { id: 'intentions', title: 'Profile: intentions for New York', stage: 'moving', component: Intentions },

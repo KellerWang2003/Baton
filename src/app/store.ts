@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
-import { dailyPrompts } from '../data/pages'
+import { dailyPrompts, realLifePrompt } from '../data/pages'
 import { leave } from '../data/today'
 import type { ArchiveSketchId } from '../data/archiveSketches'
 import type { Stage } from '../flow'
@@ -9,7 +9,8 @@ import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
 import type { ConfettiVariant } from '../ui/confettiVariants'
 import type { RelayEntrance } from '../ui/relayEntrance'
 import type { RelayLook } from '../ui/relayLooks'
-import type { CloudCategory, CloudView } from '../ui/PhotoCloud'
+import type { CloudCategory, CloudPhoto, CloudView } from '../ui/PhotoCloud'
+import type { ArchiveMoment } from '../data/archiveMoments'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
 // that show up on Today). Nothing persists; a reload starts fresh.
@@ -42,6 +43,15 @@ type State = {
   // Which photo in a city's photo cloud was tapped (its cloud image src), and
   // where it sat on screen, so the opened page can grow it from there
   selectedPhoto: string | null
+  // Real-life: photos added to LA's cloud from the reflection page this
+  // session, and the moment each one opens (keyed by its src)
+  addedPhotos: CloudPhoto[]
+  addedMoments: Record<string, ArchiveMoment>
+  // Real-life animations, in window pixels: where the camera's picture was when
+  // the photo was taken (it morphs into the reflection page's orb), and where
+  // the orb was when it was added (it shrinks into its spot in LA's cloud)
+  captureFrom: { x: number; y: number; width: number; height: number } | null
+  arrivingPhoto: { src: string; x: number; y: number; size: number; color: string } | null
   selectedPhotoFrom: { x: number; y: number; size: number } | null
   // The photo cloud as it was when a photo was opened (canvas position and
   // orb filter), so going back shows it the same; null opens it fresh
@@ -66,6 +76,10 @@ type State = {
   fewBubbles: boolean
   // Debug: hide the iOS status bar (time, signal, battery)
   hideStatusBar: boolean
+  // Debug > Real-life: Today asks for a photo of your school building, the
+  // camera is live (not the green screen) and the photo goes on to the
+  // reflection page, for filming someone using the app for real
+  realLife: boolean
   // The Rolling Paper's widened Dynamic Island is over the status bar, so its
   // time and icons fade out under it
   statusBarCovered: boolean
@@ -117,6 +131,10 @@ let state: State = {
   archiveSegment: 'mine',
   selectedFolder: null,
   selectedPhoto: null,
+  addedPhotos: [],
+  addedMoments: {},
+  captureFrom: null,
+  arrivingPhoto: null,
   selectedPhotoFrom: null,
   cloudView: null,
   cloudFilter: null,
@@ -130,6 +148,8 @@ let state: State = {
   hideNav: false,
   fewBubbles: false,
   hideStatusBar: false,
+  // Also on from the start with ?real-life in the URL, for opening it on a phone
+  realLife: typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('real-life'),
   statusBarCovered: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
@@ -201,5 +221,6 @@ export function useStatus(): Stage {
 // The debug panel can pick another of the stage's prompts.
 export function useDailyPrompt() {
   const prompts = dailyPrompts[useStatus()]
-  return prompts[useStore().promptIndex % prompts.length]
+  const { promptIndex, realLife } = useStore()
+  return realLife ? realLifePrompt : prompts[promptIndex % prompts.length]
 }

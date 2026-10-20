@@ -5,6 +5,7 @@ import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
 import { archiveMoments } from '../data/archiveMoments'
 import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon } from '../ui'
+import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from '../ui/filterColor'
 
 // The glass circle (Figma ARCHIVE_selected, 236:234): a 342pt circle with a
 // hairline. Fluid Glass draws its lens a bit wider than the size it's given
@@ -23,10 +24,6 @@ const MASK = `radial-gradient(circle at 50% 50%, black ${CIRCLE / 2 - INSET - 1}
 // its middle, so the whole photo shows through the circle as it did in the
 // cloud; the full-bleed copy behind it is what the glass bends in at the rim
 const PHOTO = 0.5
-const FILTER_TINT = { feeling: 'pink', people: 'yellow', places: 'blue' } as const
-// How far each filter color is softened toward white, for a pastel glow (Oct 20:
-// halfway read too light, a quarter too pastel; pink a little stronger)
-const PASTEL = { feeling: 0.15, people: 0.18, places: 0.18 } as const
 // The tapped cloud photo growing into the circle
 const GROW = { duration: 560, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' }
 // The words around the circle fade in once it's most of the way there, and
@@ -53,9 +50,9 @@ function usePicture(src: string) {
       picture.height = size
       const context = picture.getContext('2d')
       if (!context) return
-      context.drawImage(image, 0, 0, size, size)
+      drawCover(context, image, 0, 0, size)
       const inner = size * PHOTO
-      context.drawImage(image, (size - inner) / 2, (size - inner) / 2, inner, inner)
+      drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
       setCanvas(picture)
     }
     image.src = src
@@ -75,14 +72,14 @@ function usePicture(src: string) {
 // then the glass fades in over the photo and the note slaps down. Back
 // reverses it: the circle shrinks onto its photo in the cloud.
 export function ArchiveSelected() {
-  const { selectedPhoto, selectedPhotoFrom } = useStore()
+  const { selectedPhoto, selectedPhotoFrom, addedMoments } = useStore()
   // Opened straight from the debug panel or arrow keys, it shows the hike
-  const moment = archiveMoments[selectedPhoto ?? ''] ?? Object.values(archiveMoments)[0]
+  const moment = { ...archiveMoments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(archiveMoments)[0]
   const picture = usePicture(moment.photo)
   // The filter color, softened a little toward white so it reads pastel
-  const soften = PASTEL[moment.category]
-  const tint = pastel(token(`--color-baton-${FILTER_TINT[moment.category]}`), soften)
-  const color = `color-mix(in srgb, var(--color-baton-${FILTER_TINT[moment.category]}) ${100 - soften * 100}%, var(--color-surface))`
+  // The filter color, softened to a pastel (shared with Real-life's orb)
+  const tint = filterGlassColor(moment.category)
+  const color = filterColor(moment.category)
   const circleRef = useRef<HTMLDivElement>(null)
   const growRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
@@ -186,7 +183,7 @@ export function ArchiveSelected() {
                   shape="lens"
                   size={LENS}
                   color={tint}
-                  rim={0.65}
+                  rim={GLASS_RIM}
                   ring={0}
                   breathe={0.1}
                   refraction={0.5}
@@ -211,7 +208,7 @@ export function ArchiveSelected() {
               style={{
                 width: GLOW,
                 height: GLOW,
-                background: `radial-gradient(circle closest-side, transparent 72%, color-mix(in srgb, ${color} 13%, transparent) 88%, color-mix(in srgb, ${color} 30%, transparent) 100%)`,
+                background: filterGlow(color),
               }}
             />
             <GlassRim size={CIRCLE} />
@@ -237,17 +234,4 @@ export function ArchiveSelected() {
       </div>
     </div>
   )
-}
-
-// The WebGL glass takes plain color strings, so read them from the brand tokens
-function token(name: string) {
-  return getComputedStyle(document.documentElement).getPropertyValue(name).trim()
-}
-
-// A #rrggbb color mixed toward white by `amount` (0 to 1), as #rrggbb
-function pastel(hex: string, amount: number) {
-  const value = parseInt(hex.replace('#', ''), 16)
-  if (Number.isNaN(value)) return hex
-  const channel = (shift: number) => Math.round(((value >> shift) & 255) + (255 - ((value >> shift) & 255)) * amount)
-  return `#${[16, 8, 0].map((shift) => channel(shift).toString(16).padStart(2, '0')).join('')}`
 }
