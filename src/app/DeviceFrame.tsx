@@ -41,7 +41,7 @@ export function DeviceFrame({ framed, frame, lockRatio, backgroundColor, onboard
   const [scale, setScale] = useState(1)
 
   const custom = frame.preset === 'custom'
-  const outer = custom ? { width: frame.width + 2, height: frame.height + 2 } : iphoneSize
+  const outer = custom ? { width: frame.width, height: frame.height } : iphoneSize
 
   // Fit the whole phone inside the page, never larger than real size
   useLayoutEffect(() => {
@@ -67,7 +67,7 @@ export function DeviceFrame({ framed, frame, lockRatio, backgroundColor, onboard
       <div ref={page} data-device-page style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
         <div
           data-app-root
-          className="relative flex shrink-0 flex-col overflow-hidden rounded-[24px] border border-ink/30 bg-canvas"
+          className="relative flex shrink-0 flex-col overflow-hidden rounded-[24px] bg-canvas"
           style={lockRatio ? { ...outer, transform: `scale(${scale})` } : { width: outer.width, height: outer.height, maxWidth: '100%', maxHeight: '100%' }}
         >
           <StatusBar onboarding={onboardingStatus} showIsland={false} />
