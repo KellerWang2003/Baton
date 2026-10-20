@@ -69,9 +69,15 @@ export function LaWrapped() {
 
   return (
     <div className="relative h-full bg-baton-paper font-display text-baton-navy">
-      <div className={cx('absolute inset-0', open ? 'overflow-y-auto' : 'overflow-hidden')}>
+      {/* Reaches up to the top of the screen, so the timeline scrolls under
+          the status bar's island, time and icons (the content shifts down by
+          as much, so nothing moves until it scrolls) */}
+      <div
+        className={cx('absolute inset-x-0 bottom-0', open ? 'overflow-y-auto' : 'overflow-hidden')}
+        style={{ top: 'calc(-1 * var(--status-bar, 0px))' }}
+      >
         {/* Extra room at the end so the pinned buttons don't cover the summary */}
-        <div className="relative mx-auto w-[402px]" style={{ height: wrapSummary.height - TOP + 60 }}>
+        <div className="relative mx-auto w-[402px]" style={{ height: wrapSummary.height - TOP + 60, marginTop: 'var(--status-bar, 0px)' }}>
           <Header open={open} />
 
           <div

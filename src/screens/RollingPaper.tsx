@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { paperDoodles, paperNotes, paperSheet, paperSlotY, rollingPaper, type PaperNote, type PaperNoteColor } from '../data/rollingPaper'
 import { navigate } from '../app/navigate'
+import { setState } from '../app/store'
 import { ArrowRightIcon, Button, cx, SaveButton } from '../ui'
 
 // The Figma frames include the 54pt status bar; the app starts under it
@@ -27,6 +28,9 @@ const DOODLE_STEP = 190
 const TILT = 12
 const PRINT_SCALE = 302 / paperSheet.width
 const DEPTH = 1000
+// The island, opened: wide enough to cover the time (from 35pt) and the icons
+// (to 362pt) on the 402pt screen
+const ISLAND_OPEN = 356
 
 type Phase = 'start' | 'expand' | 'print' | 'settle' | 'done'
 
@@ -88,6 +92,16 @@ export function RollingPaper() {
 
   const printing = phase === 'start' || phase === 'expand' || phase === 'print'
   const islandOpen = phase === 'expand' || phase === 'print'
+  // The drawn island only shows while it grows, prints and shrinks back; at
+  // rest the phone frame's own island is the one you see
+  const islandShown = islandOpen || phase === 'settle'
+  const done = phase === 'done'
+
+  // The widened island covers the status bar's time and icons
+  useEffect(() => {
+    setState({ statusBarCovered: islandOpen })
+  }, [islandOpen])
+  useEffect(() => () => setState({ statusBarCovered: false }), [])
   // How far the sheet has come out of the slot, along its own length
   const pulled = phase === 'start' || phase === 'expand' ? -paperSheet.height : 0
   const sheetTop = paperSheet.top - paperSlotY
@@ -112,12 +126,19 @@ export function RollingPaper() {
           // Over the island while printing, so the sheet covers its lower half
           // and seems to come out of it; under it once it has landed
           printing ? 'z-10' : 'z-0',
-          phase === 'done' ? 'overflow-y-auto' : 'overflow-hidden',
+          done ? 'overflow-y-auto' : 'overflow-hidden',
         )}
-        style={{ top: paperSlotY - TOP }}
+        // While printing it starts at the island's slot, so the sheet seems to
+        // come out of it; once landed it reaches the top of the screen, so the
+        // sheet scrolls up under the status bar (the content shifts down to
+        // stay put)
+        style={{ top: done ? 'calc(-1 * var(--status-bar, 0px))' : paperSlotY - TOP }}
       >
         {/* Room under the sheet so the button doesn't cover the last notes */}
-        <div className="relative mx-auto w-[402px]" style={{ height: sheetTop + paperSheet.height + 120 }}>
+        <div
+          className="relative mx-auto w-[402px]"
+          style={{ height: sheetTop + paperSheet.height + 120, marginTop: done ? `calc(${paperSlotY - TOP}px + var(--status-bar, 0px))` : 0 }}
+        >
           <div
             className="absolute overflow-hidden rounded-[10px] bg-baton-cream shadow-paper-sheet motion-reduce:transition-none"
             style={{
@@ -156,13 +177,13 @@ export function RollingPaper() {
         </div>
       </div>
 
-      {/* Dynamic Island, widened while it prints (drawn over the status bar's) */}
+      {/* Dynamic Island, widened over the whole status bar while it prints */}
       <div
         aria-hidden
-        className="absolute left-1/2 -translate-x-1/2 rounded-full bg-device motion-reduce:transition-none"
+        className={cx('absolute left-1/2 -translate-x-1/2 rounded-full bg-device motion-reduce:transition-none', !islandShown && 'invisible')}
         style={{
           top: 11 - TOP,
-          width: islandOpen ? 342 : 127,
+          width: islandOpen ? ISLAND_OPEN : 127,
           // Keep the paper exit at the middle of the thicker expanded slot.
           height: islandOpen ? (paperSlotY - 11) * 2 : 37,
           transition: 'width 500ms cubic-bezier(0.34, 1.3, 0.64, 1), height 500ms cubic-bezier(0.34, 1.3, 0.64, 1)',

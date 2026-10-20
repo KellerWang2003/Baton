@@ -31,7 +31,7 @@ function useClock() {
 // it), so screens that run up under it (--status-bar) show through.
 export function StatusBar({ onboarding = false, showIsland = true }: { onboarding?: boolean; showIsland?: boolean }) {
   const time = useClock()
-  const { lightStatusBar, hideStatusBar } = useStore()
+  const { lightStatusBar, hideStatusBar, statusBarCovered } = useStore()
   if (onboarding) {
     return (
       <div className={`onboarding-status flex h-[54px] shrink-0 items-center justify-between px-9 text-sm font-semibold text-ink ${hideStatusBar ? 'invisible' : ''}`}>
@@ -43,7 +43,9 @@ export function StatusBar({ onboarding = false, showIsland = true }: { onboardin
   }
   return (
     // Above everything in the app, so full-bleed pages (the stage splashes) run under it
-    <div className={`pointer-events-none relative z-[60] h-[54px] shrink-0 text-device ${lightStatusBar ? 'invert' : ''} ${hideStatusBar ? 'invisible' : ''}`}>
+    <div
+      className={`pointer-events-none relative z-[60] h-[54px] shrink-0 text-device transition-opacity duration-300 ${lightStatusBar ? 'invert' : ''} ${hideStatusBar ? 'invisible' : ''} ${statusBarCovered ? 'opacity-0' : ''}`}
+    >
       <span className="absolute top-[18px] left-[57.5px] -translate-x-1/2 font-system text-status font-semibold whitespace-nowrap tabular-nums">
         {time}
       </span>

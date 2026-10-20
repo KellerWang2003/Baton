@@ -66,6 +66,9 @@ type State = {
   fewBubbles: boolean
   // Debug: hide the iOS status bar (time, signal, battery)
   hideStatusBar: boolean
+  // The Rolling Paper's widened Dynamic Island is over the status bar, so its
+  // time and icons fade out under it
+  statusBarCovered: boolean
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
   // Fluid Glass settings for that circle, tuned live in the debug panel
@@ -127,6 +130,7 @@ let state: State = {
   hideNav: false,
   fewBubbles: false,
   hideStatusBar: false,
+  statusBarCovered: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
   relayEntranceSpeed: 1,
