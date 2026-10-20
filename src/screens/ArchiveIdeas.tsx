@@ -316,11 +316,11 @@ function Deck() {
 const wallCities = [...cities].reverse()
 const shade = { seoul: 'bg-neutral-200', chicago: 'bg-neutral-400', la: 'bg-neutral-600' } as Record<string, string>
 const tile = { seoul: 'bg-neutral-300', chicago: 'bg-neutral-400', la: 'bg-neutral-500' } as Record<string, string>
-const slots = wallCities.flatMap((c) => c.photos.concat(c.photos).map((_, k) => ({ city: c, k })))
+const slots = wallCities.flatMap((c) => c.photos.concat(c.photos, c.photos, c.photos).map((_, k) => ({ city: c, k })))
 const dims = [[96, 120], [130, 96], [80, 80], [110, 150], [150, 110]]
 const wallItems = slots.map((sl, i) => {
   const [w, h] = dims[(i * 3) % dims.length]
-  return { ...sl, i, w, h, x: 30 + i * 78, yf: (i * 0.618) % 1 }
+  return { ...sl, i, w, h, x: 30 + i * 46, yf: (i * 0.618) % 1 }
 })
 const wallW = wallItems[wallItems.length - 1].x + 200
 
