@@ -59,6 +59,8 @@ type State = {
   archiveWall: boolean
   // Debug: hide the tab bar and + field, for clean recordings
   hideNav: boolean
+  // Debug: hide the iOS status bar (time, signal, battery)
+  hideStatusBar: boolean
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
   // Fluid Glass settings for that circle, tuned live in the debug panel
@@ -117,6 +119,7 @@ let state: State = {
   relayLook: 'scrapbook',
   archiveWall: false,
   hideNav: false,
+  hideStatusBar: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
   relayEntranceSpeed: 1,

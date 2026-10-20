@@ -52,7 +52,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
-  const { onboardingPhotoAccess, hideNav } = useStore()
+  const { onboardingPhotoAccess, hideNav, hideStatusBar } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -175,6 +175,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
         <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
         <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
+        <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
         <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
         <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
