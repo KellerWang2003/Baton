@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { cx } from '../ui'
 
 // Team-only page (from the debug panel, or ?archive-ideas in the URL): other ways
@@ -310,82 +310,81 @@ function Deck() {
   )
 }
 
-// 9. Scrubber: a color-coded timeline at the bottom; scrubbing it slides the captures sideways
-const reel = [...cities].reverse().flatMap((c) => c.photos.map((src) => ({ src, city: c })))
+// 9. Scrubber wall: one huge horizontal wall of captures, oldest at the left. A
+// gray timeline along the bottom (a shade per city) scrubs it, and tapping a
+// capture opens its details. Barebone on purpose: gray boxes only.
+const wallCities = [...cities].reverse()
+const shade = { seoul: 'bg-neutral-200', chicago: 'bg-neutral-400', la: 'bg-neutral-600' } as Record<string, string>
+const tile = { seoul: 'bg-neutral-300', chicago: 'bg-neutral-400', la: 'bg-neutral-500' } as Record<string, string>
+const slots = wallCities.flatMap((c) => c.photos.concat(c.photos).map((_, k) => ({ city: c, k })))
+const dims = [[96, 120], [130, 96], [80, 80], [110, 150], [150, 110]]
+const wallItems = slots.map((sl, i) => {
+  const [w, h] = dims[(i * 3) % dims.length]
+  return { ...sl, i, w, h, x: 30 + i * 78, y: 20 + ((i * 131) % 230) }
+})
+const wallW = wallItems[wallItems.length - 1].x + 200
 
-function Scrubber() {
-  const last = reel.length - 1
-  const [t, setT] = useState(last)
-  const [live, setLive] = useState(false)
-  const at = Math.round(t)
-  const cur = reel[at]
-  const scrub = (e: React.PointerEvent<HTMLDivElement>) => {
+function ScrubberWall() {
+  const el = useRef<HTMLDivElement>(null)
+  const [frac, setFrac] = useState(0)
+  const [open, setOpen] = useState<(typeof wallItems)[number] | null>(null)
+  const range = () => (el.current ? el.current.scrollWidth - el.current.clientWidth : 1)
+  const jump = (e: React.PointerEvent<HTMLDivElement>) => {
     const r = e.currentTarget.getBoundingClientRect()
-    setT(Math.min(last, Math.max(0, ((e.clientX - r.left) / r.width) * last)))
+    const f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))
+    if (el.current) el.current.scrollLeft = f * range()
   }
+  const here = wallItems[Math.round(frac * (wallItems.length - 1))].city
   return (
     <div className={phone}>
-      {title(cur.city.name, cur.city.years)}
-      <div className="relative mt-6 h-[320px]">
-        {reel.map((m, k) => {
-          const d = k - t
-          if (Math.abs(d) > 2.2) return null
-          return (
-            <img
-              key={m.src}
-              src={m.src}
-              alt=""
-              draggable={false}
-              className="absolute left-1/2 top-0 h-[300px] w-[220px] rounded-card object-cover shadow-lg"
-              style={{
-                transform: `translateX(calc(-50% + ${d * 190}px)) scale(${1 - Math.min(Math.abs(d), 2) * 0.12})`,
-                opacity: 1 - Math.min(Math.abs(d), 2) * 0.3,
-                zIndex: 10 - Math.round(Math.abs(d)),
-                transition: live ? 'none' : 'transform 300ms, opacity 300ms',
-              }}
+      {title(here.name, here.years)}
+      <div
+        ref={el}
+        className="mt-4 h-[400px] cursor-grab overflow-x-auto overflow-y-hidden [scrollbar-width:none]"
+        onScroll={() => setFrac(el.current ? el.current.scrollLeft / range() : 0)}
+      >
+        <div className="relative h-full" style={{ width: wallW }}>
+          {wallItems.map((m) => (
+            <button
+              key={m.i}
+              type="button"
+              onClick={() => setOpen(m)}
+              className={cx('absolute rounded-sm border-2 border-white shadow-sm', tile[m.city.id])}
+              style={{ left: m.x, top: m.y, width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)` }}
             />
-          )
-        })}
+          ))}
+        </div>
       </div>
-      <p className="mx-[30px] mt-2 text-center text-footnote text-ink-muted">
-        {at + 1} of {reel.length} captures · drag the bar below
-      </p>
       <div className="absolute inset-x-[20px] bottom-8">
-        <div
-          className="relative flex h-12 touch-none select-none gap-1"
-          onPointerDown={(e) => {
-            e.currentTarget.setPointerCapture(e.pointerId)
-            setLive(true)
-            scrub(e)
-          }}
-          onPointerMove={(e) => live && scrub(e)}
-          onPointerUp={() => {
-            setLive(false)
-            setT(Math.round(t))
-          }}
-        >
-          {[...cities].reverse().map((c) => (
-            <div key={c.id} className={cx('rounded-full shadow-sm', c.bg, c.id === 'seoul' && 'border border-baton-navy/20')} style={{ flex: c.photos.length }} />
+        <div className="relative flex h-10 touch-none select-none gap-0.5" onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); jump(e) }} onPointerMove={(e) => e.buttons && jump(e)}>
+          {wallCities.map((c) => (
+            <div key={c.id} className={cx('rounded-sm', shade[c.id])} style={{ flex: c.photos.length }} />
           ))}
           <div
-            className="pointer-events-none absolute -bottom-1 -top-1 w-1.5 -translate-x-1/2 rounded-full bg-baton-navy shadow-md"
-            style={{ left: `${(t / last) * 100}%`, transition: live ? 'none' : 'left 300ms' }}
+            className="pointer-events-none absolute inset-y-[-4px] rounded-sm border-2 border-neutral-900"
+            style={{ width: '28%', left: `${frac * 72}%` }}
           />
         </div>
-        <div className="mt-2 flex gap-1 text-caption text-ink-muted">
-          {[...cities].reverse().map((c) => (
-            <span key={c.id} style={{ flex: c.photos.length }} className="truncate text-center">
-              {c.name}
-            </span>
+        <div className="mt-1 flex gap-0.5 text-caption text-ink-muted">
+          {wallCities.map((c) => (
+            <span key={c.id} style={{ flex: c.photos.length }} className="truncate text-center">{c.name}</span>
           ))}
         </div>
       </div>
+      {open && (
+        <div className="absolute inset-0 z-10 flex animate-note-stick flex-col bg-white p-[30px] pt-14" onClick={() => setOpen(null)}>
+          <div className={cx('h-[300px] w-full rounded-sm', tile[open.city.id])} />
+          <p className="mt-4 text-footnote text-ink-muted">{open.city.name} · {open.city.years}</p>
+          <p className="text-body">Capture #{open.i + 1}. Place, time and your note would sit here.</p>
+          <p className="mt-auto text-center text-caption text-ink-muted">Tap anywhere to go back to the wall</p>
+        </div>
+      )}
     </div>
   )
 }
 
 const ideas = [
-  { name: 'Scrubber', blurb: 'A timeline along the bottom, colored by city. Drag along it and the captures slide past sideways, in order.', node: <Scrubber /> },
+  { name: 'Scrubber wall', blurb: 'One huge horizontal wall of captures, oldest at the left. Scrub the gray timeline (a shade per city) to move along it, tap a capture for details. Gray boxes only.', node: <ScrubberWall /> },
   { name: 'Full-bleed pages', blurb: 'One city per screen, snapping as you swipe up. Big photo, one sentence, the city’s color.', node: <Pages /> },
   { name: 'Route map', blurb: 'The cities as stops on the line she has traveled. Tap a stop for its photos and sentence.', node: <RouteMap /> },
   { name: 'Passport', blurb: 'A stamp per city, with a blank one for the next. Tap a stamp to open that city.', node: <Passport /> },
