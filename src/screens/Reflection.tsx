@@ -49,6 +49,9 @@ export function Reflection() {
   const [category, setCategory] = useState<CloudCategory | null>(null)
   const [reading, setReading] = useState(false)
   const [adding, setAdding] = useState(false)
+  // While she's writing (the keyboard is up) the button steps aside
+  const [typing, setTyping] = useState(false)
+  const noteRef = useRef<HTMLTextAreaElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const orbRef = useRef<HTMLDivElement>(null)
   const morphRef = useRef<HTMLDivElement>(null)
@@ -153,7 +156,11 @@ export function Reflection() {
 
   return (
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
-      <div className="absolute inset-0 overflow-y-auto">
+      <div
+        className="absolute inset-0 overflow-y-auto"
+        // Tapping anywhere off the note ends typing (iOS doesn't always do it)
+        onPointerDown={(event) => event.target !== noteRef.current && noteRef.current?.blur()}
+      >
         <div className="flex flex-col items-center px-gutter pb-40">
           <div className={`flex flex-col items-center ${adding ? away : settle}`}>
             <p className="mt-[62px] text-moment-meta text-wrap-faint">{reflectionCopy.label}</p>
@@ -181,8 +188,11 @@ export function Reflection() {
           <label className={`mt-6 block size-[327px] shrink-0 -rotate-3 rounded-[10px] bg-note-yellow px-5 pt-[30px] pb-5 shadow-moment-note ${adding ? away : settle}`}>
             <span className="sr-only">Your reflection</span>
             <textarea
+              ref={noteRef}
               value={text}
               onChange={(event) => setText(event.target.value)}
+              onFocus={() => setTyping(true)}
+              onBlur={() => setTyping(false)}
               placeholder={reflectionCopy.placeholder}
               className="block size-full resize-none bg-transparent text-moment-note text-baton-navy placeholder:text-baton-navy/40 focus:outline-none"
             />
@@ -207,11 +217,13 @@ export function Reflection() {
         <ArrowLeftIcon />
       </button>
 
-      {/* Pinned to the bottom */}
+      {/* Pinned to the bottom, out of the way while she's typing */}
       <div className={`pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex justify-center ${adding ? away : settle}`}>
-        <Button variant="glow" onClick={addToArchive} className="pointer-events-auto h-[52px] w-[309px] text-cta">
-          {reflectionCopy.save}
-        </Button>
+        <div className={`transition duration-300 ease-out ${typing ? 'translate-y-4 opacity-0' : 'pointer-events-auto'}`} aria-hidden={typing}>
+          <Button variant="glow" onClick={addToArchive} tabIndex={typing ? -1 : undefined} className="h-[52px] w-[309px] text-cta">
+            {reflectionCopy.save}
+          </Button>
+        </div>
       </div>
     </div>
   )
