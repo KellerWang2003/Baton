@@ -56,7 +56,10 @@ export function IntentionsVideo() {
 // trail the pan on individual springs. One Fluid Glass lens is rendered once
 // and its still image is every bubble's glass, with the blue fill and goal.
 export function Intentions() {
-  const [picked, setPicked] = useState(useStore().goals)
+  const { goals, fewBubbles } = useStore()
+  const [picked, setPicked] = useState(goals)
+  // Debug option: just the six bubbles around the middle of the first view
+  const bubbles = fewBubbles ? goalBubbles.slice(0, 6) : goalBubbles
   const shell = useGlassShell()
   // At least three before she can set them
   const ready = picked.length >= intentions.minPicks
@@ -69,7 +72,7 @@ export function Intentions() {
     <div className="relative h-full overflow-hidden bg-baton-paper font-display text-baton-navy">
       {shell.node}
       <PanCanvas>
-        {goalBubbles.map((bubble, i) => (
+        {bubbles.map((bubble, i) => (
           <div key={bubble.goal} data-intention-bubble className="absolute left-0 top-0">
             <Bubble
               label={bubble.goal}

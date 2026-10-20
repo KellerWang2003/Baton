@@ -59,6 +59,8 @@ type State = {
   archiveWall: boolean
   // Debug: hide the tab bar and + field, for clean recordings
   hideNav: boolean
+  // Debug: only six intention bubbles on the Intentions screen
+  fewBubbles: boolean
   // Debug: hide the iOS status bar (time, signal, battery)
   hideStatusBar: boolean
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
@@ -119,6 +121,7 @@ let state: State = {
   relayLook: 'scrapbook',
   archiveWall: false,
   hideNav: false,
+  fewBubbles: false,
   hideStatusBar: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
