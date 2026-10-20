@@ -1,165 +1,186 @@
 import { useEffect, useRef, useState } from 'react'
-import type { CSSProperties, PointerEvent as ReactPointerEvent, ReactNode } from 'react'
-import { paperNotes } from '../data/rollingPaper'
-import FluidGlass from '../ui/FluidGlass'
-import { TAB_PATH, TAB_WIDTH, folderTones } from '../ui/folderStyles'
-import { cx } from '../ui/cx'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 
-// Brand collage playground (team only: Debug > Brand collage, or ?collage): the
-// prototype's little motion pieces on a plain canvas. Drag any piece to move it;
-// Play loops them all on one shared clock (0..1 every LOOP ms).
-const LOOP = 6000
-const ease = (x: number) => x * x * (3 - 2 * x)
-// 0 before a, 1 after b, eased in between
-const span = (t: number, a: number, b: number) => ease(Math.min(1, Math.max(0, (t - a) / (b - a))))
+// Brand collage playground (team only: Debug > Brand collage, or ?collage).
+// Every piece is the real prototype running in a small window (the app itself
+// with ?embed, on the screen the motion lives on), so the motion is exactly the
+// prototype's. Drag a piece to move it; Play replays each one on a loop.
+// Taps and scrolls are scripted into the embedded app.
 
-const photos = ['11951', '11954', '11957', '11960', '16', '18', '19', '20'].map((n) => `/archive/la-cloud/${n}.jpg`)
+type Win = Window & typeof globalThis
+const PHONE = { w: 402, h: 874 }
 
-type Piece = { id: string; name: string; x: number; y: number; w: number; h: number; render: (t: number, playing: boolean) => ReactNode }
+type Piece = {
+  id: string
+  name: string
+  hash: string
+  x: number
+  y: number
+  // Window size on the canvas and the app's scale inside it
+  w: number
+  h: number
+  scale: number
+  // Which part of the 402x874 app shows (its top left, in app points)
+  ox?: number
+  oy?: number
+  rounded?: boolean
+  // Reload the app every loopMs on Play, so entrances play again
+  loopMs?: number
+  // Scripted taps and scrolls once the app has loaded; returns a cleanup
+  script?: (win: Win) => () => void
+}
+
+const wait = (ms: number, fn: () => void) => {
+  const id = window.setTimeout(fn, ms)
+  return () => window.clearTimeout(id)
+}
+
+function pointer(win: Win, target: Element, type: string, x: number, y: number) {
+  target.dispatchEvent(new win.PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, pointerId: 1, pointerType: 'touch', isPrimary: true, buttons: type === 'pointerup' ? 0 : 1 }))
+}
+
+function tap(win: Win, x: number, y: number) {
+  const el = win.document.elementFromPoint(x, y)
+  if (!el) return
+  pointer(win, el, 'pointerdown', x, y)
+  pointer(win, el, 'pointerup', x, y)
+  el.dispatchEvent(new win.MouseEvent('click', { bubbles: true, cancelable: true, clientX: x, clientY: y }))
+}
+
+function scroller(win: Win) {
+  let el: Element | null = win.document.elementFromPoint(PHONE.w / 2, PHONE.h / 2)
+  while (el && !/(auto|scroll)/.test(win.getComputedStyle(el).overflowY)) el = el.parentElement
+  return el
+}
 
 const pieces: Piece[] = [
   {
-    id: 'blob', name: "Today's blob", x: 60, y: 40, w: 300, h: 300,
-    render: (_t, playing) => (
-      <div className="relative h-full w-full">
-        <div className="absolute inset-[34px]" style={{ background: 'radial-gradient(circle at 50% 50%, #f7f3ef 45%, #cfe3ff 75%, #59a1ff 100%)', borderRadius: playing ? `${50 + 10 * Math.sin(_t * 6.28 * 2)}% ${50 - 10 * Math.sin(_t * 6.28 * 2)}% ${50 + 8 * Math.cos(_t * 6.28 * 2)}% ${50 - 8 * Math.cos(_t * 6.28 * 2)}%` : '50%', boxShadow: '0 10px 30px rgb(89 161 255 / .25)' }} />
-        <FluidGlass
-          text="Take a photo"
-          fontSize={36}
-          shape="blob"
-          size={230}
-          color="#59a1ff"
-          rim={0.36}
-          ring={1}
-          breathe={playing ? 0.6 : 0.25}
-          wobble={0.5}
-          idle={playing}
-          interaction="static"
-          background="#f7f3ef"
-          transparentOutside
-        />
-      </div>
-    ),
-  },
-  {
-    id: 'archive', name: 'Archive scrolling', x: 420, y: 60, w: 300, h: 220,
-    render: (t) => {
-      const shift = -t * 4 * 140
-      return (
-        <div className="h-full w-full overflow-hidden rounded-[28px] bg-baton-cream shadow-lg">
-          <div className="flex h-full items-center gap-3 px-3" style={{ transform: `translateX(${shift}px)` }}>
-            {[...photos, ...photos].map((src, i) => (
-              <img key={i} src={src} alt="" draggable={false} className="h-[140px] w-[128px] shrink-0 rounded-full object-cover" style={{ transform: `translateY(${Math.sin(i * 1.7 + t * 6.28) * 24}px)` }} />
-            ))}
-          </div>
-        </div>
-      )
+    // Today's blob: it morphs on its own; a scripted scroll and drag push it
+    id: 'blob', name: "Today's blob", hash: '/today', x: 60, y: 30, w: 330, h: 330, scale: 0.9, ox: 10, oy: 110,
+    script: (win) => {
+      let stop: Array<() => void> = []
+      const run = () => {
+        const page = scroller(win)
+        page?.scrollTo({ top: 50, behavior: 'smooth' })
+        stop.push(wait(900, () => page?.scrollTo({ top: 0, behavior: 'smooth' })))
+        const glass = win.document.querySelector('canvas')
+        const r = glass?.getBoundingClientRect()
+        if (glass && r) {
+          const cx = r.left + r.width / 2, cy = r.top + r.height / 2
+          stop.push(wait(1800, () => pointer(win, glass, 'pointerdown', cx, cy)))
+          for (let i = 1; i <= 8; i++) stop.push(wait(1800 + i * 60, () => pointer(win, glass, 'pointermove', cx + i * 7, cy - i * 5)))
+          stop.push(wait(2500, () => pointer(win, glass, 'pointerup', cx + 56, cy - 40)))
+        }
+      }
+      const first = wait(1500, run)
+      const every = window.setInterval(() => { stop.forEach((s) => s()); stop = []; run() }, 4500)
+      return () => { first(); window.clearInterval(every); stop.forEach((s) => s()) }
     },
   },
   {
-    id: 'bubble', name: 'Intention bubble', x: 800, y: 40, w: 220, h: 220,
-    render: (t) => {
-      const on = span(t, 0.3, 0.55) * (1 - span(t, 0.85, 0.98))
-      const squish = 1 - 0.08 * Math.sin(Math.min(1, Math.max(0, (t - 0.28) / 0.1)) * Math.PI)
-      return (
-        <div className="relative flex h-full w-full items-center justify-center">
-          <div className="relative flex h-[190px] w-[190px] items-center justify-center rounded-full" style={{ transform: `scale(${squish})` }}>
-            <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle at 50% 45%, #f7f3ef 55%, #cfe3ff 80%, #59a1ff 100%)', boxShadow: 'inset 0 0 0 2px rgb(255 255 255 / .8), 0 8px 24px rgb(34 36 48 / .1)' }} />
-            <div className="absolute inset-0 rounded-full" style={{ opacity: on, background: 'radial-gradient(circle, #59a1ff 25%, #c9defb 100%)' }} />
-            <span className="relative max-w-[130px] text-center font-display text-title-3 leading-tight" style={{ color: on > 0.5 ? '#efe6e2' : '#222430' }}>Find people who share my hobby</span>
-          </div>
-        </div>
-      )
+    // Archive: the folder stack, focus moving down and back up by wheel
+    id: 'archive', name: 'Scrolling in Archive', hash: '/archive', x: 440, y: 20, w: 250, h: 540, scale: 0.62, rounded: true,
+    script: (win) => {
+      const wheel = (dy: number) => {
+        const el = win.document.elementFromPoint(PHONE.w / 2, PHONE.h / 2)
+        el?.dispatchEvent(new win.WheelEvent('wheel', { bubbles: true, cancelable: true, deltaY: dy, clientX: PHONE.w / 2, clientY: PHONE.h / 2 }))
+      }
+      const steps = [300, 300, -300, -300]
+      let i = 0
+      const every = window.setInterval(() => { wheel(steps[i % steps.length]); i++ }, 1700)
+      return () => window.clearInterval(every)
     },
   },
   {
-    id: 'post', name: 'Tap to post', x: 90, y: 400, w: 260, h: 300,
-    render: (t) => {
-      const tap = Math.sin(Math.min(1, Math.max(0, (t - 0.2) / 0.25)) * Math.PI)
-      const land = span(t, 0.38, 0.5)
-      const out = span(t, 0.9, 1)
-      return (
-        <div className="relative h-full w-full">
-          <div className="absolute left-1/2 top-[210px] h-[70px] w-[70px] -translate-x-1/2 rounded-full bg-baton-blue/25" style={{ transform: `translateX(-50%) scale(${1 + tap * 1.4})`, opacity: tap * 0.8 }} />
-          <div className="absolute left-1/2 top-[220px] h-[50px] w-[50px] -translate-x-1/2 rounded-full bg-baton-blue shadow-md" style={{ transform: `translateX(-50%) scale(${1 - tap * 0.15})` }} />
-          <div className="absolute left-1/2 top-[10px] flex h-[170px] w-[190px] items-center justify-center rounded-[14px] bg-baton-yellow p-5 font-display text-title-3 leading-snug text-baton-olive shadow-lg" style={{ opacity: land * (1 - out), transform: `translateX(-50%) rotate(${-4 + (1 - land) * 14}deg) scale(${1.25 - land * 0.25})` }}>
-            The window seat at Lake Ave is mine.
-          </div>
-        </div>
-      )
+    // Intentions: bubbles going from glass to picked blue, one by one
+    id: 'bubbles', name: 'Intention bubbles', hash: '/intentions', x: 740, y: 20, w: 250, h: 540, scale: 0.62, rounded: true, loopMs: 8000,
+    script: (win) => {
+      const timers = [1800, 2800, 3800, 4800].map((d, i) => wait(d, () => {
+        const mid = { x: PHONE.w / 2, y: PHONE.h / 2 }
+        const bubbles = [...win.document.querySelectorAll('button[aria-pressed]')]
+          .map((b) => ({ b, r: b.getBoundingClientRect() }))
+          .filter(({ r }) => r.left > 0 && r.right < PHONE.w && r.top > 90 && r.bottom < PHONE.h - 90)
+          .sort((a, b) => Math.hypot(a.r.left + a.r.width / 2 - mid.x, a.r.top + a.r.height / 2 - mid.y) - Math.hypot(b.r.left + b.r.width / 2 - mid.x, b.r.top + b.r.height / 2 - mid.y))
+        const pick = bubbles[i]
+        if (pick) tap(win, pick.r.left + pick.r.width / 2, pick.r.top + pick.r.height / 2)
+      }))
+      return () => timers.forEach((t) => t())
     },
   },
   {
-    id: 'paper', name: 'Rolling Paper', x: 440, y: 340, w: 330, h: 360,
-    render: (t) => {
-      const notes = paperNotes.slice(0, 6)
-      const lift = span(t, 0.35, 0.55) * (1 - span(t, 0.8, 0.95))
-      return (
-        <div className="relative h-full w-full overflow-hidden rounded-[28px] bg-baton-paper shadow-lg">
-          {notes.map((n, i) => {
-            const picked = i === 2
-            const draw = span(t, 0.05 + i * 0.05, 0.2 + i * 0.05)
-            const col = i % 2, row = Math.floor(i / 2)
-            const x = 28 + col * 150 + (picked ? (165 - 28 - 150 + 30) * lift : 0)
-            const y = 30 + row * 105 + (picked ? (130 - 30 - 210) * lift : 0)
-            return (
-              <div key={n.name} className={cx('absolute flex h-[96px] w-[118px] items-center justify-center rounded-md p-2 text-center text-caption leading-tight shadow-md', `bg-baton-${n.color}`, n.color === 'blue' || n.color === 'olive' ? 'text-baton-cream' : 'text-baton-navy')} style={{ left: x, top: y, opacity: draw, transform: `rotate(${n.rotate * (1 - lift * (picked ? 1 : 0))}deg) scale(${1 + (picked ? lift * 0.6 : 0)})`, zIndex: picked ? 5 : 1 }}>
-                {n.text.slice(0, picked ? 60 : 36)}…
-              </div>
-            )
-          })}
-          <img src="/rolling-paper/doodles/doodle-1.png" alt="" draggable={false} className="absolute right-6 top-4 w-9" style={{ opacity: span(t, 0.2, 0.3) * (1 - lift) }} />
-        </div>
-      )
+    // Tap the prompt on Today: the circle opens into the camera or the field
+    id: 'post', name: 'Tap to post', hash: '/today', x: 80, y: 410, w: 250, h: 540, scale: 0.62, rounded: true, loopMs: 7000,
+    script: (win) => {
+      const glass = () => win.document.querySelector('canvas')
+      const close = [
+        wait(1800, () => { const r = glass()?.getBoundingClientRect(); if (r) tap(win, r.left + r.width / 2, r.top + r.height / 2) }),
+        wait(5000, () => win.dispatchEvent(new win.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))),
+      ]
+      return () => close.forEach((c) => c())
     },
   },
   {
-    id: 'folders', name: 'Folder stack', x: 840, y: 340, w: 340, h: 300,
-    render: (t) => {
-      // Two tilted folders, the front one sliding over the back one and settling
-      const slide = Math.sin(t * Math.PI * 2)
-      const stack = [
-        { tone: 'blue', city: 'LA', dates: '09.2018-12.2020', left: 10, top: 20, rot: 6 + slide * 2 },
-        { tone: 'pink', city: 'Chicago', dates: '11.2020-06.2022', left: 70 + slide * 14, top: 70 - slide * 6, rot: 6 - slide * 2 },
-      ] as const
-      return (
-        <div className="relative h-full w-full">
-          {stack.map((f) => {
-            const tone = folderTones[f.tone]
-            return (
-              <div key={f.city} className="absolute w-[240px]" style={{ left: f.left, top: f.top, transform: `rotate(${f.rot}deg)`, transformOrigin: '50% 50%' }}>
-                <svg width={TAB_WIDTH * 0.72} height={53 * 0.72} viewBox={`0 0 ${TAB_WIDTH} 53`} className={cx('ml-[8px] block', tone.fillText)}><path d={TAB_PATH} fill="currentColor" /></svg>
-                <p className={cx('absolute left-[40px] top-[6px] font-display text-subhead', tone.title)}>{f.city}</p>
-                <div className={cx('flex h-[170px] items-center justify-center rounded-[28px] rounded-tl-[8px]', tone.fill)} style={{ marginTop: -1 }}>
-                  <span className={cx('font-display text-title-3', tone.body)}>{f.dates}</span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )
-    },
+    id: 'paper', name: 'Rolling Paper', hash: '/rolling-paper', x: 740, y: 600, w: 250, h: 540, scale: 0.62, rounded: true, loopMs: 18000,
+  },
+  {
+    // The LA folder sliding aside as the new one lands on top
+    id: 'folders', name: 'Folders', hash: '/newcomer-now', x: 440, y: 620, w: 340, h: 300, scale: 1, ox: 36, oy: 215, loopMs: 5000,
   },
 ]
+
+function Live({ piece, playing }: { piece: Piece; playing: boolean }) {
+  const [run, setRun] = useState(0)
+  const frame = useRef<HTMLIFrameElement>(null)
+  const cleanup = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    if (!playing || !piece.loopMs) return
+    const every = window.setInterval(() => setRun((r) => r + 1), piece.loopMs)
+    return () => window.clearInterval(every)
+  }, [playing, piece.loopMs])
+
+  // Scripts only run while playing; leaving Play stops them
+  useEffect(() => {
+    const win = frame.current?.contentWindow as Win | null | undefined
+    if (!playing) {
+      cleanup.current?.()
+      cleanup.current = null
+      return
+    }
+    if (win && frame.current?.dataset.loaded === 'true' && !cleanup.current) cleanup.current = piece.script?.(win) ?? null
+    return () => { cleanup.current?.(); cleanup.current = null }
+  }, [playing, run, piece])
+
+  const onLoad = () => {
+    const el = frame.current
+    if (!el) return
+    el.dataset.loaded = 'true'
+    // Give the app a moment to mount its screen, then start the script
+    if (playing) window.setTimeout(() => {
+      const win = el.contentWindow as Win | null
+      if (win && !cleanup.current) cleanup.current = piece.script?.(win) ?? null
+    }, 700)
+  }
+
+  return (
+    <iframe
+      ref={frame}
+      key={run}
+      title={piece.name}
+      src={`/?embed#${piece.hash}`}
+      onLoad={onLoad}
+      tabIndex={-1}
+      className="absolute border-0 bg-transparent"
+      style={{ width: PHONE.w, height: PHONE.h, left: -(piece.ox ?? 0) * piece.scale, top: -(piece.oy ?? 0) * piece.scale, transform: `scale(${piece.scale})`, transformOrigin: '0 0', pointerEvents: 'none' }}
+    />
+  )
+}
 
 export function Collage({ onClose }: { onClose: () => void }) {
   const [pos, setPos] = useState(() => Object.fromEntries(pieces.map((p) => [p.id, { x: p.x, y: p.y }])))
   const [playing, setPlaying] = useState(false)
-  const [t, setT] = useState(0)
-  const drag = useRef<{ id: string; dx: number; dy: number } | null>(null)
   const [z, setZ] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (!playing) return
-    const start = performance.now()
-    let raf = 0
-    const frame = (now: number) => {
-      setT(((now - start) % LOOP) / LOOP)
-      raf = requestAnimationFrame(frame)
-    }
-    raf = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(raf)
-  }, [playing])
+  const drag = useRef<{ id: string; dx: number; dy: number } | null>(null)
 
   const down = (id: string) => (e: ReactPointerEvent) => {
     drag.current = { id, dx: e.clientX - pos[id].x, dy: e.clientY - pos[id].y }
@@ -171,29 +192,26 @@ export function Collage({ onClose }: { onClose: () => void }) {
     if (d) setPos((p) => ({ ...p, [d.id]: { x: e.clientX - d.dx, y: e.clientY - d.dy } }))
   }
 
-  // Paused shows each piece mid-story, not blank
-  const shown = playing ? t : 0.5
   return (
     <div role="dialog" aria-modal="true" aria-label="Brand collage" className="fixed inset-0 z-40 overflow-auto bg-baton-paper font-body text-ink">
-      <div className="relative" style={{ width: 1240, height: 780, minWidth: '100%' }}>
+      <div className="relative" style={{ width: 1100, height: 1160, minWidth: '100%' }}>
         {pieces.map((p) => (
           <div
             key={p.id}
             role="group"
             aria-label={p.name}
-            onPointerDown={down(p.id)}
-            onPointerMove={move}
-            onPointerUp={() => { drag.current = null }}
-            className="absolute cursor-grab touch-none select-none active:cursor-grabbing"
-            style={{ left: pos[p.id].x, top: pos[p.id].y, width: p.w, height: p.h, zIndex: z === p.id ? 10 : 1 } as CSSProperties}
+            className={`absolute overflow-hidden ${p.rounded ? 'rounded-[28px] shadow-lg' : ''}`}
+            style={{ left: pos[p.id].x, top: pos[p.id].y, width: p.w, height: p.h, zIndex: z === p.id ? 10 : 1 }}
           >
-            {p.render(shown, playing)}
+            <Live piece={p} playing={playing} />
+            {/* Catches the pointer so a piece drags even over its live app */}
+            <div onPointerDown={down(p.id)} onPointerMove={move} onPointerUp={() => { drag.current = null }} className="absolute inset-0 cursor-grab touch-none select-none active:cursor-grabbing" />
           </div>
         ))}
       </div>
       <div className="fixed left-6 top-5 z-20">
         <h1 className="font-display text-title-2">Brand collage</h1>
-        <p className="text-subhead text-ink-muted">Drag the pieces anywhere. Play loops their motion.</p>
+        <p className="text-subhead text-ink-muted">The real prototype motion. Drag the pieces anywhere; Play loops them.</p>
       </div>
       <div className="fixed right-6 top-5 z-20 flex gap-2">
         <button type="button" onClick={() => setPlaying((v) => !v)} className="rounded-full bg-brand px-5 py-2 text-subhead font-medium text-on-brand hover:opacity-90">{playing ? 'Pause' : 'Play'}</button>

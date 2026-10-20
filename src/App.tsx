@@ -24,7 +24,10 @@ const MapPlayground = lazy(() => import('./screens/MapPlayground').then((m) => (
 
 function App() {
   const [index, goTo] = useScreenIndex()
-  const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
+  // ?embed: just the bare app, for the Brand collage's live pieces
+  const embed = new URLSearchParams(window.location.search).has('embed')
+  const [storedFramed, toggleFrame] = usePersistentToggle('baton:framed', true)
+  const framed = !embed && storedFramed
   const [frame, updateFrame] = useFrameSize()
   const [joystick, toggleJoystick] = usePersistentToggle('baton:joystick', false)
   const [lockRatio, toggleLockRatio] = usePersistentToggle('baton:lock-ratio', true)
@@ -96,7 +99,7 @@ function App() {
           </div>
         </DeviceFrame>
       )}
-      <DebugPanel
+      {!embed && <DebugPanel
         index={index}
         goTo={goToScreen}
         framed={framed}
@@ -127,8 +130,8 @@ function App() {
         toggleArchiveIdeas={() => setArchiveIdeasOpen((open) => !open)}
         collageOpen={collageOpen}
         toggleCollage={() => setCollageOpen((open) => !open)}
-      />
-      {joystick && <ScrollJoystick />}
+      />}
+      {!embed && joystick && <ScrollJoystick />}
       {mapsOpen && (
         <Suspense>
           <MapPlayground onClose={() => setMapsOpen(false)} />
