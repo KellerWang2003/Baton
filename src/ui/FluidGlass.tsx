@@ -1096,9 +1096,11 @@ const FluidGlass = ({
 
     const resize = () => {
       const s = settingsRef.current;
-      const rect = container.getBoundingClientRect();
-      const cssWidth = Math.max(1, rect.width);
-      const cssHeight = Math.max(1, rect.height);
+      // Its layout size, not its size on screen: the prototype's phone frame
+      // scales down to fit and the 3D proto tilts it, and either would shrink
+      // the lens inside its canvas (leaving a pale band at its edge)
+      const cssWidth = Math.max(1, container.offsetWidth);
+      const cssHeight = Math.max(1, container.offsetHeight);
       const ratio = Math.min(
         window.devicePixelRatio || 1,
         s.maxRatio,
@@ -1511,9 +1513,12 @@ const FluidGlass = ({
 
     const locate = (event: PointerEvent) => {
       const rect = container.getBoundingClientRect();
+      // Window pixels back into the glass's own (layout) points
+      const scaleX = container.offsetWidth / (rect.width || 1);
+      const scaleY = container.offsetHeight / (rect.height || 1);
       return {
-        x: event.clientX - rect.left,
-        y: event.clientY - rect.top,
+        x: (event.clientX - rect.left) * scaleX,
+        y: (event.clientY - rect.top) * scaleY,
         inside:
           event.clientX >= rect.left &&
           event.clientX <= rect.right &&
@@ -1613,8 +1618,12 @@ const FluidGlass = ({
       if (visible && pageVisible) media.clip.play().catch(() => {});
       else media.clip.pause();
     };
+    // Inside a 3D-tilted ancestor (the 3D proto's phone) Chrome can report the
+    // glass as out of view while it's on screen, so also check its box
+    const onScreen = (rect: DOMRectReadOnly) =>
+      rect.width > 0 && rect.bottom > 0 && rect.right > 0 && rect.top < window.innerHeight && rect.left < window.innerWidth;
     const intersection = new IntersectionObserver(entries => {
-      visible = entries.some(entry => entry.isIntersecting);
+      visible = entries.some(entry => entry.isIntersecting || onScreen(entry.boundingClientRect));
       playback();
       wake();
     });

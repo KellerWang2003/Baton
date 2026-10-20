@@ -148,6 +148,9 @@
   --color-baton-olive: #3f4017;
   --color-baton-navy: #222430;
   --color-device: #000000; /* status bar clock and Dynamic Island */
+  /* The phone's side in the Archive mock: a lit rim at the front, darker toward the back */
+  --color-device-rim: #4a4a4f;
+  --color-device-edge: #18181a;
   --color-baton-paper: #faf9f6; /* page behind the Archive folders and Relay */
   --color-baton-chip: #f0efec; /* Relay filter chips and search on paper */
   /* Relay map (Figma 268:3798): a light street map */
@@ -180,6 +183,14 @@
   --color-surface: #ffffff; /* fields, floating pills and anything that has to sit above a card */
   --color-surface-muted: var(--color-baton-chip); /* fill: gray buttons, segmented track, chips */
   --color-placeholder: #d4d4d4; /* stand-in for images not made yet */
+  /* Archive direction wireframes (Debug > Archive direction): grayscale only */
+  --color-wire-canvas: #f8f8f8;
+  --color-wire-land: #ededed;
+  --color-wire-line: #e4e4e4;
+  --color-wire-photo: #d6d6d6;
+  --color-wire-mid: #a6a6a6;
+  --color-wire-dark: #555555;
+  --color-wire-ink: #2e2e2e;
   /* Text: navy, a quiet gray for detail lines, and a faint gray for dates and
      placeholders */
   --color-ink: #222430;

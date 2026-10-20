@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { toLocal } from '../app/localPoint'
 import { cx } from './cx'
 
 export type CloudCategory = 'feeling' | 'people' | 'places'
@@ -124,12 +125,15 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
   }
 
   // Pointer position in the viewport's own pixels (the phone frame may be
-  // scaled down to fit the window)
+  // scaled down to fit the window, or tilted in the Archive mock). The mapping
+  // is measured again only when the viewport moves on screen.
+  const localMap = useRef<{ key: string; map: (point: Point) => Point } | null>(null)
   function local(event: { clientX: number; clientY: number }): Point {
     const viewport = viewportRef.current!
     const rect = viewport.getBoundingClientRect()
-    const ratio = viewport.clientWidth / rect.width || 1
-    return { x: (event.clientX - rect.left) * ratio, y: (event.clientY - rect.top) * ratio }
+    const key = `${rect.left},${rect.top},${rect.width},${rect.height}`
+    if (localMap.current?.key !== key) localMap.current = { key, map: toLocal(viewport) }
+    return localMap.current.map({ x: event.clientX, y: event.clientY })
   }
 
   // Centered horizontally, at the top like the Figma frame. The viewport

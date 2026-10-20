@@ -4,6 +4,7 @@ import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
 import { confettiVariants, cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
 import type { GlassTuning } from '../ui'
+import { archiveDirections } from '../data/archiveSketches'
 import { dailyPrompts } from '../data/pages'
 import { frameLimits } from './useFrameSize'
 import type { FrameSettings } from './useFrameSize'
@@ -32,6 +33,10 @@ type DebugPanelProps = {
   toggleLooks: () => void
   todayLooksOpen: boolean
   toggleTodayLooks: () => void
+  archiveMockOpen: boolean
+  toggleArchiveMock: () => void
+  sketchesOpen: boolean
+  toggleSketches: () => void
   archiveIdeasOpen: boolean
   toggleArchiveIdeas: () => void
   collageOpen: boolean
@@ -44,7 +49,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
 // or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
 // and F toggles the phone frame even while the panel is closed.
-export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage }: DebugPanelProps) {
+export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
   const { onboardingPhotoAccess, archiveWall } = useStore()
@@ -175,6 +180,8 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+        <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
+        <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
         <DebugToggle label="Archive as photo wall" on={archiveWall} onClick={() => setState({ archiveWall: !archiveWall })} />
         <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
 
@@ -226,6 +233,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
       </div>
 
       <PromptPicker />
+      <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
       <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
       <GlassControls />
 
@@ -375,6 +383,38 @@ function GlassControls() {
           </button>
         </div>
       )}
+    </div>
+  )
+}
+
+// A wireframe direction from the Archive sketches in place of the real
+// Archive tab, for the video's explorations part (picking one jumps there)
+function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
+  const { archiveSketch } = useStore()
+  const options = [{ id: null, label: 'Off' }, ...archiveDirections]
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
+      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Archive direction</span>
+      <div role="radiogroup" aria-label="Archive direction" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+        {options.map((option) => (
+          <button
+            key={option.label}
+            type="button"
+            role="radio"
+            aria-checked={archiveSketch === option.id}
+            onClick={() => {
+              setState({ archiveSketch: option.id })
+              goToArchive()
+            }}
+            className={cx(
+              'flex-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold transition',
+              archiveSketch === option.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
+            )}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }
