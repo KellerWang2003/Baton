@@ -2,17 +2,21 @@ import { Suspense, lazy, useState } from 'react'
 import { DebugPanel } from './app/DebugPanel'
 import { DeviceFrame } from './app/DeviceFrame'
 import { useStore } from './app/store'
+import { ScrollJoystick } from './app/ScrollJoystick'
+import { useFrameSize } from './app/useFrameSize'
 import { usePersistentToggle } from './app/usePersistentToggle'
 import { useScreenIndex } from './app/useScreenIndex'
 import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
 import { StageSplashOverlay } from './screens/StageSplash'
+import { Collage } from './screens/Collage'
 import { RelayMotion } from './screens/RelayMotion'
 import { ArchiveMock } from './screens/ArchiveMock'
 import { ArchiveSketchScreen, ArchiveSketches } from './screens/ArchiveSketches'
 import { RelayLooks } from './screens/RelayLooks'
 import { TodayLooks } from './screens/TodayLooks'
+import { ArchiveIdeas } from './screens/ArchiveIdeas'
 import { UiKit } from './screens/UiKit'
 
 // The map library is big, so it only loads when the playground opens
@@ -21,6 +25,8 @@ const MapPlayground = lazy(() => import('./screens/MapPlayground').then((m) => (
 function App() {
   const [index, goTo] = useScreenIndex()
   const [framed, toggleFrame] = usePersistentToggle('baton:framed', true)
+  const [frame, updateFrame] = useFrameSize()
+  const [joystick, toggleJoystick] = usePersistentToggle('baton:joystick', false)
   const [lockRatio, toggleLockRatio] = usePersistentToggle('baton:lock-ratio', true)
   const [backgroundColor, setBackgroundColor] = useState<string | null>(null)
   const [kitOpen, setKitOpen] = useState(false)
@@ -46,6 +52,10 @@ function App() {
     const search = [...params].map(([key, value]) => (value ? `${key}=${value}` : key)).join('&')
     window.history.replaceState(window.history.state, '', `${window.location.pathname}${search ? `?${search}` : ''}${window.location.hash}`)
   }
+  // Archive ideas playground (team only): debug panel, or ?archive-ideas in the URL
+  const [archiveIdeasOpen, setArchiveIdeasOpen] = useState(() => new URLSearchParams(window.location.search).has('archive-ideas'))
+  // Brand collage playground (team only): debug panel, or ?collage in the URL
+  const [collageOpen, setCollageOpen] = useState(() => new URLSearchParams(window.location.search).has('collage'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
   const { status, stageSplash, archiveSketch } = useStore()
@@ -61,7 +71,7 @@ function App() {
     <>
       {/* The 3D proto runs its own Archive screens; hide the prototype meanwhile */}
       {!archiveMockOpen && (
-        <DeviceFrame framed={framed} lockRatio={lockRatio} backgroundColor={backgroundColor} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
+        <DeviceFrame framed={framed} frame={frame} lockRatio={lockRatio} backgroundColor={backgroundColor} onboardingStatus={['signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'].includes(id)}>
           <div data-stage={status ?? stage} className="relative h-full">
             {kitOpen ? (
               <UiKit />
@@ -91,6 +101,10 @@ function App() {
         goTo={goToScreen}
         framed={framed}
         toggleFrame={toggleFrame}
+        frame={frame}
+        updateFrame={updateFrame}
+        joystick={joystick}
+        toggleJoystick={toggleJoystick}
         lockRatio={lockRatio}
         toggleLockRatio={toggleLockRatio}
         backgroundColor={backgroundColor}
@@ -109,7 +123,12 @@ function App() {
         toggleArchiveMock={() => setArchiveMockOpen(!archiveMockOpen)}
         sketchesOpen={sketchesOpen}
         toggleSketches={() => setSketchesOpen((open) => !open)}
+        archiveIdeasOpen={archiveIdeasOpen}
+        toggleArchiveIdeas={() => setArchiveIdeasOpen((open) => !open)}
+        collageOpen={collageOpen}
+        toggleCollage={() => setCollageOpen((open) => !open)}
       />
+      {joystick && <ScrollJoystick />}
       {mapsOpen && (
         <Suspense>
           <MapPlayground onClose={() => setMapsOpen(false)} />
@@ -120,6 +139,8 @@ function App() {
       {todayLooksOpen && <TodayLooks onClose={() => setTodayLooksOpen(false)} />}
       {sketchesOpen && <ArchiveSketches onClose={() => setSketchesOpen(false)} />}
       {archiveMockOpen && <ArchiveMock onClose={() => setArchiveMockOpen(false)} backgroundColor={backgroundColor} />}
+      {collageOpen && <Collage onClose={() => setCollageOpen(false)} />}
+      {archiveIdeasOpen && <ArchiveIdeas onClose={() => setArchiveIdeasOpen(false)} />}
     </>
   )
 }

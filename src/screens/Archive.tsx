@@ -1,9 +1,10 @@
 import { useRef } from 'react'
 import { playFolderExit } from '../app/folderTransition'
 import { navigate } from '../app/navigate'
-import { setState, useStatus } from '../app/store'
+import { setState, useStatus, useStore } from '../app/store'
 import { archiveFolders, archiveSummary } from '../data/stages'
 import { FolderStack, TypedSummary } from '../ui'
+import { ScrubberWall } from './ArchiveIdeas'
 import { MainLayout } from './MainLayout'
 
 // City folders with LA in focus at first (Figma ARCHIVE_default). Scrolling
@@ -14,6 +15,15 @@ import { MainLayout } from './MainLayout'
 export function Archive() {
   const status = useStatus()
   const opening = useRef(false)
+  const { archiveWall } = useStore()
+
+  if (archiveWall) {
+    return (
+      <MainLayout bleed>
+        <ScrubberWall fill />
+      </MainLayout>
+    )
+  }
 
   return (
     <MainLayout bleed>
