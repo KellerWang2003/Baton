@@ -3,6 +3,8 @@
 // zooms its photo cloud out from small to full size, with the side tab and
 // the orb settling in after it. Archive plays the first half and then
 // navigates; the detail page plays the second half before its first paint.
+import { toLocal } from './localPoint'
+
 let opening = false
 
 const easeOut = 'cubic-bezier(0.22, 1, 0.36, 1)'
@@ -28,12 +30,12 @@ export async function playFolderExit(folderId: string) {
   if (!folder || prefersReducedMotion()) return
   const stack = folder.parentElement!.parentElement as HTMLElement
   const body = folder.children[1] as HTMLElement
-  // Zoom toward the upper middle of the folder's body, in the stack's own
-  // points (the phone frame may be scaled to fit the window)
-  const stackRect = stack.getBoundingClientRect()
-  const bodyRect = body.getBoundingClientRect()
-  const scale = stackRect.width / stack.offsetWidth || 1
-  const origin = `${(bodyRect.left + bodyRect.width / 2 - stackRect.left) / scale}px ${(bodyRect.top - stackRect.top) / scale + 140}px`
+  // Zoom toward the upper middle of the folder's body (140pt down from its
+  // top), in the stack's own points: the phone frame may be scaled, or tilted
+  // in the Archive mock, but the body's center on screen is still its center
+  const rect = body.getBoundingClientRect()
+  const center = toLocal(stack)({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+  const origin = `${center.x}px ${center.y - body.offsetHeight / 2 + 140}px`
   opening = true
   await stack
     .animate(

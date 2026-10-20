@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
+import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
 import { archiveMoments } from '../data/archiveMoments'
@@ -87,14 +88,15 @@ export function ArchiveSelected() {
   // The circle as a transform onto the tapped photo's spot in the cloud
   function atPhoto() {
     const circle = circleRef.current
-    if (!from || !circle) return null
-    // Both rects are in window pixels; the phone frame may be scaled, so turn
-    // the offset back into the page's own points
+    const page = pageRef.current
+    if (!from || !circle || !page) return null
+    // Both rects are in window pixels; the phone frame may be scaled (or tilted,
+    // in the Archive mock), so turn both centers back into the page's own points
     const to = circle.getBoundingClientRect()
-    const ratio = to.width / CIRCLE || 1
-    const dx = (from.x + from.size / 2 - (to.left + to.width / 2)) / ratio
-    const dy = (from.y + from.size / 2 - (to.top + to.height / 2)) / ratio
-    return `translate(${dx}px, ${dy}px) scale(${from.size / to.width})`
+    const local = toLocal(page)
+    const a = local({ x: from.x + from.size / 2, y: from.y + from.size / 2 })
+    const b = local({ x: to.left + to.width / 2, y: to.top + to.height / 2 })
+    return `translate(${a.x - b.x}px, ${a.y - b.y}px) scale(${from.size / to.width})`
   }
 
   useLayoutEffect(() => {

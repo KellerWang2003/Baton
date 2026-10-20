@@ -19,7 +19,11 @@ const ORB_SIZE = 250
 // a little past the size it's given and fills only 72% of its canvas, so the
 // canvas is bigger than the orb and isn't cropped, letting the rim show.
 const RIM_RATIO = 370 / 330
-const GLASS_SIZE = Math.ceil((ORB_SIZE * RIM_RATIO) / 0.72)
+// The glass is drawn a little bigger than the orb's circle, so its rim falls
+// just outside the mask below and no outline shows at the edge
+const GLASS_GROW = 1.06
+const GLASS_LENS = ORB_SIZE * GLASS_GROW
+const GLASS_SIZE = Math.ceil((GLASS_LENS * RIM_RATIO) / 0.72)
 // The glass paints its picture around the lens too, so the canvas is masked
 // to a circle just past the lens edge (the rim), feathered by a few points
 const LENS_RADIUS = (ORB_SIZE * RIM_RATIO) / 2
@@ -77,7 +81,7 @@ if (field) {
   field.height = FIELD
 }
 // The picture spans the glass canvas, which is wider than the orb
-const SPAN = GLASS_SIZE / ORB_SIZE
+const SPAN = GLASS_SIZE / GLASS_LENS
 
 function rgbOf(hex: string): [number, number, number] {
   const value = parseInt(hex.replace('#', ''), 16)
@@ -387,7 +391,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
             canvasFrame={frame}
             text=""
             shape="lens"
-            size={ORB_SIZE}
+            size={GLASS_LENS}
             // Today's glass without its edge line or blue rim, so the colors run
             // to the edge, and a slow small morph while it rests
             color={token('--color-baton-blue')}
