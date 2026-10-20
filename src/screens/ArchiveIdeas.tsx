@@ -1,270 +1,198 @@
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { cx } from '../ui'
 
-// Team-only page (from the debug panel, or ?archive-ideas in the URL): very
-// early ways to interact with the Archive, each a small phone-sized sketch with
-// mock data. Photos are stand-ins from the LA cloud.
-const p = (n: string) => `/archive/la-cloud/${n}.jpg`
+// Team-only page (from the debug panel, or ?archive-ideas in the URL): other ways
+// the Archive page itself could be built, instead of the stack of city folders.
+// Each is a small phone-sized sketch with the same mock cities and photos.
+const ph = (f: string) => `/archive/${f}.jpg`
+
+type City = {
+  id: string
+  name: string
+  years: string
+  bg: string // folder color
+  fg: string
+  line: string
+  photos: string[]
+}
+
+const cities: City[] = [
+  {
+    id: 'la',
+    name: 'Los Angeles',
+    years: '2022 – 2026',
+    bg: 'bg-baton-blue',
+    fg: 'text-baton-navy',
+    line: 'You chase beautiful sunsets and late night street tacos. Once an introvert, now the life of every party.',
+    photos: [ph('la-sunset'), ph('la-tacos-1'), ph('la-selfie'), ph('la-party-1'), ph('la-party-2'), ph('la-tacos-2')],
+  },
+  {
+    id: 'chicago',
+    name: 'Chicago',
+    years: '2021',
+    bg: 'bg-baton-olive',
+    fg: 'text-baton-cream',
+    line: 'You know the L by heart and every skyline rooftop. Brutal winters, perfect lake summers.',
+    photos: [ph('chicago-l-train'), ph('chicago-rooftop-1'), ph('chicago-lake-1'), ph('chicago-rooftop-2'), ph('chicago-lake-2')],
+  },
+  {
+    id: 'seoul',
+    name: 'Seoul',
+    years: 'Home',
+    bg: 'bg-baton-cream',
+    fg: 'text-baton-navy',
+    line: 'Han River picnics, karaoke until 2am and every café in Seongsu.',
+    photos: [ph('seoul-han-1'), ph('seoul-karaoke-1'), ph('seoul-cafe'), ph('seoul-han-2'), ph('seoul-karaoke-2')],
+  },
+]
 
 const phone = 'relative h-[640px] w-[360px] shrink-0 overflow-hidden rounded-[36px] bg-baton-paper shadow-lg'
+const title = (t: string, sub: string) => (
+  <div className="px-[30px] pt-14">
+    <p className="text-footnote text-ink-muted">{sub}</p>
+    <h3 className="font-display text-title-2">{t}</h3>
+  </div>
+)
 
-// 1. Same spot, many times: the café seat across the years
-const seat = [
-  { year: 2022, photo: p('4707'), note: 'First week. I sat here because it was the only free seat.' },
-  { year: 2023, photo: p('4713'), note: 'Finals. Same seat, third coffee.' },
-  { year: 2024, photo: p('4743'), note: 'Jenna found me here without texting.' },
-  { year: 2025, photo: p('4754'), note: 'Quiet. Everyone I knew had left or graduated.' },
-  { year: 2026, photo: p('4830'), note: 'Last time. I took the same photo on purpose.' },
+// 1. Full-bleed pages: one city per screen, swipe up for the next
+function Pages() {
+  return (
+    <div className={cx(phone, 'snap-y snap-mandatory overflow-y-auto [scrollbar-width:none]')}>
+      {cities.map((c) => (
+        <div key={c.id} className={cx('relative flex h-full snap-start flex-col justify-end gap-4 p-[30px] pb-10', c.bg, c.fg)}>
+          <img src={c.photos[0]} alt="" className="absolute inset-x-0 top-0 h-[55%] w-full object-cover" />
+          <div className="relative">
+            <p className="text-footnote opacity-70">{c.years}</p>
+            <h3 className="font-display text-title-1">{c.name}</h3>
+            <p className="mt-2 text-body">{c.line}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// 2. Route map: the cities as stops on a line she has traveled
+const stops = [
+  { id: 'seoul', x: 292, y: 150 },
+  { id: 'chicago', x: 120, y: 260 },
+  { id: 'la', x: 52, y: 360 },
 ]
 
-function SameSpot() {
-  const [i, setI] = useState(0)
+function RouteMap() {
+  const [id, setId] = useState('la')
+  const c = cities.find((x) => x.id === id)!
   return (
     <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Verve Coffee, Silver Lake</p>
-        <h3 className="font-display text-title-2">The seat by the window</h3>
-      </div>
-      <div className="relative mx-auto mt-5 h-[300px] w-[300px]">
-        {seat.map((s, k) => (
-          <img
-            key={s.year}
-            src={s.photo}
-            alt=""
-            className="absolute inset-0 h-full w-full rounded-card object-cover shadow-md transition-opacity duration-300"
-            style={{ opacity: k === i ? 1 : 0 }}
-          />
-        ))}
-        <span className="absolute left-3 top-3 rounded-full bg-baton-paper/90 px-3 py-1 text-subhead font-medium">{seat[i].year}</span>
-      </div>
-      <p className="mx-[30px] mt-4 min-h-[48px] text-body">{seat[i].note}</p>
-      <div className="mx-[30px] mt-3">
-        <input
-          type="range"
-          min={0}
-          max={seat.length - 1}
-          step={0.01}
-          value={i}
-          onChange={(e) => setI(Math.round(Number(e.target.value)))}
-          className="w-full accent-baton-blue"
-          aria-label="Year"
-        />
-        <div className="flex justify-between text-caption text-ink-muted">
-          {seat.map((s) => (
-            <span key={s.year}>{s.year}</span>
+      {title('Where you’ve lived', 'Tap a stop')}
+      <svg viewBox="0 0 360 480" className="absolute inset-x-0 top-[100px] h-[420px] w-full">
+        <path d="M292 150 Q 190 150 120 260 T 52 360" fill="none" strokeWidth="3" strokeDasharray="2 9" strokeLinecap="round" className="stroke-baton-navy/40" />
+        {stops.map((s) => {
+          const city = cities.find((x) => x.id === s.id)!
+          return (
+            <g key={s.id} onClick={() => setId(s.id)} className="cursor-pointer">
+              <circle cx={s.x} cy={s.y} r={id === s.id ? 26 : 16} className={cx('transition-all', city.bg.replace('bg-', 'fill-'))} />
+              <text x={s.x} y={s.y + 46} textAnchor="middle" className="fill-baton-navy text-[14px]">{city.name}</text>
+            </g>
+          )
+        })}
+      </svg>
+      <div className={cx('absolute inset-x-5 bottom-6 rounded-card p-4 shadow-md', c.bg, c.fg)}>
+        <div className="flex gap-2">
+          {c.photos.slice(0, 3).map((s) => (
+            <img key={s} src={s} alt="" className="h-14 w-14 rounded-tile object-cover" />
           ))}
         </div>
+        <p className="mt-2 text-subhead">{c.line}</p>
       </div>
     </div>
   )
 }
 
-// 2. Rewrite a note: a second note from today next to the original
-function RewriteNote() {
-  const [draft, setDraft] = useState('')
-  const [now, setNow] = useState<string | null>(null)
+// 3. Passport: a stamp per city, tap to open its page
+function Passport() {
+  const [open, setOpen] = useState<string | null>(null)
+  const c = cities.find((x) => x.id === open)
   return (
     <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Granite Falls · July 25, 2026</p>
-        <h3 className="font-display text-title-2">Where did you go today that you’ll miss?</h3>
-      </div>
-      <img src={p('3061')} alt="" className="mx-auto mt-4 h-[170px] w-[170px] rounded-full object-cover shadow-md" />
-      <div className="mt-5 flex flex-col gap-3 px-[30px]">
-        <div className="-rotate-2 rounded-tile bg-baton-yellow p-4 text-subhead shadow-md">
-          <p className="mb-1 text-caption text-ink-muted">Then · LA</p>
-          The lake view was absolutely amazing and I thoroughly enjoyed my meat stick on this rock.
-        </div>
-        {now ? (
-          <div className="rotate-1 animate-note-stick rounded-tile bg-baton-pink p-4 text-subhead shadow-md">
-            <p className="mb-1 text-caption text-ink-muted">Now · New York</p>
-            {now}
-          </div>
-        ) : (
-          <div className="flex flex-col gap-2">
-            <textarea
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              placeholder="What do you think of this one now?"
-              className="h-[84px] resize-none rounded-tile bg-card p-3 text-subhead shadow-sm outline-none"
-            />
-            <button
-              type="button"
-              disabled={!draft.trim()}
-              onClick={() => setNow(draft.trim())}
-              className="self-end rounded-full bg-baton-blue px-4 py-2 text-subhead font-medium text-baton-navy disabled:opacity-40"
-            >
-              Add today’s note
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-// 3. Suitcase: drag each moment to keep, give or let go
-const bins = [
-  { id: 'keep', name: 'Keep', hint: 'private', tone: 'bg-baton-blue' },
-  { id: 'give', name: 'Give', hint: 'to the next', tone: 'bg-baton-yellow' },
-  { id: 'go', name: 'Let go', hint: 'delete', tone: 'bg-baton-pink' },
-] as const
-type Bin = (typeof bins)[number]['id']
-const pile = [
-  { photo: p('3061'), title: 'Granite Falls hike' },
-  { photo: p('19'), title: 'Echo Park, the dog walker' },
-  { photo: p('4885'), title: 'Rooftop sunset' },
-  { photo: p('5021'), title: 'The moving truck' },
-]
-
-function Suitcase() {
-  const [sorted, setSorted] = useState<Bin[]>([])
-  const [drag, setDrag] = useState<{ x: number; y: number } | null>(null)
-  const start = useRef<{ x: number; y: number } | null>(null)
-  const card = pile[sorted.length]
-  const pick = (dx: number, dy: number): Bin | null => {
-    if (dy > 90 && Math.abs(dx) < 90) return 'go'
-    if (dx > 90) return 'give'
-    if (dx < -90) return 'keep'
-    return null
-  }
-  const done = (b: Bin) => {
-    setSorted((s) => [...s, b])
-    setDrag(null)
-  }
-  const live = drag ? pick(drag.x, drag.y) : null
-  const count = (b: Bin) => sorted.filter((x) => x === b).length
-  return (
-    <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Last night in LA</p>
-        <h3 className="font-display text-title-2">Pack your suitcase</h3>
-      </div>
-      <div className="relative mx-auto mt-6 h-[300px] w-[240px]">
-        {card ? (
-          <div
-            className="absolute inset-0 touch-none select-none rounded-card bg-card p-3 shadow-lg"
-            style={{
-              transform: drag ? `translate(${drag.x}px, ${drag.y}px) rotate(${drag.x / 14}deg)` : undefined,
-              transition: drag ? 'none' : 'transform 200ms',
-            }}
-            onPointerDown={(e) => {
-              e.currentTarget.setPointerCapture(e.pointerId)
-              start.current = { x: e.clientX, y: e.clientY }
-              setDrag({ x: 0, y: 0 })
-            }}
-            onPointerMove={(e) => start.current && setDrag({ x: e.clientX - start.current.x, y: e.clientY - start.current.y })}
-            onPointerUp={() => {
-              const b = drag ? pick(drag.x, drag.y) : null
-              start.current = null
-              if (b) done(b)
-              else setDrag(null)
-            }}
-          >
-            <img src={card.photo} alt="" draggable={false} className="h-[230px] w-full rounded-tile object-cover" />
-            <p className="mt-3 text-body font-medium">{card.title}</p>
-          </div>
-        ) : (
-          <p className="pt-24 text-center text-body text-ink-muted">All packed.</p>
-        )}
-      </div>
-      <div className="absolute inset-x-[20px] bottom-8 flex gap-2">
-        {bins.map((b) => (
+      {title('Your passport', 'Every city you’ve carried')}
+      <div className="mt-8 grid grid-cols-2 gap-6 px-[30px]">
+        {cities.map((x, i) => (
           <button
-            key={b.id}
+            key={x.id}
             type="button"
-            disabled={!card}
-            onClick={() => card && done(b.id)}
+            onClick={() => setOpen(x.id)}
             className={cx(
-              'flex-1 rounded-card py-3 text-center shadow-sm transition-transform',
-              b.tone,
-              live === b.id && 'scale-110',
+              'flex aspect-square flex-col items-center justify-center rounded-full border-4 border-dashed border-baton-navy/40 text-center shadow-sm',
+              x.bg,
+              x.fg,
             )}
+            style={{ transform: `rotate(${[-8, 6, -3][i]}deg)` }}
           >
-            <span className="block text-subhead font-medium">{b.name}</span>
-            <span className="block text-caption text-ink-muted">
-              {b.hint} · {count(b.id)}
-            </span>
+            <span className="font-display text-title-3">{x.name}</span>
+            <span className="text-caption opacity-70">{x.years}</span>
           </button>
         ))}
+        <div className="flex aspect-square items-center justify-center rounded-full border-4 border-dashed border-baton-navy/20 text-center text-caption text-ink-faint">
+          Next stop
+        </div>
       </div>
-      <p className="absolute inset-x-0 bottom-[104px] text-center text-caption text-ink-muted">
-        Drag left to keep, right to give, down to let go
-      </p>
+      {c && (
+        <div className="absolute inset-0 animate-note-stick bg-baton-paper/95 p-[30px] pt-14" onClick={() => setOpen(null)}>
+          <h3 className="font-display text-title-1">{c.name}</h3>
+          <p className="mt-2 text-body">{c.line}</p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {c.photos.map((s) => (
+              <img key={s} src={s} alt="" className="aspect-square rounded-tile object-cover" />
+            ))}
+          </div>
+          <p className="mt-6 text-center text-caption text-ink-muted">Tap anywhere to close</p>
+        </div>
+      )}
     </div>
   )
 }
 
-// 4. Hold to reveal: moments start blurred and come into focus while you press
-const hold = ['4707', '4743', '4885', '5021', '3061', '19', '6016', '6123', '6235'].map(p)
+// 4. Wall: every photo pinned up at once; pick a city to pull its photos forward
+const wall = cities.flatMap((c) => c.photos.slice(0, 4).map((src) => ({ src, city: c.id })))
+const spots = wall.map((_, k) => ({
+  x: (k * 97) % 230 + 10,
+  y: (k * 61) % 330 + 10,
+  r: ((k * 37) % 17) - 8,
+}))
 
-function HoldReveal() {
-  const [held, setHeld] = useState<number | null>(null)
+function Wall() {
+  const [on, setOn] = useState<string | null>(null)
   return (
     <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Memories fade. Press and hold.</p>
-        <h3 className="font-display text-title-2">What do you still remember?</h3>
-      </div>
-      <div className="mt-6 grid grid-cols-3 gap-2 px-[20px]">
-        {hold.map((src, i) => (
+      {title('Everything on the wall', 'Pick a city')}
+      <div className="relative mx-[20px] mt-3 h-[400px]">
+        {wall.map((w, k) => (
           <img
-            key={src}
-            src={src}
+            key={w.src}
+            src={w.src}
             alt=""
-            draggable={false}
-            onPointerDown={() => setHeld(i)}
-            onPointerUp={() => setHeld(null)}
-            onPointerLeave={() => setHeld(null)}
-            className="aspect-square w-full touch-none select-none rounded-tile object-cover"
+            className="absolute h-[110px] w-[110px] rounded-tile border-4 border-baton-cream object-cover shadow-md transition-all duration-500"
             style={{
-              filter: held === i ? 'blur(0px)' : 'blur(14px)',
-              transform: held === i ? 'scale(1.06)' : 'scale(1)',
-              transition: held === i ? 'filter 700ms ease-out, transform 700ms' : 'filter 300ms, transform 300ms',
+              left: spots[k].x,
+              top: spots[k].y,
+              transform: `rotate(${spots[k].r}deg) scale(${on === w.city ? 1.15 : 1})`,
+              opacity: on && on !== w.city ? 0.25 : 1,
+              zIndex: on === w.city ? 2 : 1,
+              filter: on && on !== w.city ? 'blur(2px)' : 'none',
             }}
           />
         ))}
       </div>
-    </div>
-  )
-}
-
-// 5. A day in LA: scrub through a typical day by the hour
-const day = [
-  { hour: '8 am', photo: p('4707'), place: 'Verve Coffee', line: 'Oat latte, same seat. The only quiet part of my day.' },
-  { hour: '1 pm', photo: p('4743'), place: 'ArtCenter Hillside', line: 'Critique ran long. Lunch was a granola bar on the steps.' },
-  { hour: '6 pm', photo: p('4885'), place: 'Silver Lake rooftop', line: 'Golden hour. Everyone drifts up here around now.' },
-  { hour: '10 pm', photo: p('5021'), place: 'Trader Joe’s next door', line: 'Late snack run, always the same three things.' },
-]
-const sky = ['bg-baton-yellow', 'bg-baton-blue', 'bg-baton-pink', 'bg-baton-navy']
-
-function DayInLA() {
-  const [i, setI] = useState(0)
-  const d = day[i]
-  return (
-    <div className={cx(phone, 'transition-colors duration-500')}>
-      <div className={cx('absolute inset-x-0 top-0 h-[230px] opacity-60 transition-colors duration-500', sky[i])} />
-      <div className="relative px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">A normal Tuesday</p>
-        <h3 className="font-display text-title-2">{d.hour} in LA</h3>
-      </div>
-      <img src={d.photo} alt="" className="relative mx-auto mt-4 h-[200px] w-[300px] rounded-card object-cover shadow-md" />
-      <div className="relative px-[30px] pt-4">
-        <p className="text-subhead font-medium">{d.place}</p>
-        <p className="mt-1 min-h-[60px] text-body">{d.line}</p>
-      </div>
-      <div className="absolute inset-x-[30px] bottom-8 flex justify-between">
-        {day.map((x, k) => (
+      <div className="absolute inset-x-5 bottom-8 flex justify-center gap-2">
+        {cities.map((c) => (
           <button
-            key={x.hour}
+            key={c.id}
             type="button"
-            onClick={() => setI(k)}
-            className={cx(
-              'rounded-full px-3 py-2 text-subhead shadow-sm transition-colors',
-              k === i ? 'bg-baton-navy text-on-brand' : 'bg-card text-ink-muted',
-            )}
+            onClick={() => setOn(on === c.id ? null : c.id)}
+            className={cx('rounded-full px-4 py-2 text-subhead font-medium shadow-sm', c.bg, c.fg, on === c.id && 'ring-2 ring-baton-navy')}
           >
-            {x.hour}
+            {c.name}
           </button>
         ))}
       </div>
@@ -272,177 +200,125 @@ function DayInLA() {
   )
 }
 
-// 6. Time capsule: seal a moment until a future date
-const dates = ['In 3 months', 'In 1 year', 'In 5 years']
-
-function TimeCapsule() {
-  const [when, setWhen] = useState(1)
-  const [sealed, setSealed] = useState(false)
+// 5. Timeline: one long river down the years, each city a colored band
+function Timeline() {
   return (
-    <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Granite Falls · July 25, 2026</p>
-        <h3 className="font-display text-title-2">{sealed ? 'Sealed.' : 'Save this one for later'}</h3>
-      </div>
-      <div className="relative mx-auto mt-5 h-[220px] w-[220px]">
-        <img
-          src={p('3061')}
-          alt=""
-          className="h-full w-full rounded-full object-cover shadow-md transition-[filter] duration-700"
-          style={{ filter: sealed ? 'blur(22px) grayscale(0.6)' : 'none' }}
-        />
-        {sealed && (
-          <div className="absolute inset-0 flex animate-note-stick items-center justify-center">
-            <span className="rounded-full bg-baton-navy px-5 py-2 text-subhead font-medium text-on-brand">
-              Opens {dates[when].replace('In ', 'in ')}
-            </span>
-          </div>
-        )}
-      </div>
-      <div className="mt-6 flex flex-col items-center gap-3 px-[30px]">
-        {!sealed ? (
-          <>
-            <div className="flex gap-2">
-              {dates.map((d, k) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setWhen(k)}
-                  className={cx('rounded-full px-3 py-2 text-subhead shadow-sm', k === when ? 'bg-baton-blue text-baton-navy' : 'bg-card')}
-                >
-                  {d}
-                </button>
+    <div className={cx(phone, 'overflow-y-auto [scrollbar-width:none]')}>
+      {title('Your years', 'Scroll down through time')}
+      <div className="relative mt-6 px-[30px] pb-16">
+        <div className="absolute bottom-0 left-[44px] top-0 w-1 rounded-full bg-baton-navy/15" />
+        {[...cities].reverse().map((c) => (
+          <div key={c.id} className="relative mb-6 pl-10">
+            <span className={cx('absolute left-[-6px] top-1 size-6 rounded-full border-4 border-baton-paper', c.bg)} />
+            <p className="text-footnote text-ink-muted">{c.years}</p>
+            <h4 className="font-display text-title-3">{c.name}</h4>
+            <div className="mt-2 flex gap-2 overflow-x-auto [scrollbar-width:none]">
+              {c.photos.map((s) => (
+                <img key={s} src={s} alt="" className="h-24 w-24 shrink-0 rounded-tile object-cover" />
               ))}
             </div>
-            <button
-              type="button"
-              onClick={() => setSealed(true)}
-              className="rounded-full bg-baton-navy px-6 py-3 text-body font-medium text-on-brand"
-            >
-              Seal it
-            </button>
-            <p className="text-center text-caption text-ink-muted">It stays hidden, even from you, until then.</p>
-          </>
-        ) : (
-          <button type="button" onClick={() => setSealed(false)} className="text-subhead text-brand">
-            Undo
-          </button>
-        )}
+            <p className="mt-2 text-subhead">{c.line}</p>
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
-// 7. Pass it on: turn a moment into a tip for the next person
-const tipMoments = [
-  { photo: p('4707'), title: 'Verve Coffee', prefill: 'Sit by the window before 9. Nobody comes until later.' },
-  { photo: p('4885'), title: 'Rooftop sunset', prefill: 'Bring a jacket. It gets cold fast once the sun is down.' },
-  { photo: p('5021'), title: 'The moving truck', prefill: 'Book the truck two weeks ahead. Prices double at the end of the month.' },
-]
-
-function PassItOn() {
-  const [k, setK] = useState(0)
-  const [text, setText] = useState(tipMoments[0].prefill)
-  const [sent, setSent] = useState(false)
-  const m = tipMoments[k]
-  const pickMoment = (n: number) => {
-    setK(n)
-    setText(tipMoments[n].prefill)
-    setSent(false)
-  }
+// 6. Cover flow: swipe sideways through big city cards
+function CoverFlow() {
   return (
     <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">Pick a moment, then pass it on</p>
-        <h3 className="font-display text-title-2">What should the next person know?</h3>
+      {title('Swipe through your cities', 'Newest first')}
+      <div className="mt-8 flex snap-x snap-mandatory gap-4 overflow-x-auto px-[50px] pb-6 [scrollbar-width:none]">
+        {cities.map((c) => (
+          <div key={c.id} className={cx('w-[260px] shrink-0 snap-center rounded-[28px] p-4 shadow-lg', c.bg, c.fg)}>
+            <img src={c.photos[0]} alt="" className="h-[260px] w-full rounded-card object-cover" />
+            <h4 className="mt-3 font-display text-title-2">{c.name}</h4>
+            <p className="text-footnote opacity-70">{c.years}</p>
+            <p className="mt-2 text-subhead">{c.line}</p>
+          </div>
+        ))}
       </div>
-      <div className="mt-4 flex justify-center gap-3">
-        {tipMoments.map((t, n) => (
-          <img
-            key={t.title}
-            src={t.photo}
-            alt=""
-            onClick={() => pickMoment(n)}
-            className={cx(
-              'h-[64px] w-[64px] cursor-pointer rounded-full object-cover transition-transform',
-              n === k ? 'scale-110 shadow-md ring-2 ring-baton-blue' : 'opacity-70',
-            )}
+    </div>
+  )
+}
+
+// 7. Mosaic: all photos in one tight grid, tinted by city; tap a color to filter
+const mosaic = cities.flatMap((c) => c.photos.map((src) => ({ src, city: c })))
+const sizes = ['col-span-2 row-span-2', '', '', 'row-span-2', '', 'col-span-2']
+
+function Mosaic() {
+  const [on, setOn] = useState<string | null>(null)
+  return (
+    <div className={phone}>
+      {title('Everything at once', 'Tap a color to isolate a city')}
+      <div className="mt-4 grid auto-rows-[78px] grid-cols-4 gap-1 px-[16px]">
+        {mosaic.map((m, k) => (
+          <div
+            key={m.src}
+            className={cx('relative overflow-hidden rounded-tile transition-opacity', sizes[k % sizes.length], on && on !== m.city.id && 'opacity-15')}
+          >
+            <img src={m.src} alt="" className="h-full w-full object-cover" />
+            <span className={cx('absolute inset-x-0 bottom-0 h-1.5', m.city.bg)} />
+          </div>
+        ))}
+      </div>
+      <div className="absolute inset-x-5 bottom-6 flex justify-center gap-3">
+        {cities.map((c) => (
+          <button
+            key={c.id}
+            type="button"
+            aria-label={c.name}
+            onClick={() => setOn(on === c.id ? null : c.id)}
+            className={cx('size-10 rounded-full shadow-md', c.bg, on === c.id && 'ring-2 ring-baton-navy')}
           />
         ))}
       </div>
-      <div className="mt-5 px-[30px]">
-        {sent ? (
-          <div className="-rotate-1 animate-note-stick rounded-card bg-baton-yellow p-4 shadow-md">
-            <p className="text-caption text-ink-muted">Now in Relay · {m.title}</p>
-            <p className="mt-1 text-body">{text}</p>
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="h-[110px] resize-none rounded-tile bg-card p-3 text-body shadow-sm outline-none"
-            />
-            <button
-              type="button"
-              disabled={!text.trim()}
-              onClick={() => setSent(true)}
-              className="self-end rounded-full bg-baton-blue px-5 py-2 text-subhead font-medium text-baton-navy disabled:opacity-40"
-            >
-              Hand it off
-            </button>
-          </div>
-        )}
-      </div>
     </div>
   )
 }
 
-// 8. Shuffle: pull one random moment, with a nudge to act on it
-const nudges = ['Text someone who was there.', 'Find the same view in New York.', 'Write what you’d tell your first-week self.']
-
-function Shuffle() {
+// 8. Deck: city cards stacked like postcards; flick the top one away
+function Deck() {
   const [n, setN] = useState(0)
-  const [spin, setSpin] = useState(0)
-  const m = pile[n % pile.length]
   return (
     <div className={phone}>
-      <div className="px-[30px] pt-14">
-        <p className="text-footnote text-ink-muted">One at random</p>
-        <h3 className="font-display text-title-2">Remember this?</h3>
+      {title('Your postcards', 'Tap the top card')}
+      <div className="relative mx-auto mt-8 h-[380px] w-[290px]">
+        {cities.map((c, k) => {
+          const pos = (k - n + cities.length) % cities.length
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => pos === 0 && setN((x) => x + 1)}
+              className={cx('absolute inset-0 rounded-[24px] p-4 text-left shadow-lg transition-all duration-500', c.bg, c.fg)}
+              style={{
+                transform: `translateY(${pos * 16}px) scale(${1 - pos * 0.05}) rotate(${pos * 2 - 2}deg)`,
+                zIndex: cities.length - pos,
+              }}
+            >
+              <img src={c.photos[0]} alt="" className="h-[200px] w-full rounded-card object-cover" />
+              <h4 className="mt-3 font-display text-title-2">{c.name}</h4>
+              <p className="text-subhead">{c.line}</p>
+            </button>
+          )
+        })}
       </div>
-      <div
-        key={n}
-        className="mx-auto mt-6 w-[250px] animate-note-stick rounded-card bg-card p-3 shadow-lg"
-        style={{ transform: `rotate(${spin}deg)` }}
-      >
-        <img src={m.photo} alt="" className="h-[220px] w-full rounded-tile object-cover" />
-        <p className="mt-3 text-body font-medium">{m.title}</p>
-        <p className="mt-1 text-subhead text-ink-muted">{nudges[n % nudges.length]}</p>
-      </div>
-      <button
-        type="button"
-        onClick={() => {
-          setN((x) => x + 1)
-          setSpin(Math.round((Math.random() - 0.5) * 8))
-        }}
-        className="absolute inset-x-0 bottom-10 mx-auto w-fit rounded-full bg-baton-navy px-6 py-3 text-body font-medium text-on-brand"
-      >
-        Another one
-      </button>
     </div>
   )
 }
 
 const ideas = [
-  { name: 'Same spot, many times', blurb: 'Pick a place and scrub through every capture there over the years, like a flipbook.', node: <SameSpot /> },
-  { name: 'Rewrite a note', blurb: 'Open an old moment and add a second note from today. Then and now sit side by side.', node: <RewriteNote /> },
-  { name: 'Suitcase', blurb: 'The last-night review as packing: drag each moment to keep, give to the next person, or let go.', node: <Suitcase /> },
-  { name: 'Hold to reveal', blurb: 'Moments start blurred, like fading memory. Press and hold to bring one into focus.', node: <HoldReveal /> },
-  { name: 'A day in LA', blurb: 'Scrub through a normal day by the hour, from the first coffee to the late snack run. The sky color follows.', node: <DayInLA /> },
-  { name: 'Time capsule', blurb: 'Seal a moment until a date you pick. It stays blurred and hidden, then returns when you have changed.', node: <TimeCapsule /> },
-  { name: 'Pass it on', blurb: 'Turn a moment into a tip and hand it off. It lands in Relay as a card for the next person.', node: <PassItOn /> },
-  { name: 'Shuffle', blurb: 'One random moment at a time, each with a small nudge to do something with it.', node: <Shuffle /> },
+  { name: 'Full-bleed pages', blurb: 'One city per screen, snapping as you swipe up. Big photo, one sentence, the city’s color.', node: <Pages /> },
+  { name: 'Route map', blurb: 'The cities as stops on the line she has traveled. Tap a stop for its photos and sentence.', node: <RouteMap /> },
+  { name: 'Passport', blurb: 'A stamp per city, with a blank one for the next. Tap a stamp to open that city.', node: <Passport /> },
+  { name: 'The wall', blurb: 'Every photo pinned up at once. Pick a city and its photos come forward while the rest fade.', node: <Wall /> },
+  { name: 'Timeline', blurb: 'One long river down the years. Each city is a colored stop with its photos in a row.', node: <Timeline /> },
+  { name: 'Cover flow', blurb: 'Big city cards you swipe sideways through, newest first.', node: <CoverFlow /> },
+  { name: 'Mosaic', blurb: 'All photos in one tight grid, tagged by city color. Tap a color to isolate that city.', node: <Mosaic /> },
+  { name: 'Postcards', blurb: 'City cards stacked like postcards. Tap the top one and it goes to the back.', node: <Deck /> },
 ]
 
 export function ArchiveIdeas({ onClose }: { onClose: () => void }) {
@@ -451,7 +327,7 @@ export function ArchiveIdeas({ onClose }: { onClose: () => void }) {
       <header className="sticky top-0 z-10 flex items-center gap-4 bg-baton-cream/90 px-6 py-4 backdrop-blur">
         <div className="mr-auto">
           <h1 className="font-display text-title-2 font-medium">Archive ideas</h1>
-          <p className="text-subhead text-ink-muted">Early sketches of other ways to interact with the Archive. Mock data, nothing saves.</p>
+          <p className="text-subhead text-ink-muted">Other ways the Archive page itself could work, instead of the folder stack. Mock data.</p>
         </div>
         <button
           type="button"
