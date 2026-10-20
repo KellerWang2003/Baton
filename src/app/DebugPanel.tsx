@@ -175,7 +175,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
         <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
         <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
-        <DebugToggle label="Only 6 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
+        <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
         <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
         <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
         <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />

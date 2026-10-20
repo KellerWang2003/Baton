@@ -58,8 +58,8 @@ export function IntentionsVideo() {
 export function Intentions() {
   const { goals, fewBubbles } = useStore()
   const [picked, setPicked] = useState(goals)
-  // Debug option: just the six bubbles around the middle of the first view
-  const bubbles = fewBubbles ? goalBubbles.slice(0, 6) : goalBubbles
+  // Debug option: just the eight bubbles around the middle of the first view
+  const bubbles = fewBubbles ? goalBubbles.slice(0, 8) : goalBubbles
   const shell = useGlassShell()
   // At least three before she can set them
   const ready = picked.length >= intentions.minPicks

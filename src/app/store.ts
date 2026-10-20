@@ -59,7 +59,7 @@ type State = {
   archiveWall: boolean
   // Debug: hide the tab bar and + field, for clean recordings
   hideNav: boolean
-  // Debug: only six intention bubbles on the Intentions screen
+  // Debug: only eight intention bubbles on the Intentions screen
   fewBubbles: boolean
   // Debug: hide the iOS status bar (time, signal, battery)
   hideStatusBar: boolean
