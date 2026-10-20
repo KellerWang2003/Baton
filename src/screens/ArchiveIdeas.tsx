@@ -325,27 +325,18 @@ const wallItems = slots.map((sl, i) => {
 const wallW = wallItems[wallItems.length - 1].x + 200
 
 type WallItem = (typeof wallItems)[number]
-const BAR = 900 // timeline length in px; scrolled under a fixed center marker
-
 function ScrubberWall() {
   const phoneEl = useRef<HTMLDivElement>(null)
   const wall = useRef<HTMLDivElement>(null)
-  const bar = useRef<HTMLDivElement>(null)
-  const [frac, setFrac] = useState(0)
+    const [frac, setFrac] = useState(0)
   const [open, setOpen] = useState<{ item: WallItem; from: { x: number; y: number; w: number; h: number }; up: boolean } | null>(null)
   const wallRange = () => (wall.current ? wall.current.scrollWidth - wall.current.clientWidth : 1)
-  const barRange = () => (bar.current ? bar.current.scrollWidth - bar.current.clientWidth : 1)
-  const fromWall = () => {
-    const f = wall.current ? wall.current.scrollLeft / wallRange() : 0
-    setFrac(f)
-    if (bar.current && Math.abs(bar.current.scrollLeft - f * barRange()) > 1) bar.current.scrollLeft = f * barRange()
+  const jump = (e: React.PointerEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect()
+    // The frame's center follows the finger
+    const f = Math.min(1, Math.max(0, ((e.clientX - r.left) / r.width - 0.13) / 0.74))
+    if (wall.current) wall.current.scrollLeft = f * wallRange()
   }
-  const fromBar = () => {
-    const f = bar.current ? bar.current.scrollLeft / barRange() : 0
-    setFrac(f)
-    if (wall.current && Math.abs(wall.current.scrollLeft - f * wallRange()) > 1) wall.current.scrollLeft = f * wallRange()
-  }
-  const drag = useRef<number | null>(null)
   const here = wallItems[Math.round(frac * (wallItems.length - 1))].city
 
   const show = (item: WallItem, target: HTMLElement) => {
@@ -363,7 +354,7 @@ function ScrubberWall() {
   return (
     <div className={phone} ref={phoneEl}>
       {title(here.name, here.years)}
-      <div ref={wall} className="mt-4 h-[400px] overflow-x-auto overflow-y-hidden [scrollbar-width:none]" onScroll={fromWall}>
+      <div ref={wall} className="mt-4 h-[400px] overflow-x-auto overflow-y-hidden [scrollbar-width:none]" onScroll={() => setFrac(wall.current ? wall.current.scrollLeft / wallRange() : 0)}>
         <div className="relative h-full" style={{ width: wallW }}>
           {wallItems.map((m) => (
             <button
@@ -377,32 +368,33 @@ function ScrubberWall() {
         </div>
       </div>
 
-      {/* Timeline: the strip scrolls under a fixed marker, and the wall shows what is at the center */}
-      <div className="absolute inset-x-[20px] bottom-8">
+      {/* Timeline: a slim strip, a shade per city; the frame shows what is on screen */}
+      <div className="absolute inset-x-[30px] bottom-9">
         <div
-          ref={bar}
-          className="cursor-grab touch-pan-x overflow-x-auto [scrollbar-width:none]"
-          onScroll={fromBar}
+          className="relative h-9 touch-none select-none"
           onPointerDown={(e) => {
-            drag.current = e.clientX
             e.currentTarget.setPointerCapture(e.pointerId)
+            jump(e)
           }}
-          onPointerMove={(e) => {
-            if (drag.current === null || !bar.current) return
-            bar.current.scrollLeft -= e.clientX - drag.current
-            drag.current = e.clientX
-          }}
-          onPointerUp={() => (drag.current = null)}
+          onPointerMove={(e) => e.buttons && jump(e)}
         >
-          <div className="flex h-10 gap-0.5" style={{ width: BAR + 320, paddingLeft: 160, paddingRight: 160, boxSizing: 'border-box' }}>
+          <div className="absolute inset-x-0 top-1/2 flex h-2 -translate-y-1/2 gap-0.5 overflow-hidden rounded-full">
             {wallCities.map((c) => (
-              <div key={c.id} className={cx('flex items-center justify-center rounded-sm text-caption', shade[c.id], c.id === 'la' ? 'text-white' : 'text-ink-muted')} style={{ flex: c.photos.length }}>
-                {c.name}
-              </div>
+              <div key={c.id} className={shade[c.id]} style={{ flex: c.photos.length }} />
             ))}
           </div>
+          <div
+            className="pointer-events-none absolute inset-y-0 rounded-full bg-white/40 shadow-md ring-1 ring-neutral-900/70 backdrop-blur-[1px]"
+            style={{ width: '26%', left: `${frac * 74}%` }}
+          />
         </div>
-        <div className="pointer-events-none absolute inset-y-[-6px] left-1/2 w-0.5 -translate-x-1/2 bg-neutral-900" />
+        <div className="mt-1.5 flex gap-0.5 text-caption text-ink-muted">
+          {wallCities.map((c) => (
+            <span key={c.id} style={{ flex: c.photos.length }} className="truncate text-center">
+              {c.name}
+            </span>
+          ))}
+        </div>
       </div>
 
       {open && (
@@ -438,7 +430,7 @@ function ScrubberWall() {
 }
 
 const ideas = [
-  { name: 'Scrubber wall', blurb: 'One huge horizontal wall of captures, oldest at the left. Scroll the gray timeline (a shade per city) under the center marker and the wall follows. Tap a capture and it grows open. Gray boxes only.', node: <ScrubberWall /> },
+  { name: 'Scrubber wall', blurb: 'One huge horizontal wall of captures, oldest at the left. Drag along the slim gray timeline (a shade per city) to move the wall, or just drag the wall. Tap a capture and it grows open. Gray boxes only.', node: <ScrubberWall /> },
   { name: 'Full-bleed pages', blurb: 'One city per screen, snapping as you swipe up. Big photo, one sentence, the city’s color.', node: <Pages /> },
   { name: 'Route map', blurb: 'The cities as stops on the line she has traveled. Tap a stop for its photos and sentence.', node: <RouteMap /> },
   { name: 'Passport', blurb: 'A stamp per city, with a blank one for the next. Tap a stamp to open that city.', node: <Passport /> },
