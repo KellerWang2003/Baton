@@ -52,7 +52,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
-  const { onboardingPhotoAccess, archiveWall } = useStore()
+  const { onboardingPhotoAccess } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -182,7 +182,6 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
         <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
         <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
-        <DebugToggle label="Archive as photo wall" on={archiveWall} onClick={() => setState({ archiveWall: !archiveWall })} />
         <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
 
         <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
@@ -387,33 +386,42 @@ function GlassControls() {
   )
 }
 
-// A wireframe direction from the Archive sketches in place of the real
-// Archive tab, for the video's explorations part (picking one jumps there)
+// Another direction in place of the real Archive tab's folders, for the
+// video's explorations part (picking one jumps there): the scrubbable photo
+// wall (from the Archive ideas) or a wireframe direction from the Archive
+// sketches
 function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
-  const { archiveSketch } = useStore()
-  const options = [{ id: null, label: 'Off' }, ...archiveDirections]
+  const { archiveSketch, archiveWall } = useStore()
+  const options = [
+    { key: 'off', label: 'Off', sketch: null, wall: false },
+    { key: 'wall', label: 'Photo wall', sketch: null, wall: true },
+    ...archiveDirections.map((direction) => ({ key: direction.id, label: direction.label, sketch: direction.id, wall: false })),
+  ]
   return (
     <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
       <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Archive direction</span>
-      <div role="radiogroup" aria-label="Archive direction" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
-        {options.map((option) => (
-          <button
-            key={option.label}
-            type="button"
-            role="radio"
-            aria-checked={archiveSketch === option.id}
-            onClick={() => {
-              setState({ archiveSketch: option.id })
-              goToArchive()
-            }}
-            className={cx(
-              'flex-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold transition',
-              archiveSketch === option.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
-            )}
-          >
-            {option.label}
-          </button>
-        ))}
+      <div role="radiogroup" aria-label="Archive direction" className="flex flex-wrap gap-1 rounded-[14px] bg-surface-muted p-0.5">
+        {options.map((option) => {
+          const on = archiveSketch === option.sketch && archiveWall === option.wall
+          return (
+            <button
+              key={option.key}
+              type="button"
+              role="radio"
+              aria-checked={on}
+              onClick={() => {
+                setState({ archiveSketch: option.sketch, archiveWall: option.wall })
+                goToArchive()
+              }}
+              className={cx(
+                'flex-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold transition',
+                on ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
+              )}
+            >
+              {option.label}
+            </button>
+          )
+        })}
       </div>
     </div>
   )
