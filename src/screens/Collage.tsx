@@ -114,24 +114,24 @@ const pieces: Piece[] = [
     },
   },
   {
-    id: 'folders', name: 'Folder stack', x: 840, y: 340, w: 300, h: 380,
+    id: 'folders', name: 'Folder stack', x: 840, y: 340, w: 340, h: 300,
     render: (t) => {
-      const shuffle = Math.sin(t * Math.PI * 2)
+      // Two tilted folders, the front one sliding over the back one and settling
+      const slide = Math.sin(t * Math.PI * 2)
       const stack = [
-        { tone: 'olive', city: 'Chicago' },
-        { tone: 'cream', city: 'Seoul' },
-        { tone: 'blue', city: 'LA' },
+        { tone: 'blue', city: 'LA', dates: '09.2018-12.2020', left: 10, top: 20, rot: 6 + slide * 2 },
+        { tone: 'pink', city: 'Chicago', dates: '11.2020-06.2022', left: 70 + slide * 14, top: 70 - slide * 6, rot: 6 - slide * 2 },
       ] as const
       return (
-        <div className="relative h-full w-full" style={{ transform: `rotate(${-14 + shuffle * 3}deg)` }}>
-          {stack.map((f, i) => {
+        <div className="relative h-full w-full">
+          {stack.map((f) => {
             const tone = folderTones[f.tone]
-            const open = i === 2 ? 0 : 0
             return (
-              <div key={f.city} className="absolute left-[10px] w-[260px]" style={{ top: 30 + i * 85 + open + shuffle * (i - 1) * 8 }}>
-                <svg width={TAB_WIDTH} height={53} viewBox={`0 0 ${TAB_WIDTH} 53`} className={cx('block', tone.fillText, i === 1 && 'ml-[40px]', i === 2 && 'ml-[20px]')} style={{ marginLeft: i * 20 }}><path d={TAB_PATH} fill="currentColor" /></svg>
-                <div className={cx('h-[220px] rounded-b-[16px] rounded-tr-[16px] px-5 pt-3 shadow-md', tone.fill)} style={{ marginTop: -1 }}>
-                  <p className={cx('font-display text-title-3', tone.title)}>{f.city}</p>
+              <div key={f.city} className="absolute w-[240px]" style={{ left: f.left, top: f.top, transform: `rotate(${f.rot}deg)`, transformOrigin: '50% 50%' }}>
+                <svg width={TAB_WIDTH * 0.72} height={53 * 0.72} viewBox={`0 0 ${TAB_WIDTH} 53`} className={cx('ml-[8px] block', tone.fillText)}><path d={TAB_PATH} fill="currentColor" /></svg>
+                <p className={cx('absolute left-[40px] top-[6px] font-display text-subhead', tone.title)}>{f.city}</p>
+                <div className={cx('flex h-[170px] items-center justify-center rounded-[28px] rounded-tl-[8px]', tone.fill)} style={{ marginTop: -1 }}>
+                  <span className={cx('font-display text-title-3', tone.body)}>{f.dates}</span>
                 </div>
               </div>
             )
