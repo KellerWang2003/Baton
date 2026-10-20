@@ -325,7 +325,8 @@ const wallItems = slots.map((sl, i) => {
 const wallW = wallItems[wallItems.length - 1].x + 200
 
 type WallItem = (typeof wallItems)[number]
-function ScrubberWall() {
+// `fill` is the real Archive page (debug panel > Archive layout): fills its parent instead of a phone-sized sketch
+export function ScrubberWall({ fill }: { fill?: boolean }) {
   const phoneEl = useRef<HTMLDivElement>(null)
   const wall = useRef<HTMLDivElement>(null)
     const [frac, setFrac] = useState(0)
@@ -352,9 +353,9 @@ function ScrubberWall() {
   const ease = 'cubic-bezier(0.2, 0.8, 0.2, 1)'
 
   return (
-    <div className={phone} ref={phoneEl}>
+    <div className={fill ? 'relative h-full w-full overflow-hidden bg-baton-paper' : phone} ref={phoneEl}>
       {title(here.name, here.years)}
-      <div ref={wall} className="mt-4 h-[400px] overflow-x-auto overflow-y-hidden [scrollbar-width:none]" onScroll={() => setFrac(wall.current ? wall.current.scrollLeft / wallRange() : 0)}>
+      <div ref={wall} className={cx('mt-4 overflow-x-auto overflow-y-hidden [scrollbar-width:none]', fill ? 'h-[calc(100%-300px)]' : 'h-[400px]')} onScroll={() => setFrac(wall.current ? wall.current.scrollLeft / wallRange() : 0)}>
         <div className="relative h-full" style={{ width: wallW }}>
           {wallItems.map((m) => (
             <button
@@ -369,7 +370,7 @@ function ScrubberWall() {
       </div>
 
       {/* Timeline: a slim strip, a shade per city; the frame shows what is on screen */}
-      <div className="absolute inset-x-[30px] bottom-9">
+      <div className={cx('absolute inset-x-[30px]', fill ? 'bottom-[140px]' : 'bottom-9')}>
         <div
           className="relative h-9 touch-none select-none"
           onPointerDown={(e) => {

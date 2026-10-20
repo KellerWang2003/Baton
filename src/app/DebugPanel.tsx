@@ -45,7 +45,7 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const status = useStatus()
-  const { onboardingPhotoAccess } = useStore()
+  const { onboardingPhotoAccess, archiveWall } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -173,6 +173,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
         <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
         <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+        <DebugToggle label="Archive as photo wall" on={archiveWall} onClick={() => setState({ archiveWall: !archiveWall })} />
         <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
       </div>
 

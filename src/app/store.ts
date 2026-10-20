@@ -54,6 +54,8 @@ type State = {
   relayEntrance: RelayEntrance
   relayEntranceSpeed: number
   relayLook: RelayLook
+  // Archive page layout: the city folder stack, or the scrubbable photo wall (debug panel, from the Archive ideas)
+  archiveWall: boolean
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
   // Fluid Glass settings for that circle, tuned live in the debug panel
@@ -108,6 +110,7 @@ let state: State = {
   relayFilter: null,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
+  archiveWall: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
   relayEntranceSpeed: 1,
