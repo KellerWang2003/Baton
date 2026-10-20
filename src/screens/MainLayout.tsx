@@ -89,7 +89,7 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
 // (remounting it with each page made every tab switch look like a reload).
 // Tapping + turns it into a text field for today's prompt, right in the tab bar.
 export function TabShell({ activeTab, children }: TabShellProps) {
-  const { composing } = useStore()
+  const { composing, hideNav } = useStore()
   const dailyPrompt = useDailyPrompt()
   const [toast, setToast] = useState(false)
   const keyboard = useKeyboardArea()
@@ -117,7 +117,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
           the keyboard */}
       <div
         style={keyboard ? { position: 'fixed', left: 0, right: 0, top: keyboard.top, height: keyboard.height } : undefined}
-        className="pointer-events-none absolute inset-0 z-20"
+        className={`pointer-events-none absolute inset-0 z-20 ${hideNav ? 'hidden' : ''}`}
       >
         {/* While typing: a heavy blur over the whole page, so nothing behind
             can be read, under a blue glow at the bottom, around the field */}
