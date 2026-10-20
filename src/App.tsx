@@ -10,6 +10,7 @@ import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
 import { StageSplashOverlay } from './screens/StageSplash'
+import { Collage } from './screens/Collage'
 import { RelayMotion } from './screens/RelayMotion'
 import { RelayLooks } from './screens/RelayLooks'
 import { TodayLooks } from './screens/TodayLooks'
@@ -37,6 +38,8 @@ function App() {
   const [todayLooksOpen, setTodayLooksOpen] = useState(() => new URLSearchParams(window.location.search).has('today-looks'))
   // Archive ideas playground (team only): debug panel, or ?archive-ideas in the URL
   const [archiveIdeasOpen, setArchiveIdeasOpen] = useState(() => new URLSearchParams(window.location.search).has('archive-ideas'))
+  // Brand collage playground (team only): debug panel, or ?collage in the URL
+  const [collageOpen, setCollageOpen] = useState(() => new URLSearchParams(window.location.search).has('collage'))
   const { id, component: CurrentScreen, stage, tab } = flow[index]
   // Her stage (onboarding or the debug panel) themes every screen once it's set
   const { status, stageSplash } = useStore()
@@ -91,6 +94,8 @@ function App() {
         toggleTodayLooks={() => setTodayLooksOpen((open) => !open)}
         archiveIdeasOpen={archiveIdeasOpen}
         toggleArchiveIdeas={() => setArchiveIdeasOpen((open) => !open)}
+        collageOpen={collageOpen}
+        toggleCollage={() => setCollageOpen((open) => !open)}
       />
       {joystick && <ScrollJoystick />}
       {mapsOpen && (
@@ -101,6 +106,7 @@ function App() {
       {motionOpen && <RelayMotion onClose={() => setMotionOpen(false)} />}
       {looksOpen && <RelayLooks onClose={() => setLooksOpen(false)} />}
       {todayLooksOpen && <TodayLooks onClose={() => setTodayLooksOpen(false)} />}
+      {collageOpen && <Collage onClose={() => setCollageOpen(false)} />}
       {archiveIdeasOpen && <ArchiveIdeas onClose={() => setArchiveIdeasOpen(false)} />}
     </>
   )
