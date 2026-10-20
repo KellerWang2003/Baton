@@ -72,7 +72,7 @@ export const defaultGlassTuning: GlassTuning = {
   frost: 0,
   // No tint across the whole glass, so its middle stays white like the design
   tint: 0,
-  shadow: 0.1,
+  shadow: 0,
   elevation: 0,
   interaction: 'drag',
   give: 0.24,

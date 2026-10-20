@@ -580,16 +580,25 @@ vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, 
   // 1 at the silhouette (measured: the surface there sits at 0.89 of the bound)
   float radial = length(tr.p.xy - uCenter.xy) / max(uBound / 1.08 * 0.89, 1.0);
   // Only the outer ~fifth, easing in, so the middle stays clear (Figma 236:1282)
-  float rimTint = pow(smoothstep(0.72, 1.0 - 0.012 * uRing, radial), 1.6) * uRim;
+  // With the rim on, the color stops where the rim starts
+  float rimTint = pow(smoothstep(0.72, 1.0 - 0.045 * uRing, radial), 1.6) * uRim;
   float rimAlpha = max(glass.a, rimTint);
   glass = vec4(mix(glass.rgb, uTint.rgb * rimAlpha, rimTint), rimAlpha);
-  // Baton: a clear, whitish band around the very edge, outside the blue, with
-  // a faint gray line at the silhouette (Figma 236:1282)
-  // Blends out of the blue (no hard step), so it reads as the glass's own edge
-  float ring = smoothstep(0.972, 0.99, radial) * uRing;
-  glass.rgb = mix(glass.rgb, vec3(0.97) * glass.a, ring * 0.8);
-  float hairline = smoothstep(0.995, 0.999, radial) * uRing;
-  glass.rgb = mix(glass.rgb, vec3(0.88) * glass.a, hairline * 0.6);
+  // Baton: the glass's rim, drawn like the Archive's opened photos: a thin band
+  // of glass, light gray where it meets the color and fading to white, then a
+  // faint gray hairline at the silhouette. Measured as the distance to the
+  // glass's real outline (its shape on its middle plane), so the rim hugs the
+  // edge while the glass breathes and morphs instead of drifting off it as a
+  // fixed circle would. Solid, so the gray the glass mirrors at grazing angles
+  // can't show through its edge
+  float toEdge = -map(vec3(tr.p.xy, uCenter.z)) / max(uBound / 1.08 * 0.89, 1.0);
+  float rimBand = (1.0 - smoothstep(0.036, 0.042, toEdge)) * uRing;
+  float rimShade = mix(1.0, 0.86, smoothstep(0.014, 0.038, toEdge));
+  float bandAlpha = max(glass.a, rimBand);
+  glass = vec4(mix(glass.rgb, vec3(rimShade) * bandAlpha, rimBand), bandAlpha);
+  float hairline = (1.0 - smoothstep(0.005, 0.011, toEdge)) * uRing;
+  float hairAlpha = max(glass.a, hairline);
+  glass = vec4(mix(glass.rgb, vec3(0.88) * hairAlpha, hairline), hairAlpha);
   vec2 facing = normalize(vec2(-0.42, 0.55));
   float rimLight = pow(1.0 - cosi, 3.0) * (0.25 + 0.75 * abs(dot(normalize(tr.n.xy + 1e-5), facing))) * 0.55 * uReflection;
   rimLight *= smoothstep(0.0, 0.08, cosi);
