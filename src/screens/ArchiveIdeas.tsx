@@ -355,7 +355,7 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
   return (
     <div className={fill ? 'relative h-full w-full overflow-hidden bg-baton-paper' : phone} ref={phoneEl}>
       {title(here.name, here.years)}
-      <div ref={wall} className={cx('mt-4 overflow-x-auto overflow-y-hidden [scrollbar-width:none]', fill ? 'h-[calc(100%-300px)]' : 'h-[400px]')} onScroll={() => setFrac(wall.current ? wall.current.scrollLeft / wallRange() : 0)}>
+      <div ref={wall} className={cx('mt-4 overflow-x-auto overflow-y-hidden [scrollbar-width:none]', fill ? 'h-[calc(100%-270px)]' : 'h-[400px]')} onScroll={() => setFrac(wall.current ? wall.current.scrollLeft / wallRange() : 0)}>
         <div className="relative h-full" style={{ width: wallW }}>
           {wallItems.map((m) => (
             <button
@@ -363,14 +363,14 @@ export function ScrubberWall({ fill }: { fill?: boolean }) {
               type="button"
               onClick={(e) => show(m, e.currentTarget)}
               className={cx('absolute border-2 border-white shadow-sm', tile[m.city.id])}
-              style={{ left: m.x, top: 12 + m.yf * ((fill ? 570 : 400) - m.h - 36), width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)`, opacity: open?.item.i === m.i ? 0 : 1 }}
+              style={{ left: m.x, top: 12 + m.yf * ((fill ? 600 : 400) - m.h - 36), width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)`, opacity: open?.item.i === m.i ? 0 : 1 }}
             />
           ))}
         </div>
       </div>
 
       {/* Timeline: a slim strip, a shade per city; the frame shows what is on screen */}
-      <div className={cx('absolute inset-x-[30px]', fill ? 'bottom-[140px]' : 'bottom-9')}>
+      <div className={cx('absolute inset-x-[30px]', fill ? 'bottom-[108px]' : 'bottom-9')}>
         <div
           className="relative h-9 touch-none select-none"
           onPointerDown={(e) => {
