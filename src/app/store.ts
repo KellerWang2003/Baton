@@ -55,7 +55,7 @@ type State = {
   relayEntrance: RelayEntrance
   relayEntranceSpeed: number
   relayLook: RelayLook
-  // Archive page layout: the city folder stack, or the scrubbable photo wall (debug panel, from the Archive ideas)
+  // Archive page layout: the city folder stack, or the scrubbable photo wall (Photo wall in the debug panel's Archive direction, from the Archive ideas)
   archiveWall: boolean
   // How Today's prompt circle is drawn, picked in the team-only Today looks playground
   promptGlass: PromptGlass
