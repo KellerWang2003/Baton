@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts } from '../data/pages'
 import { leave } from '../data/today'
+import type { ArchiveSketchId } from '../data/archiveSketches'
 import type { Stage } from '../flow'
 import { defaultGlassTuning } from '../ui/promptGlass'
 import type { GlassTuning, PromptGlass } from '../ui/promptGlass'
@@ -78,6 +79,8 @@ type State = {
   confettiRun: number
   // Her intentions for New York, picked from Profile before her last night in LA
   goals: string[]
+  // A wireframe direction shown in place of the Archive tab (Debug > Archive direction), or the real one
+  archiveSketch: ArchiveSketchId | null
 }
 
 let state: State = {
@@ -124,6 +127,7 @@ let state: State = {
   confetti: 'pop',
   confettiRun: 0,
   goals: [],
+  archiveSketch: null,
 }
 
 const listeners = new Set<() => void>()

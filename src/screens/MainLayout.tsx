@@ -178,3 +178,18 @@ export function TabShell({ activeTab, children }: TabShellProps) {
     </div>
   )
 }
+
+// The tab bar as a picture: not tappable, no + field (Archive sketches page)
+export function StaticTabBar({ active }: { active: string }) {
+  return (
+    <TabBar
+      tabs={tabs.map((tab) => ({ ...tab, icon: tabIcons[tab.id] }))}
+      active={active}
+      composing={false}
+      onOpen={() => {}}
+      onClose={() => {}}
+      onSubmit={() => {}}
+      onSelect={() => {}}
+    />
+  )
+}
