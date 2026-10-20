@@ -827,6 +827,24 @@ const FluidGlass = ({
     wakeRef.current?.();
   });
 
+  // Baton: hand the WebGL context back when the glass goes away. iOS allows
+  // only a few at a time and is slow to reclaim them, so after a few screens
+  // with glass a new one (Real-life's photo orb) was refused and never drew,
+  // most of all in the home screen app
+  // (A tick later, and not if it mounts again straight away: React's dev
+  // StrictMode unmounts and remounts the same canvas once)
+  const releaseRef = useRef(0);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    window.clearTimeout(releaseRef.current);
+    return () => {
+      releaseRef.current = window.setTimeout(() => {
+        const gl = canvas?.getContext('webgl2');
+        if (gl && !gl.isContextLost()) gl.getExtension('WEBGL_lose_context')?.loseContext();
+      }, 0);
+    };
+  }, []);
+
   useEffect(() => {
     const container = containerRef.current;
     const canvas = canvasRef.current;
