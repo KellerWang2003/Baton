@@ -324,67 +324,121 @@ const wallItems = slots.map((sl, i) => {
 })
 const wallW = wallItems[wallItems.length - 1].x + 200
 
+type WallItem = (typeof wallItems)[number]
+const BAR = 900 // timeline length in px; scrolled under a fixed center marker
+
 function ScrubberWall() {
-  const el = useRef<HTMLDivElement>(null)
+  const phoneEl = useRef<HTMLDivElement>(null)
+  const wall = useRef<HTMLDivElement>(null)
+  const bar = useRef<HTMLDivElement>(null)
   const [frac, setFrac] = useState(0)
-  const [open, setOpen] = useState<(typeof wallItems)[number] | null>(null)
-  const range = () => (el.current ? el.current.scrollWidth - el.current.clientWidth : 1)
-  const jump = (e: React.PointerEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    const f = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width))
-    if (el.current) el.current.scrollLeft = f * range()
+  const [open, setOpen] = useState<{ item: WallItem; from: { x: number; y: number; w: number; h: number }; up: boolean } | null>(null)
+  const wallRange = () => (wall.current ? wall.current.scrollWidth - wall.current.clientWidth : 1)
+  const barRange = () => (bar.current ? bar.current.scrollWidth - bar.current.clientWidth : 1)
+  const fromWall = () => {
+    const f = wall.current ? wall.current.scrollLeft / wallRange() : 0
+    setFrac(f)
+    if (bar.current && Math.abs(bar.current.scrollLeft - f * barRange()) > 1) bar.current.scrollLeft = f * barRange()
   }
+  const fromBar = () => {
+    const f = bar.current ? bar.current.scrollLeft / barRange() : 0
+    setFrac(f)
+    if (wall.current && Math.abs(wall.current.scrollLeft - f * wallRange()) > 1) wall.current.scrollLeft = f * wallRange()
+  }
+  const drag = useRef<number | null>(null)
   const here = wallItems[Math.round(frac * (wallItems.length - 1))].city
+
+  const show = (item: WallItem, target: HTMLElement) => {
+    const r = target.getBoundingClientRect()
+    const p = phoneEl.current!.getBoundingClientRect()
+    setOpen({ item, from: { x: r.left - p.left, y: r.top - p.top, w: r.width, h: r.height }, up: false })
+    requestAnimationFrame(() => requestAnimationFrame(() => setOpen((o) => o && { ...o, up: true })))
+  }
+  const hide = () => {
+    setOpen((o) => o && { ...o, up: false })
+    setTimeout(() => setOpen(null), 450)
+  }
+  const ease = 'cubic-bezier(0.2, 0.8, 0.2, 1)'
+
   return (
-    <div className={phone}>
+    <div className={phone} ref={phoneEl}>
       {title(here.name, here.years)}
-      <div
-        ref={el}
-        className="mt-4 h-[400px] cursor-grab overflow-x-auto overflow-y-hidden [scrollbar-width:none]"
-        onScroll={() => setFrac(el.current ? el.current.scrollLeft / range() : 0)}
-      >
+      <div ref={wall} className="mt-4 h-[400px] overflow-x-auto overflow-y-hidden [scrollbar-width:none]" onScroll={fromWall}>
         <div className="relative h-full" style={{ width: wallW }}>
           {wallItems.map((m) => (
             <button
               key={m.i}
               type="button"
-              onClick={() => setOpen(m)}
-              className={cx('absolute rounded-sm border-2 border-white shadow-sm', tile[m.city.id])}
-              style={{ left: m.x, top: m.y, width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)` }}
+              onClick={(e) => show(m, e.currentTarget)}
+              className={cx('absolute border-2 border-white shadow-sm', tile[m.city.id])}
+              style={{ left: m.x, top: m.y, width: m.w, height: m.h, transform: `rotate(${((m.i * 7) % 9) - 4}deg)`, opacity: open?.item.i === m.i ? 0 : 1 }}
             />
           ))}
         </div>
       </div>
+
+      {/* Timeline: the strip scrolls under a fixed marker, and the wall shows what is at the center */}
       <div className="absolute inset-x-[20px] bottom-8">
-        <div className="relative flex h-10 touch-none select-none gap-0.5" onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); jump(e) }} onPointerMove={(e) => e.buttons && jump(e)}>
-          {wallCities.map((c) => (
-            <div key={c.id} className={cx('rounded-sm', shade[c.id])} style={{ flex: c.photos.length }} />
-          ))}
-          <div
-            className="pointer-events-none absolute inset-y-[-4px] rounded-sm border-2 border-neutral-900"
-            style={{ width: '28%', left: `${frac * 72}%` }}
-          />
+        <div
+          ref={bar}
+          className="cursor-grab touch-pan-x overflow-x-auto [scrollbar-width:none]"
+          onScroll={fromBar}
+          onPointerDown={(e) => {
+            drag.current = e.clientX
+            e.currentTarget.setPointerCapture(e.pointerId)
+          }}
+          onPointerMove={(e) => {
+            if (drag.current === null || !bar.current) return
+            bar.current.scrollLeft -= e.clientX - drag.current
+            drag.current = e.clientX
+          }}
+          onPointerUp={() => (drag.current = null)}
+        >
+          <div className="flex h-10 gap-0.5" style={{ width: BAR + 320, paddingLeft: 160, paddingRight: 160, boxSizing: 'border-box' }}>
+            {wallCities.map((c) => (
+              <div key={c.id} className={cx('flex items-center justify-center rounded-sm text-caption', shade[c.id], c.id === 'la' ? 'text-white' : 'text-ink-muted')} style={{ flex: c.photos.length }}>
+                {c.name}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-1 flex gap-0.5 text-caption text-ink-muted">
-          {wallCities.map((c) => (
-            <span key={c.id} style={{ flex: c.photos.length }} className="truncate text-center">{c.name}</span>
-          ))}
-        </div>
+        <div className="pointer-events-none absolute inset-y-[-6px] left-1/2 w-0.5 -translate-x-1/2 bg-neutral-900" />
       </div>
+
       {open && (
-        <div className="absolute inset-0 z-10 flex animate-note-stick flex-col bg-white p-[30px] pt-14" onClick={() => setOpen(null)}>
-          <div className={cx('h-[300px] w-full rounded-sm', tile[open.city.id])} />
-          <p className="mt-4 text-footnote text-ink-muted">{open.city.name} · {open.city.years}</p>
-          <p className="text-body">Capture #{open.i + 1}. Place, time and your note would sit here.</p>
-          <p className="mt-auto text-center text-caption text-ink-muted">Tap anywhere to go back to the wall</p>
-        </div>
+        <>
+          <div className="absolute inset-0 bg-white transition-opacity duration-500" style={{ opacity: open.up ? 1 : 0 }} onClick={hide} />
+          <div
+            className={cx('pointer-events-none absolute rounded-card shadow-md', tile[open.item.city.id])}
+            style={{
+              left: open.up ? 30 : open.from.x,
+              top: open.up ? 100 : open.from.y,
+              width: open.up ? 300 : open.from.w,
+              height: open.up ? 300 : open.from.h,
+              transition: `all 450ms ${ease}`,
+            }}
+          />
+          <div className="pointer-events-none absolute inset-x-[30px] top-[424px] transition-all duration-500" style={{ opacity: open.up ? 1 : 0, transform: open.up ? 'none' : 'translateY(12px)', transitionDelay: open.up ? '200ms' : '0ms' }}>
+            <p className="text-footnote text-ink-muted">{open.item.city.name} · {open.item.city.years}</p>
+            <h4 className="font-display text-title-2">Capture #{open.item.i + 1}</h4>
+            <p className="mt-2 text-body text-ink-muted">Place, time and your note would sit here.</p>
+          </div>
+          <button
+            type="button"
+            onClick={hide}
+            className="absolute right-5 top-14 rounded-full bg-neutral-200 px-4 py-2 text-subhead transition-opacity duration-300"
+            style={{ opacity: open.up ? 1 : 0 }}
+          >
+            Close
+          </button>
+        </>
       )}
     </div>
   )
 }
 
 const ideas = [
-  { name: 'Scrubber wall', blurb: 'One huge horizontal wall of captures, oldest at the left. Scrub the gray timeline (a shade per city) to move along it, tap a capture for details. Gray boxes only.', node: <ScrubberWall /> },
+  { name: 'Scrubber wall', blurb: 'One huge horizontal wall of captures, oldest at the left. Scroll the gray timeline (a shade per city) under the center marker and the wall follows. Tap a capture and it grows open. Gray boxes only.', node: <ScrubberWall /> },
   { name: 'Full-bleed pages', blurb: 'One city per screen, snapping as you swipe up. Big photo, one sentence, the city’s color.', node: <Pages /> },
   { name: 'Route map', blurb: 'The cities as stops on the line she has traveled. Tap a stop for its photos and sentence.', node: <RouteMap /> },
   { name: 'Passport', blurb: 'A stamp per city, with a blank one for the next. Tap a stamp to open that city.', node: <Passport /> },
