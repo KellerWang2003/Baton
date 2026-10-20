@@ -50,7 +50,7 @@ const phone = 'relative h-[640px] w-[360px] shrink-0 overflow-hidden rounded-[36
 const title = (t: string, sub: string) => (
   <div className="px-[30px] pt-14">
     <p className="text-footnote text-ink-muted">{sub}</p>
-    <h3 className="font-display text-title-2">{t}</h3>
+    <h3 className="font-display text-greeting font-normal">{t}</h3>
   </div>
 )
 
