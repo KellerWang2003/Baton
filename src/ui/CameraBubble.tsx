@@ -20,17 +20,21 @@ const rectHeight = 482 / 820
 const sideMargin = 36
 const rectRadius = 52
 const promptTop = 62
-// The prompt starts where the glass draws it (see drawPrompt in PromptWindow:
-// same line breaks and spot) at about the size it reads there, and settles at
-// the top at Figma's 25pt
-const promptGrow = 1
+// How long the circle takes to become the rectangle
+const morphMs = 650
+// The prompt starts exactly as the glass shows it (see drawPrompt in
+// PromptWindow: same font, line breaks and spot, magnified by the lens about
+// 1.08x around its center), then slides up and settles a little smaller and
+// tighter than that (Keller, Oct 21: slightly smaller, more compact)
+const lensZoom = 1.08
+const promptSettle = 0.96
 
 type PromptLayout = { lines: string[]; font: number; lineHeight: number; top: number }
 
 // Line breaks and size of the prompt the way PromptWindow's drawPrompt sets
-// them (kept in step with it by hand): up to three lines, 27pt shrinking to
-// 20pt, balanced, in a column 110pt narrower than the glass; and where its
-// block's top sits relative to the circle's center, under the icon.
+// them (kept in step with it by hand): regular weight, up to three lines, 23pt
+// shrinking to 18pt, balanced, in a column 110pt narrower than the glass; and
+// where its block's top sits relative to the circle's center, under the icon.
 function promptLayout(question: string, size: number, centerY: number): PromptLayout {
   const ctx = document.createElement('canvas').getContext('2d')!
   const family = getComputedStyle(document.documentElement).getPropertyValue('--font-display').trim()
@@ -56,25 +60,31 @@ function promptLayout(question: string, size: number, centerY: number): PromptLa
     }
     return lines
   }
-  // 23pt drawn under the glass reads as 25pt (it magnifies it)
-  let font = 25
+  // PROMPT_SIZE in PromptWindow
+  let font = 23
   let lines: string[] = []
-  for (; font >= 20; font--) {
-    ctx.font = `500 ${font}px ${family}`
+  for (; font >= 18; font--) {
+    ctx.font = `400 ${font}px ${family}`
     if ('letterSpacing' in ctx) ctx.letterSpacing = `${-0.011 * font}px`
     lines = balanced(size - 110)
     if (lines.length <= 3) break
   }
-  font = Math.max(font, 20)
-  const lineHeight = Math.round(font * 1.3)
+  font = Math.max(font, 18)
+  const lineHeight = Math.round(font * 1.2)
   const iconSize = 24
   const iconGap = 16
   const groupHeight = iconSize + iconGap + lines.length * lineHeight
-  const top = centerY - groupHeight / 2 + iconSize + iconGap - size * 0.035 - lines.length * lineHeight
+  const top = centerY - groupHeight / 2 + iconSize + iconGap - size * 0.035
   return { lines, font, lineHeight, top }
 }
 
 type Box = { left: number; top: number; width: number; height: number; radius: number }
+
+// The shape as a clip over the whole screen, so the morph only repaints: the
+// camera underneath stays the rectangle's size the whole time instead of being
+// resized every frame
+const clipTo = (box: Box, width: number, height: number) =>
+  `inset(${box.top}px ${width - box.left - box.width}px ${height - box.top - box.height}px ${box.left}px round ${box.radius}px)`
 
 // Tapping the prompt's circle on Today opens the camera inside the app
 // (always the live camera, Keller Oct 21; the green screen is gone):
@@ -94,6 +104,10 @@ export function CameraBubble() {
   const [origin, setOrigin] = useState<Box | null>(null)
   const [target, setTarget] = useState<Box | null>(null)
   const [text, setText] = useState<PromptLayout | null>(null)
+  const [screen, setScreen] = useState({ width: 0, height: 0 })
+  // The rectangle has finished growing, so the camera can fade in without
+  // competing with the morph
+  const [settled, setSettled] = useState(false)
   const [live, setLive] = useState(false)
   const [mirror, setMirror] = useState(false)
   const [flash, setFlash] = useState(false)
@@ -124,6 +138,7 @@ export function CameraBubble() {
         radius: size / 2,
       })
       setText(promptLayout(prompt.question, size, (camera.cy - bounds.top) / scale))
+      setScreen({ width: box.offsetWidth, height: box.offsetHeight })
       setTarget({
         left: sideMargin,
         top: Math.round(box.offsetHeight * rectTop),
@@ -133,20 +148,29 @@ export function CameraBubble() {
       })
       setMounted(true)
       setExpanded(false)
+      setSettled(false)
       setNoCamera(false)
       // One frame on the circle first, so the move is animated
-      const frame = requestAnimationFrame(() => requestAnimationFrame(() => setExpanded(true)))
-      return () => cancelAnimationFrame(frame)
+      let frame = requestAnimationFrame(() => {
+        frame = requestAnimationFrame(() => setExpanded(true))
+      })
+      const timer = setTimeout(() => setSettled(true), morphMs + 40)
+      return () => {
+        cancelAnimationFrame(frame)
+        clearTimeout(timer)
+      }
     }
     setExpanded(false)
+    setSettled(false)
     stop()
-    const timer = setTimeout(() => setMounted(false), 700)
+    const timer = setTimeout(() => setMounted(false), morphMs + 50)
     return () => clearTimeout(timer)
   }, [camera, prompt.question])
 
-  // Start the camera once the rectangle is on its way
+  // Ask for the camera straight away, so it's warmed up by the time the
+  // rectangle has grown; it only shows once it has (settled)
   useEffect(() => {
-    if (!camera || !expanded) return
+    if (!camera) return
     let cancelled = false
     const devices = navigator.mediaDevices
     // No camera API at all (an insecure page, an old browser): same as refused
@@ -159,16 +183,21 @@ export function CameraBubble() {
         stream.current = media
         // Selfie-style cameras show the mirror image, like the camera app
         setMirror(media.getVideoTracks()[0]?.getSettings().facingMode !== 'environment')
-        if (video.current) {
+        // The video mounts with the shape, which can be a frame after an
+        // already-granted camera answers
+        const attach = () => {
+          if (cancelled) return
+          if (!video.current) return requestAnimationFrame(attach)
           video.current.srcObject = media
           video.current.play().then(() => !cancelled && setLive(true)).catch(() => {})
         }
+        attach()
       })
       .catch(() => !cancelled && setNoCamera(true))
     return () => {
       cancelled = true
     }
-  }, [camera, expanded])
+  }, [camera])
 
   // Turn the camera off if she leaves Today while it's open
   useEffect(() => stop, [])
@@ -220,6 +249,7 @@ export function CameraBubble() {
   }
 
   const at = expanded ? target : origin
+  const curve = `${morphMs}ms ${ease}`
   return (
     <div ref={root} className={cx('absolute inset-0 z-40', mounted ? 'pointer-events-auto' : 'pointer-events-none')} aria-hidden={!mounted}>
       {mounted && at && target && (
@@ -230,20 +260,22 @@ export function CameraBubble() {
             style={{ opacity: expanded ? 1 : 0 }}
           />
 
-          {/* The prompt: set exactly where the glass drew it, then it slides up and
-              grows a little while the circle becomes the rectangle */}
-          {text && (
+          {/* The prompt: set exactly where the glass shows it, then it slides up
+              and settles a little smaller while the circle becomes the rectangle.
+              Moved with a transform only, so it stays smooth */}
+          {text && origin && (
             <div
-              className="absolute left-1/2 z-10 motion-reduce:transition-none"
+              className="absolute top-0 left-0 z-10 will-change-transform motion-reduce:transition-none"
               style={{
-                top: expanded ? promptTop : text.top,
-                transform: `translateX(-50%) scale(${expanded ? promptGrow : 1})`,
+                transform: expanded
+                  ? `translate(${screen.width / 2}px, ${promptTop}px) translateX(-50%) scale(${promptSettle})`
+                  : `translate(${origin.left + origin.width / 2}px, ${origin.top + origin.height / 2 + (text.top - origin.top - origin.height / 2) * lensZoom}px) translateX(-50%) scale(${lensZoom})`,
                 transformOrigin: '50% 0',
-                transition: `top 650ms ${ease}, transform 650ms ${ease}`,
+                transition: `transform ${curve}`,
               }}
             >
               <p
-                className="whitespace-nowrap text-center font-display font-medium tracking-[-0.011em] text-baton-navy"
+                className="whitespace-nowrap text-center font-display font-normal tracking-[-0.011em] text-baton-navy"
                 style={{ fontSize: text.font, lineHeight: `${text.lineHeight}px` }}
               >
                 {text.lines.map((line, i) => (
@@ -255,9 +287,11 @@ export function CameraBubble() {
             </div>
           )}
 
-          {/* The circle, morphing into the rounded rectangle with the camera in it */}
+          {/* The circle, morphing into the rounded rectangle with the camera in it.
+              The layer covers the screen and only its clip changes, from the
+              circle to the rectangle; the camera inside is already the
+              rectangle's size */}
           <div
-            ref={picture}
             role="button"
             tabIndex={0}
             aria-label="Close camera"
@@ -265,31 +299,31 @@ export function CameraBubble() {
             // (Keller, Oct 19)
             onClick={() => expanded && setState({ camera: null })}
             onKeyDown={(event) => event.key === 'Enter' && expanded && setState({ camera: null })}
-            className="absolute cursor-pointer overflow-hidden bg-baton-paper motion-reduce:transition-none"
-            style={{
-              left: at.left,
-              top: at.top,
-              width: at.width,
-              height: at.height,
-              borderRadius: at.radius,
-              transition: `left 650ms ${ease}, top 650ms ${ease}, width 650ms ${ease}, height 650ms ${ease}, border-radius 650ms ${ease}`,
-            }}
+            className="absolute inset-0 cursor-pointer bg-baton-paper motion-reduce:transition-none"
+            style={{ clipPath: clipTo(at, screen.width, screen.height), transition: `clip-path ${curve}` }}
           >
-            {/* The live camera, or a photo when there isn't one */}
-            <img
-              src={placeholderPhoto}
-              alt=""
-              className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', noCamera ? 'opacity-100' : 'opacity-0')}
-            />
-            <video
-              ref={video}
-              playsInline
-              muted
-              autoPlay
-              className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live ? 'opacity-100' : 'opacity-0')}
-              style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
-            />
-            <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
+            <div
+              ref={picture}
+              className="absolute overflow-hidden"
+              style={{ left: target.left, top: target.top, width: target.width, height: target.height, borderRadius: target.radius }}
+            >
+              {/* The live camera, or a photo when there isn't one, faded in once
+                  the rectangle has grown */}
+              <img
+                src={placeholderPhoto}
+                alt=""
+                className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', noCamera && settled ? 'opacity-100' : 'opacity-0')}
+              />
+              <video
+                ref={video}
+                playsInline
+                muted
+                autoPlay
+                className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live && settled ? 'opacity-100' : 'opacity-0')}
+                style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
+              />
+              <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
+            </div>
           </div>
 
           {/* Real-life only: a way back to Today without tapping the picture */}
