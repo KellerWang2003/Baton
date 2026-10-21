@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { navigate } from '../app/navigate'
 import { features, type FeatureSlide } from '../data/onboarding'
 import { localInsight } from '../data/localInsight'
@@ -43,32 +43,15 @@ function Folders() {
   )
 }
 
-// The prompt flashes up, then the photo orbs fill in one after another
+// The photo orbs fill in one after another
 const orbs = [
-  { src: '/archive/moments/seoul-karaoke.jpg', category: 'people', pos: 'left-[25.56px] top-[13.77px]', delay: 1400 },
-  { src: '/archive/moments/itaewon-sunset.jpg', category: 'feeling', pos: 'left-[188.75px] top-[156.42px]', delay: 1900 },
-  { src: '/archive/moments/goseong-lunch.jpg', category: 'places', pos: 'left-[36.9px] top-[299.65px]', delay: 2400 },
+  { src: '/archive/moments/seoul-karaoke.jpg', category: 'people', pos: 'left-[25.56px] top-[13.77px]', delay: 300 },
+  { src: '/archive/moments/itaewon-sunset.jpg', category: 'feeling', pos: 'left-[188.75px] top-[156.42px]', delay: 800 },
+  { src: '/archive/moments/goseong-lunch.jpg', category: 'places', pos: 'left-[36.9px] top-[299.65px]', delay: 1300 },
 ] as const
 function Moments() {
-  const [shown, setShown] = useState(false)
-  useEffect(() => {
-    const on = setTimeout(() => setShown(true), 200)
-    const off = setTimeout(() => setShown(false), 1700)
-    return () => {
-      clearTimeout(on)
-      clearTimeout(off)
-    }
-  }, [])
   return (
     <>
-      <p
-        className={cx(
-          'absolute inset-x-8 top-[196px] z-10 rounded-full bg-baton-cream px-5 py-3 text-center text-subhead font-medium text-ink shadow-md transition-opacity duration-500',
-          shown ? 'opacity-100' : 'opacity-0',
-        )}
-      >
-        {features.prompt}
-      </p>
       {orbs.map((o) => (
         <div key={o.src} className={cx('absolute animate-photo-pop', o.pos)} style={{ animationDelay: `${o.delay}ms` }}>
           <PhotoOrb src={o.src} size={193.74} category={o.category} />
@@ -89,7 +72,7 @@ function Recs() {
       {picks.map((p, i) => {
         const r = relayItems.find((item) => item.id === p.id)!
         return (
-          <div key={p.id} className={cx('pointer-events-none absolute', p.pos)}>
+          <div key={p.id} className={cx('pointer-events-none absolute animate-photo-drop', p.pos)} style={{ animationDelay: `${200 + i * 450}ms` }}>
             <RecCard
               look="scrapbook"
               index={i}

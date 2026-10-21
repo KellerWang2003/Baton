@@ -10,8 +10,6 @@ export type FeatureSlide = {
 
 export const features = {
   tagline: 'Leave a story. Start another.',
-  // Prompt that flashes on the capture slide before the photos fill in
-  prompt: 'Take a photo of the view from the café seat you always sit in',
   slides: [
     { visual: 'splash', title: 'Baton' },
     {
