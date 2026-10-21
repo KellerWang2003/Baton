@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
 import { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
-import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_MS, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
+import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_MS, FLING_VELOCITY, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
 import { useFolderFocus } from './useFolderFocus'
 
 export type ArchiveFolder = {
@@ -82,7 +82,10 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     anchorY: number
     scale: number
     moved: boolean
-  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, anchorY: 0, scale: 1, moved: false })
+    lastY: number
+    lastTime: number
+    velocity: number
+  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, anchorY: 0, scale: 1, moved: false, lastY: 0, lastTime: 0, velocity: 0 })
 
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
@@ -177,12 +180,23 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       anchorY: event.clientY,
       scale: scale || 1,
       moved: false,
+      lastY: event.clientY,
+      lastTime: event.timeStamp,
+      velocity: 0,
     }
   }
 
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current
     if (!drag.active || event.pointerId !== drag.pointerId) return
+    // Release velocity (app px/ms, finger up > 0), smoothed over recent moves
+    const dt = event.timeStamp - drag.lastTime
+    if (dt > 0) {
+      const v = (drag.lastY - event.clientY) / drag.scale / dt
+      drag.velocity = dt > 100 ? v : drag.velocity * 0.4 + v * 0.6
+      drag.lastY = event.clientY
+      drag.lastTime = event.timeStamp
+    }
     const deltaY = (event.clientY - drag.startY) / drag.scale
     if (!drag.moved && Math.abs(deltaY) > MOVE_SLOP) {
       drag.moved = true
@@ -198,7 +212,10 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       return
     }
     const { step, progress } = dragFeedback(distance, event.timeStamp - drag.startTime)
-    if (step) {
+    // While the finger is flinging, hold the turn for release so a fast
+    // swipe turns exactly one folder
+    if (step && Math.abs(drag.velocity) > FLING_VELOCITY) showProgress(Math.sign(distance))
+    else if (step) {
       goTo(activeIndexRef.current + step)
       drag.anchorY = event.clientY
     } else showProgress(progress)
@@ -207,11 +224,21 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
   const endPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current
     if (!drag.active || event.pointerId !== drag.pointerId) return
+    // Touch starts with the pointer implicitly captured by the folder under
+    // the finger; moving capture to the stack fires lostpointercapture on
+    // that folder, which bubbles here. Only the stack's own loss ends a drag.
+    if (event.type === 'lostpointercapture' && event.target !== event.currentTarget) return
     drag.active = false
     const distance = (drag.startY - event.clientY) / drag.scale
+    const sinceAnchor = (drag.anchorY - event.clientY) / drag.scale
+    // A finger still moving fast on release (a touch flick) also turns one
+    const stale = event.timeStamp - drag.lastTime > 80
+    const flung = !stale && Math.abs(drag.velocity) > FLING_VELOCITY && Math.sign(drag.velocity) === Math.sign(sinceAnchor) && Math.abs(sinceAnchor) > MOVE_SLOP
     if (drag.moved && event.type === 'pointerup') {
       if (event.timeStamp - drag.startTime < FLICK_MS && Math.abs(distance) > MOVE_SLOP) {
         goTo(activeIndexRef.current + Math.sign(distance))
+      } else if (flung) {
+        goTo(activeIndexRef.current + Math.sign(drag.velocity))
       } else {
         const { step } = dragFeedback((drag.anchorY - event.clientY) / drag.scale, event.timeStamp - drag.startTime)
         if (step) goTo(activeIndexRef.current + step)
