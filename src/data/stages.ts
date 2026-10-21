@@ -54,7 +54,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
   newcomer: [
     {
       id: 'wrapped',
-      photo: '/wrapped/m21-aug01.jpg',
+      photo: '/wrapped/m12-jun07.jpg',
       eyebrow: 'You landed',
       title: 'Your LA Wrapped is ready',
       subtitle: 'Four years of LA, and the 5 notes friends left you.',

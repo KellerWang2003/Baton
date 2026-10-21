@@ -118,6 +118,20 @@ export function Today({ lastWeek = false }: TodayProps) {
   const suggested = suggestions.items[status].filter(
     (item) => !picked.includes(item.id) && (!item.place || keptPlaces.includes(item.place)),
   )
+  const stageMoment = todayCards[status].find((card) => card.tone === 'stage')
+  const moment =
+    status === 'moving'
+      ? daysLeft <= lastWeekDays && {
+          eyebrow: legacyCard.eyebrow(daysLeft),
+          title: legacyCard.title,
+          subtitle: legacyCard.body,
+          photo: legacyCard.photo,
+          onClick: () => {
+            setState({ archiveSegment: 'legacy' })
+            navigate('archive')
+          },
+        }
+      : stageMoment && { ...stageMoment, onClick: stageMoment.to && (() => navigate(stageMoment.to!.screen)) }
   const sheetTodo = allTodos.find((todo) => todo.id === openTodo)
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
@@ -138,6 +152,17 @@ export function Today({ lastWeek = false }: TodayProps) {
       {/* Below the prompt, straight on the paper (Figma TODAY 334:10047): the
           setup row, then "Before you leave" */}
       <div className="flex flex-col gap-10 pt-4">
+        {/* Her stage's key moment, right under the prompt, above every section (Keller, Oct 21) */}
+        {moment && (
+          <MomentCard
+            stage={status}
+            eyebrow={moment.eyebrow}
+            title={moment.title}
+            subtitle={moment.subtitle}
+            photo={moment.photo}
+            onClick={moment.onClick}
+          />
+        )}
         {setupCount < setupItems.length && (
           <section className="flex flex-col gap-4">
             <h2 className="text-section font-normal text-ink">{setup.header}</h2>
@@ -186,30 +211,12 @@ export function Today({ lastWeek = false }: TodayProps) {
         <section className="flex flex-col gap-4">
           <h2 className="text-section font-normal text-ink">{beforeYouLeave.header[status]}</h2>
           <div className="flex flex-col gap-3">
-            {status === 'moving' && daysLeft <= lastWeekDays && (
-              <MomentCard
-                stage={status}
-                eyebrow={legacyCard.eyebrow(daysLeft)}
-                title={legacyCard.title}
-                subtitle={legacyCard.body}
-                photo={legacyCard.photo}
-                onClick={() => {
-                  setState({ archiveSegment: 'legacy' })
-                  navigate('archive')
-                }}
-              />
-            )}
-
-            {/* Cards for her stage: the key moment in her stage's color, the rest like the suggestions */}
+            {/* Cards for her stage, like the suggestions */}
             {status !== 'moving' &&
-              todayCards[status].map((card) => {
+              todayCards[status].filter((card) => card.tone !== 'stage').map((card) => {
                 const to = card.to
                 const open = to && (() => navigate(to.screen))
-                return card.tone === 'stage' ? (
-                  <MomentCard key={card.id} stage={status} eyebrow={card.eyebrow} title={card.title} subtitle={card.subtitle} photo={card.photo} onClick={open} />
-                ) : (
-                  <TodayCard key={card.id} title={card.title} subtitle={card.subtitle} photo={card.photo} onClick={open} />
-                )
+                return <TodayCard key={card.id} title={card.title} subtitle={card.subtitle} photo={card.photo} onClick={open} />
               })}
 
             {/* Suggestions from her archive; tap for tips from people who did it */}
