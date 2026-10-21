@@ -93,9 +93,10 @@ export function ArchiveSelected() {
         paddingTop: 'var(--status-bar, 0px)',
       }}
     >
-      {/* Figma's arrow, 30pt in, just under the status bar (this page reaches up under it) */}
-      <div data-fade className="absolute left-5 z-10" style={{ top: 'calc(var(--status-bar, 0px) + 8px)' }}>
-        <BackButton onClick={close} label="Back to the photos" />
+      {/* Stays pinned just under the status bar while the page scrolls under it
+          (Keller, Oct 21); takes no room, so the page lays out as before */}
+      <div data-fade className="sticky z-20 h-0" style={{ top: 'calc(var(--status-bar, 0px) + 8px)' }}>
+        <BackButton onClick={close} label="Back to the photos" floating className="ml-5" />
       </div>
 
       {/* Clipped at the sides (clip, so it doesn't count toward scrolling):
