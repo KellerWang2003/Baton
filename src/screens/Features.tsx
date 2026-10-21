@@ -30,15 +30,23 @@ function Splash() {
 // The Archive's folders, NYC at the back and Seoul in front (the shapes are
 // exported from Figma; the city names sit on the tabs)
 const folderLabel = 'absolute font-display text-[30.648px] leading-normal font-medium tracking-[-0.3371px] whitespace-nowrap -translate-x-1/2'
+const folderShapes = [
+  { src: '/onboarding/folder-nyc.svg', city: 'NYC', top: 0, labelLeft: 119.74, text: 'text-baton-yellow' },
+  { src: '/onboarding/folder-la.svg', city: 'LA', top: 61.3, labelLeft: 241.9, text: 'text-baton-cream' },
+  { src: '/onboarding/folder-seoul.svg', city: 'Seoul', top: 123.45, labelLeft: 119.43, text: 'text-baton-navy' },
+]
+// They rise into place from the back one: NYC, then LA, then Seoul
 function Folders() {
   return (
     <div className="absolute top-[62.83px] left-[30.88px] h-[412.05px] w-[342.24px]">
-      <img src="/onboarding/folder-nyc.svg" alt="" className="absolute top-0 left-0" />
-      <p className={cx(folderLabel, 'top-[10.22px] left-[119.74px] text-baton-yellow')}>NYC</p>
-      <img src="/onboarding/folder-la.svg" alt="" className="absolute top-[61.3px] left-0" />
-      <p className={cx(folderLabel, 'top-[71.51px] left-[241.9px] text-baton-cream')}>LA</p>
-      <img src="/onboarding/folder-seoul.svg" alt="" className="absolute top-[123.45px] left-0" />
-      <p className={cx(folderLabel, 'top-[133.66px] left-[119.43px] text-baton-navy')}>Seoul</p>
+      {folderShapes.map((f, i) => (
+        <div key={f.city} className="absolute left-0 animate-folder-rise" style={{ top: f.top, animationDelay: `${150 + i * 250}ms` }}>
+          <img src={f.src} alt="" />
+          <p className={cx(folderLabel, 'top-[10.22px]', f.text)} style={{ left: f.labelLeft }}>
+            {f.city}
+          </p>
+        </div>
+      ))}
     </div>
   )
 }

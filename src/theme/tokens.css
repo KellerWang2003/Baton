@@ -243,6 +243,7 @@
   --animate-fade-in: fade-in 400ms ease-out both;
   /* Feature overview: orbs settle in softly, cards are pressed on like a post-it */
   --animate-orb-in: orb-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-folder-rise: folder-rise 800ms cubic-bezier(0.22, 1, 0.36, 1) both;
   --animate-card-stick: card-stick 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Her note on an opened Archive photo, stuck down like a post-it (ends at its --note-tilt) */
   --animate-note-stick: note-stick 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -279,6 +280,10 @@
   @keyframes orb-in {
     0% { opacity: 0; scale: 0.88; }
     100% { opacity: 1; scale: 1; }
+  }
+  @keyframes folder-rise {
+    0% { opacity: 0; translate: 0 28px; }
+    100% { opacity: 1; translate: 0 0; }
   }
   @keyframes card-stick {
     0% { opacity: 0; scale: 1.05; translate: 0 -8px; }
