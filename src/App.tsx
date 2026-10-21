@@ -1,6 +1,8 @@
+import { DemoNote } from './app/DemoNote'
 import { DeviceFrame } from './app/DeviceFrame'
 import { useStore } from './app/store'
 import { useScreenIndex } from './app/useScreenIndex'
+import { about } from './data/onboarding'
 import { tabs } from './data/pages'
 import { flow } from './flow'
 import { TabShell } from './screens/MainLayout'
@@ -25,6 +27,7 @@ function App() {
         )}
         {stageSplash && <StageSplashOverlay key={stageSplash} stage={stageSplash} />}
       </div>
+      {id === 'about' && <DemoNote>{about.demoNote}</DemoNote>}
     </DeviceFrame>
   )
 }

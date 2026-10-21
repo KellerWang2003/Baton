@@ -48,6 +48,7 @@ export const auth = {
 
 export const about = {
   title: 'Tell us about yourself!',
+  demoNote: 'For the purpose of the demo, please choose Moving soon.',
   body: 'Baton works differently if you’re leaving a city, just arrived somewhere new, or have settled in.',
   moveOptions: [
     { id: 'moving', label: 'Moving soon', detail: 'Save the places and people you’ll miss, then pass them on when you leave.' },
