@@ -89,8 +89,9 @@ export function PromptWindow({
       lastTop = page.scrollTop
       lastTime = now
       // The content moves up as she scrolls down, so the glass lags behind it,
-      // at most ~4px since the glass's spring is soft
-      push.current?.(0, Math.max(-16, Math.min(16, speed * 0.008)))
+      // at most ~5.5px since the glass's spring is soft (Keller, Oct 21: a
+      // little more than the first 0.008 and 16)
+      push.current?.(0, Math.max(-22, Math.min(22, speed * 0.011)))
     }
     page.addEventListener('scroll', onScroll, { passive: true })
     return () => page.removeEventListener('scroll', onScroll)
