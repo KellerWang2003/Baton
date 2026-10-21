@@ -469,6 +469,8 @@
   height: 377px;
   margin-top: 57px;
   touch-action: pan-y;
+  /* A touch smaller than Figma so the fanned cards only just pass the 30pt margins (Keller, Oct 21) */
+  zoom: 0.92;
   user-select: none;
   -webkit-user-select: none;
   overscroll-behavior-x: contain;
@@ -578,7 +580,7 @@
 .onboarding-status { background: var(--color-baton-paper); padding-left: 40px; padding-right: 41px; color: var(--color-onboarding-detail); font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 17px; line-height: 22px; letter-spacing: -0.8px; }
 .onboarding-status > span:first-child { transform: translateY(2px); }
 @container (max-width: 370px) {
-  .onboarding-deck { zoom: 0.88; }
+  .onboarding-deck { zoom: 0.82; }
   .onboarding-heading { margin-inline: 24px; }
   .onboarding-tags { margin-inline: 24px; }
   .onboarding-tag-groups { margin-inline: 24px; }
