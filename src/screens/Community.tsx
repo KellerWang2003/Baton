@@ -40,7 +40,9 @@ export function Community() {
   const [query, setQuery] = useState('')
   useRelayEntrance(entranceRef, relayEntrance, relayEntranceSpeed, `${status}:${relayLook}:${relayFilter}:${query}:${searching}`)
   const [pinned, setPinned] = useState<string | null>(null)
-  const dragFrom = useRef<number | null>(null)
+  // Where the press on the peek started; mouse and pen drags also keep recent
+  // samples for a flick and the phone frame's scale, so the sheet stays under the pointer
+  const dragFrom = useRef<{ y: number; mouse: boolean; scale: number; samples: { y: number; t: number }[] } | null>(null)
   // How far the sheet is being pulled up right now (negative), while a finger is on it
   const [pull, setPull] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
@@ -106,19 +108,42 @@ export function Community() {
               type="button"
               aria-label="Show the list"
               onPointerDown={(event) => {
-                dragFrom.current = event.clientY
+                const mouse = event.pointerType !== 'touch'
+                if (mouse && event.button !== 0) return
+                if (mouse) event.preventDefault()
+                const rect = event.currentTarget.getBoundingClientRect()
+                const scale = mouse ? rect.width / event.currentTarget.offsetWidth || 1 : 1
+                dragFrom.current = { y: event.clientY, mouse, scale, samples: [{ y: event.clientY, t: event.timeStamp }] }
                 event.currentTarget.setPointerCapture(event.pointerId)
                 setPull(0)
               }}
               onPointerMove={(event) => {
-                if (dragFrom.current !== null) setPull(Math.min(0, event.clientY - dragFrom.current))
+                const d = dragFrom.current
+                if (!d) return
+                const dy = (event.clientY - d.y) / d.scale
+                if (!d.mouse) {
+                  setPull(Math.min(0, dy))
+                  return
+                }
+                d.samples = [...d.samples.filter((sample) => event.timeStamp - sample.t < 100), { y: event.clientY, t: event.timeStamp }]
+                // Up follows the pointer; down gives a little and resists
+                setPull(dy < 0 ? dy : Math.min(24, dy * 0.25))
               }}
               onPointerUp={(event) => {
-                const moved = dragFrom.current === null ? 0 : dragFrom.current - event.clientY
+                const d = dragFrom.current
                 dragFrom.current = null
                 setPull(null)
-                // A swipe up, or a plain tap, brings the list back; a small nudge snaps back down
-                if (moved > 40 || Math.abs(moved) < 6) showMap(false)
+                if (!d) return
+                const moved = (d.y - event.clientY) / d.scale
+                if (!d.mouse) {
+                  // A swipe up, or a plain tap, brings the list back; a small nudge snaps back down
+                  if (moved > 40 || Math.abs(moved) < 6) showMap(false)
+                  return
+                }
+                const first = d.samples[0]
+                const speed = event.timeStamp > first.t ? (first.y - event.clientY) / d.scale / (event.timeStamp - first.t) : 0
+                // Mouse: a click, a drag up past 30pt, or a quick flick up brings the list back
+                if (Math.abs(moved) < 6 || moved > 30 || (speed > 0.3 && moved > 8)) showMap(false)
               }}
               onPointerCancel={() => {
                 dragFrom.current = null
@@ -128,14 +153,18 @@ export function Community() {
               onWheel={(event) => {
                 if (event.deltaY > 12) showMap(false)
               }}
-              className="absolute inset-0 z-10 touch-none rounded-t-map-sheet"
-            />
+              className="absolute inset-0 z-10 cursor-grab touch-none select-none rounded-t-map-sheet active:cursor-grabbing"
+            >
+              {/* The grabber: says the sheet can be pulled back up */}
+              <span aria-hidden className="absolute top-2 left-1/2 h-[5px] w-9 -translate-x-1/2 rounded-full bg-ink-faint" />
+            </button>
           )}
           <div
             ref={listRef}
             className={cx(
               'flex h-full flex-col gap-10 overscroll-y-contain px-gutter pb-44 transition-[padding] duration-500',
-              mapOpen ? 'overflow-hidden pt-4' : 'overflow-y-auto pt-4',
+              // Room for the grabber over the filters while it's a sheet
+              mapOpen ? 'overflow-hidden pt-7' : 'overflow-y-auto pt-4',
             )}
           >
             {/* Category filters, with search at the end */}
