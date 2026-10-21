@@ -3,8 +3,7 @@ import type { ReactNode } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
-import { confettiVariants, cx, defaultGlassTuning, glassInteractions, glassShapes, glassSliders } from '../ui'
-import type { GlassTuning } from '../ui'
+import { cx } from '../ui'
 import { archiveDirections } from '../data/archiveSketches'
 import { dailyPrompts } from '../data/pages'
 import { frameLimits } from './useFrameSize'
@@ -46,18 +45,66 @@ type DebugPanelProps = {
 }
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
-const debugTabs = ['Recording', 'Demo', 'Glass', 'Playgrounds'] as const
+const debugTabs = ['Recording', 'Demo', 'Playgrounds'] as const
 type DebugTab = (typeof debugTabs)[number]
 
-type PanelPosition = { x: number; y: number }
+type Position = { x: number; y: number }
 
-function readPosition(): PanelPosition | null {
-  try {
-    const saved = JSON.parse(localStorage.getItem('debugPosition') ?? 'null')
-    return typeof saved?.x === 'number' && typeof saved?.y === 'number' ? saved : null
-  } catch {
-    return null
+// Drag something by a handle and remember where it lands (per key). A press
+// that barely moves still counts as a click.
+function useDraggable(key: string) {
+  const [position, setPosition] = useState<Position | null>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) ?? 'null')
+      return typeof saved?.x === 'number' && typeof saved?.y === 'number' ? saved : null
+    } catch {
+      return null
+    }
+  })
+  const drag = useRef<{ el: HTMLElement; dx: number; dy: number; startX: number; startY: number; moved: boolean } | null>(null)
+  const last = useRef(position)
+  const moved = useRef(false)
+
+  const handlers = {
+    onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+      const el = event.currentTarget.closest<HTMLElement>('[data-draggable]')
+      if (!el || event.button !== 0) return
+      // Inside the handle, other buttons (like close) keep working
+      if (event.currentTarget !== event.target && (event.target as HTMLElement).closest('button') !== event.currentTarget.closest('button')) return
+      const rect = el.getBoundingClientRect()
+      drag.current = { el, dx: event.clientX - rect.left, dy: event.clientY - rect.top, startX: event.clientX, startY: event.clientY, moved: false }
+      moved.current = false
+      event.currentTarget.setPointerCapture(event.pointerId)
+    },
+    onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+      const d = drag.current
+      if (!d) return
+      const el = d.el
+      if (!d.moved && Math.hypot(event.clientX - d.startX, event.clientY - d.startY) < 5) return
+      d.moved = true
+      const next = {
+        x: Math.min(Math.max(0, event.clientX - d.dx), Math.max(0, window.innerWidth - el.offsetWidth)),
+        y: Math.min(Math.max(0, event.clientY - d.dy), Math.max(0, window.innerHeight - el.offsetHeight)),
+      }
+      last.current = next
+      setPosition(next)
+    },
+    onPointerUp: () => {
+      if (!drag.current) return
+      moved.current = drag.current.moved
+      drag.current = null
+      if (!moved.current) return
+      try {
+        localStorage.setItem(key, JSON.stringify(last.current))
+      } catch {
+        // not remembered
+      }
+    },
   }
+  const style = position ? { left: position.x, top: position.y, right: 'auto', bottom: 'auto' } : undefined
+  // Read in onClick: true when the press was a drag, not a tap
+  const wasDragged = () => moved.current
+  return { style, handlers: { ...handlers, onPointerCancel: handlers.onPointerUp }, wasDragged }
 }
 
 function readTab(): DebugTab {
@@ -76,36 +123,8 @@ function readTab(): DebugTab {
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const [tab, setTab] = useState<DebugTab>(readTab)
-  const [position, setPosition] = useState<PanelPosition | null>(readPosition)
-  const panelRef = useRef<HTMLElement>(null)
-  const drag = useRef<{ dx: number; dy: number } | null>(null)
-
-  // Drag the panel by its header; where it lands is remembered
-  const clamp = (x: number, y: number, el: HTMLElement): PanelPosition => ({
-    x: Math.min(Math.max(0, x), Math.max(0, window.innerWidth - el.offsetWidth)),
-    y: Math.min(Math.max(0, y), Math.max(0, window.innerHeight - el.offsetHeight)),
-  })
-  const startDrag = (event: React.PointerEvent<HTMLElement>) => {
-    const el = panelRef.current
-    if (!el || (event.target as HTMLElement).closest('button')) return
-    const rect = el.getBoundingClientRect()
-    drag.current = { dx: event.clientX - rect.left, dy: event.clientY - rect.top }
-    event.currentTarget.setPointerCapture(event.pointerId)
-  }
-  const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
-    const el = panelRef.current
-    if (!drag.current || !el) return
-    setPosition(clamp(event.clientX - drag.current.dx, event.clientY - drag.current.dy, el))
-  }
-  const endDrag = () => {
-    if (!drag.current) return
-    drag.current = null
-    try {
-      localStorage.setItem('debugPosition', JSON.stringify(position))
-    } catch {
-      // not remembered
-    }
-  }
+  const panel = useDraggable('debugPosition')
+  const launcher = useDraggable('debugLauncherPosition')
   const chooseTab = (next: DebugTab) => {
     setTab(next)
     try {
@@ -115,7 +134,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
     }
   }
   const status = useStatus()
-  const { onboardingPhotoAccess, hideNav, hideStatusBar, fewBubbles, orbMoves } = useStore()
+  const { onboardingPhotoAccess, hideNav, hideStatusBar } = useStore()
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -155,47 +174,32 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   }, [index, goTo, toggleFrame])
 
   if (!open) {
-    // Framed: a round button in the corner of the page, outside the phone.
-    // Responsive: a small tab on the left edge so it stays out of the app.
-    // On a real phone the frame isn't drawn, so it always uses the edge tab.
+    // A small black button you can drag anywhere (kept out of the app's way);
+    // a tap opens the panel. On a phone, a swipe in from the left edge works too.
     return (
-      <>
-        {framed && (
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            title="Open debug panel (`)"
-            className="fixed bottom-4 left-4 z-50 rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90 max-[500px]:hidden"
-          >
-            Debug
-          </button>
-        )}
-        <button
-          type="button"
-          onClick={() => setOpen(true)}
-          aria-label="Open debug panel"
-          title="Open debug panel (`)"
-          className={cx(
-            'fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60 max-[500px]:h-20 max-[500px]:w-6 max-[500px]:bg-ink/50',
-            framed && 'min-[501px]:hidden',
-          )}
-        />
-      </>
+      <button
+        data-draggable
+        type="button"
+        {...launcher.handlers}
+        onClick={() => !launcher.wasDragged() && setOpen(true)}
+        style={launcher.style}
+        title="Open debug panel (`). Drag to move."
+        className="fixed bottom-4 left-4 z-50 touch-none select-none rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90 max-[500px]:px-3 max-[500px]:py-3"
+      >
+        Debug
+      </button>
     )
   }
 
   return (
     <aside
-      ref={panelRef}
-      style={position ? { left: position.x, top: position.y, bottom: 'auto' } : undefined}
+      data-draggable
+      style={panel.style}
       className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float"
     >
       <div className="flex flex-col gap-3 border-b border-line p-3">
         <header
-          onPointerDown={startDrag}
-          onPointerMove={moveDrag}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
+          {...panel.handlers}
           title="Drag to move"
           className="-m-3 flex cursor-grab touch-none select-none items-center justify-between p-3 active:cursor-grabbing"
         >
@@ -278,6 +282,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
           <>
             <Group title="Phone">
               <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
+              <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
               {framed && (
                 <div className="flex flex-col gap-2 px-2 py-2">
                   <div role="radiogroup" aria-label="Frame preset" className="flex gap-1 rounded-full bg-surface p-0.5">
@@ -310,7 +315,6 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
                   )}
                 </div>
               )}
-              <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
             </Group>
 
             <Group title="While filming">
@@ -345,30 +349,13 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
               </div>
             </Group>
 
-            <Group title="Video" note="1.5 seconds blank, then the intentions entrance. Resets picks.">
-              <button
-                type="button"
-                onClick={() => {
-                  setState((s) => ({ intentionsVideoRun: s.intentionsVideoRun + 1, goals: [], stageSplash: null, composing: false }))
-                  goTo(flow.findIndex((screen) => screen.id === 'intentions-video'))
-                  setOpen(false)
-                }}
-                className="px-2 py-2 text-left hover:bg-line"
-              >
-                Open intentions from blank
-              </button>
-            </Group>
-          </>
+        </>
         )}
 
         {tab === 'Demo' && (
           <>
             <Group title="Today">
               <PromptPicker />
-              <DebugToggle label="Orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
-            </Group>
-            <Group title="Welcome confetti">
-              <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
             </Group>
             <Group title="Archive direction">
               <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
@@ -376,26 +363,24 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
             <Group title="Real-life" note="Live camera, then write a line about it. The camera needs https (the Vercel link) or localhost. On a phone, open the link with ?real-life#/today.">
               <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
             </Group>
-            <Group title="Prototype">
-              <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
-              <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
-            </Group>
           </>
         )}
 
-        {tab === 'Glass' && <GlassControls />}
-
         {tab === 'Playgrounds' && (
-          <Group title="Open a playground" note="Each one takes over the page until you switch it off.">
-            <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
-            <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
-            <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
-            <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
-            <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
-            <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
-            <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
-            <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
-            <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
+          <Group title="Playgrounds" note="Each one opens over the app. Close it from here or with ×.">
+            {[
+              ['Design system', kitOpen, toggleKit],
+              ['Brand collage', collageOpen, toggleCollage],
+              ['Map looks', mapsOpen, toggleMaps],
+              ['Relay looks', looksOpen, toggleLooks],
+              ['Relay entrances', motionOpen, toggleMotion],
+              ['Today looks', todayLooksOpen, toggleTodayLooks],
+              ['Archive sketches', sketchesOpen, toggleSketches],
+              ['Archive ideas', archiveIdeasOpen, toggleArchiveIdeas],
+              ['3D proto', archiveMockOpen, toggleArchiveMock],
+            ].map(([label, isOpen, toggle]) => (
+              <PlaygroundLink key={label as string} label={label as string} open={isOpen as boolean} onClick={toggle as () => void} />
+            ))}
           </Group>
         )}
       </div>
@@ -452,81 +437,13 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
   )
 }
 
-// Live Fluid Glass settings for Today's prompt circle, the controls React Bits
-// shows for the component. They reset on reload like everything else.
-function GlassControls() {
-  const { glassTuning: tuning } = useStore()
-  const set = (patch: Partial<GlassTuning>) => setState((s) => ({ glassTuning: { ...s.glassTuning, ...patch } }))
-  const select = 'rounded-full bg-surface px-2 py-1 text-xs'
-
+// An entrance to a playground: opens it over the app, or closes it if it's showing
+function PlaygroundLink({ label, open, onClick }: { label: string; open: boolean; onClick: () => void }) {
   return (
-    <>
-      <Group title="Today glass" note="Live settings for the prompt circle. They reset on reload.">
-        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
-          Shape
-          <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
-            {glassShapes.map((shape) => (
-              <option key={shape}>{shape}</option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
-          Interaction
-          <select
-            value={tuning.interaction}
-            onChange={(event) => set({ interaction: event.target.value as GlassTuning['interaction'] })}
-            className={select}
-          >
-            {glassInteractions.map((interaction) => (
-              <option key={interaction}>{interaction}</option>
-            ))}
-          </select>
-        </label>
-        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
-          Color
-          <input
-            type="color"
-            value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-baton-blue').trim()}
-            onChange={(event) => set({ color: event.target.value })}
-            className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
-          />
-        </label>
-      </Group>
-      <Group title="Lens">
-        {glassSliders.map((slider) => {
-          const value = tuning[slider.key] as number
-          return (
-            <label key={slider.key} className="flex flex-col gap-0.5 px-2 py-1.5">
-              <span className="flex justify-between text-xs">
-                {slider.label}
-                <span className="tabular-nums text-ink-muted">{value}</span>
-              </span>
-              <input
-                type="range"
-                min={slider.min}
-                max={slider.max}
-                step={slider.step}
-                value={value}
-                onChange={(event) => set({ [slider.key]: Number(event.target.value) })}
-                className="accent-baton-blue"
-              />
-            </label>
-          )
-        })}
-      </Group>
-      <Group title="Motion">
-        <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
-        <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
-        <DebugToggle label="Intro" on={tuning.intro} onClick={() => set({ intro: !tuning.intro })} />
-      </Group>
-      <button
-        type="button"
-        onClick={() => setState({ glassTuning: defaultGlassTuning })}
-        className="self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
-      >
-        Reset glass
-      </button>
-    </>
+    <button type="button" onClick={onClick} className="flex items-center justify-between px-2 py-2 text-left hover:bg-line">
+      <span className={cx(open && 'font-semibold')}>{label}</span>
+      <span className="text-xs text-ink-muted">{open ? 'Close ×' : 'Open →'}</span>
+    </button>
   )
 }
 
@@ -591,36 +508,6 @@ function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
             </button>
           )
         })}
-      </div>
-    </div>
-  )
-}
-
-// Confetti on the Welcome to New York splash: pick a style to see it play
-// there (picking jumps to the splash and replays it)
-function ConfettiPicker({ goToArrived }: { goToArrived: () => void }) {
-  const { confetti, confettiRun } = useStore()
-  return (
-    <div className="p-1.5">
-      <div role="radiogroup" aria-label="Welcome confetti" className="flex gap-1 rounded-full bg-surface p-0.5">
-        {confettiVariants.map((variant) => (
-          <button
-            key={variant.id}
-            type="button"
-            role="radio"
-            aria-checked={confetti === variant.id}
-            onClick={() => {
-              setState({ confetti: variant.id, confettiRun: confettiRun + 1 })
-              goToArrived()
-            }}
-            className={cx(
-              'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
-              confetti === variant.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface-muted',
-            )}
-          >
-            {variant.label}
-          </button>
-        ))}
       </div>
     </div>
   )
