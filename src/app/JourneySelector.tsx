@@ -30,7 +30,7 @@ export function JourneySelector() {
             data-journey={stage ?? 'onboarding'}
             aria-pressed={activeStage === stage}
             onClick={() => {
-              setState({ status: stage, stageSplash: null, composing: false, camera: null, capturePhoto: null, promptIndex: 0 })
+              setState({ status: stage, stageSplash: null, composing: false, camera: null, capturePhoto: null, promptIndex: null })
               navigate(screen)
             }}
           >

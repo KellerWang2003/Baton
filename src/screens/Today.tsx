@@ -1,7 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { navigate } from '../app/navigate'
-import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
+import { setState, toggleIn, useDailyPrompt, useNow, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
 import { setup, todoKind } from '../data/onboarding'
 import { greeting, timeOfDay } from '../data/greetings'
@@ -46,6 +46,7 @@ export function Today({ lastWeek = false }: TodayProps) {
   const leaveDate = store.leaveDate || leave.defaultDate
   const status = useStatus()
   const prompt = useDailyPrompt()
+  const now = useNow()
   const medium = promptMedium(prompt.question)
   const [openTodo, setOpenTodo] = useState<string | null>(null)
   const todoList = useRef<HTMLDivElement>(null)
@@ -85,7 +86,7 @@ export function Today({ lastWeek = false }: TodayProps) {
 
   const daysLeft = !lastWeek && !store.leaveDate && store.expectedLeaveMonth ? Infinity : daysUntil(lastWeek ? mockToday.lastWeek : mockToday.normal, leaveDate)
   const leaving = shortDate(leaveDate)
-  const hello = greeting(status, timeOfDay(), daysLeft)
+  const hello = greeting(status, timeOfDay(now), daysLeft)
 
   // Showcase setup row: to-dos first, then Instagram and leave date, with
   // Figma's SF Symbol glyphs (public/today/setup-*.svg). Locals

@@ -58,6 +58,8 @@ Noticing vs. exploring (persona fork): should prompts ever nudge you somewhere n
 
 ## Plain wording (Keller, Oct 17: straightforward, verb-first)
 
+In the app these live in `src/data/dailyPrompts.ts`, each tagged with the times of day it shows up (Oct 21).
+
 Moving
 1. Take a photo of the view from the café seat you always sit in.
 2. Take a photo of the door you walk through every day.

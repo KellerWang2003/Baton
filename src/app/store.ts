@@ -1,6 +1,8 @@
-import { useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
-import { dailyPrompts, realLifePrompt } from '../data/pages'
+import { realLifePrompt } from '../data/pages'
+import { promptsFor, rotatingPrompt, slotAt, timeSlots } from '../data/dailyPrompts'
+import type { TimeSlot } from '../data/dailyPrompts'
 import { leave } from '../data/today'
 import { relaySearchSeed } from '../data/relay'
 import type { ArchiveSketchId } from '../data/archiveSketches'
@@ -93,8 +95,10 @@ type State = {
   promptGlass: PromptGlass
   // Fluid Glass settings for that circle, tuned live in the debug panel
   glassTuning: GlassTuning
-  // Which of her stage's daily prompts Today shows (switched in the debug panel)
-  promptIndex: number
+  // Debug > Today: preview a time of day instead of the clock (null = the clock)
+  promptSlot: TimeSlot | null
+  // Debug > Today: pin one of that time slot's prompts (null = rotate daily)
+  promptIndex: number | null
   setupDone: SetupItem[]
   // The + button is open as a text field in the tab bar
   composing: boolean
@@ -168,7 +172,8 @@ let state: State = {
   // Prompt and pill sit together under the glass, so moving it bends them (Keller, Oct 19)
   promptGlass: 'glass',
   glassTuning: defaultGlassTuning,
-  promptIndex: 0,
+  promptSlot: null,
+  promptIndex: null,
   setupDone: [],
   composing: false,
   capturePhoto: null,
@@ -217,7 +222,7 @@ const stageOrder: Stage[] = ['moving', 'newcomer', 'local']
 export function changeStage(next: Stage) {
   setState((s) => {
     const forward = stageOrder.indexOf(next) > stageOrder.indexOf(s.status ?? 'moving')
-    return { status: next, stageSplash: forward ? next : null }
+    return { status: next, stageSplash: forward ? next : null, promptIndex: null }
   })
 }
 
@@ -227,12 +232,32 @@ export function useStatus(): Stage {
   return useStore().status ?? 'moving'
 }
 
-// Today's prompt for her stage (also shown above the + field while typing).
-// The debug panel can pick another of the stage's prompts.
+// The time Today goes by: the clock, ticking each minute, or the middle of the
+// time slot previewed in the debug panel
+export function useNow(): Date {
+  const { promptSlot } = useStore()
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60_000)
+    return () => clearInterval(timer)
+  }, [])
+  if (!promptSlot) return now
+  const preview = new Date(now)
+  preview.setHours((timeSlots.find((slot) => slot.id === promptSlot)!.from + 1) % 24, 0, 0, 0)
+  return preview
+}
+
+// Today's prompt for her stage and the time of day (also shown above the +
+// field while typing), rotating daily within a time slot. Prompts and their
+// slots are in src/data/dailyPrompts.ts; the debug panel can preview a slot or
+// pin one prompt.
 export function useDailyPrompt() {
-  const prompts = dailyPrompts[useStatus()]
+  const status = useStatus()
+  const now = useNow()
   const { promptIndex, realLife } = useStore()
-  return realLife ? realLifePrompt : prompts[promptIndex % prompts.length]
+  if (realLife) return realLifePrompt
+  const prompts = promptsFor(status, slotAt(now))
+  return promptIndex === null ? rotatingPrompt(prompts, now) : prompts[promptIndex % prompts.length]
 }
 
 // The archive's photo clouds by city and the moments they open, from Supabase

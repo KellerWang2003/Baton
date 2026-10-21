@@ -5,10 +5,11 @@ import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
 import { cx } from '../ui'
 import { archiveDirections } from '../data/archiveSketches'
-import { dailyPrompts } from '../data/pages'
+import { promptsFor, slotAt, timeSlots } from '../data/dailyPrompts'
+import type { TimeSlot } from '../data/dailyPrompts'
 import { frameLimits } from './useFrameSize'
 import type { FrameSettings } from './useFrameSize'
-import { changeStage, setState, useStatus, useStore } from './store'
+import { changeStage, setState, useNow, useStatus, useStore } from './store'
 import { clearSavedCaptures } from './supabase'
 
 type DebugPanelProps = {
@@ -578,25 +579,47 @@ function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
   )
 }
 
-// Which of her stage's prototype prompts Today shows.
+// Which time of day Today goes by, and which of that slot's prompts it shows
+// (prompts and their slots in src/data/dailyPrompts.ts).
 function PromptPicker() {
   const status = useStatus()
-  const { promptIndex } = useStore()
-  const prompts = dailyPrompts[status]
+  const now = useNow()
+  const { promptSlot, promptIndex } = useStore()
+  const prompts = promptsFor(status, slotAt(now))
+  const clockSlot = timeSlots.find((slot) => slot.id === slotAt(new Date()))!
+  const selectClass = 'w-full truncate rounded-control bg-surface px-2 py-1.5 text-xs'
   return (
-    <label className="flex flex-col gap-1 p-2">
-      <span className="text-xs text-ink-muted">Prompt</span>
-      <select
-        value={promptIndex % prompts.length}
-        onChange={(event) => setState({ promptIndex: Number(event.target.value) })}
-        className="w-full truncate rounded-control bg-surface px-2 py-1.5 text-xs"
-      >
-        {prompts.map((prompt, i) => (
-          <option key={`${status}-${i}`} value={i}>
-            {prompt.question}
-          </option>
-        ))}
-      </select>
-    </label>
+    <div className="flex flex-col gap-2 p-2">
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-ink-muted">Time of day</span>
+        <select
+          value={promptSlot ?? ''}
+          onChange={(event) => setState({ promptSlot: (event.target.value || null) as TimeSlot | null, promptIndex: null })}
+          className={selectClass}
+        >
+          <option value="">Now: {clockSlot.label}</option>
+          {timeSlots.map((slot) => (
+            <option key={slot.id} value={slot.id}>
+              {slot.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className="text-xs text-ink-muted">Prompt</span>
+        <select
+          value={promptIndex === null ? '' : promptIndex % prompts.length}
+          onChange={(event) => setState({ promptIndex: event.target.value === '' ? null : Number(event.target.value) })}
+          className={selectClass}
+        >
+          <option value="">Rotate daily</option>
+          {prompts.map((prompt, i) => (
+            <option key={`${status}-${i}`} value={i}>
+              {prompt.question}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
   )
 }
