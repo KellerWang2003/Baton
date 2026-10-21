@@ -118,6 +118,11 @@ export function CameraBubble() {
   // A phone with more than one camera, so the flip button shows
   const [canFlip, setCanFlip] = useState(false)
   const library = useRef<HTMLInputElement>(null)
+  // While flipping, the last frame holds still over the camera: iOS briefly
+  // draws the new stream at its own size, unclipped, before it fits the
+  // rectangle (Keller, Oct 21)
+  const still = useRef<HTMLCanvasElement>(null)
+  const [switching, setSwitching] = useState(false)
 
   const stop = () => {
     stream.current?.getTracks().forEach((track) => track.stop())
@@ -204,11 +209,27 @@ export function CameraBubble() {
           if (cancelled) return
           if (!video.current) return requestAnimationFrame(attach)
           video.current.srcObject = media
-          video.current.play().then(() => !cancelled && setLive(true)).catch(() => {})
+          const shown = video.current
+          shown
+            .play()
+            .then(() => {
+              if (cancelled) return
+              setLive(true)
+              // Let go of the still frame once the new camera has drawn a frame
+              // at its settled size
+              const reveal = () => setTimeout(() => !cancelled && setSwitching(false), 120)
+              if ('requestVideoFrameCallback' in shown) shown.requestVideoFrameCallback(() => reveal())
+              else reveal()
+            })
+            .catch(() => {})
         }
         attach()
       })
-      .catch(() => !cancelled && setNoCamera(true))
+      .catch(() => {
+        if (cancelled) return
+        setNoCamera(true)
+        setSwitching(false)
+      })
     return () => {
       cancelled = true
     }
@@ -267,6 +288,20 @@ export function CameraBubble() {
     navigate(realLife ? 'reflection' : 'capture')
   }
 
+  // Freeze the current frame over the camera, then switch to the other one
+  const flip = () => {
+    const frame = video.current
+    const canvas = still.current
+    if (live && frame?.videoWidth && canvas) {
+      canvas.width = frame.videoWidth
+      canvas.height = frame.videoHeight
+      canvas.style.transform = mirror ? 'scaleX(-1)' : ''
+      canvas.getContext('2d')?.drawImage(frame, 0, 0)
+      setSwitching(true)
+    }
+    setFacing((side) => (side === 'environment' ? 'user' : 'environment'))
+  }
+
   const at = expanded ? target : origin
   const curve = `${morphMs}ms ${ease}`
   return (
@@ -323,8 +358,17 @@ export function CameraBubble() {
           >
             <div
               ref={picture}
-              className="absolute overflow-hidden"
-              style={{ left: target.left, top: target.top, width: target.width, height: target.height, borderRadius: target.radius }}
+              // Its own layer with a mask, so iOS clips the video to the corners
+              className="absolute isolate overflow-hidden"
+              style={{
+                left: target.left,
+                top: target.top,
+                width: target.width,
+                height: target.height,
+                borderRadius: target.radius,
+                WebkitMaskImage: '-webkit-radial-gradient(white, black)',
+                transform: 'translateZ(0)',
+              }}
             >
               {/* The live camera, or a photo when there isn't one, faded in once
                   the rectangle has grown */}
@@ -338,8 +382,17 @@ export function CameraBubble() {
                 playsInline
                 muted
                 autoPlay
-                className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live && settled ? 'opacity-100' : 'opacity-0')}
+                className={cx(
+                  'absolute inset-0 size-full object-cover',
+                  // Hidden at once while flipping, faded back in after
+                  switching ? 'opacity-0' : 'transition-opacity duration-500',
+                  live && settled && !switching ? 'opacity-100' : 'opacity-0',
+                )}
                 style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
+              />
+              <canvas
+                ref={still}
+                className={cx('absolute inset-0 size-full object-cover', switching ? 'opacity-100' : 'opacity-0 transition-opacity duration-300')}
               />
               <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
             </div>
@@ -399,7 +452,7 @@ export function CameraBubble() {
             <button
               type="button"
               aria-label="Flip camera"
-              onClick={() => setFacing((side) => (side === 'environment' ? 'user' : 'environment'))}
+              onClick={flip}
               className={cx(
                 'flex size-12 items-center justify-center rounded-full bg-card text-baton-blue shadow-sm transition-transform duration-150 active:scale-90',
                 !canFlip && 'invisible',
