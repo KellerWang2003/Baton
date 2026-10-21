@@ -80,7 +80,6 @@ export const reflectionCopy = {
   placeholder: 'Write a line about it…',
   save: 'Add to archive',
   // While Claude reads what she wrote
-  reading: 'Reading your note…',
 }
 
 // What a prompt asks for, shown as a small label above it on Today. Read from

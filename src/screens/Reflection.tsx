@@ -15,7 +15,7 @@ import { filterColor } from '../ui/filterColor'
 // The photo's orb, as on the Archive's opened photos (Figma ARCHIVE_selected)
 const ORB = 300
 // How long after she stops typing the note is read
-const SETTLE_MS = 900
+const SETTLE_MS = 400
 // The camera's picture turning into the orb (the camera's own curve)
 const MORPH = { duration: 700, easing: 'cubic-bezier(0.32, 0.72, 0, 1)', fill: 'forwards' } as const
 // The camera rectangle's corner radius (CameraBubble)
@@ -48,7 +48,6 @@ export function Reflection() {
   const src = photo ?? FALLBACK_PHOTO
   const [text, setText] = useState('')
   const [category, setCategory] = useState<CloudCategory | null>(null)
-  const [reading, setReading] = useState(false)
   const [adding, setAdding] = useState(false)
   // While she's writing (the keyboard is up) the button steps aside
   const [typing, setTyping] = useState(false)
@@ -87,7 +86,8 @@ export function Reflection() {
     return () => animation.cancel()
   }, [morphFrom])
 
-  // Once she pauses typing, read what it's about; cleared, the color goes
+  // Once she pauses typing, read what it's about; the last color stays until
+  // the new one arrives (no loading state), and clearing the note removes it
   useEffect(() => {
     let cancelled = false
     const timer = window.setTimeout(async () => {
@@ -95,11 +95,9 @@ export function Reflection() {
         setCategory(null)
         return
       }
-      setReading(true)
       const kind = await judgeReflection(text, prompt.question)
       if (cancelled) return
       setCategory(kind)
-      setReading(false)
     }, SETTLE_MS)
     return () => {
       cancelled = true
@@ -186,14 +184,12 @@ export function Reflection() {
 
           {/* What it's about, once the color settles */}
           <p className={`mt-4 flex h-5 items-center gap-1.5 text-moment-meta text-wrap-faint ${adding ? away : settle}`} aria-live="polite">
-            {category && !reading ? (
+            {category && (
               <>
                 <span aria-hidden className="size-2.5 rounded-full" style={{ background: color ?? undefined }} />
                 {reflectionCategoryLabel[category]}
               </>
-            ) : reading ? (
-              reflectionCopy.reading
-            ) : null}
+            )}
           </p>
 
           {/* A square post-it like her notes in the Archive (Figma 236:418) */}
