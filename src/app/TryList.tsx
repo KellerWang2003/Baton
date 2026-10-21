@@ -20,10 +20,8 @@ export function TryList() {
         {items.map((item, i) => (
           <li key={item.text} className="try-item">
             <span className="try-number" aria-hidden="true">{i + 1}</span>
-            <span>
-              <span className="try-area">{item.area}</span>
-              {item.text}
-            </span>
+            <span className="try-area">{item.area}</span>
+            <span className="try-text">{item.text}</span>
           </li>
         ))}
       </ol>
