@@ -1,5 +1,7 @@
 # Submission showcase plan
 
+Superseded Oct 21, 2026: Keller merged `showcase` into `main` and retired the branch. `main` now serves reviewers too; team tools stay in it but the debug panel is hidden (hold one spot for 4 seconds, or press backtick). See CLAUDE.md.
+
 Branch: `codex/showcase`, created from `codex/profile-page` on October 21, 2026.
 Status: showcase presentation implemented; submission journey and real-phone checks remain before final submission.
 Existing profile, onboarding typography, and photo-orb work was committed on `codex/profile-page` as `b6962f3` and brought into this branch before showcase work.

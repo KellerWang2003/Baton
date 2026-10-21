@@ -129,16 +129,19 @@ function readTab(): DebugTab {
   }
 }
 
-// Team-only controls, not part of the app. Closed by default: open it from the
-// Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
-// or add ?debug to the URL. ← → move between screens, 1 2 3 set Chloe's stage
-// and F toggles the phone frame even while the panel is closed.
+// Team-only controls, not part of the app, so nothing on screen opens them:
+// press and hold one spot for 4 seconds (mouse or touch, anywhere), or press `
+// (backtick). Once it has been opened, ← → move between screens, 1 2 3 set
+// Chloe's stage and F toggles the phone frame even while the panel is closed.
+const HOLD_MS = 4000
+const HOLD_SLOP = 10
+
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
-  const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
+  const [open, setOpen] = useState(false)
+  // Shortcuts stay off for reviewers until the panel has been opened once
+  const [unlocked, setUnlocked] = useState(false)
   const [tab, setTab] = useState<DebugTab>(readTab)
   const panel = useDraggable('debugPosition')
-  const launcher = useDraggable('debugLauncherPosition')
-  const handle = useDraggable('debugHandlePosition', true)
   const [phone] = useState(() => window.matchMedia('(max-width: 500px)').matches)
   const chooseTab = (next: DebugTab) => {
     setTab(next)
@@ -151,13 +154,58 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   const status = useStatus()
   const { onboardingPhotoAccess, hideNav, hideStatusBar } = useStore()
 
+  // Hold still on one spot for 4 seconds to open it
+  useEffect(() => {
+    let timer = 0
+    let start: { x: number; y: number; id: number } | null = null
+    const cancel = () => {
+      window.clearTimeout(timer)
+      start = null
+    }
+    // The press that opened it shouldn't also tap whatever is under it
+    const swallowClick = (event: MouseEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+    }
+    const onDown = (event: PointerEvent) => {
+      cancel()
+      if (!event.isPrimary || (event.target as HTMLElement).closest('[data-debug-panel]')) return
+      start = { x: event.clientX, y: event.clientY, id: event.pointerId }
+      timer = window.setTimeout(() => {
+        start = null
+        setOpen(true)
+        setUnlocked(true)
+        window.addEventListener('click', swallowClick, { capture: true, once: true })
+        window.setTimeout(() => window.removeEventListener('click', swallowClick, { capture: true }), 600)
+      }, HOLD_MS)
+    }
+    const onMove = (event: PointerEvent) => {
+      if (start && event.pointerId === start.id && Math.hypot(event.clientX - start.x, event.clientY - start.y) > HOLD_SLOP) cancel()
+    }
+    window.addEventListener('pointerdown', onDown, true)
+    window.addEventListener('pointermove', onMove, true)
+    window.addEventListener('pointerup', cancel, true)
+    window.addEventListener('pointercancel', cancel, true)
+    return () => {
+      cancel()
+      window.removeEventListener('pointerdown', onDown, true)
+      window.removeEventListener('pointermove', onMove, true)
+      window.removeEventListener('pointerup', cancel, true)
+      window.removeEventListener('pointercancel', cancel, true)
+    }
+  }, [])
+
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement
       if (target.closest('input, textarea, [contenteditable="true"]')) return
       if (event.metaKey || event.ctrlKey || event.altKey) return
 
-      if (event.key === '`') setOpen((value) => !value)
+      if (event.key === '`') {
+        setOpen((value) => !value)
+        setUnlocked(true)
+      }
+      else if (!unlocked) return
       else if (event.key === 'Escape') setOpen(false)
       else if (event.key === 'ArrowRight') goTo(index + 1)
       else if (event.key === 'ArrowLeft') goTo(index - 1)
@@ -166,49 +214,14 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [index, goTo, toggleFrame])
+  }, [index, goTo, toggleFrame, unlocked])
 
-  if (!open && phone) {
-    // On a phone: a small see-through tab on the screen's edge. Slide it up or
-    // down, or over to the other edge; a tap opens the panel. (No edge swipe: it
-    // clashed with the browser's swipe back.)
-    return (
-      <button
-        data-draggable
-        type="button"
-        {...handle.handlers}
-        onClick={() => !handle.wasDragged() && setOpen(true)}
-        style={handle.style}
-        aria-label="Open debug panel"
-        className={cx(
-          'fixed left-0 top-1/2 z-50 h-20 w-6 touch-none select-none bg-ink/40 backdrop-blur-sm',
-          handle.side === 'right' ? 'rounded-l-control' : 'rounded-r-control',
-        )}
-      />
-    )
-  }
-
-  if (!open) {
-    // A small black button you can drag anywhere (kept out of the app's way);
-    // a tap opens the panel
-    return (
-      <button
-        data-draggable
-        type="button"
-        {...launcher.handlers}
-        onClick={() => !launcher.wasDragged() && setOpen(true)}
-        style={launcher.style}
-        title="Open debug panel (`). Drag to move."
-        className="fixed bottom-4 left-4 z-50 touch-none select-none rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90"
-      >
-        Debug
-      </button>
-    )
-  }
+  if (!open) return null
 
   return (
     <aside
       data-draggable
+      data-debug-panel
       style={phone ? undefined : panel.style}
       className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float"
     >
