@@ -1,17 +1,18 @@
-import { navigate } from '../app/navigate'
+import { goBack } from '../app/navigate'
 import { completeSetup, setState, useStore } from '../app/store'
 import { leave } from '../data/today'
 import { ArrowRightIcon, Button, SegmentedControl, TextField } from '../ui'
 import { OnboardingLayout } from './OnboardingLayout'
 
-// Setup page opened from Today: when she leaves LA, as her flight or just a
+// Setup page opened from Today (or Profile): when she leaves LA, as her flight or just a
 // date she imagines. Her last week before it brings the legacy card to Today.
 export function LeaveDate() {
   const { leaveMode, flight, leaveDate } = useStore()
   const done = () => {
     setState({ expectedLeaveMonth: leaveDate.slice(0, 7) })
     completeSetup('leave')
-    navigate('today')
+    // Back where she opened it from, Today or Profile
+    goBack()
   }
 
   return (

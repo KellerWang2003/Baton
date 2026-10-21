@@ -38,7 +38,9 @@ export type FlowScreen = {
   tab?: string
   // Where Back goes: the screen above this one in the IA, never just the one
   // opened before it (Keller, Oct 21). Tabs, onboarding and story moments have none.
-  parent?: string
+  // A list when it lives in more than one place: Back goes to the one it was
+  // opened from, else the first.
+  parent?: string | string[]
 }
 
 // The hero flow, in order. Add screens here as they are built; the debug panel,
@@ -56,7 +58,7 @@ export const flow: FlowScreen[] = [
   { id: 'today', title: 'Today', stage: 'moving', component: Today },
   { id: 'setup-archive', title: 'Setup: organize archive', stage: 'moving', component: Places, parent: 'today' },
   { id: 'setup-todos', title: 'Setup: logistics to-dos', stage: 'moving', component: Todos, parent: 'today' },
-  { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate, parent: 'today' },
+  { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate, parent: ['today', 'profile'] },
   { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag, parent: 'today' },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
   { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail, parent: 'archive' },

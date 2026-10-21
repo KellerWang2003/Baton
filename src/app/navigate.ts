@@ -10,14 +10,17 @@ type Entry = { from: string | null }
 const idOf = (url: string) => url.replace(/^[^#]*#?\/?/, '')
 const current = () => idOf(window.location.hash)
 
-export function parentOf(id: string) {
-  return flow.find((screen) => screen.id === id)?.parent
+// The first parent is the screen's home; a screen with more than one goes
+// back to whichever it was opened from (leave date: Today, or Profile)
+export function parentOf(id: string, from?: string | null) {
+  const parents = [flow.find((screen) => screen.id === id)?.parent ?? []].flat()
+  return from && parents.includes(from) ? from : parents[0]
 }
 
 // The screen's parent, its parent's parent and so on, top first
-function ancestors(id: string) {
+function ancestors(id: string, from: string) {
   const chain: string[] = []
-  for (let up = parentOf(id); up && !chain.includes(up); up = parentOf(up)) chain.unshift(up)
+  for (let up = parentOf(id, from); up && !chain.includes(up); up = parentOf(up, from)) chain.unshift(up)
   return chain
 }
 
@@ -39,7 +42,7 @@ function announce() {
 export function navigate(id: string, { replace = false } = {}) {
   const here = current()
   if (id === here) return
-  const chain = ancestors(id)
+  const chain = ancestors(id, here)
   const below = chain.includes(here) ? chain.slice(chain.indexOf(here) + 1) : chain
   let from: string | null = here
   const steps = [...below, id]
@@ -59,8 +62,9 @@ export function navigate(id: string, { replace = false } = {}) {
 // Back: up to the screen's parent (or `to`). Steps back in history when the
 // parent is the entry before, otherwise swaps this screen for its parent, so
 // Back never leaves the prototype even on a page opened straight from its URL.
-export function goBack(to = parentOf(current()) ?? 'today') {
+export function goBack(to?: string) {
   const entry = window.history.state as Entry | null
+  to ??= parentOf(current(), entry?.from) ?? 'today'
   if (entry?.from === to) return window.history.back()
   window.history.replaceState({ from: entry?.from ?? null } satisfies Entry, '', `#/${to}`)
   announce()
