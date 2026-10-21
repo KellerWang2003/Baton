@@ -145,6 +145,9 @@ function usePicture(src: string, box: number, spotlight: boolean) {
   useEffect(() => {
     let alive = true
     const image = new Image()
+    // Saved captures come from Supabase storage: without this the photo taints
+    // the canvas and the glass can't use it, so it never shows
+    image.crossOrigin = 'anonymous'
     image.onload = () => {
       if (!alive) return
       const size = box * 2
