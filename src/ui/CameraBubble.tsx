@@ -113,6 +113,11 @@ export function CameraBubble() {
   const [flash, setFlash] = useState(false)
   // No camera to use: show the stand-in photo instead
   const [noCamera, setNoCamera] = useState(false)
+  // Which camera: the back one first, flipped to the front one on phones
+  const [facing, setFacing] = useState<'environment' | 'user'>('environment')
+  // A phone with more than one camera, so the flip button shows
+  const [canFlip, setCanFlip] = useState(false)
+  const library = useRef<HTMLInputElement>(null)
 
   const stop = () => {
     stream.current?.getTracks().forEach((track) => track.stop())
@@ -150,6 +155,7 @@ export function CameraBubble() {
       setExpanded(false)
       setSettled(false)
       setNoCamera(false)
+      setFacing('environment')
       // One frame on the circle first, so the move is animated
       let frame = requestAnimationFrame(() => {
         frame = requestAnimationFrame(() => setExpanded(true))
@@ -172,17 +178,26 @@ export function CameraBubble() {
   useEffect(() => {
     if (!camera) return
     let cancelled = false
+    // Flipping: let go of the other camera first
+    stream.current?.getTracks().forEach((track) => track.stop())
     const devices = navigator.mediaDevices
     // No camera API at all (an insecure page, an old browser): same as refused
     const request = devices?.getUserMedia
       ? devices.getUserMedia.bind(devices)
       : () => Promise.reject(new Error('No camera'))
-    request({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 1600 } }, audio: false })
+    request({ video: { facingMode: { ideal: facing }, width: { ideal: 1280 }, height: { ideal: 1600 } }, audio: false })
       .then((media) => {
         if (cancelled) return media.getTracks().forEach((track) => track.stop())
         stream.current = media
         // Selfie-style cameras show the mirror image, like the camera app
         setMirror(media.getVideoTracks()[0]?.getSettings().facingMode !== 'environment')
+        // Only on phones (a touch screen with more than one camera)
+        if (matchMedia('(pointer: coarse)').matches) {
+          devices
+            .enumerateDevices()
+            .then((all) => !cancelled && setCanFlip(all.filter((device) => device.kind === 'videoinput').length > 1))
+            .catch(() => {})
+        }
         // The video mounts with the shape, which can be a frame after an
         // already-granted camera answers
         const attach = () => {
@@ -197,7 +212,7 @@ export function CameraBubble() {
     return () => {
       cancelled = true
     }
-  }, [camera])
+  }, [camera, facing])
 
   // Turn the camera off if she leaves Today while it's open
   useEffect(() => stop, [])
@@ -238,7 +253,11 @@ export function CameraBubble() {
     const picked: Blob = blob ?? (await fetch(placeholderPhoto).then((response) => response.blob()))
     setFlash(true)
     await new Promise((resolve) => setTimeout(resolve, 160))
-    const photo = new File([picked], 'prompt-photo.jpg', { type: picked.type || 'image/jpeg' })
+    finish(new File([picked], 'prompt-photo.jpg', { type: picked.type || 'image/jpeg' }))
+  }
+
+  // The photo, taken or picked from her library, goes on to be saved
+  const finish = (photo: File) => {
     stop()
     // Real-life: where the picture is, so the reflection page can turn it into its orb
     const shown = picture.current?.getBoundingClientRect()
@@ -339,16 +358,61 @@ export function CameraBubble() {
             </button>
           )}
 
-          {/* The shutter */}
-          <button
-            type="button"
-            aria-label="Take photo"
-            onClick={shoot}
-            className="group absolute left-1/2 flex size-20 -translate-x-1/2 items-center justify-center rounded-full border-[3px] border-baton-blue/40 transition-opacity duration-300 motion-reduce:transition-none"
+          {/* Her photo library on the left, the shutter, and flipping the camera
+              on the right (phones only; Keller, Oct 21) */}
+          <div
+            className="absolute inset-x-0 flex items-center justify-center gap-10 transition-opacity duration-300 motion-reduce:transition-none"
             style={{ bottom: 56, opacity: expanded ? 1 : 0, transitionDelay: expanded ? '320ms' : '0ms', pointerEvents: expanded ? 'auto' : 'none' }}
           >
-            <span className="size-16 rounded-full bg-baton-blue transition-transform duration-150 group-active:scale-90" />
-          </button>
+            <button
+              type="button"
+              aria-label="Choose from library"
+              onClick={() => library.current?.click()}
+              className="flex size-12 items-center justify-center rounded-full bg-card text-baton-blue shadow-sm transition-transform duration-150 active:scale-90"
+            >
+              <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <rect x="3" y="5" width="18" height="14" rx="2.5" />
+                <circle cx="8.5" cy="10" r="1.6" />
+                <path d="M21 15.5l-5-5-8.5 8.5" />
+              </svg>
+            </button>
+            <input
+              ref={library}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                event.target.value = ''
+                if (file) finish(file)
+              }}
+            />
+            <button
+              type="button"
+              aria-label="Take photo"
+              onClick={shoot}
+              className="group flex size-20 items-center justify-center rounded-full border-[3px] border-baton-blue/40"
+            >
+              <span className="size-16 rounded-full bg-baton-blue transition-transform duration-150 group-active:scale-90" />
+            </button>
+            {/* Holds the shutter in the middle when there's nothing to flip */}
+            <button
+              type="button"
+              aria-label="Flip camera"
+              onClick={() => setFacing((side) => (side === 'environment' ? 'user' : 'environment'))}
+              className={cx(
+                'flex size-12 items-center justify-center rounded-full bg-card text-baton-blue shadow-sm transition-transform duration-150 active:scale-90',
+                !canFlip && 'invisible',
+              )}
+            >
+              <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 12a8 8 0 0 1 13.7-5.6L20 8.5" />
+                <path d="M20 4v4.5h-4.5" />
+                <path d="M20 12a8 8 0 0 1-13.7 5.6L4 15.5" />
+                <path d="M4 20v-4.5h4.5" />
+              </svg>
+            </button>
+          </div>
         </>
       )}
     </div>
