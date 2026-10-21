@@ -65,35 +65,29 @@
 .journey-indicator svg { width: 16px; height: 16px; }
 
 .try-list { align-self: center; justify-self: end; width: min(380px, 100%); }
-.try-items { display: flex; flex-direction: column; gap: 18px; margin-top: 18px; }
-/* Number and tag share the first row; the text hangs under the tag so every line starts at one edge */
-.try-item {
-  display: grid;
-  grid-template-columns: 14px minmax(0, 1fr);
-  column-gap: 10px;
-  row-gap: 4px;
-  align-items: center;
+.try-groups { display: flex; flex-direction: column; gap: 22px; margin-top: 18px; }
+/* One pill per nav area, its things to try listed under it */
+.try-group {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   color: var(--color-ink-muted);
-  font-size: 15px;
-  line-height: 1.4;
-  text-wrap: pretty;
   animation: try-in 320ms ease-out both;
 }
-.try-item:nth-child(2) { animation-delay: 40ms; }
-.try-item:nth-child(3) { animation-delay: 80ms; }
-.try-item:nth-child(4) { animation-delay: 120ms; }
-.try-item:nth-child(5) { animation-delay: 160ms; }
-.try-number { font-size: 13px; opacity: 0.7; }
+.try-group:nth-child(2) { animation-delay: 60ms; }
+.try-group:nth-child(3) { animation-delay: 120ms; }
+.try-group:nth-child(4) { animation-delay: 180ms; }
 .try-area {
-  justify-self: start;
-  padding: 0 7px;
+  padding: 0 8px;
   border: 1px solid currentColor;
   border-radius: 999px;
-  font-size: 11px;
-  line-height: 17px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 19px;
   opacity: 0.6;
 }
-.try-text { grid-column: 2; }
+.try-items { display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.4; text-wrap: pretty; }
 @keyframes try-in { from { opacity: 0; transform: translateY(6px); } }
 
 @media (min-width: 501px) and (max-width: 1099px) {
@@ -109,7 +103,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .journey-option { transition: none; }
-  .try-item { animation: none; }
+  .try-group { animation: none; }
 }
 
 @layer base {
