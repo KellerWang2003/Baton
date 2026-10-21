@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { features, type FeatureSlide } from '../data/onboarding'
 import { localInsight } from '../data/localInsight'
@@ -117,31 +117,53 @@ function Visual({ visual }: { visual: FeatureSlide['visual'] }) {
   return <Growth />
 }
 
+// The slides are drawn on the frame's 402 x 820 canvas (the screen under the
+// status bar). On a phone or window of another size the whole canvas scales
+// down to fit (never up), so nothing is cut off or overlaps.
+const CANVAS_W = 402
+const CANVAS_H = 820
+
 export function Features() {
+  const frame = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+  useEffect(() => {
+    const node = frame.current
+    if (!node) return
+    const fit = () => setScale(Math.min(1, node.clientWidth / CANVAS_W, node.clientHeight / CANVAS_H))
+    fit()
+    const observer = new ResizeObserver(fit)
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [])
   const [index, setIndex] = useState(0)
   const slide = features.slides[index]
   const last = index === features.slides.length - 1
   const next = () => (last ? navigate('signup') : setIndex(index + 1))
 
   return (
-    <div className="relative h-full overflow-hidden bg-canvas">
-      <div key={`visual-${index}`} className="absolute inset-0">
-        <Visual visual={slide.visual} />
-      </div>
-
-      {slide.visual !== 'splash' && (
-        <div key={`copy-${index}`} className="absolute top-[577.42px] left-1/2 flex w-[340px] -translate-x-1/2 flex-col gap-2">
-          <p className="font-display text-[24px] leading-[28.944px] font-normal tracking-[-0.2653px] text-baton-navy">{slide.title}</p>
-          {slide.body && <p className="font-display text-[18px] leading-[22.512px] font-normal tracking-[-0.1769px] text-ink-muted">{slide.body}</p>}
+    <div ref={frame} className="relative h-full overflow-hidden bg-canvas">
+      <div
+        className="absolute top-1/2 left-1/2"
+        style={{ width: CANVAS_W, height: CANVAS_H, transform: `translate(-50%, -50%) scale(${scale})` }}
+      >
+        <div key={`visual-${index}`} className="absolute inset-0">
+          <Visual visual={slide.visual} />
         </div>
-      )}
 
-      <div className="absolute bottom-[44px] left-1/2 flex w-[355.77px] -translate-x-1/2 flex-col items-center gap-4">
-        <Steps count={features.slides.length} current={index} />
-        <Button block variant="glow" size="cta" onClick={next}>
-          {last ? features.start : features.next}
-          <ArrowRightIcon />
-        </Button>
+        {slide.visual !== 'splash' && (
+          <div key={`copy-${index}`} className="absolute top-[577.42px] left-1/2 flex w-[340px] -translate-x-1/2 flex-col gap-2">
+            <p className="font-display text-[24px] leading-[28.944px] font-normal tracking-[-0.2653px] text-baton-navy">{slide.title}</p>
+            {slide.body && <p className="font-display text-[18px] leading-[22.512px] font-normal tracking-[-0.1769px] text-ink-muted">{slide.body}</p>}
+          </div>
+        )}
+
+        <div className="absolute bottom-[44px] left-1/2 flex w-[355.77px] -translate-x-1/2 flex-col items-center gap-4">
+          <Steps count={features.slides.length} current={index} />
+          <Button block variant="glow" size="cta" onClick={next}>
+            {last ? features.start : features.next}
+            <ArrowRightIcon />
+          </Button>
+        </div>
       </div>
     </div>
   )
