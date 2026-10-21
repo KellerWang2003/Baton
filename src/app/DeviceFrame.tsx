@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
 import { StatusBar } from './StatusBar'
 import { JourneySelector } from './JourneySelector'
+import { TryList } from './TryList'
 import type { FrameSettings } from './useFrameSize'
 
 // On a real phone (opened over wifi) the app fills the screen, frame or not.
@@ -106,6 +107,7 @@ export function DeviceFrame({ framed = true, frame, lockRatio = true, background
           Interactive prototype — some features are still in development.
         </p>
       </div>
+      <TryList />
     </div>
   )
 }

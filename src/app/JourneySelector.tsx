@@ -3,6 +3,7 @@ import { setState, useStatus } from './store'
 import type { Stage } from '../flow'
 import { flow } from '../flow'
 import { useScreenIndex } from './useScreenIndex'
+import { onboardingScreens } from '../data/showcase'
 import { ArrowRightIcon, BoxIcon, CheckIcon, HomeIcon, PlaneIcon, PlusIcon } from '../ui'
 
 const moments: { stage: Stage | null; label: string; screen: string; icon: typeof PlusIcon }[] = [
@@ -11,8 +12,6 @@ const moments: { stage: Stage | null; label: string; screen: string; icon: typeo
   { stage: 'newcomer', label: 'Chloe just landed in NYC', screen: 'arrived', icon: PlaneIcon },
   { stage: 'local', label: 'Chloe has been in NYC for 180 days', screen: 'local-splash', icon: HomeIcon },
 ]
-
-const onboardingScreens = new Set(['features', 'signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'])
 
 export function JourneySelector() {
   const status = useStatus()
