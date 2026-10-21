@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
 import { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
-import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_HOLD_MS, FLICK_MS, FLING_VELOCITY, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
+import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_HOLD_MS, FLICK_MAX_TRAVEL, FLICK_MS, FLING_VELOCITY, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
 import { useFolderFocus } from './useFolderFocus'
 
 export type ArchiveFolder = {
@@ -213,12 +213,16 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       showProgress(distance / DRAG_THRESHOLD)
       return
     }
-    const { step, progress } = dragFeedback(distance, event.timeStamp - drag.startTime)
-    // A fast swipe in its first moments holds its turn for release, so a
-    // flick turns exactly one folder. Once the finger has been down past
-    // FLICK_HOLD_MS it's a scroll and steps through folders at any speed.
-    const flicking = event.timeStamp - drag.startTime < FLICK_HOLD_MS && Math.abs(drag.velocity) > FLING_VELOCITY
-    if (step && flicking) showProgress(Math.sign(distance))
+    const elapsed = event.timeStamp - drag.startTime
+    const { progress } = dragFeedback(distance, elapsed)
+    let { step } = dragFeedback(distance, elapsed)
+    // A flick is short and quick: a fast swipe in its first moments holds its
+    // turn for release, so it turns exactly one folder. Down past
+    // FLICK_HOLD_MS or traveling past FLICK_MAX_TRAVEL, it's a scroll and
+    // steps through folders at any speed.
+    const scrolling = elapsed >= FLICK_HOLD_MS || Math.abs(event.clientY - drag.startY) / drag.scale >= FLICK_MAX_TRAVEL
+    if (scrolling && Math.abs(distance) >= DRAG_THRESHOLD) step = Math.sign(distance)
+    if (step && !scrolling && Math.abs(drag.velocity) > FLING_VELOCITY) showProgress(Math.sign(distance))
     else if (step) {
       goTo(activeIndexRef.current + step)
       drag.anchorY = event.clientY
@@ -240,7 +244,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     const stale = event.timeStamp - drag.lastTime > 80
     const flung = !drag.stepped && !stale && Math.abs(drag.velocity) > FLING_VELOCITY && Math.sign(drag.velocity) === Math.sign(sinceAnchor) && Math.abs(sinceAnchor) > MOVE_SLOP
     if (drag.moved && event.type === 'pointerup') {
-      if (event.timeStamp - drag.startTime < FLICK_MS && Math.abs(distance) > MOVE_SLOP) {
+      if (!drag.stepped && event.timeStamp - drag.startTime < FLICK_MS && Math.abs(distance) > MOVE_SLOP) {
         goTo(activeIndexRef.current + Math.sign(distance))
       } else if (flung) {
         goTo(activeIndexRef.current + Math.sign(drag.velocity))

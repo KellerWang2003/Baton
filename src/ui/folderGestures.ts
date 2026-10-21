@@ -4,6 +4,8 @@ export const FLICK_MS = 120
 export const FLING_VELOCITY = 0.4
 // A touch held longer than this is a scroll, not a flick
 export const FLICK_HOLD_MS = 200
+// A swipe traveling farther than this is a scroll, however fast
+export const FLICK_MAX_TRAVEL = 160
 export const MOVE_SLOP = 8
 export const WHEEL_THRESHOLD = 80
 export const WHEEL_IDLE_MS = 180
