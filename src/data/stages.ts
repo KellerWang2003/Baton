@@ -116,9 +116,9 @@ export type ArchiveSummary = {
   parts: SummaryPart[]
 }
 
-const photo = (alt: string, file?: string): InlinePhotoItem => ({
+const photo = (alt: string, file: string): InlinePhotoItem => ({
   alt,
-  src: file && `/archive/${file}.jpg`,
+  src: file.startsWith('/') ? file : `/archive/${file}.jpg`,
 })
 
 const laSummary: SummaryPart[] = [
@@ -141,16 +141,16 @@ export const archiveSummaries: Record<string, Partial<Record<Stage, ArchiveSumma
   },
   ny: {
     newcomer: {
-      parts: ['Still being written. Your first weeks here', [photo('Boxes in the new apartment')], 'will show up as you add to your archive.'],
+      parts: ['Still being written. Your first weeks here', [photo('Exploring the new neighborhood', '/relay/greenpoint.jpg')], 'will show up as you add to your archive.'],
     },
     local: {
       parts: [
         'A gym',
-        [photo('Gym with the Trader Joe’s next door')],
+        [photo('Gym with the Trader Joe’s next door', '/relay/gym.jpg')],
         'with Trader Joe’s next door, a new window seat',
-        [photo('Window seat at the corner café')],
+        [photo('Window seat at the corner café', '/relay/cafe.jpg')],
         'and sunsets over the Hudson.',
-        [photo('Sunset over the Hudson')],
+        [photo('Sunset over the Hudson', '/relay/greenway.jpg')],
       ],
     },
   },

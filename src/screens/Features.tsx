@@ -18,7 +18,7 @@ import { Intention } from './LocalInsight'
 function Splash() {
   return (
     <>
-      <BatonMark className="absolute top-[193px] left-1/2 size-[112.56px]! -translate-x-1/2 text-baton-blue!" />
+      <BatonMark className="absolute top-[205px] left-1/2 size-[112.56px]! -translate-x-1/2 text-baton-blue!" />
       <div className="absolute inset-x-0 top-[329.43px] flex flex-col items-center gap-2 text-center">
         <p className="font-display text-[48px] leading-normal font-medium tracking-[-0.528px] text-baton-blue">Baton</p>
         <p className="font-display text-[24.12px] leading-[28.944px] tracking-[-0.2653px] text-baton-navy opacity-60">{features.tagline}</p>

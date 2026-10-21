@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { toLocal } from '../app/localPoint'
 import { cx } from './cx'
+import { layoutCloud } from './cloudLayout'
 
 export type CloudCategory = 'feeling' | 'people' | 'places'
 
@@ -71,7 +72,8 @@ type Point = { x: number; y: number }
 // bob gently on their own. Each photo hangs on its own spring and follows your
 // finger: the ones near it move right along with it, the far ones trail behind
 // and wobble back into place.
-export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden = null, resume = null, pop = true, className }: PhotoCloudProps) {
+export function PhotoCloud({ photos: entries, focus = null, onSelect, onLongPress, hidden = null, resume = null, pop = true, className }: PhotoCloudProps) {
+  const photos = useMemo(() => layoutCloud(entries), [entries])
   const height = Math.max(0, ...photos.map((photo) => photo.y + photo.size))
   // The area the photos actually cover on the canvas (the middle of the
   // canvas once every photo is deleted)
@@ -100,6 +102,15 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
   // The long-press timer, and whether it fired for the finger still down
   const hold = useRef(0)
   const held = useRef(false)
+  const boundsRef = useRef(bounds)
+
+  // Wheel listeners stay mounted, so their clamp must read the latest layout.
+  useLayoutEffect(() => {
+    boundsRef.current = bounds
+    stopMotion()
+    set(view.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bounds.left, bounds.top, bounds.right, bounds.bottom])
 
   function apply() {
     const canvas = canvasRef.current
@@ -115,6 +126,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
     // The middle of the screen always stays over the photos, so they can't be flung away
     const midX = viewport.clientWidth / 2
     const midY = viewport.clientHeight / 2
+    const bounds = boundsRef.current
     return {
       scale,
       x: Math.min(midX - bounds.left * scale, Math.max(midX - bounds.right * scale, next.x)),
@@ -423,7 +435,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
     const image = photoRefs.current[photos.indexOf(photo)]?.firstElementChild
     if (!onLongPress || !image) return false
     stopMotion()
-    onLongPress(photo, image.getBoundingClientRect(), { ...view.current })
+    onLongPress(entries[photos.indexOf(photo)], image.getBoundingClientRect(), { ...view.current })
     return true
   }
 
@@ -452,7 +464,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
       const image = photo && photoRefs.current[photos.indexOf(photo)]?.firstElementChild
       if (photo && image) {
         pointers.current.delete(event.pointerId)
-        onSelect(photo, image.getBoundingClientRect(), { ...view.current })
+        onSelect(entries[photos.indexOf(photo)], image.getBoundingClientRect(), { ...view.current })
         return
       }
     }
@@ -480,7 +492,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
       >
         {photos.map((photo, index) => (
           <div
-            key={`${photo.src}|${photo.x}|${photo.y}`}
+            key={photo.id ?? photo.src}
             ref={(node) => {
               photoRefs.current[index] = node
             }}
@@ -492,6 +504,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
               // Each photo bobs on its own rhythm so the cloud never moves in step
               animationDuration: `${10 + (index % 7) * 0.8}s`,
               animationDelay: `${-((index * 1.37) % 10)}s`,
+              transition: 'left 450ms ease, top 450ms ease',
             }}
             data-cloud-photo
             className="absolute animate-photo-float"
@@ -505,7 +518,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden
                 pop && !resumeAt && 'animate-photo-pop',
                 'size-full rounded-full bg-placeholder object-cover transition-[filter,opacity] duration-500 ease-out',
                 focus && photo.category !== focus && 'opacity-60 blur-[5px]',
-                photo === hidden && 'invisible',
+                entries[index] === hidden && 'invisible',
               )}
             />
           </div>

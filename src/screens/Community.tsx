@@ -12,9 +12,9 @@ import { RelayFeed } from './RelayFeed'
 // The map library is big, so it loads with Relay's map, not the whole app
 const LiveMap = lazy(() => import('../ui/LiveMap').then((m) => ({ default: m.LiveMap })))
 
-// How much of the sheet shows over the map: just the filters, with the same
-// 16px gap above them (sheet edge) and below them (tab bar)
-const mapPeek = 157
+// Match the 28px above the 40px filters with 28px below them, before
+// the tab bar (61px tall, resting 24px above the bottom of the screen).
+const mapPeek = 28 + 40 + 28 + 61 + 24
 
 function open(id: string) {
   setState({ selectedRec: id })
