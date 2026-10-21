@@ -143,7 +143,7 @@ export function Intention({ intention }: { intention: Omit<(typeof intentions)[n
     <section ref={ref} className={cx('rounded-card px-5 pt-5 pb-6', tone.card)}>
       <p className={cx('text-callout', tone.muted)}>{intention.label}</p>
       <p className="mt-1 text-section font-normal">“{intention.quote}”</p>
-      <div className="mt-6 grid grid-cols-[repeat(13,1fr)] gap-1.5" aria-hidden>
+      <div className="mt-6 grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1.5" aria-hidden>
         {Array.from({ length: intention.weeks }, (_, week) => (
           <span key={week} className="aspect-square rounded-full border border-baton-navy/20">
             {done.has(week) && (
