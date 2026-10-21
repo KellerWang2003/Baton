@@ -48,7 +48,7 @@ export function Splash() {
   }, [])
 
   return (
-    <button type="button" onClick={() => navigate('today')} className="onboarding-step onboarding-welcome" aria-label="Welcome to Baton. Continue to Today">
+    <button type="button" onClick={() => navigate('today')} className="onboarding-step onboarding-welcome" aria-label="Welcome to Baton. Next: Today">
       <div className="onboarding-welcome-content">
         {splash.video ? <SplashVideo src={splash.video} /> : <img className="onboarding-welcome-video" src={splash.poster} alt="" />}
         <h1 className="onboarding-welcome-title">{splash.welcome}</h1>

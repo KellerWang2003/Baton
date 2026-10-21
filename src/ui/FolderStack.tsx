@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
 import { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
+import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_MS, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
+import { useFolderFocus } from './useFolderFocus'
 
 export type ArchiveFolder = {
   id: string
@@ -57,20 +59,8 @@ const ACTIVE_STEP_HEIGHT = 401
 const COMPACT_STEP_HEIGHT = 119
 const FADE_HEIGHT = 81
 
-// Gestures (Keller, Oct 18): the stack never tracks the finger exactly, it
-// only snaps between folders, so nothing flickers mid-drag.
-// - A quick swipe (released within FLICK_MS) turns exactly one folder.
-// - A longer drag steps through folders as the finger travels, one folder per
-//   DRAG_PX_PER_FOLDER from where it started, so it keeps going while you
-//   drag and can come back if you reverse. A tick fires on each folder where
-//   vibration is supported.
-// - Trackpad and mouse wheel step one folder per WHEEL_STEP of scrolling.
-const MOVE_SLOP = 8
-const FLICK_MS = 250
-const DRAG_PX_PER_FOLDER = 160
-const WHEEL_STEP = 160
-const WHEEL_QUIET_MS = 160
-
+// A flick turns one folder. A sustained scroll/drag previews the neighboring
+// folder, then snaps at the threshold. Partial gestures spring back on release.
 function tick(ms = 8) {
   navigator.vibrate?.(ms)
 }
@@ -83,19 +73,23 @@ function tick(ms = 8) {
 // - Tap a peeking folder to bring it into focus, tap the open one to select it.
 export function FolderStack({ folders, onSelect, initialId, renderActive, footer, className }: FolderStackProps) {
   const wheelTimerRef = useRef<number | null>(null)
-  const wheelAccumRef = useRef(0)
+  const wheelGestureRef = useRef(createWheelGesture())
   const dragStateRef = useRef<{
     active: boolean
     pointerId: number
     startY: number
     startTime: number
-    startIndex: number
+    anchorY: number
+    scale: number
     moved: boolean
-  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, startIndex: 0, moved: false })
+  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, anchorY: 0, scale: 1, moved: false })
 
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
   )
+  const activeIndexRef = useRef(activeIndex)
+  const [preview, setPreview] = useState(0)
+  const [tracking, setTracking] = useState(false)
   // Height of the stack's frame, to tell which folder sits at the bottom
   const frameRef = useRef<HTMLDivElement>(null)
   const [frameHeight, setFrameHeight] = useState(0)
@@ -122,38 +116,66 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     }
   }, [])
 
-  // Snap to a folder; asking for one past either end gives a small bounce
+  const settle = () => {
+    setTracking(false)
+    setPreview(0)
+    setPullOffset(0)
+  }
+
   const goTo = (target: number) => {
     const next = clampIndex(target)
-    setPullOffset(target < 0 ? 24 : target > maxIndex ? -24 : 0)
-    if (next !== activeIndex) {
+    settle()
+    if (next !== activeIndexRef.current) {
+      activeIndexRef.current = next
       setActiveIndex(next)
       tick()
     }
   }
 
-  const handleWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
-    wheelAccumRef.current += event.deltaY
-    if (Math.abs(wheelAccumRef.current) >= WHEEL_STEP) {
-      const dir = Math.sign(wheelAccumRef.current)
-      wheelAccumRef.current = 0
-      goTo(activeIndex + dir)
+  const showProgress = (progress: number) => {
+    const target = activeIndexRef.current + Math.sign(progress)
+    setTracking(true)
+    if (target < 0 || target > maxIndex) {
+      setPreview(0)
+      setPullOffset(-24 * progress / (1 + Math.abs(progress)))
+    } else {
+      setPullOffset(0)
+      setPreview(progress * 0.65)
     }
+  }
+
+  const handleWheel = (event: ReactWheelEvent<HTMLDivElement>) => {
+    if (!event.deltaY || event.ctrlKey || dragStateRef.current.active) return
+    // Wheel deltas may be pixels, lines (mouse wheels), or pages.
+    const delta = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? frameHeight : 1)
+    const target = activeIndexRef.current + Math.sign(delta)
+    const { step, progress } = advanceWheelGesture(wheelGestureRef.current, delta, event.timeStamp, target >= 0 && target <= maxIndex)
+    if (step) goTo(activeIndexRef.current + step)
+    else if (!wheelGestureRef.current.locked) showProgress(progress)
+
     if (wheelTimerRef.current !== null) window.clearTimeout(wheelTimerRef.current)
     wheelTimerRef.current = window.setTimeout(() => {
-      wheelAccumRef.current = 0
-      setPullOffset(0)
-    }, WHEEL_QUIET_MS)
+      wheelGestureRef.current = createWheelGesture()
+      settle()
+    }, WHEEL_IDLE_MS)
   }
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (event.pointerType === 'mouse' && event.button !== 0) return
+    if (!event.isPrimary || (event.pointerType === 'mouse' && event.button !== 0)) return
+    if (wheelTimerRef.current !== null) window.clearTimeout(wheelTimerRef.current)
+    wheelGestureRef.current = createWheelGesture()
+    settle()
+    // The desktop phone frame can be scaled. Thresholds use app pixels so
+    // the gesture has the same feel in the frame and on an actual phone.
+    const node = event.currentTarget
+    const scale = node.offsetHeight ? node.getBoundingClientRect().height / node.offsetHeight : 1
     dragStateRef.current = {
       active: true,
       pointerId: event.pointerId,
       startY: event.clientY,
-      startTime: performance.now(),
-      startIndex: activeIndex,
+      startTime: event.timeStamp,
+      anchorY: event.clientY,
+      scale: scale || 1,
       moved: false,
     }
   }
@@ -161,42 +183,51 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
   const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current
     if (!drag.active || event.pointerId !== drag.pointerId) return
-
-    const deltaY = event.clientY - drag.startY
+    const deltaY = (event.clientY - drag.startY) / drag.scale
     if (!drag.moved && Math.abs(deltaY) > MOVE_SLOP) {
       drag.moved = true
       event.currentTarget.setPointerCapture?.(event.pointerId)
     }
-    // Within the flick window nothing moves yet; release decides
-    if (!drag.moved || performance.now() - drag.startTime < FLICK_MS) return
-
-    // Finger up = later folders
-    const steps = Math.trunc(-deltaY / DRAG_PX_PER_FOLDER)
-    goTo(drag.startIndex + steps)
+    if (!drag.moved) return
+    const distance = (drag.anchorY - event.clientY) / drag.scale
+    const target = activeIndexRef.current + Math.sign(distance)
+    // At an edge there is no next snap. Keep the same drag anchor and let
+    // resistance build continuously instead of resetting every threshold.
+    if (target < 0 || target > maxIndex) {
+      showProgress(distance / DRAG_THRESHOLD)
+      return
+    }
+    const { step, progress } = dragFeedback(distance, event.timeStamp - drag.startTime)
+    if (step) {
+      goTo(activeIndexRef.current + step)
+      drag.anchorY = event.clientY
+    } else showProgress(progress)
   }
 
   const endPointerDrag = (event: ReactPointerEvent<HTMLDivElement>) => {
     const drag = dragStateRef.current
     if (!drag.active || event.pointerId !== drag.pointerId) return
     drag.active = false
-    setPullOffset(0)
-    if (!drag.moved || event.type !== 'pointerup') return
-
-    const deltaY = event.clientY - drag.startY
-    const quick = performance.now() - drag.startTime < FLICK_MS
-    // A flick, or a slow drag that never reached a full step, turns one folder
-    if (quick || (activeIndex === drag.startIndex && Math.abs(deltaY) > DRAG_PX_PER_FOLDER / 3)) {
-      goTo(drag.startIndex - Math.sign(deltaY))
-      setPullOffset(0)
+    const distance = (drag.startY - event.clientY) / drag.scale
+    if (drag.moved && event.type === 'pointerup') {
+      if (event.timeStamp - drag.startTime < FLICK_MS && Math.abs(distance) > MOVE_SLOP) {
+        goTo(activeIndexRef.current + Math.sign(distance))
+      } else {
+        const { step } = dragFeedback((drag.anchorY - event.clientY) / drag.scale, event.timeStamp - drag.startTime)
+        if (step) goTo(activeIndexRef.current + step)
+      }
     }
+    settle()
   }
 
   // Fixed for every focus: the last tab sits the same distance down either way
   const lastTabOffset = (folders.length - 2) * COMPACT_STEP_HEIGHT + ACTIVE_STEP_HEIGHT
   // Never above the top edge: on a short screen the last strip shrinks instead
   const stackShiftY = Math.max(0, Math.min(STACK_TOP, frameHeight - lastTabOffset - COMPACT_STEP_HEIGHT))
-  const tabTop = (index: number) =>
-    stackShiftY + index * COMPACT_STEP_HEIGHT + (index > activeIndex ? ACTIVE_STEP_HEIGHT - COMPACT_STEP_HEIGHT : 0)
+  const focus = useFolderFocus(activeIndex + preview, tracking)
+  const pullPosition = useFolderFocus(pullOffset, tracking)
+  const tabTop = (index: number) => stackShiftY + index * COMPACT_STEP_HEIGHT +
+    Array.from({ length: index }, (_, i) => folderOpenness(i, focus) * (ACTIVE_STEP_HEIGHT - COMPACT_STEP_HEIGHT)).reduce((sum, h) => sum + h, 0)
   // The folder whose body reaches the bottom edge sets the fade's color
   const bottomIndex = folders.reduce((found, _, index) => (tabTop(index) < frameHeight ? index : found), activeIndex)
 
@@ -208,6 +239,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       onPointerMove={handlePointerMove}
       onPointerUp={endPointerDrag}
       onPointerCancel={endPointerDrag}
+      onLostPointerCapture={endPointerDrag}
       onContextMenu={(event) => event.preventDefault()}
       className={cx(
         'relative isolate flex flex-1 flex-col justify-start overflow-hidden select-none touch-none cursor-grab active:cursor-grabbing [-webkit-touch-callout:none]',
@@ -226,7 +258,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
           const styles = folderTones[folder.tone]
           const isEdgeTab = folder.tabAlign === 'right'
 
-          const stepHeight = isActive ? ACTIVE_STEP_HEIGHT : COMPACT_STEP_HEIGHT
+          const stepHeight = COMPACT_STEP_HEIGHT + folderOpenness(index, focus) * (ACTIVE_STEP_HEIGHT - COMPACT_STEP_HEIGHT)
           // Each non-last folder has height = stepHeight + UNDERLAP_SKIRT (96px),
           // and the next folder pulls up by -(TAB_HEIGHT + UNDERLAP_SKIRT) = -148px.
           // The last folder includes an extra 220px bottom skirt so it always bleeds
@@ -243,9 +275,9 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
           //   ((index / lastIdx) * pullOffset), squeezing folders upward while
           //   the top folder stays anchored at 0.
           const translateY =
-            pullOffset >= 0
-              ? pullOffset * (1 - index / lastIdx)
-              : pullOffset * (index / lastIdx)
+            pullPosition >= 0
+              ? pullPosition * (1 - index / lastIdx)
+              : pullPosition * (index / lastIdx)
 
           return (
             <button
@@ -263,7 +295,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
                 transform: translateY !== 0 ? `translateY(${translateY.toFixed(1)}px)` : undefined,
               }}
               className={cx(
-                'group relative flex w-full shrink-0 flex-col text-left transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                'group relative flex w-full shrink-0 flex-col text-left',
                 index > 0 && 'drop-shadow-[0_-8px_18px_rgb(0_0_0/0.12)]',
               )}
             >
@@ -295,7 +327,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
               <div
                 style={{ height: `${bodyHeight}px` }}
                 className={cx(
-                  'flex w-full flex-col overflow-hidden rounded-t-tile px-7 pt-4 transition-[height] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  'flex w-full flex-col overflow-hidden rounded-t-tile px-7 pt-4',
                   styles.fill,
                   isEdgeTab && 'rounded-tr-none',
                   isLast && '-mb-[220px]',

@@ -91,6 +91,6 @@ export const localInsight = {
   close: {
     title: 'You’re carrying the baton now.',
     body: 'When you leave New York, your legacy will be someone’s first week here.',
-    cta: 'Continue',
+    cta: 'Next',
   },
 }

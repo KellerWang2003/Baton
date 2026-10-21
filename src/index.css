@@ -112,6 +112,8 @@
   body,
   #root {
     height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   /* The page behind the app is the app's own color. When the keyboard opens,

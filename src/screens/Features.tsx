@@ -157,7 +157,7 @@ export function Features() {
         <div className="absolute bottom-[44px] left-1/2 flex w-[355.77px] -translate-x-1/2 flex-col items-center gap-4">
           <Steps count={features.slides.length} current={index} />
           <Button block variant="glow" size="cta" onClick={next}>
-            {last ? features.start : features.next}
+            {index === 0 ? features.begin : last ? features.start : features.next}
             <ArrowRightIcon />
           </Button>
         </div>

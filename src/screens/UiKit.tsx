@@ -90,7 +90,7 @@ export function UiKit() {
               </Button>
             </div>
             <Button variant="glow" size="cta" block>
-              Continue
+              Next
               <ArrowRightIcon />
             </Button>
           </Section>

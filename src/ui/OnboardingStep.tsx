@@ -3,7 +3,7 @@ import { Button } from './Button'
 import { ArrowRightIcon } from './icons'
 
 // The two About You steps share the exact type and pinned action from Figma.
-export function OnboardingStep({ title, body, children, onContinue, continueLabel = 'Continue', continueDisabled = false, footer, className = '' }: {
+export function OnboardingStep({ title, body, children, onContinue, continueLabel = 'Next', continueDisabled = false, footer, className = '' }: {
   title: string
   body?: string
   children: ReactNode

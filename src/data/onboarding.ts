@@ -37,6 +37,7 @@ export const features = {
       body: 'Keep capturing in your new city and see how your life changes as the city becomes home.',
     },
   ] as FeatureSlide[],
+  begin: 'Begin',
   next: 'Next',
   start: 'Get started',
 }
@@ -44,10 +45,10 @@ export const features = {
 export const auth = {
   title: 'Log in or sign up',
   emailPlaceholder: 'Email address',
-  continue: 'Continue',
+  continue: 'Next',
   divider: 'or',
-  google: 'Continue with Google',
-  apple: 'Continue with Apple',
+  google: 'Next with Google',
+  apple: 'Next with Apple',
 }
 
 export const about = {
