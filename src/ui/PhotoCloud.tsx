@@ -1,7 +1,6 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { toLocal } from '../app/localPoint'
 import { cx } from './cx'
-import { layoutCloud } from './cloudLayout'
 
 export type CloudCategory = 'feeling' | 'people' | 'places'
 
@@ -73,7 +72,9 @@ type Point = { x: number; y: number }
 // finger: the ones near it move right along with it, the far ones trail behind
 // and wobble back into place.
 export function PhotoCloud({ photos: entries, focus = null, onSelect, onLongPress, hidden = null, resume = null, pop = true, className }: PhotoCloudProps) {
-  const photos = useMemo(() => layoutCloud(entries), [entries])
+  // Every photo sits where its row says (the Figma layout); relaying them out
+  // by shuffle stretched the cloud into a long, sparse column
+  const photos = entries
   const height = Math.max(0, ...photos.map((photo) => photo.y + photo.size))
   // The area the photos actually cover on the canvas (the middle of the
   // canvas once every photo is deleted)
