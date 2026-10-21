@@ -241,6 +241,9 @@
   --animate-photo-drop: photo-drop 460ms cubic-bezier(0.34, 1.56, 0.64, 1) 160ms both;
   --animate-word-in: word-in 320ms ease-out both;
   --animate-fade-in: fade-in 400ms ease-out both;
+  /* Feature overview: orbs settle in softly, cards are pressed on like a post-it */
+  --animate-orb-in: orb-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-card-stick: card-stick 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Her note on an opened Archive photo, stuck down like a post-it (ends at its --note-tilt) */
   --animate-note-stick: note-stick 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
   /* LA Wrapped header spelling itself out (SpellOut) */
@@ -272,6 +275,14 @@
     0% { opacity: 0; scale: 1.7; }
     60% { opacity: 1; scale: 0.92; }
     100% { opacity: 1; scale: 1; }
+  }
+  @keyframes orb-in {
+    0% { opacity: 0; scale: 0.88; }
+    100% { opacity: 1; scale: 1; }
+  }
+  @keyframes card-stick {
+    0% { opacity: 0; scale: 1.05; translate: 0 -8px; }
+    100% { opacity: 1; scale: 1; translate: 0 0; }
   }
   @keyframes word-in {
     from { opacity: 0; translate: 0 0.15em; }

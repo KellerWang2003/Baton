@@ -53,7 +53,7 @@ function Moments() {
   return (
     <>
       {orbs.map((o) => (
-        <div key={o.src} className={cx('absolute animate-photo-pop', o.pos)} style={{ animationDelay: `${o.delay}ms` }}>
+        <div key={o.src} className={cx('absolute animate-orb-in', o.pos)} style={{ animationDelay: `${o.delay}ms` }}>
           <PhotoOrb src={o.src} size={193.74} category={o.category} />
         </div>
       ))}
@@ -72,7 +72,7 @@ function Recs() {
       {picks.map((p, i) => {
         const r = relayItems.find((item) => item.id === p.id)!
         return (
-          <div key={p.id} className={cx('pointer-events-none absolute animate-photo-drop', p.pos)} style={{ animationDelay: `${200 + i * 450}ms` }}>
+          <div key={p.id} className={cx('pointer-events-none absolute animate-card-stick', p.pos)} style={{ animationDelay: `${200 + i * 450}ms` }}>
             <RecCard
               look="scrapbook"
               index={i}
