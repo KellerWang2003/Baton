@@ -40,7 +40,7 @@ export function TodayCard({ title, highlight = [], subtitle, photo, photoPositio
       className="flex min-h-[81px] w-full items-center gap-2.5 rounded-card bg-today-panel p-2.5 text-left shadow-today-card transition active:scale-[0.99] disabled:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
     >
       {photo ? (
-        <img src={photo} alt="" className="size-[61px] shrink-0 rounded-tile object-cover" style={{ objectPosition: photoPosition }} />
+        <img src={photo} alt="" className="size-[61px] shrink-0 rounded-inset object-cover" style={{ objectPosition: photoPosition }} />
       ) : (
         leading && <span className="flex size-[61px] shrink-0 items-center justify-center">{leading}</span>
       )}
@@ -87,7 +87,7 @@ export function MomentCard({ stage, eyebrow, title, subtitle, photo, onClick }: 
         stageTones[stage],
       )}
     >
-      <img src={photo} alt="" className="aspect-[2/1] w-full rounded-tile object-cover" />
+      <img src={photo} alt="" className="aspect-[2/1] w-full rounded-inset object-cover" />
       <span className="flex items-end gap-3 px-1.5">
         <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
           <span className="text-today-detail opacity-75">{eyebrow}</span>

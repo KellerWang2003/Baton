@@ -230,6 +230,7 @@
   --radius-control: 16px; /* fields, text areas */
   --radius-card: 16px; /* cards and grouped lists (Today's cards, Figma 334:10047) */
   --radius-tile: 12px; /* thumbnails, setup cards and graphics inside cards */
+  --radius-inset: calc(var(--radius-card) - 10px); /* a photo inset 10pt (p-2.5) in a card, so its corners are concentric with the card's (Keller, Oct 21) */
   --radius-rec: 36px; /* Relay recommendation cards (photo inside is rounded-card) */
   --radius-inline: 9px; /* photos set into a line of text */
   --radius-sheet: 32px; /* bottom sheets */
