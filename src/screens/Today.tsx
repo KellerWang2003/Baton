@@ -91,13 +91,13 @@ export function Today({ lastWeek = false }: TodayProps) {
   const leaving = shortDate(leaveDate)
   const hello = greeting(status, timeOfDay(), daysLeft)
 
-  // Figma's setup row (TODAY 334:11110): Instagram, to-dos, leave date, with
+  // Showcase setup row: to-dos first, then Instagram and leave date, with
   // Figma's SF Symbol glyphs (public/today/setup-*.svg). Locals
   // have no logistics to pick; only Moving has a leave date. Archive
   // organization remains its own flow.
   const setupItems: { id: SetupItem; title: string; subtitle: string; icon: ReactNode; tone: 'blue' | 'pink' | 'olive' }[] = [
-    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={21} height={21} />, tone: 'blue' },
     ...(status === 'local' ? [] : [{ id: 'todos' as const, ...setup.items.todos[status], icon: <img src="/today/setup-todos.svg" alt="" width={21} height={15} />, tone: 'pink' as const }]),
+    { id: 'instagram', ...setup.items.instagram, icon: <img src="/today/setup-instagram.svg" alt="" width={21} height={21} />, tone: 'blue' },
     ...(status === 'moving'
       ? [
           {
@@ -153,7 +153,7 @@ export function Today({ lastWeek = false }: TodayProps) {
                   title={item.title}
                   subtitle={item.subtitle}
                   done={setupDone.includes(item.id)}
-                  onClick={() => navigate(`setup-${item.id}`)}
+                  onClick={item.id === 'todos' ? () => navigate('setup-todos') : undefined}
                 />
               ))}
             </div>
