@@ -3,7 +3,8 @@ import type { CSSProperties } from 'react'
 import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { setState, useArchive, useStore } from '../app/store'
-import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon } from '../ui'
+import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon, movingGlass } from '../ui'
+import { useScrollNudge } from '../ui/useScrollNudge'
 import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from '../ui/filterColor'
 
 // The glass circle (Figma ARCHIVE_selected, 236:234): a 342pt circle with a
@@ -71,7 +72,7 @@ function usePicture(src: string) {
 // then the glass fades in over the photo and the note slaps down. Back
 // reverses it: the circle shrinks onto its photo in the cloud.
 export function ArchiveSelected() {
-  const { selectedPhoto, selectedPhotoFrom, addedMoments } = useStore()
+  const { selectedPhoto, selectedPhotoFrom, addedMoments, orbMoves } = useStore()
   // Opened straight from the debug panel or arrow keys, it shows the hike
   const { moments } = useArchive()
   const moment = { ...moments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(moments)[0]
@@ -81,6 +82,8 @@ export function ArchiveSelected() {
   const tint = filterGlassColor(moment.category)
   const color = filterColor(moment.category)
   const circleRef = useRef<HTMLDivElement>(null)
+  // Scrolling nudges the glass when it moves
+  const push = useScrollNudge(circleRef, orbMoves)
   const growRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
   const leaving = useRef(false)
@@ -134,7 +137,7 @@ export function ArchiveSelected() {
     // Reaches up under the status bar (--status-bar), so the page scrolls behind it
     <div
       ref={pageRef}
-      className="relative overflow-y-auto bg-baton-paper font-display text-baton-navy"
+      className="relative overflow-x-hidden overflow-y-auto bg-baton-paper font-display text-baton-navy"
       style={{
         marginTop: 'calc(-1 * var(--status-bar, 0px))',
         height: 'calc(100% + var(--status-bar, 0px))',
@@ -153,7 +156,9 @@ export function ArchiveSelected() {
         <ArrowLeftIcon />
       </button>
 
-      <div className="flex flex-col items-center pb-16">
+      {/* Clipped at the sides (clip, so it doesn't count toward scrolling):
+          the glass's canvas is wider than a phone screen */}
+      <div className="flex flex-col items-center overflow-x-clip pb-16">
         <div data-fade className="flex animate-fade-in flex-col items-center" style={{ animationDelay: SETTLE_DELAY }}>
           <p className="mt-[62px] text-moment-meta text-wrap-faint">Prompt #{moment.prompt}</p>
           <h1 className={`mt-2 text-center text-moment-question font-medium ${moment.oneLine ? 'whitespace-nowrap' : 'w-[232px]'}`}>
@@ -185,17 +190,21 @@ export function ArchiveSelected() {
                   color={tint}
                   rim={GLASS_RIM}
                   ring={0}
-                  breathe={0.1}
+                  // With Orb moves on, it moves like Today's orb inside the
+                  // rim, which holds still (Keller, Oct 21)
+                  breathe={orbMoves ? movingGlass.breathe : 0.1}
                   refraction={0.5}
                   dispersion={1}
                   reflection={1}
                   shadow={0}
-                  interaction="static"
+                  interaction={orbMoves ? movingGlass.interaction : 'static'}
+                  give={orbMoves ? movingGlass.give : 0}
                   idle={false}
                   intro={false}
                   morphOnClick={false}
-                  spin={0}
-                  wobble={0}
+                  spin={orbMoves ? movingGlass.spin : 0}
+                  wobble={orbMoves ? movingGlass.wobble : 0}
+                  pushRef={push}
                   onReady={() => setGlassReady(true)}
                 />
               )}
