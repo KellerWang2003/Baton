@@ -469,6 +469,9 @@
   height: 377px;
   margin-top: 57px;
   touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior-x: contain;
 }
 .onboarding-stage-card {
   position: absolute;
@@ -481,8 +484,18 @@
 .onboarding-stage-card[data-position="0"] {
   left: calc(50% - 172.05px);
   top: 7.19px;
-  transform: rotate(-2.42deg);
+  /* --drag-* are set while a mouse drags the top card (StageCardDeck). */
+  transform: translate(var(--drag-x, 0px), var(--drag-y, 0px)) rotate(calc(-2.42deg + var(--drag-tilt, 0deg)));
   z-index: 3;
+}
+.onboarding-deck[data-dragging] .onboarding-stage-card[data-position="0"] { transition: none; }
+.onboarding-deck[data-throwing] .onboarding-stage-card[data-position="0"] { transition: transform 170ms ease-in; }
+@media (hover: hover) and (pointer: fine) {
+  .onboarding-stage-card[data-position="0"] { cursor: grab; }
+  .onboarding-deck[data-dragging], .onboarding-deck[data-dragging] .onboarding-stage-card { cursor: grabbing; }
+  /* Peeking cards lean out a little under the mouse to show they can be picked. */
+  .onboarding-deck:not([data-dragging]) .onboarding-stage-card[data-position="1"]:hover { transform: translateX(10px) rotate(1.2deg); }
+  .onboarding-deck:not([data-dragging]) .onboarding-stage-card[data-position="2"]:hover { transform: translateX(12px) rotate(5.5deg); }
 }
 .onboarding-stage-card[data-position="1"] {
   left: calc(50% - 141.56px);
