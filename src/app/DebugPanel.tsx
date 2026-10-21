@@ -51,8 +51,9 @@ type DebugTab = (typeof debugTabs)[number]
 type Position = { x: number; y: number }
 
 // Drag something by a handle and remember where it lands (per key). A press
-// that barely moves still counts as a click.
-function useDraggable(key: string) {
+// that barely moves still counts as a click. With snapToEdge it ends up
+// against whichever side of the screen is closer.
+function useDraggable(key: string, snapToEdge = false) {
   const [position, setPosition] = useState<Position | null>(() => {
     try {
       const saved = JSON.parse(localStorage.getItem(key) ?? 'null')
@@ -90,10 +91,16 @@ function useDraggable(key: string) {
       setPosition(next)
     },
     onPointerUp: () => {
-      if (!drag.current) return
-      moved.current = drag.current.moved
+      const d = drag.current
+      if (!d) return
+      moved.current = d.moved
       drag.current = null
       if (!moved.current) return
+      if (snapToEdge && last.current) {
+        const right = last.current.x + d.el.offsetWidth / 2 > window.innerWidth / 2
+        last.current = { x: right ? 1 : 0, y: last.current.y }
+        setPosition(last.current)
+      }
       try {
         localStorage.setItem(key, JSON.stringify(last.current))
       } catch {
@@ -101,10 +108,16 @@ function useDraggable(key: string) {
       }
     },
   }
-  const style = position ? { left: position.x, top: position.y, right: 'auto', bottom: 'auto' } : undefined
+  // Snapped, x is the side: 0 left, 1 right (while dragging it's the real x)
+  const right = snapToEdge && position?.x === 1
+  const style = !position
+    ? undefined
+    : right
+      ? { right: 0, left: 'auto', top: position.y, bottom: 'auto' }
+      : { left: snapToEdge && position.x === 0 ? 0 : position.x, top: position.y, right: 'auto', bottom: 'auto' }
   // Read in onClick: true when the press was a drag, not a tap
   const wasDragged = () => moved.current
-  return { style, handlers: { ...handlers, onPointerCancel: handlers.onPointerUp }, wasDragged }
+  return { style, side: right ? ('right' as const) : ('left' as const), handlers: { ...handlers, onPointerCancel: handlers.onPointerUp }, wasDragged }
 }
 
 function readTab(): DebugTab {
@@ -125,6 +138,8 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   const [tab, setTab] = useState<DebugTab>(readTab)
   const panel = useDraggable('debugPosition')
   const launcher = useDraggable('debugLauncherPosition')
+  const handle = useDraggable('debugHandlePosition', true)
+  const [phone] = useState(() => window.matchMedia('(max-width: 500px)').matches)
   const chooseTab = (next: DebugTab) => {
     setTab(next)
     try {
@@ -173,9 +188,29 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
     }
   }, [index, goTo, toggleFrame])
 
+  if (!open && phone) {
+    // On a phone: a small see-through tab on the screen's edge. Slide it up or
+    // down, or over to the other edge; a tap (or a swipe in from the left
+    // edge) opens the panel.
+    return (
+      <button
+        data-draggable
+        type="button"
+        {...handle.handlers}
+        onClick={() => !handle.wasDragged() && setOpen(true)}
+        style={handle.style}
+        aria-label="Open debug panel"
+        className={cx(
+          'fixed left-0 top-1/2 z-50 h-20 w-6 touch-none select-none bg-ink/40 backdrop-blur-sm',
+          handle.side === 'right' ? 'rounded-l-control' : 'rounded-r-control',
+        )}
+      />
+    )
+  }
+
   if (!open) {
     // A small black button you can drag anywhere (kept out of the app's way);
-    // a tap opens the panel. On a phone, a swipe in from the left edge works too.
+    // a tap opens the panel
     return (
       <button
         data-draggable
@@ -184,7 +219,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         onClick={() => !launcher.wasDragged() && setOpen(true)}
         style={launcher.style}
         title="Open debug panel (`). Drag to move."
-        className="fixed bottom-4 left-4 z-50 touch-none select-none rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90 max-[500px]:px-3 max-[500px]:py-3"
+        className="fixed bottom-4 left-4 z-50 touch-none select-none rounded-full bg-ink px-4 py-2 font-body text-sm font-semibold text-surface shadow-float hover:opacity-90"
       >
         Debug
       </button>
@@ -194,12 +229,12 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   return (
     <aside
       data-draggable
-      style={panel.style}
+      style={phone ? undefined : panel.style}
       className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float"
     >
       <div className="flex flex-col gap-3 border-b border-line p-3">
         <header
-          {...panel.handlers}
+          {...(phone ? {} : panel.handlers)}
           title="Drag to move"
           className="-m-3 flex cursor-grab touch-none select-none items-center justify-between p-3 active:cursor-grabbing"
         >
