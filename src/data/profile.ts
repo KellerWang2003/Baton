@@ -1,0 +1,30 @@
+import type { Stage } from '../flow'
+
+export const profile = {
+  journey: 'Your journey',
+  update: 'Update stage',
+  from: 'From',
+  to: 'Next stop',
+  arrived: 'Now in',
+  departure: 'Leaving',
+  intentions: 'Make room for what’s next.',
+  intentionsDetail: 'Choose what you want to try, find, or make time for in New York.',
+  intentionsAction: 'Set your intentions',
+  editIntentions: 'Edit intentions',
+  about: 'About you',
+  aboutDetail: 'A little context helps Baton find tips from people with a life like yours.',
+  addTags: 'Add a few details',
+  edit: 'Edit',
+  keepsakes: 'Your time in LA',
+  keepsakesDetail: 'Your moments and the people who were part of them.',
+  lifestyle: 'See how your life has changed',
+  stageTitle: 'Your stage',
+  tagsTitle: 'About you',
+  save: 'Save changes',
+  stageDetail: 'Choose where you are in your move. Your Today page and recommendations will follow.',
+  stages: {
+    moving: 'Making the most of Los Angeles before your next chapter.',
+    newcomer: 'Finding your feet and your favorite places in New York.',
+    local: 'Building a life in New York, one everyday moment at a time.',
+  } satisfies Record<Stage, string>,
+}

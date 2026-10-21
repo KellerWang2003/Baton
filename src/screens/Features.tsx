@@ -152,7 +152,7 @@ export function Features() {
 
         {slide.visual !== 'splash' && (
           <div key={`copy-${index}`} className="absolute top-[577.42px] left-1/2 flex w-[340px] -translate-x-1/2 flex-col gap-2">
-            <p className="font-display text-[24px] leading-[28.944px] font-normal tracking-[-0.2653px] text-baton-navy">{slide.title}</p>
+            <p className="font-display text-[24px] leading-[28.944px] font-medium tracking-[-0.2653px] text-baton-navy">{slide.title}</p>
             {slide.body && <p className="font-display text-[18px] leading-[22.512px] font-normal tracking-[-0.1769px] text-ink-muted">{slide.body}</p>}
           </div>
         )}

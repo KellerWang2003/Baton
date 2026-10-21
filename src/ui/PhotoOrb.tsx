@@ -14,6 +14,10 @@ import type { CloudCategory } from './PhotoCloud'
 // any size: Fluid Glass draws its lens a bit wider than the size it's given
 // and fills 72% of its canvas, so a lens of 305/342 of the circle lands on it
 const LENS = 305 / 342
+// Let the stationary lens bleed under the fixed rim. Its curved edge and
+// idle morph otherwise expose a strip of the unfiltered photo, especially
+// on the smaller onboarding orbs. The overlay mask keeps the outside clean.
+const RIM_BLEED = 1.06
 // The whole photo shows through the lens (it magnifies the middle), with a
 // full-bleed copy behind it for the glass to bend at the rim
 const PHOTO = 0.5
@@ -116,7 +120,7 @@ export function PhotoOrb({
             // Paper wherever neither the photo nor the page covers
             background={moves ? paper() : undefined}
             shape="lens"
-            size={size * LENS}
+            size={size * LENS * (moves ? 1 : RIM_BLEED)}
             color={shown ? filterGlassColor(shown) : '#ffffff'}
             rim={rim}
             intro={false}
