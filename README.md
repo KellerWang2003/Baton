@@ -2,7 +2,7 @@
 
 This branch is the submission showcase. It excludes debug controls, keyboard shortcuts, the scroll joystick, and team playgrounds. Desktop shows a fixed iPhone frame with a prototype note underneath; phones up to 500px wide show the app full-screen. Team URL flags and saved frame preferences are ignored.
 
-Deploy `codex/showcase` as the production branch of the dedicated showcase Vercel project. Pushes to this branch update that project. Merge future app improvements from `main` deliberately, retaining the showcase entry and presentation.
+Deploy `showcase` as the production branch of the dedicated showcase Vercel project. Pushes to this branch update that project. Merge future app improvements from `main` deliberately, retaining the showcase entry and presentation.
 
 See [the showcase plan](docs/showcase-plan.md) for remaining submission checks.
 
