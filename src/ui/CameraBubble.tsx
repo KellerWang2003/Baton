@@ -421,7 +421,7 @@ export function CameraBubble() {
               type="button"
               aria-label="Choose from library"
               onClick={() => library.current?.click()}
-              className="flex size-12 items-center justify-center rounded-full bg-card text-baton-blue shadow-sm transition-transform duration-150 active:scale-90"
+              className="flex size-12 items-center justify-center rounded-full text-baton-blue transition-transform duration-150 active:scale-90"
             >
               <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <rect x="3" y="5" width="18" height="14" rx="2.5" />
@@ -454,7 +454,7 @@ export function CameraBubble() {
               aria-label="Flip camera"
               onClick={flip}
               className={cx(
-                'flex size-12 items-center justify-center rounded-full bg-card text-baton-blue shadow-sm transition-transform duration-150 active:scale-90',
+                'flex size-12 items-center justify-center rounded-full text-baton-blue transition-transform duration-150 active:scale-90',
                 !canFlip && 'invisible',
               )}
             >
