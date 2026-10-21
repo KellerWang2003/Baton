@@ -1,6 +1,6 @@
 # Baton showcase
 
-This branch is the submission showcase. It excludes debug controls, keyboard shortcuts, the scroll joystick, and team playgrounds. Desktop shows a fixed iPhone frame with a prototype note underneath; phones up to 500px wide show the app full-screen. Team URL flags and saved frame preferences are ignored.
+This branch is the submission showcase. It excludes debug controls, keyboard shortcuts, the scroll joystick, and team playgrounds. Desktop shows a fixed iPhone frame with a prototype note underneath and story-based stage choices alongside it (above it on narrower windows); phones up to 500px wide show the app full-screen. Team URL flags and saved frame preferences are ignored.
 
 Deploy `showcase` as the production branch of the dedicated showcase Vercel project. Pushes to this branch update that project. Merge future app improvements from `main` deliberately, retaining the showcase entry and presentation.
 

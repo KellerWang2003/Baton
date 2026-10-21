@@ -23,16 +23,15 @@ const { title: archiveTitle } = pages.archive
 // iOS-style context menu with Open and Delete; Delete removes its capture
 // from Supabase.
 export function ArchiveDetail() {
-  const { selectedFolder, cloudView, cloudFilter, addedPhotos, addedMoments, arrivingPhoto } = useStore()
+  const { selectedFolder, cloudView, cloudFilter, addedPhotos, arrivingPhoto } = useStore()
   const status = useStatus()
   const folders = archiveFolders()
   // Opened straight from the debug panel or arrow keys, it shows LA (the story)
   const folder = folders.find((item) => item.id === (selectedFolder ?? 'la')) ?? folders[0]
   // LA also shows the photos added from the reflection page (Real-life)
-  const { clouds, moments: archived } = useArchive()
+  const { clouds } = useArchive()
   const base = clouds[folder.id]
   const cloud = base && folder.id === 'la' ? [...base, ...addedPhotos] : base
-  const moments = { ...archived, ...addedMoments }
   // Back from an opened photo, the cloud is where she left it: same spot,
   // zoom and filter. Read once; opened any other way it starts fresh.
   const [resume] = useState(() => cloudView)
@@ -108,9 +107,8 @@ export function ArchiveDetail() {
     }
   }, [arriving])
 
-  // Photos with a moment behind them open it (Figma ARCHIVE_selected)
+  // Every photo opens, including imported photos without a written reflection.
   function openPhoto(photo: CloudPhoto, rect: DOMRect, view: CloudView) {
-    if (!moments[photo.src]) return
     setState({
       selectedPhoto: photo.src,
       selectedPhotoFrom: { x: rect.left, y: rect.top, size: rect.width },
@@ -132,7 +130,7 @@ export function ArchiveDetail() {
           pop={!opening && !arriving}
           onSelect={openPhoto}
           onLongPress={(photo, rect, view) => {
-            if (pageRef.current) setMenu({ photo, rect, view, layout: placePhotoMenu(rect, pageRef.current, moments[photo.src] ? 2 : 1) })
+            if (pageRef.current) setMenu({ photo, rect, view, layout: placePhotoMenu(rect, pageRef.current, 2) })
           }}
           hidden={menu?.photo}
         />
@@ -143,7 +141,7 @@ export function ArchiveDetail() {
             key={`${menu.photo.src}|${menu.photo.x}|${menu.photo.y}`}
             src={menu.photo.src}
             layout={menu.layout}
-            onOpen={moments[menu.photo.src] ? () => openPhoto(menu.photo, menu.rect, menu.view) : undefined}
+            onOpen={() => openPhoto(menu.photo, menu.rect, menu.view)}
             onDelete={() => void deleteCapture(folder.id, menu.photo)}
             onClose={() => setMenu(null)}
           />

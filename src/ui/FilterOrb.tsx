@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { toLocal } from '../app/localPoint'
 import { cx } from './cx'
 import FluidGlass from './FluidGlass'
 
@@ -32,10 +33,13 @@ const LENS_MASK = `radial-gradient(circle at 50% 50%, black ${LENS_RADIUS + 1}px
 const PICTURE = 512
 // Where each color's blob sits at rest, in degrees (0 = right, -90 = top)
 const BLOB_ANGLE: Record<OrbColor, number> = { blue: -90, pink: 30, yellow: 150 }
-// A drag shorter than this is a tap (and does nothing)
+// A drag shorter than this is a tap (clears an active filter).
 const SLOP = 6
 // How far up a swipe must go to leave filter mode
 const SWIPE_OUT = 36
+// One category per 80 local pixels, independent of the desktop preview scale.
+const TURN_DISTANCE = 80
+const MAX_LIFT = 32
 
 const wash: Record<OrbColor, string> = {
   pink: 'to-baton-pink',
@@ -44,9 +48,9 @@ const wash: Record<OrbColor, string> = {
 }
 
 const labelColor: Record<OrbColor, string> = {
-  pink: 'text-on-baton-pink-muted',
-  yellow: 'text-on-baton-yellow-muted',
-  blue: 'text-white',
+  pink: 'bg-baton-pink text-on-baton-pink-muted',
+  yellow: 'bg-baton-yellow text-on-baton-yellow-muted',
+  blue: 'bg-baton-blue text-white',
 }
 
 const toRadians = (degrees: number) => (degrees * Math.PI) / 180
@@ -195,20 +199,28 @@ function drawPicture(canvas: HTMLCanvasElement, rotation: number, focus: number,
   context.drawImage(field, 0, 0, canvas.width, canvas.height)
 }
 
-type Gesture = {
+type Gesture<Id extends string> = {
   id: number
+  element: HTMLDivElement
+  local: ReturnType<typeof toLocal>
+  pointerType: string
   x: number
   y: number
   angle: number
-  mode: 'pending' | 'turn' | 'swipe'
+  rotation: number
+  restoreRotation: number
+  value: Id | null
+  selected: Id | null
+  dy: number
+  mode: 'pending' | 'turn' | 'swipe' | 'ignore'
 }
 
 // The tricolor orb at the bottom of a city's photo cloud: a lens of liquid
 // glass (Fluid Glass, set up like Today's circle) over three color blobs. Start turning it to enter filter mode: whichever
 // color comes to the top swells to fill the orb and focuses its filter, and
-// letting go settles on the nearest one. Swipe it up to leave filter mode and
+// letting go settles on the nearest one. Tap it or swipe it up to leave filter mode and
 // go back to all three colors evenly. The page gets a wash of the focused
-// color along the bottom, and its name sits on the orb.
+// color along the bottom, and its name sits in a matching pill above the orb.
 export function FilterOrb<Id extends string>({ filters, value, onChange, className }: FilterOrbProps<Id>) {
   const active = filters.find((filter) => filter.id === value) ?? null
   const startRotation = active ? turnTo(active.color, 0) : 0
@@ -223,7 +235,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
   const [frame, setFrame] = useState(0)
   const [lift, setLift] = useState(0)
   const orbRef = useRef<HTMLDivElement>(null)
-  const gesture = useRef<Gesture | null>(null)
+  const gesture = useRef<Gesture<Id> | null>(null)
   // Animated state lives in refs and is drawn into the picture each frame
   const rotation = useRef(startRotation)
   const focus = useRef(startFocus)
@@ -264,6 +276,13 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
 
   useEffect(() => () => cancelAnimationFrame(loop.current), [])
 
+  // All interrupted drags use the same rollback, including a window switch.
+  const cancelGesture = useEffectEvent(() => finishGesture(false))
+  useEffect(() => {
+    window.addEventListener('blur', cancelGesture)
+    return () => window.removeEventListener('blur', cancelGesture)
+  }, [])
+
   // The colors keep slowly swirling on their own, redrawn about 30 times a
   // second (not at all with reduced motion)
   useEffect(() => {
@@ -274,7 +293,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
     const tick = (now: number) => {
       time.current += (now - last) / 1000
       last = now
-      if (now - drawn > 33) {
+      if (!loop.current && now - drawn > 33) {
         drawn = now
         redraw()
       }
@@ -286,73 +305,134 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  function angleOf(event: React.PointerEvent) {
-    const rect = orbRef.current!.getBoundingClientRect()
-    const x = rect.left + rect.width / 2
-    const y = rect.top + rect.height / 2
-    return (Math.atan2(event.clientY - y, event.clientX - x) * 180) / Math.PI
-  }
-
   function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    if (event.button !== 0 || !event.isPrimary || gesture.current) return
+    event.preventDefault()
+    event.stopPropagation()
+    // Freeze the coordinate mapping before the orb rises or shrinks. Measuring
+    // its moving center on every event made a steady mouse drag jump around.
+    const local = toLocal(event.currentTarget)
+    const point = local({ x: event.clientX, y: event.clientY })
+    gesture.current = {
+      id: event.pointerId,
+      element: event.currentTarget,
+      local,
+      pointerType: event.pointerType,
+      x: point.x,
+      y: point.y,
+      angle: Math.atan2(point.y - ORB_SIZE / 2, point.x - ORB_SIZE / 2) * 180 / Math.PI,
+      rotation: rotation.current,
+      restoreRotation: target.current.rotation ?? rotation.current,
+      value,
+      selected: value,
+      dy: 0,
+      mode: 'pending',
+    }
+    // A new drag takes over from any previous settling animation.
+    cancelAnimationFrame(loop.current)
+    loop.current = 0
+    target.current = { rotation: null, focus: focus.current }
     event.currentTarget.setPointerCapture(event.pointerId)
-    gesture.current = { id: event.pointerId, x: event.clientX, y: event.clientY, angle: angleOf(event), mode: 'pending' }
   }
 
-  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+  function updateGesture(event: React.PointerEvent<HTMLDivElement>) {
     const current = gesture.current
     if (!current || current.id !== event.pointerId) return
-    const dx = event.clientX - current.x
-    const dy = event.clientY - current.y
+    const point = current.local({ x: event.clientX, y: event.clientY })
+    const dx = point.x - current.x
+    const dy = point.y - current.y
+    current.dy = dy
 
     if (current.mode === 'pending') {
       if (Math.hypot(dx, dy) < SLOP) return
-      // Moving away from the orb's center (and up) is a swipe out, only in
-      // filter mode; moving around it turns, wherever on the orb you start
-      const out = toRadians(current.angle)
-      const away = dx * Math.cos(out) + dy * Math.sin(out)
-      const around = -dx * Math.sin(out) + dy * Math.cos(out)
-      current.mode = value && dy < 0 && away > Math.abs(around) * 1.2 ? 'swipe' : 'turn'
-      current.angle = angleOf(event)
-      if (current.mode === 'turn') {
+      // Lock the axis once. An upward drag clears a filter from any point on
+      // the orb, including its sides; vertical movement never turns a mouse dial.
+      if (Math.abs(dy) > Math.abs(dx) * 1.2) {
+        if (current.value === null || dy >= 0) {
+          current.mode = 'ignore'
+          return
+        }
+        current.mode = 'swipe'
+      } else {
+        current.mode = 'turn'
         target.current = { rotation: null, focus: 1 }
         animate()
       }
     }
 
+    if (current.mode === 'ignore') return
+
     if (current.mode === 'swipe') {
-      // The orb follows the finger up a little, with resistance
-      setLift(Math.min(0, dy) * 0.4)
+      // Bounded resistance keeps a long mouse drag from lifting the orb away.
+      setLift(-MAX_LIFT * (1 - Math.exp(-Math.max(0, -dy) / 80)))
       return
     }
 
-    const angle = angleOf(event)
-    // Crossing the ±180° seam shouldn't jump a whole turn
-    const delta = ((((angle - current.angle + 180) % 360) + 360) % 360) - 180
-    current.angle = angle
-    rotation.current += delta
+    if (current.pointerType === 'mouse') {
+      rotation.current = current.rotation + dx * (120 / TURN_DISTANCE)
+    } else {
+      const angle = Math.atan2(point.y - ORB_SIZE / 2, point.x - ORB_SIZE / 2) * 180 / Math.PI
+      // Touch can still turn around the orb without jumping at the ±180° seam.
+      const delta = ((((angle - current.angle + 180) % 360) + 360) % 360) - 180
+      current.angle = angle
+      rotation.current += delta
+    }
     if (!loop.current) redraw()
     const top = closestToTop(filters, rotation.current)
-    if (top.id !== value) onChange(top.id)
+    if (top.id !== current.selected) {
+      current.selected = top.id
+      onChange(top.id)
+    }
   }
 
-  function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+  function onPointerMove(event: React.PointerEvent<HTMLDivElement>) {
+    if (!gesture.current || gesture.current.id !== event.pointerId) return
+    event.preventDefault()
+    event.stopPropagation()
+    // Recover a release outside the window without committing an unfinished drag.
+    if (event.pointerType === 'mouse' && (event.buttons & 1) === 0) {
+      finishGesture(false)
+      return
+    }
+    updateGesture(event)
+  }
+
+  function finishGesture(commit: boolean) {
     const current = gesture.current
-    if (!current || current.id !== event.pointerId) return
+    if (!current) return
     gesture.current = null
     setLift(0)
+    if (current.element.hasPointerCapture(current.id)) {
+      current.element.releasePointerCapture(current.id)
+    }
 
-    if (current.mode === 'turn') {
-      // Settle on whichever color ended up closest to the top
+    if (commit && current.mode === 'pending' && current.value !== null) {
+      target.current = { rotation: current.restoreRotation, focus: 0 }
+      onChange(null)
+    } else if (!commit || current.mode === 'pending' || current.mode === 'ignore') {
+      // Interrupted gestures restore both the filter and its visual state.
+      target.current = { rotation: current.restoreRotation, focus: current.value === null ? 0 : 1 }
+      if (current.selected !== current.value) onChange(current.value)
+    } else if (current.mode === 'swipe') {
+      const clear = current.dy <= -SWIPE_OUT
+      target.current = { rotation: current.restoreRotation, focus: clear ? 0 : 1 }
+      if (clear) onChange(null)
+    } else {
       const top = closestToTop(filters, rotation.current)
       target.current = { rotation: turnTo(top.color, rotation.current), focus: 1 }
-      animate()
-      if (top.id !== value) onChange(top.id)
-    } else if (current.mode === 'swipe' && event.clientY - current.y < -SWIPE_OUT) {
-      // Back to the even orb and every photo
-      target.current = { rotation: null, focus: 0 }
-      animate()
-      onChange(null)
+      if (top.id !== current.selected) onChange(top.id)
     }
+    animate()
+  }
+
+  function onPointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+    if (!gesture.current || gesture.current.id !== event.pointerId) return
+    if (event.type === 'pointerup' && event.pointerType === 'mouse' && event.button !== 0) return
+    event.stopPropagation()
+    const commit = event.type === 'pointerup'
+    // Include the release position, even when the browser coalesced the last move.
+    if (commit) updateGesture(event)
+    finishGesture(commit)
   }
 
   return (
@@ -414,7 +494,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
           <span
             key={active.id}
             className={cx(
-              'pointer-events-none absolute inset-x-0 top-[40px] animate-fade-in text-center font-display text-orb-label',
+              'pointer-events-none absolute bottom-full left-1/2 mb-7 -translate-x-1/2 animate-fade-in rounded-full px-5 py-2 text-center font-display text-orb-label whitespace-nowrap',
               labelColor[active.color],
             )}
           >
@@ -423,14 +503,15 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
         )}
         <div
           role="slider"
-          aria-label="Filter photos: turn to pick, swipe up to show all"
+          aria-label="Filter photos: drag left or right to pick, click or drag up to show all"
           aria-valuetext={active?.label ?? 'All'}
           tabIndex={0}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          className="pointer-events-auto absolute inset-0 cursor-grab touch-none rounded-full active:cursor-grabbing"
+          onPointerUp={onPointerEnd}
+          onPointerCancel={onPointerEnd}
+          onLostPointerCapture={onPointerEnd}
+          className="pointer-events-auto absolute inset-0 cursor-grab touch-none rounded-full select-none active:cursor-grabbing"
         />
       </div>
     </div>

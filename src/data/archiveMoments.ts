@@ -4,8 +4,8 @@ import type { CloudCategory } from '../ui'
 // 236:234, ARCHIVE_selected2 334:11995, ARCHIVE_selected3 334:12028): the
 // daily prompt it answered, the photo in a glass circle tinted
 // with its filter's color, where and when, and what she wrote. Keyed by the
-// photo's cloud image; photos without a moment don't open. The moments are
-// rows in Supabase's `captures` table (a row with a note and question). Full-size photos are in public/archive/moments/, cropped square
+// photo's cloud image; imported photos can have empty reflection fields. The moments are
+// rows in Supabase's `captures` table (one for every cloud photo). Full-size photos are in public/archive/moments/, cropped square
 // as Figma shows them; the Echo Park and Silver Lake moments still use their
 // small cloud crops until the originals arrive.
 export type ArchiveMoment = {

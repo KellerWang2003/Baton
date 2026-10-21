@@ -97,18 +97,16 @@ export async function loadSavedCaptures() {
       const src = photoUrl(row.photo_path!)
       const category = row.category!
       ;(clouds[row.city] ??= []).push({ id: row.id, src, category, x: row.x!, y: row.y!, size: row.size! })
-      if (row.note.trim()) {
-        moments[src] = {
-          prompt: row.prompt_number ?? 0,
-          question: row.question ?? '',
-          photo: row.moment_photo ? photoUrl(row.moment_photo) : src,
-          category,
-          place: row.place ?? '',
-          time: row.time_label ?? '',
-          note: row.note,
-          ...(row.tilt !== null ? { tilt: row.tilt } : {}),
-          ...(row.one_line ? { oneLine: true } : {}),
-        }
+      moments[src] = {
+        prompt: row.prompt_number ?? 0,
+        question: row.question ?? '',
+        photo: row.moment_photo ? photoUrl(row.moment_photo) : src,
+        category,
+        place: row.place ?? '',
+        time: row.time_label ?? '',
+        note: row.note ?? '',
+        ...(row.tilt !== null ? { tilt: row.tilt } : {}),
+        ...(row.one_line ? { oneLine: true } : {}),
       }
     }
     setState({ archive: { clouds, moments } })

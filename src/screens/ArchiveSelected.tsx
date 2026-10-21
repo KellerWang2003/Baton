@@ -109,10 +109,10 @@ export function ArchiveSelected() {
           the glass's canvas is wider than a phone screen */}
       <div className="flex flex-col items-center overflow-x-clip pb-16" data-glass-scene>
         <div data-fade className="flex animate-fade-in flex-col items-center" style={{ animationDelay: SETTLE_DELAY }}>
-          <p className="mt-[62px] text-moment-meta text-wrap-faint">Prompt #{moment.prompt}</p>
-          <h1 className={`mt-2 text-center text-moment-question font-medium ${moment.oneLine ? 'whitespace-nowrap' : 'w-[232px]'}`}>
+          <p className="mt-[62px] text-moment-meta text-wrap-faint">{moment.prompt > 0 ? `Prompt #${moment.prompt}` : 'Archived photo'}</p>
+          {moment.question && <h1 className={`mt-2 text-center text-moment-question font-medium ${moment.oneLine ? 'whitespace-nowrap' : 'w-[232px]'}`}>
             {moment.question}
-          </h1>
+          </h1>}
         </div>
 
         {/* The photo under liquid glass, tinted at the rim (PhotoOrb, shared
@@ -129,11 +129,11 @@ export function ArchiveSelected() {
         </div>
 
         <div data-fade className="flex animate-fade-in flex-col items-center" style={{ animationDelay: SETTLE_DELAY }}>
-          <p className="mt-6 flex items-center gap-0.5 text-moment-meta text-wrap-faint">
+          {moment.place && <p className="mt-6 flex items-center gap-0.5 text-moment-meta text-wrap-faint">
             <MapPinIcon className="size-4" />
             {moment.place}
-          </p>
-          <p className="mt-1 text-moment-meta text-wrap-faint">{moment.time}</p>
+          </p>}
+          {moment.time && <p className="mt-1 text-moment-meta text-wrap-faint">{moment.time}</p>}
 
           {/* Slapped down like a post-it: drops in tilted, squashes flat and wobbles to rest */}
           <div
@@ -141,7 +141,7 @@ export function ArchiveSelected() {
             className="mt-10 size-[327px] origin-top animate-note-stick rounded-[10px] bg-note-yellow px-5 pt-[30px] shadow-moment-note"
             style={{ animationDelay: NOTE_DELAY, '--note-tilt': `${moment.tilt ?? -4.41}deg` } as CSSProperties}
           >
-            <p className="text-moment-note">{moment.note}</p>
+            <p className="text-moment-note">{moment.note.trim() ? moment.note : 'No note yet.'}</p>
           </div>
         </div>
       </div>
