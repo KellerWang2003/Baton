@@ -42,8 +42,6 @@ export function InstagramTag() {
     <OnboardingLayout
       title={instagram.title}
       body={instagram.body}
-      onBack={() => navigate('today')}
-      backLabel="Today"
       background="bg-baton-paper"
       footer={
         <Button block variant="ghost" onClick={() => {

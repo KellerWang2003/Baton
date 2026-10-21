@@ -1,16 +1,14 @@
 import type { ReactNode } from 'react'
 import { cx } from './cx'
-import { ChevronLeftIcon } from './icons'
+import { BackButton } from './BackButton'
 
 type ScreenProps = {
   title?: string
   // Line under the large title, e.g. the rest of the greeting on Today
   subtitle?: string
   eyebrow?: string
-  onBack?: () => void
-  backLabel?: string
-  // false for modal-style pages, where the left button reads Cancel
-  backChevron?: boolean
+  // Shows the shared BackButton; true goes up to the screen's parent
+  onBack?: true | (() => void)
   action?: ReactNode
   footer?: ReactNode
   children: ReactNode
@@ -24,22 +22,13 @@ type ScreenProps = {
 // Layout for one app screen in the iOS style: a navigation bar (back button and
 // trailing action), a large title, a scrolling body and an optional pinned footer.
 // Fills its container, so it works inside the phone frame and full-screen.
-export function Screen({ title, subtitle, eyebrow, onBack, backLabel = 'Back', backChevron = true, action, footer, children, className, background = 'bg-canvas', bleed = false }: ScreenProps) {
+export function Screen({ title, subtitle, eyebrow, onBack, action, footer, children, className, background = 'bg-canvas', bleed = false }: ScreenProps) {
   return (
     <div className={cx('flex h-full flex-col transition-colors duration-500', background)}>
       {onBack && (
-        <nav className="flex h-11 shrink-0 items-center justify-between px-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className={cx(
-              'inline-flex items-center gap-0.5 rounded-full py-1 pr-2 text-body text-brand active:opacity-50',
-              !backChevron && 'pl-2',
-            )}
-          >
-            {backChevron && <ChevronLeftIcon />}
-            {backLabel}
-          </button>
+        // Lines the arrow up with the pages that float it (top-1 left-4)
+        <nav className="flex h-12 shrink-0 items-center justify-between px-4 pt-1">
+          <BackButton onClick={onBack === true ? undefined : onBack} />
           {action}
         </nav>
       )}

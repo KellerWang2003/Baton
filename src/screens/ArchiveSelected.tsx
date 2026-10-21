@@ -4,7 +4,7 @@ import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { blankMoment } from '../data/archiveMoments'
 import { setState, useArchive, useStore } from '../app/store'
-import { ArrowLeftIcon, MapPinIcon, PhotoOrb } from '../ui'
+import { BackButton, MapPinIcon, PhotoOrb } from '../ui'
 
 // The glass circle (Figma ARCHIVE_selected, 236:234): a 342pt circle with a
 // hairline, built by PhotoOrb
@@ -72,14 +72,14 @@ export function ArchiveSelected() {
   function close() {
     const grow = growRef.current
     const end = atPhoto()
-    if (!grow || !end) return goBack('archive-detail')
+    if (!grow || !end) return goBack()
     if (leaving.current) return
     leaving.current = true
     for (const part of pageRef.current?.querySelectorAll('[data-fade]') ?? []) {
       part.animate([{ opacity: 1 }, { opacity: 0 }], FADE_OUT)
     }
     const shrink = grow.animate([{ transform: 'none' }, { transform: end }], SHRINK)
-    shrink.finished.then(() => goBack('archive-detail'), () => {})
+    shrink.finished.then(() => goBack(), () => {})
   }
 
   return (
@@ -93,17 +93,10 @@ export function ArchiveSelected() {
         paddingTop: 'var(--status-bar, 0px)',
       }}
     >
-      <button
-        type="button"
-        data-fade
-        onClick={close}
-        aria-label="Back to the photos"
-        // A 44pt target centered on Figma's arrow (30pt in, 68pt down the frame, under the status bar)
-        style={{ top: 'calc(var(--status-bar, 0px) + 5px)' }}
-        className="absolute left-4 z-10 flex size-11 items-center justify-center rounded-full text-wrap-faint active:opacity-50"
-      >
-        <ArrowLeftIcon />
-      </button>
+      {/* Figma's arrow, 30pt in, just under the status bar (this page reaches up under it) */}
+      <div data-fade className="absolute left-4 z-10" style={{ top: 'calc(var(--status-bar, 0px) + 4px)' }}>
+        <BackButton onClick={close} label="Back to the photos" />
+      </div>
 
       {/* Clipped at the sides (clip, so it doesn't count toward scrolling):
           the glass's canvas is wider than a phone screen */}

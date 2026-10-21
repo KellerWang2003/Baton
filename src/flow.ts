@@ -36,6 +36,9 @@ export type FlowScreen = {
   component: ComponentType
   // Tab this screen shows under, when it isn't a tab itself (a Today variant)
   tab?: string
+  // Where Back goes: the screen above this one in the IA, never just the one
+  // opened before it (Keller, Oct 21). Tabs, onboarding and story moments have none.
+  parent?: string
 }
 
 // The hero flow, in order. Add screens here as they are built; the debug panel,
@@ -51,20 +54,20 @@ export const flow: FlowScreen[] = [
   { id: 'welcome', title: 'Onboarding: welcome splash', stage: 'moving', component: Splash },
   // 2. Today, Moving, with the setup list (each item opens a setup page)
   { id: 'today', title: 'Today', stage: 'moving', component: Today },
-  { id: 'setup-archive', title: 'Setup: organize archive', stage: 'moving', component: Places },
-  { id: 'setup-todos', title: 'Setup: logistics to-dos', stage: 'moving', component: Todos },
-  { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate },
-  { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag },
+  { id: 'setup-archive', title: 'Setup: organize archive', stage: 'moving', component: Places, parent: 'today' },
+  { id: 'setup-todos', title: 'Setup: logistics to-dos', stage: 'moving', component: Todos, parent: 'today' },
+  { id: 'setup-leave', title: 'Setup: leave date', stage: 'moving', component: LeaveDate, parent: 'today' },
+  { id: 'setup-instagram', title: 'Setup: Instagram tag', stage: 'moving', component: InstagramTag, parent: 'today' },
   { id: 'archive', title: 'Archive', stage: 'moving', component: Archive },
-  { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail },
-  { id: 'archive-selected', title: 'Archive: a photo opened', stage: 'moving', component: ArchiveSelected },
+  { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail, parent: 'archive' },
+  { id: 'archive-selected', title: 'Archive: a photo opened', stage: 'moving', component: ArchiveSelected, parent: 'archive-detail' },
   { id: 'community', title: 'Relay', stage: 'moving', component: Community },
-  { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture },
+  { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture, parent: 'today' },
   // Debug > Real-life: writing a line about the photo just taken
-  { id: 'reflection', title: 'Real-life: reflection', stage: 'moving', component: Reflection },
-  { id: 'profile', title: 'Profile', stage: 'moving', component: Profile },
+  { id: 'reflection', title: 'Real-life: reflection', stage: 'moving', component: Reflection, parent: 'today' },
+  { id: 'profile', title: 'Profile', stage: 'moving', component: Profile, parent: 'today' },
   // 6. Before her last night in LA: her intentions for New York (from Profile)
-  { id: 'intentions', title: 'Profile: intentions for New York', stage: 'moving', component: Intentions },
+  { id: 'intentions', title: 'Profile: intentions for New York', stage: 'moving', component: Intentions, parent: 'profile' },
   { id: 'intentions-set', title: 'Your next chapter in New York', stage: 'moving', component: IntentionsSet },
   // 5. Friend follows Chloe's Instagram link to the public note form.
   { id: 'friend-note', title: 'Friend: leave Chloe a note', stage: 'moving', component: FriendNote },
@@ -79,7 +82,7 @@ export const flow: FlowScreen[] = [
   // ...and its Continue: her LA folder hands off to a new New York one, with her goals
   { id: 'newcomer-now', title: "You're a Newcomer now", stage: 'newcomer', component: NewcomerNow },
   // 9. Recommendation detail: a Relay pick or tip, with notes on it
-  { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail },
+  { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail, parent: 'community' },
   // 10. Local: the congrats splash as she becomes a Local
   { id: 'local-splash', title: "Stage change: you're a Local", stage: 'local', component: LocalSplash },
   // ...whose button opens the insight page: LA vs New York, her intention, the café bookend

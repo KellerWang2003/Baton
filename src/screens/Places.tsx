@@ -17,8 +17,6 @@ export function Places() {
     <OnboardingLayout
       title={organize.title}
       body={organize.body}
-      onBack={() => navigate('today')}
-      backLabel="Today"
       footer={
         <Button block variant="glow" size="cta" disabled={keptPlaces.length === 0} onClick={done}>
           {organize.done(keptPlaces.length)}

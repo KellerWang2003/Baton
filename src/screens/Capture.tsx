@@ -39,7 +39,7 @@ export function Capture() {
   )
 
   return (
-    <Screen title={copy.title} onBack={() => goBack()} backLabel="Cancel" backChevron={false} action={save}>
+    <Screen title={copy.title} onBack action={save}>
       <div className="flex flex-col gap-6 pt-2">
         <div className="flex flex-col gap-1 px-1" data-stage="moving">
           <p className="text-footnote font-medium text-stage">{dailyPrompt.seed}</p>

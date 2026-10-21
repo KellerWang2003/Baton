@@ -6,12 +6,9 @@ import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
 import { deleteCapture } from '../app/supabase'
 import { cloudFilters, newYorkCloud } from '../data/archiveCloud'
-import { pages } from '../data/pages'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
 import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, Screen, VisibilityBadge } from '../ui'
 import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../ui'
-
-const { title: archiveTitle } = pages.archive
 
 // Pushed detail page for a single city folder in Archive, opened by tapping
 // the open folder. A city with a photo cloud (LA, Figma ARCHIVE_detail
@@ -135,7 +132,7 @@ export function ArchiveDetail() {
           }}
           hidden={menu?.photo}
         />
-        <FolderSideTab folder={folder} onClick={() => goBack('archive')} className="absolute top-6 -left-[7px]" />
+        <FolderSideTab folder={folder} onClick={() => goBack()} className="absolute top-6 -left-[7px]" />
         <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />
         {menu && (
           <PhotoMenu
@@ -157,8 +154,7 @@ export function ArchiveDetail() {
     <Screen
       title={folder.city}
       eyebrow={folder.dates}
-      backLabel={archiveTitle}
-      onBack={() => goBack('archive')}
+      onBack
     >
       <div className="flex flex-col gap-6 pt-2">
         <p className="px-1 text-subhead text-ink-muted">{content.summary}</p>

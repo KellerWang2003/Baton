@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
-import { pages } from '../data/pages'
 import { chloe } from '../data/people'
 import { findLeaver, relayCategory, relayCopy, relayItems, relayAvatar, relayPlaceholderPhoto } from '../data/relay'
 import { ArrowRightIcon, Avatar, BatonMark, Button, Chip, cx, MapPinIcon, Scrap, Screen } from '../ui'
@@ -39,8 +37,7 @@ export function RelayDetail() {
     <div className="relative h-full">
       <Screen
         background="bg-baton-paper"
-        backLabel={pages.community.title}
-        onBack={() => goBack('community')}
+        onBack
         footer={
           <Button block variant="glow" size="cta" onClick={() => setWriting(true)}>
             {relayCopy.leaveNote}

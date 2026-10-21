@@ -1,13 +1,13 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { judgeReflection } from '../app/judgeReflection'
 import { toLocal } from '../app/localPoint'
-import { navigate } from '../app/navigate'
+import { goBack, navigate } from '../app/navigate'
 import { saveCapture } from '../app/supabase'
 import { setState, useArchive, useDailyPrompt, useStore } from '../app/store'
 import { freeSpot } from '../data/archiveCloud'
 import { reflectionCopy } from '../data/pages'
 import { reflectionCategoryLabel } from '../data/reflection'
-import { ArrowLeftIcon, Button, PhotoOrb } from '../ui'
+import { BackButton, Button, PhotoOrb } from '../ui'
 import { DISSOLVE_MS } from '../ui/PhotoOrb'
 import type { CloudCategory } from '../ui'
 import { filterColor } from '../ui/filterColor'
@@ -106,7 +106,7 @@ export function Reflection() {
 
   const leave = () => {
     setState({ capturePhoto: null })
-    navigate('today')
+    goBack()
   }
 
   const addToArchive = async () => {
@@ -158,7 +158,9 @@ export function Reflection() {
       cloudView: null,
       cloudFilter: null,
     }))
-    navigate('archive-detail')
+    // Saved, so the page is done: LA's cloud takes its place, with the Archive
+    // under it, so Back from the cloud goes to the folders
+    navigate('archive-detail', { replace: true })
   }
 
   const color = category ? filterColor(category) : null
@@ -220,14 +222,7 @@ export function Reflection() {
       )}
 
       {/* Back to Today, as on the Archive's opened photos */}
-      <button
-        type="button"
-        onClick={leave}
-        aria-label="Back to Today"
-        className="absolute top-1 left-4 z-10 flex size-11 items-center justify-center rounded-full text-wrap-faint active:opacity-50"
-      >
-        <ArrowLeftIcon />
-      </button>
+      <BackButton onClick={leave} label="Back to Today" className="absolute top-1 left-4 z-10" />
 
       {/* Pinned to the bottom and always there, even with nothing written,
           since a capture can be saved without a note (Keller, Oct 21) */}

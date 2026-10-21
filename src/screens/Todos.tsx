@@ -20,8 +20,7 @@ export function Todos() {
 
   return (
     <Screen
-      onBack={() => navigate('today')}
-      backLabel="Today"
+      onBack
       background="bg-baton-paper"
       footer={
         <Button block variant="glow" size="cta" disabled={todos.length === 0} onClick={save}>

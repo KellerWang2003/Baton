@@ -18,8 +18,6 @@ export function LeaveDate() {
     <OnboardingLayout
       title={leave.title}
       body={leave.body}
-      onBack={() => navigate('today')}
-      backLabel="Today"
       footer={
         <Button block variant="glow" size="cta" disabled={!leaveDate || (leaveMode === 'flight' && !flight.trim())} onClick={done}>
           {leave.save}

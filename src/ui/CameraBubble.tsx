@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useDailyPrompt, useStore } from '../app/store'
 import { cx } from './cx'
-import { ArrowLeftIcon } from './icons'
+import { BackButton } from './BackButton'
 
 // What the camera shows when there's no camera to use (a laptop without one, or
 // permission refused), so the flow still works when recording the demo.
@@ -401,15 +401,12 @@ export function CameraBubble() {
 
           {/* Real-life only: a way back to Today without tapping the picture */}
           {realLife && (
-            <button
-              type="button"
-              aria-label="Back to Today"
-              onClick={() => setState({ camera: null })}
-              className="absolute top-1 left-4 z-10 flex size-11 items-center justify-center rounded-full text-wrap-faint transition-opacity duration-300 active:opacity-50"
+            <div
+              className="absolute top-1 left-4 z-10 transition-opacity duration-300"
               style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? 'auto' : 'none' }}
             >
-              <ArrowLeftIcon />
-            </button>
+              <BackButton onClick={() => setState({ camera: null })} label="Back to Today" />
+            </div>
           )}
 
           {/* Her photo library on the left, the shutter, and flipping the camera

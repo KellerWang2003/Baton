@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
-import { goBack, navigate } from '../app/navigate'
+import { navigate } from '../app/navigate'
 import { setState, toggleIn, useStatus, useStore } from '../app/store'
 import type { Stage } from '../flow'
 import { chloeGoals, intentions } from '../data/intentions'
@@ -70,7 +70,7 @@ export function Profile() {
   return (
     <div className="relative h-full">
       <div className="h-full" inert={editing}>
-        <Screen title={pages.profile.title} onBack={() => goBack()}>
+        <Screen title={pages.profile.title} onBack>
           <div className="mx-auto flex w-full max-w-xl flex-col gap-10 pb-10 pt-5" style={paperOutline}>
             <header className={cx('rounded-card p-5 shadow-card', stageHeader[status])}>
               <div className="flex items-center gap-4">
