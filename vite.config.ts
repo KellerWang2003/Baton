@@ -27,9 +27,10 @@ function apiRoutes(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // The API key for the dev server's functions, from .env.local (never sent to the page)
+  // The API keys for the dev server's functions, from .env.local (never sent to the page)
   const env = loadEnv(mode, process.cwd(), '')
   process.env.ANTHROPIC_API_KEY ??= env.ANTHROPIC_API_KEY
+  process.env.TYPESAFE_API_KEY ??= env.TYPESAFE_API_KEY
   return {
     plugins: [
       apiRoutes(),

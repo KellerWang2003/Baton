@@ -66,6 +66,7 @@ Add each screen to `src/flow.ts` in this order with the right `stage`, so the de
 - Hero flow: https://claude.ai/artifact/KEV2PLbe4kEYXtLV8jKji7
 - Figma design file "LA28 Palms" (file key `Ee8SrVUeOgEZ7dScYXN6y9`): feature map frame 194:18, feature timeline 203:77
 - FigJam board "LA28" (file key `gNyglKW1dULTnCi8DwGWh0`): pitch, persona, features, brainstorm
+- TypeSafe AI (`@typesafe-ai/sdk`, Oct 21): for typed judgments (Choice, Noul, Score) in `api/` functions; follow the `typesafe-ai` skill and read docs.typesafe.ai before writing calls. Needs `TYPESAFE_API_KEY` in `.env.local` and Vercel, server-side only (never a `VITE_` key); the Vite config passes it to dev functions.
 - Deployed on Vercel (project "baton"): `main` is production, every PR gets a preview link
 
 ## Brand
