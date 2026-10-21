@@ -4,8 +4,9 @@ import type { CloudCategory, CloudPhoto } from '../ui/PhotoCloud'
 import { setState } from './store'
 
 // Captures persist in Supabase (table `captures`, bucket `capture-photos`; see
-// docs/supabase.sql). No sign-in in the prototype: each browser gets a random
-// device id and only asks for its own rows. Without VITE_SUPABASE_URL and
+// docs/supabase.sql). No sign-in in the prototype: there is one shared archive,
+// so every device that opens the app sees every capture (rows still note the
+// device that made them). Without VITE_SUPABASE_URL and
 // VITE_SUPABASE_ANON_KEY in .env.local, everything stays in memory as before.
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
@@ -83,11 +84,11 @@ export async function saveCapture(capture: CaptureToSave) {
   }
 }
 
-// Bring this browser's saved captures back into LA's cloud (once, on start)
+// Bring the saved captures back into LA's cloud (once, on start)
 export async function loadSavedCaptures() {
   if (!client) return
   try {
-    const { data, error } = await client.from('captures').select('*').eq('device_id', deviceId()).order('created_at')
+    const { data, error } = await client.from('captures').select('*').order('created_at')
     if (error) throw error
     const addedPhotos: CloudPhoto[] = []
     const addedMoments: Record<string, ArchiveMoment> = {}
@@ -114,13 +115,12 @@ export async function loadSavedCaptures() {
   }
 }
 
-// Debug panel: forget this browser's saved captures
+// Debug panel: forget all saved captures
 export async function clearSavedCaptures() {
   if (!client) return
-  const device = deviceId()
-  const { data } = await client.from('captures').select('photo_path').eq('device_id', device)
+  const { data } = await client.from('captures').select('photo_path')
   const paths = (data ?? []).map((row) => row.photo_path as string | null).filter((p): p is string => !!p)
   if (paths.length) await client.storage.from(BUCKET).remove(paths)
-  await client.from('captures').delete().eq('device_id', device)
+  await client.from('captures').delete().not('id', 'is', null)
   setState({ addedPhotos: [], addedMoments: {} })
 }
