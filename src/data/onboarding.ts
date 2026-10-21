@@ -1,66 +1,49 @@
 // Copy and mock data for onboarding (flow 1) and the setup to-dos on Today.
 // Chloe is in her last term in Pasadena and leaves LA for New York on Dec 19.
 
-export type FeatureStage = 'moving' | 'newcomer' | 'local'
-
 export type FeatureSlide = {
-  // Stage slides sit on their stage color and show the journey marker; the
-  // others (the opener and the tagline) stay on paper.
-  stage?: FeatureStage
-  eyebrow: string
+  // What the top of the slide shows (Features.tsx draws each one)
+  visual: 'splash' | 'folders' | 'moments' | 'recs' | 'growth'
   title: string
   body?: string
   // A second layer on the same page: short titled points under the title
   points?: { title: string; body: string }[]
-  // Photos shown as tilted scraps in the top half
-  photos?: string[]
 }
 
 export const features = {
-  journey: [
-    { id: 'moving', label: 'Moving' },
-    { id: 'newcomer', label: 'Newcomer' },
-    { id: 'local', label: 'Local' },
-  ] as { id: FeatureStage; label: string }[],
+  tagline: 'Leave a story. Start another.',
+  // Prompt that flashes on the capture slide before the photos fill in
+  prompt: 'Take a photo of the view from the café seat you always sit in',
   slides: [
+    { visual: 'splash', title: 'Baton' },
     {
-      eyebrow: 'Baton',
-      title: 'Every city has a story.',
-      body: 'Baton is where you keep yours.',
+      visual: 'folders',
+      title: 'Every city you stayed has a story',
+      body: 'Moving for school or a job? Baton keeps what you lived there: the places, the people and how it felt.',
     },
     {
-      stage: 'moving',
-      eyebrow: 'Moving',
-      title: 'Capture the last weeks',
-      body: 'A photo or a line a day, kept private. When you leave, you choose what to pass on.',
-      photos: ['/archive/la-sunset.jpg', '/archive/la-tacos-1.jpg'],
+      visual: 'moments',
+      title: 'Catch the moments you’d miss',
+      body: 'A light daily prompt points you at the small, everyday things you stop noticing. It takes seconds.',
     },
     {
-      stage: 'newcomer',
-      eyebrow: 'Newcomer',
+      visual: 'recs',
       title: 'Land with a head start',
       points: [
         {
           title: 'Recommendations that fit you',
-          body: 'Tips from people with your lifestyle who lived there before you, picked from what you captured.',
+          body: 'Picked from your routines in your old city, by people who lived like you.',
         },
         {
           title: 'Help with the logistics',
           body: 'A to-do list for the first weeks, with tips from people who did it before.',
         },
       ],
-      photos: ['/relay/gym.jpg', '/relay/cafe.jpg'],
     },
     {
-      stage: 'local',
-      eyebrow: 'Local',
+      visual: 'growth',
       title: 'See how far you’ve come',
-      body: 'Your new life next to your old one, and how you’re doing on what you hoped for.',
-      photos: ['/relay/ana-cafe.jpg', '/relay/cafe.jpg'],
-    },
-    {
-      eyebrow: 'Baton',
-      title: 'Leave a story. Start another.',
+      body: 'The more you capture, the more you’ll see: how your life changed from city to city, and how you’re growing.',
     },
   ] as FeatureSlide[],
   next: 'Next',
