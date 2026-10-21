@@ -28,9 +28,9 @@ export function StageTag({ stage, label, size = 'sm', tone = 'stage', className 
     <span
       className={cx(
         'inline-flex items-center whitespace-nowrap rounded-full',
-        // sm: the pill under Today's avatar, at the app's Chip size (32pt, 15pt medium; Keller Oct 21:
-        // the 20pt pill from Figma TODAY 334:11626 read too small), edged in the paper color
-        size === 'sm' && 'h-8 px-3.5 text-subhead font-medium shadow-pill ring-2 ring-baton-paper',
+        // sm: the pill under Today's avatar (Figma 617:2838, Keller Oct 21): 54×17pt, 12pt medium,
+        // the words centered on the glyphs rather than the line box
+        size === 'sm' && 'h-[17px] px-2 pb-0.5 text-[12px] font-medium leading-none shadow-pill',
         size === 'md' && 'px-2.5 py-0.5 text-caption font-medium ring-2 ring-white',
         size === 'lg' && 'h-10 px-4 text-[18px] font-medium tracking-[-0.011em]',
         tone === 'light' ? light : tones[stage],
