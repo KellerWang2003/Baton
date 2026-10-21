@@ -116,7 +116,8 @@ type State = {
 let state: State = {
   status: null,
   onboardingPhotoAccess: false,
-  orbMoves: false,
+  // Keller, Oct 21: the moving glass orb on Today is the default again
+  orbMoves: true,
   intentionsVideoRun: 0,
   tags: [],
   keptPlaces: foundPlaces.map((place) => place.id),
