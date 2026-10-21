@@ -9,4 +9,4 @@ alter table public.captures add column if not exists seed_key text unique;
 -- photo_path is the circle in the cloud and moment_photo the opened photo (empty: the same one).
 -- Either is a path in the capture-photos bucket, or a link, or a file in the app's public folder
 -- such as /archive/la-cloud/21.jpg. A row with a note (and question) opens as a moment when tapped.
--- Rows with seed_key come from npm run seed; "Clear my saved captures" leaves them alone.
+-- Rows with a seed_key are the original archive; "Clear my saved captures" leaves them alone.

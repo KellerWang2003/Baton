@@ -80,26 +80,20 @@ function photoUrl(path: string) {
   return client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl
 }
 
-// Bring the saved archive back (once, on start). When the archive has been
-// seeded (npm run seed), every city's cloud and moments come from here and
-// the data files in src/data are only the fallback; otherwise only the
-// captures are loaded, into LA's cloud, as before.
+// Bring the saved archive back (once, on start): every city's cloud and the
+// moments its photos open, from the captures table
 export async function loadSavedCaptures() {
   if (!client) return
   try {
-    let { data, error } = await client.from('captures').select('*').order('sort', { nullsFirst: false }).order('created_at')
-    // Before the archive columns are added (docs/supabase.sql), there is no sort column
-    if (error) ({ data, error } = await client.from('captures').select('*').order('created_at'))
+    const { data, error } = await client.from('captures').select('*').order('sort', { nullsFirst: false }).order('created_at')
     if (error) throw error
     const rows = ((data ?? []) as Row[]).filter((row) => row.photo_path && row.category && row.x !== null && row.y !== null && row.size !== null)
-    const seeded = rows.some((row) => row.seed_key)
     const clouds: Record<string, CloudPhoto[]> = {}
     const moments: Record<string, ArchiveMoment> = {}
     for (const row of rows) {
       const src = photoUrl(row.photo_path!)
       const category = row.category!
-      const city = seeded ? row.city : 'la'
-      ;(clouds[city] ??= []).push({ src, category, x: row.x!, y: row.y!, size: row.size! })
+      ;(clouds[row.city] ??= []).push({ src, category, x: row.x!, y: row.y!, size: row.size! })
       if (row.note.trim()) {
         moments[src] = {
           prompt: row.prompt_number ?? 0,
@@ -114,14 +108,7 @@ export async function loadSavedCaptures() {
         }
       }
     }
-    if (seeded) {
-      setState({ archive: { clouds, moments } })
-    } else {
-      setState((s) => ({
-        addedPhotos: [...(clouds.la ?? []), ...s.addedPhotos.filter((p) => !(p.src in moments))],
-        addedMoments: { ...moments, ...s.addedMoments },
-      }))
-    }
+    setState({ archive: { clouds, moments } })
   } catch (error) {
     console.warn('[baton] Could not load saved captures', error)
   }

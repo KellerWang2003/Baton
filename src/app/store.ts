@@ -10,8 +10,6 @@ import type { ConfettiVariant } from '../ui/confettiVariants'
 import type { RelayEntrance } from '../ui/relayEntrance'
 import type { RelayLook } from '../ui/relayLooks'
 import type { CloudCategory, CloudPhoto, CloudView } from '../ui/PhotoCloud'
-import { archiveClouds } from '../data/archiveCloud'
-import { archiveMoments } from '../data/archiveMoments'
 import type { ArchiveMoment } from '../data/archiveMoments'
 
 // Tiny in-memory store for choices that carry across screens (onboarding picks
@@ -50,7 +48,7 @@ type State = {
   addedPhotos: CloudPhoto[]
   addedMoments: Record<string, ArchiveMoment>
   // The archive as saved in Supabase (every city's cloud and its moments); null
-  // until loaded or when it isn't set up, then src/data/archiveCloud and archiveMoments are used
+  // until loaded or when Supabase isn't set up (then the archive is empty)
   archive: { clouds: Record<string, CloudPhoto[]>; moments: Record<string, ArchiveMoment> } | null
   // Real-life animations, in window pixels: where the camera's picture was when
   // the photo was taken (it morphs into the reflection page's orb), and where
@@ -231,9 +229,8 @@ export function useDailyPrompt() {
   return realLife ? realLifePrompt : prompts[promptIndex % prompts.length]
 }
 
-// The archive's photo clouds by city and the moments they open: from Supabase
-// when it has them, otherwise the data files
+// The archive's photo clouds by city and the moments they open, from Supabase
 export function useArchive() {
   const { archive } = useStore()
-  return { clouds: archive?.clouds ?? archiveClouds, moments: archive?.moments ?? archiveMoments }
+  return { clouds: archive?.clouds ?? {}, moments: archive?.moments ?? {} }
 }

@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
+import { blankMoment } from '../data/archiveMoments'
 import { setState, useArchive, useStore } from '../app/store'
 import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon, movingGlass } from '../ui'
 import { useScrollNudge } from '../ui/useScrollNudge'
@@ -75,7 +76,7 @@ export function ArchiveSelected() {
   const { selectedPhoto, selectedPhotoFrom, addedMoments, orbMoves } = useStore()
   // Opened straight from the debug panel or arrow keys, it shows the hike
   const { moments } = useArchive()
-  const moment = { ...moments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(moments)[0]
+  const moment = { ...moments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(moments)[0] ?? blankMoment
   const picture = usePicture(moment.photo)
   // The filter color, softened a little toward white so it reads pastel
   // The filter color, softened to a pastel (shared with Real-life's orb)
