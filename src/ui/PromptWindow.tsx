@@ -6,6 +6,7 @@ import { GlassRim } from './GlassRim'
 import { PencilIcon, PromptCameraIcon, promptCameraHeight, promptCameraPath, promptCameraWidth } from './icons'
 import { defaultGlassTuning, movingGlass } from './promptGlass'
 import type { GlassTuning, PromptGlass } from './promptGlass'
+import { useGlassBackdrop } from './useGlassBackdrop'
 import { useScrollNudge } from './useScrollNudge'
 
 type PromptWindowProps = {
@@ -60,6 +61,10 @@ export function PromptWindow({
   const mask = `radial-gradient(circle at 50% 50%, black ${rimSize / 2 - 4}px, transparent ${rimSize / 2 - 3}px)`
   const box = Math.ceil(drawn / 0.72)
   const canvasHeight = box + dragRoom * 2
+  // The page around the orb, so the glass bends the greeting and cards above
+  // and below it. Its photos are left out, so none get pulled into the bubble
+  const overlay = useRef<HTMLDivElement>(null)
+  const backdrop = useGlassBackdrop(overlay, box, canvasHeight, glass !== 'css', true)
   // Where a press started, so a drag of the glass doesn't count as a tap
   const down = useRef<{ x: number; y: number } | null>(null)
   const release = () => {
@@ -127,6 +132,7 @@ export function PromptWindow({
           {/* Clipped just inside the circle, so the glass bulges and breathes
               under a rim that holds still, like the Archive's opened photos */}
           <div
+            ref={overlay}
             className="absolute left-1/2 h-full -translate-x-1/2"
             // Moving, it has no rim and isn't clipped, so it can travel
             style={moves ? { width: box } : { width: box, maskImage: mask, WebkitMaskImage: mask }}
@@ -135,11 +141,11 @@ export function PromptWindow({
               // Set up again when switching, so the new motion takes hold
               key={moves ? 'moves' : 'still'}
               text=""
-              // Only prompt artwork belongs in this lens. A page snapshot can
-              // pull photos or camera content into the home bubble.
+              // The prompt artwork and page backdrop share the same coordinates
               src={crisp ? undefined : art?.key === artKey ? art.url : undefined}
+              backdrop={backdrop}
               color={tint}
-              // A fixed paper background keeps the prompt free of page images.
+              // Paper fills the parts of the backdrop outside the page content
               background={token('--color-baton-paper')}
               transparentOutside
               // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)

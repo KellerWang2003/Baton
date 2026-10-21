@@ -10,6 +10,9 @@ export function useGlassBackdrop(
   width: number,
   height: number,
   enabled: boolean,
+  // Leave photos, videos and canvases out of the raster, so only the page's
+  // text and shapes bend in the glass (Today's prompt orb)
+  skipMedia = false,
 ) {
   const [backdrop, setBackdrop] = useState<HTMLCanvasElement>()
 
@@ -38,6 +41,7 @@ export function useGlassBackdrop(
           backgroundColor: null,
           logging: false,
           useCORS: true,
+          ignoreElements: skipMedia ? (node) => ['IMG', 'VIDEO', 'CANVAS'].includes(node.tagName) : undefined,
           onclone: (_document, clone) => {
             // The desktop phone frame is scaled to fit the window. Capture in
             // its original layout coordinates, matching the lens's artwork.
@@ -95,7 +99,7 @@ export function useGlassBackdrop(
       scene.removeEventListener('load', schedule, true)
       scene.removeEventListener('scroll', schedule, true)
     }
-  }, [overlay, width, height, enabled])
+  }, [overlay, width, height, enabled, skipMedia])
 
   return enabled ? backdrop : undefined
 }

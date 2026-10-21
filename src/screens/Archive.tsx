@@ -27,12 +27,12 @@ export function Archive() {
 
   return (
     <MainLayout bleed>
-      {/* Remounts on a stage change so LA is in focus again */}
+      {/* Remounts on a stage change so her current city is in focus again */}
       <FolderStack
         key={status}
         className="bg-baton-paper"
-        folders={archiveFolders()}
-        initialId="la"
+        folders={archiveFolders(status)}
+        initialId={status === 'moving' ? 'la' : 'ny'}
         onSelect={async (id) => {
           if (opening.current) return
           opening.current = true

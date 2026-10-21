@@ -42,6 +42,16 @@ export const pages = {
         tone: 'olive' as const,
       },
     ],
+    // Once she has moved (Newcomer and Local), New York goes on top of the
+    // stack, yellow like on "You're a Newcomer now"
+    newYork: {
+      id: 'ny',
+      city: 'New York',
+      dates: '01.2027-',
+      tabAlign: 'left' as const,
+      dateAlign: 'right' as const,
+      tone: 'yellow' as const,
+    },
   },
   community: {
     title: 'Relay',

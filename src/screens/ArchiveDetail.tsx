@@ -25,7 +25,7 @@ const { title: archiveTitle } = pages.archive
 export function ArchiveDetail() {
   const { selectedFolder, cloudView, cloudFilter, addedPhotos, arrivingPhoto } = useStore()
   const status = useStatus()
-  const folders = archiveFolders()
+  const folders = archiveFolders(status)
   // Opened straight from the debug panel or arrow keys, it shows LA (the story)
   const folder = folders.find((item) => item.id === (selectedFolder ?? 'la')) ?? folders[0]
   // LA also shows the photos added from the reflection page (Real-life)

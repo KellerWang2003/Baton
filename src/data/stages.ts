@@ -91,10 +91,12 @@ export const todayCards: Record<Stage, StageCard[]> = {
 }
 
 // Archive folders, top to bottom LA, Seoul, Chicago (Figma ARCHIVE_default,
-// 256:196), the same in every stage; there is no New York folder. Each city
-// keeps its color (LA blue, Seoul cream, Chicago olive).
-export function archiveFolders(): ArchiveFolder[] {
-  return pages.archive.folders
+// 256:196). Once she lives in New York (Newcomer, Local) its folder sits on
+// top (Keller, Oct 21). Each city keeps its color (NY yellow, LA blue, Seoul
+// cream, Chicago olive).
+export function archiveFolders(stage: Stage = 'moving'): ArchiveFolder[] {
+  const { folders, newYork } = pages.archive
+  return stage === 'moving' ? folders : [newYork, ...folders]
 }
 
 // Lifestyle summary on each city folder: one short sentence about how she
