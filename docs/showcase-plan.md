@@ -1,7 +1,7 @@
 # Submission showcase plan
 
 Branch: `codex/showcase`, created from `codex/profile-page` on October 21, 2026.
-Status: planning only; showcase behavior is not implemented yet.
+Status: showcase presentation implemented; submission journey and real-phone checks remain before final submission.
 Existing profile, onboarding typography, and photo-orb work was committed on `codex/profile-page` as `b6962f3` and brought into this branch before showcase work.
 
 ## Intended experience
@@ -18,7 +18,7 @@ Keep the note outside the simulated phone, in readable muted text. Allow it to w
 
 ## Implementation
 
-1. Create an explicit showcase entry or build mode, enabled by default for this branch's submission build. Do not infer showcase behavior from production mode alone: recording and development builds also need production builds. The submission URL should work without special query parameters.
+1. This branch uses a dedicated showcase `src/App.tsx` entry by default, in both development and production builds. The submission URL needs no special query parameters. Team tools remain in source for development on other branches but are not imported by this entry.
 2. In `src/App.tsx`, exclude `DebugPanel`, `ScrollJoystick`, and all playground overlays from the showcase experience. Prefer separating the team tools into their own module so showcase builds can omit them. Do not mount the debug panel: hiding its button alone leaves its keyboard shortcuts active.
 3. Ignore team-only URL switches in showcase mode, including `debug`, `embed`, `maps`, `relay-motion`, `relay-looks`, `today-looks`, `archive-sketches`, `3d-proto`, `archive-ideas`, and `collage`. Audit the `real-life` switch in `src/app/store.ts` and choose one consistent capture experience. Preserve normal app hash navigation.
 4. Use fixed showcase presentation defaults: iPhone preset, frame on for desktop, aspect ratio locked, default backdrop, joystick off. Ignore saved `baton:framed`, `baton:frame-size`, `baton:lock-ratio`, and `baton:joystick` preferences in showcase mode without deleting them.
@@ -42,3 +42,12 @@ Keep the note outside the simulated phone, in readable muted text. Allow it to w
 - Existing debug preferences in local storage do not affect the showcase presentation.
 - Onboarding, tab navigation, stage transitions, camera permission denial, and ordinary back navigation remain usable without debug tools.
 - Validate a deployed preview on desktop and a real phone before using its URL for submission.
+
+## Implementation verification
+
+- Build and lint pass. Build retains the existing large-chunk warning.
+- Desktop browser: frame and note both fit, with no debug launcher.
+- Browser with all team URL flags: still displays the showcase; backtick, right-arrow, and F do not open tools, skip screens, or remove the frame.
+- Frame settings are fixed; the entry no longer reads persisted debug presentation preferences.
+- Mobile still uses the existing 500px breakpoint to render only the full-screen app. Real-phone testing remains pending.
+- Supabase configuration and existing data are unchanged.

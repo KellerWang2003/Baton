@@ -1,8 +1,6 @@
 import { useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties, ReactNode } from 'react'
-import { cx } from '../ui/cx'
 import { StatusBar } from './StatusBar'
-import type { FrameSettings } from './useFrameSize'
 
 // On a real phone (opened over wifi) the app fills the screen, frame or not.
 const phoneQuery = '(max-width: 500px)'
@@ -16,13 +14,6 @@ function useIsPhone() {
 }
 
 type DeviceFrameProps = {
-  framed: boolean
-  // iPhone bezel, or a plain bordered box of any size (custom)
-  frame: FrameSettings
-  // Keep the phone's proportions on short windows by scaling it down whole,
-  // instead of squashing its height (which made it look fat)
-  lockRatio: boolean
-  backgroundColor: string | null
   onboardingStatus?: boolean
   children: ReactNode
 }
@@ -35,77 +26,58 @@ type DeviceFrameProps = {
 // (102, 100) and is 1206x2622; keep these aligned with the live app below.
 const iphoneSize = { width: 1406 / 3, height: 2822 / 3 }
 
-export function DeviceFrame({ framed, frame, lockRatio, backgroundColor, onboardingStatus, children }: DeviceFrameProps) {
+export function DeviceFrame({ onboardingStatus, children }: DeviceFrameProps) {
   const isPhone = useIsPhone()
   const page = useRef<HTMLDivElement>(null)
+  const note = useRef<HTMLParagraphElement>(null)
   const [scale, setScale] = useState(1)
-
-  const custom = frame.preset === 'custom'
-  const outer = custom ? { width: frame.width, height: frame.height } : iphoneSize
 
   // Fit the whole phone inside the page, never larger than real size
   useLayoutEffect(() => {
     const element = page.current
-    if (!element || !lockRatio) return
+    if (!element) return
     const fit = () => {
       const pad = 32
-      setScale(Math.min(1, (element.clientWidth - pad) / outer.width, (element.clientHeight - pad) / outer.height))
+      const noteHeight = note.current?.getBoundingClientRect().height ?? 0
+      setScale(Math.max(0.01, Math.min(1, (element.clientWidth - pad) / iphoneSize.width, (element.clientHeight - pad - noteHeight - 16) / iphoneSize.height)))
     }
     fit()
     const observer = new ResizeObserver(fit)
     observer.observe(element)
+    if (note.current) observer.observe(note.current)
     return () => observer.disconnect()
-  }, [lockRatio, framed, isPhone, outer.width, outer.height])
+  }, [isPhone])
 
-  if (!framed || isPhone) {
+  if (isPhone) {
     return <div data-app-root className="@container h-full w-full bg-canvas">{children}</div>
   }
 
-  if (custom) {
-    // A plain border: any size, scaled down whole to fit the page when locked
-    return (
-      <div ref={page} data-device-page style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
-        <div
-          data-app-root
-          className="relative flex shrink-0 flex-col overflow-hidden rounded-[24px] bg-canvas"
-          style={lockRatio ? { ...outer, transform: `scale(${scale})` } : { width: outer.width, height: outer.height, maxWidth: '100%', maxHeight: '100%' }}
-        >
-          <StatusBar onboarding={onboardingStatus} showIsland={false} />
-          <div className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
-            {children}
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <div ref={page} data-device-page style={{ backgroundColor: backgroundColor ?? undefined }} className={cx('flex h-full w-full items-center justify-center', lockRatio ? 'overflow-hidden' : 'p-4')}>
-      <div
-        style={lockRatio ? { ...iphoneSize, flexShrink: 0, transform: `scale(${scale})` } : undefined}
-        className={cx(
-          'relative shrink-0',
-          !lockRatio && 'h-[940.667px] max-h-full w-[468.667px]',
-        )}
-      >
-        <div
-          className="absolute isolate z-0 flex flex-col overflow-hidden rounded-[52px] bg-canvas"
-          style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%`, transform: 'scale(1.005)' }}
-        >
-          <StatusBar onboarding={onboardingStatus} showIsland={false} />
-          {/* Screens can extend their backgrounds under the status bar. */}
-          <div data-app-root className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
-            {children}
+    <div ref={page} data-device-page className="flex h-full w-full flex-col items-center justify-center gap-4 overflow-hidden p-4">
+      <div className="relative shrink-0" style={{ width: iphoneSize.width * scale, height: iphoneSize.height * scale }}>
+        <div className="relative" style={{ ...iphoneSize, transform: `scale(${scale})`, transformOrigin: 'top left' }}>
+          <div
+            className="absolute isolate z-0 flex flex-col overflow-hidden rounded-[52px] bg-canvas"
+            style={{ left: `${102 / 1406 * 100}%`, top: `${100 / 2822 * 100}%`, width: `${1206 / 1406 * 100}%`, height: `${2622 / 2822 * 100}%`, transform: 'scale(1.005)' }}
+          >
+            <StatusBar onboarding={onboardingStatus} showIsland={false} />
+            {/* Screens can extend their backgrounds under the status bar. */}
+            <div data-app-root className="@container min-h-0 flex-1" style={{ '--status-bar': '54px' } as CSSProperties}>
+              {children}
+            </div>
           </div>
+          <img
+            src="/device/iphone-16-pro-black.png"
+            alt=""
+            aria-hidden
+            draggable={false}
+            className="pointer-events-none absolute inset-0 z-30 h-full w-full select-none"
+          />
         </div>
-        <img
-          src="/device/iphone-16-pro-black.png"
-          alt=""
-          aria-hidden
-          draggable={false}
-          className="pointer-events-none absolute inset-0 z-30 h-full w-full select-none"
-        />
       </div>
+      <p ref={note} className="max-w-lg shrink-0 text-center text-sm leading-relaxed text-ink-muted">
+        Interactive prototype — some features are still in development.
+      </p>
     </div>
   )
 }

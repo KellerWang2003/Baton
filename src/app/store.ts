@@ -152,8 +152,8 @@ let state: State = {
   hideNav: false,
   fewBubbles: false,
   hideStatusBar: false,
-  // Also on from the start with ?real-life in the URL, for opening it on a phone
-  realLife: typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('real-life'),
+  // Fixed submission experience; team-only URL flags are ignored.
+  realLife: false,
   statusBarCovered: false,
   // Keller picked Side sweep (Oct 19).
   relayEntrance: 'sweep',
