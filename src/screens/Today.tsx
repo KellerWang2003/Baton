@@ -11,9 +11,7 @@ import {
   allTodos,
   beforeYouLeave,
   daysUntil,
-  lastWeekDays,
   leave,
-  legacyCard,
   mockToday,
   setupCards,
   shortDate,
@@ -119,19 +117,8 @@ export function Today({ lastWeek = false }: TodayProps) {
     (item) => !picked.includes(item.id) && (!item.place || keptPlaces.includes(item.place)),
   )
   const stageMoment = todayCards[status].find((card) => card.tone === 'stage')
-  const moment =
-    status === 'moving'
-      ? daysLeft <= lastWeekDays && {
-          eyebrow: legacyCard.eyebrow(daysLeft),
-          title: legacyCard.title,
-          subtitle: legacyCard.body,
-          photo: legacyCard.photo,
-          onClick: () => {
-            setState({ archiveSegment: 'legacy' })
-            navigate('archive')
-          },
-        }
-      : stageMoment && { ...stageMoment, onClick: stageMoment.to && (() => navigate(stageMoment.to!.screen)) }
+  // No key-moment card while Moving (Keller, Oct 21)
+  const moment = status !== 'moving' && stageMoment && { ...stageMoment, onClick: stageMoment.to && (() => navigate(stageMoment.to!.screen)) }
   const sheetTodo = allTodos.find((todo) => todo.id === openTodo)
   const sheetDone = openTodo ? doneTodos.includes(openTodo) : false
 
@@ -163,7 +150,7 @@ export function Today({ lastWeek = false }: TodayProps) {
             onClick={moment.onClick}
           />
         )}
-        {setupCount < setupItems.length && (
+        {status === 'moving' && setupCount < setupItems.length && (
           <section className="flex flex-col gap-4">
             <h2 className="text-section font-normal text-ink">{setup.header}</h2>
             {/* Runs to the screen edges so the next card peeks in */}
