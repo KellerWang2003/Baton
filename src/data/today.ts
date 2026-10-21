@@ -55,6 +55,7 @@ export const legacyCard = {
   eyebrow: (days: number) => (days === 1 ? '1 day left in LA' : `${days} days left in LA`),
   title: 'Look back at your LA archive',
   body: 'Then choose what to pass on.',
+  photo: '/archive/la-sunset.jpg',
 }
 
 export type Suggestion = Todo & {
@@ -114,12 +115,12 @@ export const suggestions: { items: Record<Stage, Suggestion[]> } = {
       },
     ],
     newcomer: [
-      { id: 'find-cafe', title: 'Find a café you could sit in every week', subtitle: 'Like Lake Ave Café in LA' },
-      { id: 'walk-no-maps', title: 'Walk your neighborhood without Maps', subtitle: 'Twenty minutes is enough' },
-      { id: 'try-gym', title: 'Try a gym near your place', subtitle: 'You went three times a week in LA' },
+      { id: 'find-cafe', title: 'Find a café you could sit in every week', subtitle: 'Like Lake Ave Café in LA', photo: '/relay/cafe.jpg' },
+      { id: 'walk-no-maps', title: 'Walk your neighborhood without Maps', subtitle: 'Twenty minutes is enough', photo: '/relay/greenpoint.jpg' },
+      { id: 'try-gym', title: 'Try a gym near your place', subtitle: 'You went three times a week in LA', photo: '/relay/gym-late.jpg' },
     ],
     local: [
-      { id: 'tip-cafe', title: 'Write one tip about your café', subtitle: 'It could help the next person' },
+      { id: 'tip-cafe', title: 'Write one tip about your café', subtitle: 'It could help the next person', photo: '/relay/ana-drawing-spot.jpg' },
     ],
   },
 }

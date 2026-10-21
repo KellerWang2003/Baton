@@ -1,5 +1,7 @@
 import type { ReactNode } from 'react'
 import { cx } from './cx'
+import { ArrowRightIcon, ChevronRightIcon } from './icons'
+import { stageTones, type StageTone } from './stageTones'
 
 type TodayCardProps = {
   title: string
@@ -56,7 +58,48 @@ export function TodayCard({ title, highlight = [], subtitle, photo, photoPositio
         </span>
         {subtitle && <span className="text-today-detail text-today-muted">{subtitle}</span>}
       </span>
-      {trailing}
+      {trailing ?? (onClick && <span className="shrink-0 pr-1 text-ink-faint"><ChevronRightIcon /></span>)}
+    </button>
+  )
+}
+
+type MomentCardProps = {
+  stage: StageTone
+  eyebrow: string
+  title: string
+  subtitle?: string
+  photo: string
+  onClick?: () => void
+}
+
+// The one card on Today that marks a moment in her move (her LA archive in
+// the last week, LA Wrapped after landing, the Local insight): filled with her
+// stage's color, as on StageTag and the stage splash, with a photo on top and
+// a round arrow (Keller, Oct 21: these are the ones that stand out).
+export function MomentCard({ stage, eyebrow, title, subtitle, photo, onClick }: MomentCardProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className={cx(
+        'flex w-full flex-col gap-3 rounded-card p-2.5 pb-4 text-left shadow-today-card transition active:scale-[0.99] disabled:active:scale-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand',
+        stageTones[stage],
+      )}
+    >
+      <img src={photo} alt="" className="aspect-[2/1] w-full rounded-tile object-cover" />
+      <span className="flex items-end gap-3 px-1.5">
+        <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
+          <span className="text-today-detail opacity-75">{eyebrow}</span>
+          <span className="text-today-card font-medium">{title}</span>
+          {subtitle && <span className="text-today-detail opacity-75">{subtitle}</span>}
+        </span>
+        {onClick && (
+          <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-baton-paper text-baton-navy">
+            <ArrowRightIcon />
+          </span>
+        )}
+      </span>
     </button>
   )
 }

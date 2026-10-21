@@ -22,11 +22,9 @@ import {
   tipSheet,
 } from '../data/today'
 import {
-  ArrowRightIcon,
   BottomSheet,
   Card,
-  ChevronRightIcon,
-  ItemCard,
+  MomentCard,
   PromptWindow,
   SetupCard,
   TodayCard,
@@ -189,16 +187,12 @@ export function Today({ lastWeek = false }: TodayProps) {
           <h2 className="text-section font-normal text-ink">{beforeYouLeave.header[status]}</h2>
           <div className="flex flex-col gap-3">
             {status === 'moving' && daysLeft <= lastWeekDays && (
-              <ItemCard
-                tone="stage"
+              <MomentCard
+                stage={status}
                 eyebrow={legacyCard.eyebrow(daysLeft)}
                 title={legacyCard.title}
                 subtitle={legacyCard.body}
-                trailing={
-                  <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-stage text-on-stage">
-                    <ArrowRightIcon />
-                  </span>
-                }
+                photo={legacyCard.photo}
                 onClick={() => {
                   setState({ archiveSegment: 'legacy' })
                   navigate('archive')
@@ -206,27 +200,15 @@ export function Today({ lastWeek = false }: TodayProps) {
               />
             )}
 
-            {/* Placeholder cards for the stages whose flows come later */}
+            {/* Cards for her stage: the key moment in her stage's color, the rest like the suggestions */}
             {status !== 'moving' &&
               todayCards[status].map((card) => {
                 const to = card.to
-                return (
-                  <ItemCard
-                    key={card.id}
-                    tone={card.tone}
-                    thumbnail={!card.tone}
-                    eyebrow={card.eyebrow}
-                    title={card.title}
-                    subtitle={card.subtitle}
-                    trailing={
-                      to && (
-                        <span className="text-line">
-                          <ChevronRightIcon />
-                        </span>
-                      )
-                    }
-                    onClick={to && (() => navigate(to.screen))}
-                  />
+                const open = to && (() => navigate(to.screen))
+                return card.tone === 'stage' ? (
+                  <MomentCard key={card.id} stage={status} eyebrow={card.eyebrow} title={card.title} subtitle={card.subtitle} photo={card.photo} onClick={open} />
+                ) : (
+                  <TodayCard key={card.id} title={card.title} subtitle={card.subtitle} photo={card.photo} onClick={open} />
                 )
               })}
 

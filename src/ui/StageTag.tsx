@@ -1,14 +1,8 @@
 import { cx } from './cx'
+import { stageTones, type StageTone } from './stageTones'
 
-export type StageTone = 'moving' | 'newcomer' | 'local'
+export type { StageTone }
 
-// Stage colors: Moving blue (Figma TODAY 334:11626), Newcomer yellow, Local olive
-const tones: Record<StageTone, string> = {
-  moving: 'bg-baton-blue text-white',
-  // Brand olive for text on yellow (Keller, Oct 19)
-  newcomer: 'bg-baton-yellow text-baton-olive',
-  local: 'bg-baton-olive text-baton-cream',
-}
 // Brand cream with dark text, for a pill that stands on its own (You're a Newcomer now)
 const light = 'bg-baton-cream text-baton-navy'
 
@@ -33,7 +27,7 @@ export function StageTag({ stage, label, size = 'sm', tone = 'stage', className 
         size === 'sm' && 'h-5 px-2.5 pb-0.5 text-[13px] font-medium leading-none',
         size === 'md' && 'px-2.5 py-0.5 text-caption font-medium ring-2 ring-white',
         size === 'lg' && 'h-10 px-4 text-[18px] font-medium tracking-[-0.011em]',
-        tone === 'light' ? light : tones[stage],
+        tone === 'light' ? light : stageTones[stage],
         className,
       )}
     >

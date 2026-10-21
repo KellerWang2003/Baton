@@ -35,14 +35,17 @@ export type StageCard = {
   eyebrow: string
   title: string
   subtitle: string
+  photo: string
+  // stage: the key moment, filled with her stage's color (MomentCard)
   tone?: 'stage'
-  to?: { screen: 'community' } | { screen: 'archive' } | { screen: 'local-insight' }
+  to?: { screen: 'community' } | { screen: 'archive' } | { screen: 'local-insight' } | { screen: 'la-wrapped' }
 }
 
 export const todayCards: Record<Stage, StageCard[]> = {
   moving: [
     {
       id: 'notes-waiting',
+      photo: '/archive/la-party-1.jpg',
       eyebrow: 'From friends',
       title: '3 friends left you notes',
       subtitle: "They stay sealed until you land in New York.",
@@ -51,13 +54,16 @@ export const todayCards: Record<Stage, StageCard[]> = {
   newcomer: [
     {
       id: 'wrapped',
+      photo: '/wrapped/m21-aug01.jpg',
       eyebrow: 'You landed',
       title: 'Your LA Wrapped is ready',
       subtitle: 'Four years of LA, and the 5 notes friends left you.',
       tone: 'stage',
+      to: { screen: 'la-wrapped' },
     },
     {
       id: 'gym-hint',
+      photo: '/relay/gym.jpg',
       eyebrow: "From Maya's legacy",
       title: "A gym with a Trader Joe's next door",
       subtitle: 'Like yours in Pasadena. Crunch on 14th St, 6 min from you.',
@@ -65,6 +71,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
     },
     {
       id: 'intention',
+      photo: '/relay/studio.jpg',
       eyebrow: 'For your intention',
       title: 'Figure drawing at Spring Studio',
       subtitle: `Thursdays at 7. You said: "${intention}".`,
@@ -74,6 +81,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
   local: [
     {
       id: 'insight',
+      photo: '/relay/domino.jpg',
       eyebrow: "You're a local now",
       title: 'See how your life changed since LA',
       subtitle: 'Compared with your LA snapshot, and your intention.',
@@ -82,6 +90,7 @@ export const todayCards: Record<Stage, StageCard[]> = {
     },
     {
       id: 'bookend',
+      photo: '/relay/ana-cafe.jpg',
       eyebrow: 'Same prompt, a year apart',
       title: 'Your seat in LA, and your seat here',
       subtitle: 'Take the photo from your usual café, then see both side by side.',
