@@ -166,8 +166,10 @@ export function Reflection() {
 
   return (
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
+      {/* Scrolls up and down only: the tilted note and the orb's glow reach
+          past the sides on a phone-width screen */}
       <div
-        className="absolute inset-0 overflow-y-auto"
+        className="absolute inset-0 overflow-x-hidden overflow-y-auto"
         // Tapping anywhere off the note ends typing (iOS doesn't always do it)
         onPointerDown={(event) => event.target !== noteRef.current && noteRef.current?.blur()}
       >
