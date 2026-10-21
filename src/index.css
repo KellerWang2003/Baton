@@ -80,6 +80,18 @@
 .try-item:nth-child(4) { animation-delay: 120ms; }
 .try-item:nth-child(5) { animation-delay: 160ms; }
 .try-number { flex-shrink: 0; width: 14px; opacity: 0.7; }
+.try-area {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 11px;
+  line-height: 16px;
+  vertical-align: 1px;
+  opacity: 0.6;
+  white-space: nowrap;
+}
 @keyframes try-in { from { opacity: 0; transform: translateY(6px); } }
 
 @media (min-width: 501px) and (max-width: 1099px) {
