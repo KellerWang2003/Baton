@@ -19,7 +19,7 @@ export const thingsToTry: Record<Stage, TryItem[]> = {
     { text: 'Tap Check it out to read the notes her LA friends left.' },
     { text: 'Watch LA Wrapped, then start in New York.' },
     { text: 'Browse Relay for picks from people with a lifestyle like hers.' },
-    { text: 'Open a pick and leave a note on it, or try Map view.' },
+    { text: 'Open a pick and leave a note on it.' },
     { text: 'See her new New York folder in Archive.' },
   ],
   local: [
