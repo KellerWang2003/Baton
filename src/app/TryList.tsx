@@ -21,8 +21,8 @@ export function TryList() {
           <li key={item.text} className="try-item">
             <span className="try-number" aria-hidden="true">{i + 1}</span>
             <span>
-              {item.text}
               <span className="try-area">{item.area}</span>
+              {item.text}
             </span>
           </li>
         ))}
