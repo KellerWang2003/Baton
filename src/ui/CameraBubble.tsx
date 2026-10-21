@@ -8,20 +8,6 @@ import { ArrowLeftIcon } from './icons'
 // permission refused), so the flow still works when recording the demo.
 const placeholderPhoto = '/archive/la-sunset.jpg'
 
-// For now the camera shows a plain color instead of the live camera (Keller,
-// Oct 19), so a real picture can be keyed in when the video is edited. It is
-// the same color as the debug panel's Background color (Green screen button),
-// or the recording green when that isn't set. Set to false to use the real
-// camera again. Debug > Real-life always uses the real camera.
-const useGreenScreen = true
-
-// The debug panel's background color, which DeviceFrame sets on the page behind
-// the phone, or the recording green
-function screenColor(from: Element | null) {
-  const set = from?.closest<HTMLElement>('[data-device-page]')?.style.backgroundColor
-  return set || getComputedStyle(document.documentElement).getPropertyValue('--color-recording-green').trim()
-}
-
 // The same iOS-like curve the tab bar morph uses
 const ease = 'cubic-bezier(0.32, 0.72, 0, 1)'
 
@@ -90,13 +76,13 @@ function promptLayout(question: string, size: number, centerY: number): PromptLa
 
 type Box = { left: number; top: number; width: number; height: number; radius: number }
 
-// Tapping a photo prompt's circle on Today opens the camera inside the app:
+// Tapping the prompt's circle on Today opens the camera inside the app
+// (always the live camera, Keller Oct 21; the green screen is gone):
 // the circle morphs into a rounded rectangle with the live camera in it, the
 // prompt moves to the top, and a round button below takes the photo, which goes
 // on to Capture to be saved. A small close button at the top left goes back.
 export function CameraBubble() {
   const { camera, realLife } = useStore()
-  const greenScreen = useGreenScreen && !realLife
   const prompt = useDailyPrompt()
   const root = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
@@ -113,8 +99,6 @@ export function CameraBubble() {
   const [flash, setFlash] = useState(false)
   // No camera to use: show the stand-in photo instead
   const [noCamera, setNoCamera] = useState(false)
-  // The color of the green screen, following the debug panel's setting
-  const [green, setGreen] = useState('')
 
   const stop = () => {
     stream.current?.getTracks().forEach((track) => track.stop())
@@ -162,7 +146,7 @@ export function CameraBubble() {
 
   // Start the camera once the rectangle is on its way
   useEffect(() => {
-    if (!camera || !expanded || greenScreen) return
+    if (!camera || !expanded) return
     let cancelled = false
     const devices = navigator.mediaDevices
     // No camera API at all (an insecure page, an old browser): same as refused
@@ -184,17 +168,7 @@ export function CameraBubble() {
     return () => {
       cancelled = true
     }
-  }, [camera, expanded, greenScreen])
-
-  // Follow the debug panel's background color while it's open
-  useEffect(() => {
-    const page = root.current?.closest<HTMLElement>('[data-device-page]')
-    setGreen(screenColor(root.current))
-    if (!page) return
-    const observer = new MutationObserver(() => setGreen(screenColor(root.current)))
-    observer.observe(page, { attributes: true, attributeFilter: ['style'] })
-    return () => observer.disconnect()
-  }, [])
+  }, [camera, expanded])
 
   // Turn the camera off if she leaves Today while it's open
   useEffect(() => stop, [])
@@ -210,18 +184,7 @@ export function CameraBubble() {
     if (!target) return
     const frame = video.current
     let blob: Blob | null = null
-    if (greenScreen) {
-      // The photo is the same green, in the rectangle's shape
-      const canvas = document.createElement('canvas')
-      canvas.width = 800
-      canvas.height = Math.round((800 * target.height) / target.width)
-      const ctx = canvas.getContext('2d')
-      if (ctx) {
-        ctx.fillStyle = green
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-        blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.9))
-      }
-    } else if (live && frame?.videoWidth) {
+    if (live && frame?.videoWidth) {
       // Crop the picture to the rectangle, the way it's shown
       const aspect = target.width / target.height
       let sw = frame.videoWidth
@@ -312,8 +275,7 @@ export function CameraBubble() {
               transition: `left 650ms ${ease}, top 650ms ${ease}, width 650ms ${ease}, height 650ms ${ease}, border-radius 650ms ${ease}`,
             }}
           >
-            {/* Plain green for now; otherwise the live camera, or a photo when there isn't one */}
-            {greenScreen && <div className="absolute inset-0" style={{ background: green }} />}
+            {/* The live camera, or a photo when there isn't one */}
             <img
               src={placeholderPhoto}
               alt=""
@@ -327,18 +289,6 @@ export function CameraBubble() {
               className={cx('absolute inset-0 size-full object-cover transition-opacity duration-500', live ? 'opacity-100' : 'opacity-0')}
               style={{ transform: mirror ? 'scaleX(-1)' : undefined }}
             />
-            {/* On the green screen, a blue rim fading inward to key around; the
-                live camera is shown plain (Figma camera 494:2163) */}
-            {greenScreen && (
-              <div
-                className="pointer-events-none absolute inset-0"
-                style={{
-                  borderRadius: 'inherit',
-                  // Strong enough to show on a saturated green screen
-                  boxShadow: 'inset 0 0 26px 12px rgb(89 161 255 / 0.95), inset 0 1px 2px rgb(255 255 255 / 0.9)',
-                }}
-              />
-            )}
             <div className={cx('pointer-events-none absolute inset-0 bg-white transition-opacity duration-200', flash ? 'opacity-90' : 'opacity-0')} />
           </div>
 

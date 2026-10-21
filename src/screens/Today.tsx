@@ -1,6 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
-import { openComposer } from '../app/composer'
 import { navigate } from '../app/navigate'
 import { setState, toggleIn, useDailyPrompt, useStatus, useStore } from '../app/store'
 import type { SetupItem } from '../app/store'
@@ -126,7 +125,7 @@ export function Today({ lastWeek = false }: TodayProps) {
 
   return (
     <MainLayout title={hello.title} subtitle={hello.subtitle} profile background="bg-baton-paper">
-      {/* Photo prompts open the camera inside the bubble; writing prompts open the + field. */}
+      {/* Tapping the circle always opens the camera inside it (Keller, Oct 21) */}
       <PromptWindow
         className="pb-8 pt-6"
         question={prompt.question}
@@ -135,7 +134,7 @@ export function Today({ lastWeek = false }: TodayProps) {
         glass={promptGlass}
         tuning={glassTuning}
         moves={orbMoves}
-        onClick={medium === 'photo' ? (circle) => setState({ camera: circle, composing: false }) : openComposer}
+        onClick={(circle) => setState({ camera: circle, composing: false })}
       />
 
       {/* Below the prompt, straight on the paper (Figma TODAY 334:10047): the

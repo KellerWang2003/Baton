@@ -77,7 +77,7 @@ type State = {
   // Debug: hide the iOS status bar (time, signal, battery)
   hideStatusBar: boolean
   // Debug > Real-life: Today asks for a photo of your school building, the
-  // camera is live (not the green screen) and the photo goes on to the
+  // photo goes on to the
   // reflection page, for filming someone using the app for real
   realLife: boolean
   // The Rolling Paper's widened Dynamic Island is over the status bar, so its
