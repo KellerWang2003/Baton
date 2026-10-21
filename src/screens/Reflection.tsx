@@ -175,14 +175,14 @@ export function Reflection() {
         // Tapping anywhere off the note ends typing (iOS doesn't always do it)
         onPointerDown={(event) => event.target !== noteRef.current && noteRef.current?.blur()}
       >
-        <div className="flex flex-col items-center overflow-x-clip px-gutter pb-40">
+        <div className="flex flex-col items-center overflow-x-clip px-gutter pb-40" data-glass-scene>
           <div className={`flex flex-col items-center ${adding ? away : settle}`}>
             <p className="mt-[62px] text-moment-meta text-wrap-faint">{reflectionCopy.label}</p>
             <h1 className="mt-2 w-[260px] text-center text-moment-question font-medium">{prompt.question}</h1>
           </div>
 
           {/* Her photo as an orb, its edge glowing the color of what she wrote about */}
-          <div ref={orbRef} className="mt-8">
+          <div ref={orbRef} className="relative z-10 mt-8">
             <PhotoOrb src={src} size={ORB} category={category} dissolve={adding} moves={orbMoves} tuning={glassTuning} style={{ opacity: morphing ? 0 : 1 }} />
           </div>
 

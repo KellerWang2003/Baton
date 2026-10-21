@@ -4,27 +4,11 @@ import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { blankMoment } from '../data/archiveMoments'
 import { setState, useArchive, useStore } from '../app/store'
-import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon, photoGlass } from '../ui'
-import { useScrollNudge } from '../ui/useScrollNudge'
-import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from '../ui/filterColor'
+import { ArrowLeftIcon, MapPinIcon, PhotoOrb } from '../ui'
 
 // The glass circle (Figma ARCHIVE_selected, 236:234): a 342pt circle with a
-// hairline. Fluid Glass draws its lens a bit wider than the size it's given
-// and fills only 72% of its canvas (as on Today), so a 305pt lens lands on the
-// 342pt circle and the canvas is masked to it.
+// hairline, built by PhotoOrb
 const CIRCLE = 342
-const LENS = 305
-const BOX = Math.ceil((CIRCLE + 4) / 0.72)
-// The filter color fills this circle, up to where the glass rim starts
-const GLOW = 329
-// The photo layers stop a few points inside the circle's edge (they're under
-// the rim there anyway), so their soft edge can't darken the hairline
-const INSET = 3
-const MASK = `radial-gradient(circle at 50% 50%, black ${CIRCLE / 2 - INSET - 1}px, transparent ${CIRCLE / 2 - INSET}px)`
-// The photo fills this much of the canvas: small, because the lens magnifies
-// its middle, so the whole photo shows through the circle as it did in the
-// cloud; the full-bleed copy behind it is what the glass bends in at the rim
-const PHOTO = 0.5
 // The tapped cloud photo growing into the circle
 const GROW = { duration: 560, easing: 'cubic-bezier(0.32, 0.72, 0, 1)' }
 // The words around the circle fade in once it's most of the way there, and
@@ -35,39 +19,6 @@ const NOTE_DELAY = '480ms'
 // onto its photo in the cloud
 const FADE_OUT = { duration: 200, easing: 'ease-out', fill: 'forwards' } as const
 const SHRINK = { duration: 420, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' } as const
-
-// The moment she captured, laid out for the glass: the photo across the
-// whole canvas, then again at PHOTO size in the middle. As a spotlight (Orb
-// moves) it's just the one photo across the canvas, so it reads as a single
-// picture wherever the glass moves over it
-function usePicture(src: string, spotlight: boolean) {
-  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
-  useEffect(() => {
-    let alive = true
-    const image = new Image()
-    // Saved captures come from Supabase storage: without this the photo taints
-    // the canvas and the glass can't use it, so it never shows
-    image.crossOrigin = 'anonymous'
-    image.onload = () => {
-      if (!alive) return
-      const size = BOX * 2
-      const picture = document.createElement('canvas')
-      picture.width = size
-      picture.height = size
-      const context = picture.getContext('2d')
-      if (!context) return
-      drawCover(context, image, 0, 0, size)
-      const inner = size * PHOTO
-      if (!spotlight) drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
-      setCanvas(picture)
-    }
-    image.src = src
-    return () => {
-      alive = false
-    }
-  }, [src, spotlight])
-  return canvas
-}
 
 // A photo opened from a city's photo cloud (Figma ARCHIVE_selected, 236:234):
 // which daily prompt it answered, the photo in a liquid glass circle tinted
@@ -82,21 +33,13 @@ export function ArchiveSelected() {
   // Opened straight from the debug panel or arrow keys, it shows the hike
   const { moments } = useArchive()
   const moment = { ...moments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(moments)[0] ?? blankMoment
-  const picture = usePicture(moment.photo, orbMoves)
-  // The filter color, softened a little toward white so it reads pastel
-  // The filter color, softened to a pastel (shared with Real-life's orb)
-  const tint = filterGlassColor(moment.category)
-  const color = filterColor(moment.category)
   const circleRef = useRef<HTMLDivElement>(null)
-  // Scrolling nudges the glass when it moves
-  const push = useScrollNudge(circleRef, orbMoves)
   const growRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
   const leaving = useRef(false)
   // Where the tapped photo was, read once: arriving any other way it just fades in
   const [from] = useState(() => selectedPhotoFrom)
   const [landed, setLanded] = useState(!from)
-  const [glassReady, setGlassReady] = useState(false)
 
   useEffect(() => {
     setState({ selectedPhotoFrom: null })
@@ -164,7 +107,7 @@ export function ArchiveSelected() {
 
       {/* Clipped at the sides (clip, so it doesn't count toward scrolling):
           the glass's canvas is wider than a phone screen */}
-      <div className="flex flex-col items-center overflow-x-clip pb-16">
+      <div className="flex flex-col items-center overflow-x-clip pb-16" data-glass-scene>
         <div data-fade className="flex animate-fade-in flex-col items-center" style={{ animationDelay: SETTLE_DELAY }}>
           <p className="mt-[62px] text-moment-meta text-wrap-faint">Prompt #{moment.prompt}</p>
           <h1 className={`mt-2 text-center text-moment-question font-medium ${moment.oneLine ? 'whitespace-nowrap' : 'w-[232px]'}`}>
@@ -172,63 +115,16 @@ export function ArchiveSelected() {
           </h1>
         </div>
 
-        {/* The photo under liquid glass, tinted at the rim. With Orb moves on
-            (Keller, Oct 21) it is Today's orb: the glass itself is the photo's
-            only mask, and the photo stays put on the page while the glass
-            drags, breathes and wobbles over it like a spotlight. Off, it holds
+        {/* The photo under liquid glass, tinted at the rim (PhotoOrb, shared
+            with Real-life's reflection page). With Orb moves on (Keller, Oct
+            21) it is Today's orb, above the rest of the page; off, it holds
             still in a glass rim with a hairline */}
-        <div ref={circleRef} className="relative mt-[38px] shrink-0" style={{ width: CIRCLE, height: CIRCLE }}>
-          {/* Everything in the circle grows in from the cloud together */}
-          <div ref={growRef} className="pointer-events-none absolute inset-0">
-            {/* The plain photo, cropped like the glass shows it (PHOTO of the
-                canvas, seen through the circle), until the glass is drawn */}
-            <div
-              aria-hidden
-              className={`absolute overflow-hidden rounded-full transition-opacity duration-500 ${orbMoves && glassReady ? 'opacity-0' : ''}`}
-              style={{ inset: INSET }}
-            >
-              <img src={moment.photo} alt="" draggable={false} className="size-full object-cover" style={{ scale: orbMoves ? 1 / PHOTO : Math.max(1, (BOX * PHOTO) / CIRCLE) }} />
-            </div>
-            <div
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500 ease-out ${glassReady ? '' : 'opacity-0'}`}
-              style={orbMoves ? { width: BOX, height: BOX } : { width: BOX, height: BOX, maskImage: MASK, WebkitMaskImage: MASK }}
-            >
-              {/* Mounted once the circle has landed: the glass sizes its
-                  canvas from its size on screen, which is tiny mid-grow */}
-              {picture && landed && (
-                <FluidGlass
-                  // Set up again when switching, so the new motion takes hold
-                  key={orbMoves ? 'moves' : 'still'}
-                  canvas={picture}
-                  text=""
-                  {...photoGlass(glassTuning, orbMoves)}
-                  clipToGlass={orbMoves}
-                  shape="lens"
-                  size={LENS}
-                  color={tint}
-                  rim={GLASS_RIM}
-                  intro={false}
-                  pushRef={push}
-                  onReady={() => setGlassReady(true)}
-                />
-              )}
-            </div>
-            {/* Holding still: the filter color glowing in from the edge (Figma's
-                329pt gradient), stopping where the glass rim starts, and the rim */}
-            {!orbMoves && (
-              <>
-                <span
-                  aria-hidden
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-                  style={{
-                    width: GLOW,
-                    height: GLOW,
-                    background: filterGlow(color),
-                  }}
-                />
-                <GlassRim size={CIRCLE} />
-              </>
-            )}
+        <div ref={circleRef} className="relative z-10 mt-[38px] shrink-0" style={{ width: CIRCLE, height: CIRCLE }}>
+          {/* Everything in the circle grows in from the cloud together; the
+              glass is drawn once it has landed, since it sizes its canvas from
+              its size on screen, which is tiny mid-grow */}
+          <div ref={growRef} className="absolute inset-0">
+            <PhotoOrb src={moment.photo} size={CIRCLE} category={moment.category} moves={orbMoves} tuning={glassTuning} glass={landed} />
           </div>
         </div>
 
