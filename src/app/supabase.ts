@@ -5,28 +5,13 @@ import { setState } from './store'
 
 // Captures persist in Supabase (table `captures`, bucket `capture-photos`; see
 // docs/supabase.sql). No sign-in in the prototype: there is one shared archive,
-// so every device that opens the app sees every capture (rows still note the
-// device that made them). Without VITE_SUPABASE_URL and
+// so every device that opens the app sees every capture. Without VITE_SUPABASE_URL and
 // VITE_SUPABASE_ANON_KEY in .env.local, everything stays in memory as before.
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 const client = url && key ? createClient(url, key) : null
 
 const BUCKET = 'capture-photos'
-const DEVICE_KEY = 'baton:device-id'
-
-function deviceId() {
-  try {
-    let id = localStorage.getItem(DEVICE_KEY)
-    if (!id) {
-      id = crypto.randomUUID()
-      localStorage.setItem(DEVICE_KEY, id)
-    }
-    return id
-  } catch {
-    return 'anonymous'
-  }
-}
 
 type Row = {
   id: string
@@ -63,15 +48,14 @@ export type CaptureToSave = {
 export async function saveCapture(capture: CaptureToSave) {
   if (!client) return
   try {
-    const device = deviceId()
     let photoPath: string | null = null
     if (capture.photo) {
-      photoPath = `${device}/${crypto.randomUUID()}.jpg`
+      photoPath = `${crypto.randomUUID()}.jpg`
       const { error } = await client.storage.from(BUCKET).upload(photoPath, capture.photo, { contentType: capture.photo.type || 'image/jpeg' })
       if (error) throw error
     }
     const { error } = await client.from('captures').insert({
-      device_id: device,
+      device_id: 'app',
       photo_path: photoPath,
       question: capture.question,
       note: capture.note,
