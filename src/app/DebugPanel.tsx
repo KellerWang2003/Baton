@@ -44,6 +44,17 @@ type DebugPanelProps = {
 }
 
 const stages: Stage[] = ['moving', 'newcomer', 'local']
+const debugTabs = ['Recording', 'Demo', 'Glass', 'Playgrounds'] as const
+type DebugTab = (typeof debugTabs)[number]
+
+function readTab(): DebugTab {
+  try {
+    const saved = localStorage.getItem('debugTab')
+    return debugTabs.find((name) => name === saved) ?? 'Recording'
+  } catch {
+    return 'Recording'
+  }
+}
 
 // Team-only controls, not part of the app. Closed by default: open it from the
 // Debug button (framed) or the left-edge tab (responsive), press ` (backtick),
@@ -51,6 +62,15 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 // and F toggles the phone frame even while the panel is closed.
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
+  const [tab, setTab] = useState<DebugTab>(readTab)
+  const chooseTab = (next: DebugTab) => {
+    setTab(next)
+    try {
+      localStorage.setItem('debugTab', next)
+    } catch {
+      // not remembered
+    }
+  }
   const status = useStatus()
   const { onboardingPhotoAccess, hideNav, hideStatusBar, fewBubbles, orbMoves } = useStore()
 
@@ -136,9 +156,46 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
             </button>
           ))}
         </div>
+        <select
+          aria-label="Go to screen"
+          value={index}
+          onChange={(event) => goTo(Number(event.target.value))}
+          className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
+        >
+          {stages.map((stage) => {
+            const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage && screen.id !== 'intentions-video' && (onboardingPhotoAccess || screen.id !== 'photos'))
+            if (screens.length === 0) return null
+            return (
+              <optgroup key={stage} label={stageLabels[stage]}>
+                {screens.map(({ screen, i }) => (
+                  <option key={screen.id} value={i}>
+                    {String(i + 1).padStart(2, '0')} {screen.title}
+                  </option>
+                ))}
+              </optgroup>
+            )
+          })}
+        </select>
       </div>
 
-      <div className="flex flex-col gap-1 border-t border-line pt-3">
+      <div role="tablist" aria-label="Debug sections" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+        {debugTabs.map((name) => (
+          <button
+            key={name}
+            type="button"
+            role="tab"
+            aria-selected={tab === name}
+            onClick={() => chooseTab(name)}
+            className={cx('flex-1 rounded-full px-1 py-1 text-xs font-semibold transition', tab === name ? 'bg-ink text-surface' : 'text-ink hover:bg-surface')}
+          >
+            {name}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'Recording' && (
+        <>
+          <div className="flex flex-col gap-1">
         <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
         {framed && (
           <div className="flex flex-col gap-1.5 px-2 py-1">
@@ -172,25 +229,11 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
             )}
           </div>
         )}
-        <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
-        <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
-        <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
-        <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
-        <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
-        <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
-        <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
-        <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
-        <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
-        <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
-        <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
-        <DebugToggle label="Today orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
-        <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
-        <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
-        <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
-
-        <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
-      </div>
-
+            <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
+            <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
+            <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
+            <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
+          </div>
       <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
         <label className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">
           Background color
@@ -235,33 +278,38 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
         <p className="px-2 pt-1 text-xs text-ink-muted">1.5 seconds blank, then the intentions entrance. Resets picks.</p>
       </div>
 
-      <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
-      <PromptPicker />
-      <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
-      <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
-      <GlassControls />
+        </>
+      )}
 
-      <nav className="flex flex-col gap-2 border-t border-line pt-3">
-        {stages.map((stage) => {
-          const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage && screen.id !== 'intentions-video' && (onboardingPhotoAccess || screen.id !== 'photos'))
-          if (screens.length === 0) return null
-          return (
-            <div key={stage} data-stage={stage}>
-              <p className="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-stage">{stageLabels[stage]}</p>
-              {screens.map(({ screen, i }) => (
-                <button
-                  key={screen.id}
-                  type="button"
-                  onClick={() => goTo(i)}
-                  className={`block w-full rounded-control px-2 py-1.5 text-left hover:bg-surface-muted ${i === index && !kitOpen ? 'font-semibold text-ink' : 'text-ink-muted'}`}
-                >
-                  {String(i + 1).padStart(2, '0')} {screen.title}
-                </button>
-              ))}
-            </div>
-          )
-        })}
-      </nav>
+      {tab === 'Demo' && (
+        <>
+          <PromptPicker />
+          <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
+          <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
+          <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
+          <div className="flex flex-col gap-1 border-t border-line pt-3">
+            <DebugToggle label="Today orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
+            <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
+            <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
+          </div>
+        </>
+      )}
+
+      {tab === 'Glass' && <GlassControls />}
+
+      {tab === 'Playgrounds' && (
+        <div className="flex flex-col gap-1">
+          <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
+          <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
+          <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
+          <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
+          <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+          <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
+          <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
+          <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
+          <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
+        </div>
+      )}
 
       <p className="border-t border-line pt-2 text-xs text-ink-muted">` panel · ← → screens · 1 2 3 stage · F frame</p>
     </aside>
@@ -308,22 +356,12 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
 // shows for the component. They reset on reload like everything else.
 function GlassControls() {
   const { glassTuning: tuning } = useStore()
-  const [open, setOpen] = useState(false)
   const set = (patch: Partial<GlassTuning>) => setState((s) => ({ glassTuning: { ...s.glassTuning, ...patch } }))
   const select = 'rounded-full bg-surface-muted px-2 py-1 text-xs'
 
   return (
-    <div className="flex flex-col gap-2 border-t border-line pt-3">
-      <button
-        type="button"
-        onClick={() => setOpen((value) => !value)}
-        className="flex items-center justify-between px-2 text-xs font-semibold uppercase tracking-wide text-ink-muted"
-      >
-        Today glass
-        <span>{open ? '−' : '+'}</span>
-      </button>
-      {open && (
-        <div className="flex flex-col gap-2 px-2">
+    <div className="flex flex-col gap-2 px-2">
+      <>
           <label className="flex items-center justify-between gap-2">
             Shape
             <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
@@ -385,8 +423,7 @@ function GlassControls() {
           >
             Reset
           </button>
-        </div>
-      )}
+      </>
     </div>
   )
 }
