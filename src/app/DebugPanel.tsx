@@ -164,34 +164,14 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
       else if (event.key === 'f') toggleFrame()
       else if (['1', '2', '3'].includes(event.key)) changeStage(stages[Number(event.key) - 1])
     }
-    // On a phone: swipe right from the left edge
-    let swipe: { x: number; y: number } | null = null
-    const onTouchStart = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      swipe = touch.clientX < 24 ? { x: touch.clientX, y: touch.clientY } : null
-    }
-    const onTouchMove = (event: TouchEvent) => {
-      if (!swipe) return
-      const touch = event.touches[0]
-      if (touch.clientX - swipe.x > 40 && Math.abs(touch.clientY - swipe.y) < 40) {
-        swipe = null
-        setOpen(true)
-      }
-    }
     window.addEventListener('keydown', onKey)
-    window.addEventListener('touchstart', onTouchStart, { passive: true })
-    window.addEventListener('touchmove', onTouchMove, { passive: true })
-    return () => {
-      window.removeEventListener('keydown', onKey)
-      window.removeEventListener('touchstart', onTouchStart)
-      window.removeEventListener('touchmove', onTouchMove)
-    }
+    return () => window.removeEventListener('keydown', onKey)
   }, [index, goTo, toggleFrame])
 
   if (!open && phone) {
     // On a phone: a small see-through tab on the screen's edge. Slide it up or
-    // down, or over to the other edge; a tap (or a swipe in from the left
-    // edge) opens the panel.
+    // down, or over to the other edge; a tap opens the panel. (No edge swipe: it
+    // clashed with the browser's swipe back.)
     return (
       <button
         data-draggable
