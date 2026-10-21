@@ -6,8 +6,6 @@ export type FeatureSlide = {
   visual: 'splash' | 'folders' | 'moments' | 'recs' | 'growth'
   title: string
   body?: string
-  // A second layer on the same page: short titled points under the title
-  points?: { title: string; body: string }[]
 }
 
 export const features = {
@@ -19,31 +17,22 @@ export const features = {
     {
       visual: 'folders',
       title: 'Every city you stayed has a story',
-      body: 'Moving for school or a job? Baton keeps what you lived there: the places, the people and how it felt.',
+      body: 'Moving for school or a job? Baton is where you keep your stories.',
     },
     {
       visual: 'moments',
-      title: 'Catch the moments you’d miss',
-      body: 'A light daily prompt points you at the small, everyday things you stop noticing. It takes seconds.',
+      title: 'Hold on to your last weeks',
+      body: 'A quick daily prompt points you at the everyday things you stopped noticing.',
     },
     {
       visual: 'recs',
       title: 'Land with a head start',
-      points: [
-        {
-          title: 'Recommendations that fit you',
-          body: 'Picked from your routines in your old city, by people who lived like you.',
-        },
-        {
-          title: 'Help with the logistics',
-          body: 'A to-do list for the first weeks, with tips from people who did it before.',
-        },
-      ],
+      body: 'Recommendations from people with routines like yours, plus tips for settling into a new city.',
     },
     {
       visual: 'growth',
       title: 'See how far you’ve come',
-      body: 'The more you capture, the more you’ll see: how your life changed from city to city, and how you’re growing.',
+      body: 'Keep capturing in your new city and see how your life changes as the city becomes home.',
     },
   ] as FeatureSlide[],
   next: 'Next',
