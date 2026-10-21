@@ -29,6 +29,10 @@ export interface FluidGlassProps {
   background?: string;
   // Keep the page visible outside the glass while retaining its lit backdrop inside.
   transparentOutside?: boolean;
+  // Baton: show the picture only through the glass, so the glass is its mask
+  // and the picture stays put on the page while the glass moves over it like a
+  // spotlight (nothing is drawn outside the glass)
+  clipToGlass?: boolean;
   shape?: Shape;
   shapes?: Shape[];
   size?: number;
@@ -86,6 +90,7 @@ interface Settings {
   fit: 'cover' | 'contain';
   background: number[];
   transparentOutside: boolean;
+  clipToGlass: boolean;
   shape: Shape;
   cycle: Shape[];
   size: number;
@@ -282,6 +287,7 @@ uniform float uTextOn;
 uniform vec4 uBackground;
 uniform float uPass;
 uniform float uTransparentOutside;
+uniform float uClipToGlass;
 uniform sampler2D uBackdrop;
 uniform float uBackdropOn;
 uniform sampler2D uShadowMap;
@@ -529,7 +535,9 @@ float bandOf(float cosi, float scatter) {
 }
 
 vec4 shadeTrace(Trace tr, vec3 rd, vec4 background, vec4 tone, vec2 w, vec2 tx, vec2 ty, vec2 rx, vec2 ry) {
-  vec4 exterior = uTransparentOutside > 0.5
+  vec4 exterior = uClipToGlass > 0.5
+    ? vec4(0.0)
+    : uTransparentOutside > 0.5
     ? shade(contentLayer(w, dFdx(w), dFdy(w), vec4(0.0)), lighting(w, 1.0))
     : background;
   if (tr.mode < 0.5) return exterior;
@@ -736,6 +744,7 @@ const FluidGlass = ({
   fit = 'cover',
   background = 'transparent',
   transparentOutside = false,
+  clipToGlass = false,
   shape = 'torus',
   shapes,
   size = 260,
@@ -789,7 +798,8 @@ const FluidGlass = ({
     backdrop,
     fit,
     background: parseColor(background) || [0, 0, 0, 0],
-    transparentOutside,
+    transparentOutside: transparentOutside || clipToGlass,
+    clipToGlass,
     shape: SHAPES.includes(shape) ? shape : 'torus',
     cycle: cycle.length ? cycle : SHAPES,
     size: Math.max(16, size),
@@ -1199,6 +1209,7 @@ const FluidGlass = ({
       const bg = exteriorOnly && s.transparentOutside ? [0, 0, 0, 0] : s.background;
       gl.uniform4f(u.uBackground, bg[0] * bg[3], bg[1] * bg[3], bg[2] * bg[3], bg[3]);
       gl.uniform1f(u.uTransparentOutside, s.transparentOutside ? 1 : 0);
+      gl.uniform1f(u.uClipToGlass, s.clipToGlass ? 1 : 0);
     };
 
     const settle = () => {
@@ -1389,6 +1400,9 @@ const FluidGlass = ({
           gl.viewport(0, 0, canvas.width, canvas.height);
           gl.clearColor(0, 0, 0, 0);
           gl.clear(gl.COLOR_BUFFER_BIT);
+        }
+        // Clipped to the glass, there's nothing to show until the glass is drawn
+        if (ready(fallback) && !s.clipToGlass) {
           gl.useProgram(fallback.program);
           gl.bindVertexArray(vao);
           bindContent(fallback.uniforms as Uniforms, s, true);

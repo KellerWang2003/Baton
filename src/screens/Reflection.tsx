@@ -43,7 +43,7 @@ const LEAVE = { duration: DISSOLVE_MS, easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
 export function Reflection() {
   const prompt = useDailyPrompt()
   const { clouds } = useArchive()
-  const { capturePhoto, captureFrom, addedPhotos, orbMoves } = useStore()
+  const { capturePhoto, captureFrom, addedPhotos, orbMoves, glassTuning } = useStore()
   // Kept for the rest of the session: the photo goes on to LA's cloud
   const photo = useMemo(() => (capturePhoto ? URL.createObjectURL(capturePhoto) : null), [capturePhoto])
   const src = photo ?? FALLBACK_PHOTO
@@ -183,7 +183,7 @@ export function Reflection() {
 
           {/* Her photo as an orb, its edge glowing the color of what she wrote about */}
           <div ref={orbRef} className="mt-8">
-            <PhotoOrb src={src} size={ORB} category={category} dissolve={adding} moves={orbMoves} style={{ opacity: morphing ? 0 : 1 }} />
+            <PhotoOrb src={src} size={ORB} category={category} dissolve={adding} moves={orbMoves} tuning={glassTuning} style={{ opacity: morphing ? 0 : 1 }} />
           </div>
 
           {/* What it's about, once the color settles */}

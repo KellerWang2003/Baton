@@ -118,3 +118,14 @@ export const glassSliders: { key: keyof GlassTuning; label: string; min: number;
   { key: 'wobble', label: 'Wobble', min: 0, max: 1, step: 0.05 },
   { key: 'spin', label: 'Spin', min: 0, max: 2, step: 0.05 },
 ]
+
+// The Fluid Glass settings for a photo's bubble (the Archive's opened photos
+// and Real-life's reflection page), exactly as Today's orb uses them, so it
+// drags, gives, breathes, wobbles, spins and takes the scroll the same way
+// (Keller, Oct 21). The page sets its own size, color, rim and intro.
+export function photoGlass(tuning: GlassTuning, moves: boolean) {
+  const glass = moves ? { ...tuning, ...movingGlass } : tuning
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { color, edge, size, intro, ...props } = glass
+  return props
+}

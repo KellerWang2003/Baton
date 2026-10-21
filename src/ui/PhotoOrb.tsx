@@ -4,7 +4,8 @@ import { cx } from './cx'
 import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from './filterColor'
 import FluidGlass from './FluidGlass'
 import { GlassRim } from './GlassRim'
-import { movingGlass } from './promptGlass'
+import { defaultGlassTuning, photoGlass } from './promptGlass'
+import type { GlassTuning } from './promptGlass'
 import { useScrollNudge } from './useScrollNudge'
 import type { CloudCategory } from './PhotoCloud'
 
@@ -28,15 +29,17 @@ export const DISSOLVE_MS = 900
 // in the same way as on the Archive's opened photos (shared in filterColor):
 // the glass tints its rim and the color glows in from the edge, easing in.
 // `dissolve` gently fades the glass and the rim, leaving the photo and its glow.
-// `moves` gives the glass Today's moving orb (Keller, Oct 21): it gives when
-// dragged and springs back, breathes, wobbles, spins and is nudged by scrolling,
-// all inside the rim, which holds still.
+// `moves` makes it Today's moving orb (Keller, Oct 21), with the same `tuning`:
+// it gives when dragged and springs back, breathes, wobbles, spins and is
+// nudged by scrolling, and the glass itself is the photo's only mask (no rim):
+// the photo stays put on the page and the glass moves over it like a spotlight.
 export function PhotoOrb({
   src,
   size,
   category,
   dissolve = false,
   moves = false,
+  tuning = defaultGlassTuning,
   style,
   className,
 }: {
@@ -45,12 +48,13 @@ export function PhotoOrb({
   category: CloudCategory | null
   dissolve?: boolean
   moves?: boolean
+  tuning?: GlassTuning
   style?: CSSProperties
   className?: string
 }) {
   const box = Math.ceil((size + 4) / 0.72)
   const mask = `radial-gradient(circle at 50% 50%, black ${size / 2 - INSET - 1}px, transparent ${size / 2 - INSET}px)`
-  const picture = usePicture(src, box)
+  const picture = usePicture(src, box, moves)
   const [glassReady, setGlassReady] = useState(false)
   const rim = useEased(category ? GLASS_RIM : 0, COLOR_IN_MS)
   // The color stays once it's in, so it can ease out instead of vanishing
@@ -65,34 +69,31 @@ export function PhotoOrb({
   return (
     <div ref={root} className={cx('relative shrink-0', className)} style={{ width: size, height: size, ...style }}>
       {/* The plain photo until the glass is drawn, and after it dissolves */}
-      <div aria-hidden className="absolute overflow-hidden rounded-full" style={{ inset: INSET }}>
-        <img src={src} alt="" draggable={false} className="size-full object-cover" />
+      <div
+        aria-hidden
+        className={cx('absolute overflow-hidden rounded-full transition-opacity duration-500', moves && glassReady && !dissolve && 'opacity-0')}
+        style={{ inset: INSET }}
+      >
+        {/* As a spotlight, cropped the way the glass shows the photo at rest */}
+        <img src={src} alt="" draggable={false} className="size-full object-cover" style={{ scale: moves ? 1 / PHOTO : undefined }} />
       </div>
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity ease-out"
-        style={{ width: box, height: box, maskImage: mask, WebkitMaskImage: mask, opacity: glassReady && !dissolve ? 1 : 0, transitionDuration: `${dissolve ? DISSOLVE_MS : 500}ms` }}
+        style={{ width: box, height: box, ...(moves ? {} : { maskImage: mask, WebkitMaskImage: mask }), opacity: glassReady && !dissolve ? 1 : 0, transitionDuration: `${dissolve ? DISSOLVE_MS : 500}ms` }}
       >
         {picture && (
           <FluidGlass
+            // Set up again when switching, so the new motion takes hold
+            key={moves ? 'moves' : 'still'}
             canvas={picture}
             text=""
+            {...photoGlass(tuning, moves)}
+            clipToGlass={moves}
             shape="lens"
             size={size * LENS}
             color={shown ? filterGlassColor(shown) : '#ffffff'}
             rim={rim}
-            ring={0}
-            breathe={moves ? movingGlass.breathe : 0.1}
-            refraction={0.5}
-            dispersion={1}
-            reflection={1}
-            shadow={0}
-            interaction={moves ? movingGlass.interaction : 'static'}
-            give={moves ? movingGlass.give : 0}
-            idle={false}
             intro={false}
-            morphOnClick={false}
-            spin={moves ? movingGlass.spin : 0}
-            wobble={moves ? movingGlass.wobble : 0}
             pushRef={push}
             onReady={() => setGlassReady(true)}
           />
@@ -101,14 +102,16 @@ export function PhotoOrb({
       <span
         aria-hidden
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full transition-opacity ease-out"
-        style={{ width: glow, height: glow, opacity: category ? 1 : 0, background: color ? filterGlow(color) : undefined, transitionDuration: `${COLOR_IN_MS}ms` }}
+        // As a spotlight the glass's rim carries the color; the glow comes back
+        // with the plain photo as it dissolves
+        style={{ width: glow, height: glow, opacity: category && (!moves || dissolve) ? 1 : 0, background: color ? filterGlow(color) : undefined, transitionDuration: `${COLOR_IN_MS}ms` }}
       />
       <span
         aria-hidden
         className="absolute inset-0 transition-opacity ease-in-out"
         style={{ opacity: dissolve ? 0 : 1, transitionDuration: `${DISSOLVE_MS}ms` }}
       >
-        <GlassRim size={size} />
+        {!moves && <GlassRim size={size} />}
       </span>
     </div>
   )
@@ -135,8 +138,9 @@ function useEased(target: number, ms: number) {
 }
 
 // The photo laid out for the glass, cropped square like object-cover: across
-// the whole canvas, then again at PHOTO size in the middle
-function usePicture(src: string, box: number) {
+// the whole canvas, then again at PHOTO size in the middle. As a spotlight it's
+// just the one photo across the canvas, so it reads as a single picture
+function usePicture(src: string, box: number, spotlight: boolean) {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
   useEffect(() => {
     let alive = true
@@ -151,13 +155,13 @@ function usePicture(src: string, box: number) {
       if (!context) return
       drawCover(context, image, 0, 0, size)
       const inner = size * PHOTO
-      drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
+      if (!spotlight) drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
       setCanvas(picture)
     }
     image.src = src
     return () => {
       alive = false
     }
-  }, [src, box])
+  }, [src, box, spotlight])
   return canvas
 }

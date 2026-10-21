@@ -4,7 +4,7 @@ import { toLocal } from '../app/localPoint'
 import { goBack } from '../app/navigate'
 import { blankMoment } from '../data/archiveMoments'
 import { setState, useArchive, useStore } from '../app/store'
-import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon, movingGlass } from '../ui'
+import { ArrowLeftIcon, FluidGlass, GlassRim, MapPinIcon, photoGlass } from '../ui'
 import { useScrollNudge } from '../ui/useScrollNudge'
 import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from '../ui/filterColor'
 
@@ -37,8 +37,10 @@ const FADE_OUT = { duration: 200, easing: 'ease-out', fill: 'forwards' } as cons
 const SHRINK = { duration: 420, easing: 'cubic-bezier(0.4, 0, 0.2, 1)', fill: 'forwards' } as const
 
 // The moment she captured, laid out for the glass: the photo across the
-// whole canvas, then again at PHOTO size in the middle
-function usePicture(src: string) {
+// whole canvas, then again at PHOTO size in the middle. As a spotlight (Orb
+// moves) it's just the one photo across the canvas, so it reads as a single
+// picture wherever the glass moves over it
+function usePicture(src: string, spotlight: boolean) {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
   useEffect(() => {
     let alive = true
@@ -53,14 +55,14 @@ function usePicture(src: string) {
       if (!context) return
       drawCover(context, image, 0, 0, size)
       const inner = size * PHOTO
-      drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
+      if (!spotlight) drawCover(context, image, (size - inner) / 2, (size - inner) / 2, inner)
       setCanvas(picture)
     }
     image.src = src
     return () => {
       alive = false
     }
-  }, [src])
+  }, [src, spotlight])
   return canvas
 }
 
@@ -73,11 +75,11 @@ function usePicture(src: string) {
 // then the glass fades in over the photo and the note slaps down. Back
 // reverses it: the circle shrinks onto its photo in the cloud.
 export function ArchiveSelected() {
-  const { selectedPhoto, selectedPhotoFrom, addedMoments, orbMoves } = useStore()
+  const { selectedPhoto, selectedPhotoFrom, addedMoments, orbMoves, glassTuning } = useStore()
   // Opened straight from the debug panel or arrow keys, it shows the hike
   const { moments } = useArchive()
   const moment = { ...moments, ...addedMoments }[selectedPhoto ?? ''] ?? Object.values(moments)[0] ?? blankMoment
-  const picture = usePicture(moment.photo)
+  const picture = usePicture(moment.photo, orbMoves)
   // The filter color, softened a little toward white so it reads pastel
   // The filter color, softened to a pastel (shared with Real-life's orb)
   const tint = filterGlassColor(moment.category)
@@ -167,61 +169,63 @@ export function ArchiveSelected() {
           </h1>
         </div>
 
-        {/* The photo under liquid glass, tinted at the rim, with a hairline */}
+        {/* The photo under liquid glass, tinted at the rim. With Orb moves on
+            (Keller, Oct 21) it is Today's orb: the glass itself is the photo's
+            only mask, and the photo stays put on the page while the glass
+            drags, breathes and wobbles over it like a spotlight. Off, it holds
+            still in a glass rim with a hairline */}
         <div ref={circleRef} className="relative mt-[38px] shrink-0" style={{ width: CIRCLE, height: CIRCLE }}>
           {/* Everything in the circle grows in from the cloud together */}
           <div ref={growRef} className="pointer-events-none absolute inset-0">
             {/* The plain photo, cropped like the glass shows it (PHOTO of the
                 canvas, seen through the circle), until the glass is drawn */}
-            <div aria-hidden className="absolute overflow-hidden rounded-full" style={{ inset: INSET }}>
-              <img src={moment.photo} alt="" draggable={false} className="size-full object-cover" style={{ scale: Math.max(1, (BOX * PHOTO) / CIRCLE) }} />
+            <div
+              aria-hidden
+              className={`absolute overflow-hidden rounded-full transition-opacity duration-500 ${orbMoves && glassReady ? 'opacity-0' : ''}`}
+              style={{ inset: INSET }}
+            >
+              <img src={moment.photo} alt="" draggable={false} className="size-full object-cover" style={{ scale: orbMoves ? 1 / PHOTO : Math.max(1, (BOX * PHOTO) / CIRCLE) }} />
             </div>
             <div
               className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500 ease-out ${glassReady ? '' : 'opacity-0'}`}
-              style={{ width: BOX, height: BOX, maskImage: MASK, WebkitMaskImage: MASK }}
+              style={orbMoves ? { width: BOX, height: BOX } : { width: BOX, height: BOX, maskImage: MASK, WebkitMaskImage: MASK }}
             >
               {/* Mounted once the circle has landed: the glass sizes its
                   canvas from its size on screen, which is tiny mid-grow */}
               {picture && landed && (
                 <FluidGlass
+                  // Set up again when switching, so the new motion takes hold
+                  key={orbMoves ? 'moves' : 'still'}
                   canvas={picture}
                   text=""
+                  {...photoGlass(glassTuning, orbMoves)}
+                  clipToGlass={orbMoves}
                   shape="lens"
                   size={LENS}
                   color={tint}
                   rim={GLASS_RIM}
-                  ring={0}
-                  // With Orb moves on, it moves like Today's orb inside the
-                  // rim, which holds still (Keller, Oct 21)
-                  breathe={orbMoves ? movingGlass.breathe : 0.1}
-                  refraction={0.5}
-                  dispersion={1}
-                  reflection={1}
-                  shadow={0}
-                  interaction={orbMoves ? movingGlass.interaction : 'static'}
-                  give={orbMoves ? movingGlass.give : 0}
-                  idle={false}
                   intro={false}
-                  morphOnClick={false}
-                  spin={orbMoves ? movingGlass.spin : 0}
-                  wobble={orbMoves ? movingGlass.wobble : 0}
                   pushRef={push}
                   onReady={() => setGlassReady(true)}
                 />
               )}
             </div>
-            {/* The filter color glowing in from the edge (Figma's 329pt gradient),
-                stopping where the glass rim starts */}
-            <span
-              aria-hidden
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
-              style={{
-                width: GLOW,
-                height: GLOW,
-                background: filterGlow(color),
-              }}
-            />
-            <GlassRim size={CIRCLE} />
+            {/* Holding still: the filter color glowing in from the edge (Figma's
+                329pt gradient), stopping where the glass rim starts, and the rim */}
+            {!orbMoves && (
+              <>
+                <span
+                  aria-hidden
+                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
+                  style={{
+                    width: GLOW,
+                    height: GLOW,
+                    background: filterGlow(color),
+                  }}
+                />
+                <GlassRim size={CIRCLE} />
+              </>
+            )}
           </div>
         </div>
 
