@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, CSSProperties } from 'react'
+import type { ButtonHTMLAttributes, CSSProperties, ReactNode } from 'react'
 import { cx } from './cx'
 import type { RelayLook } from './relayLooks'
 import { relayChipIdle } from './relayLooks'
@@ -116,31 +116,40 @@ function FlatCard({ title, text, tone, photo, label, size = 'lg', onClick, paper
 
 const tilts = ['-rotate-[1.6deg]', 'rotate-[1.2deg]', '-rotate-[0.6deg]', 'rotate-[2deg]']
 
+type ScrapProps = {
+  tone: RecTone
+  // Place in its row, so scraps tilt different ways
+  index?: number
+  className?: string
+  children: ReactNode
+}
+
+// The scrapbook scrap itself: tilted paper in its category color, held on
+// with cream tape. Relay's cards and the recommendation detail page use it.
+export function Scrap({ tone, index = 0, className, children }: ScrapProps) {
+  return (
+    <div className={cx('grain relative rounded-card p-2.5 pb-4 shadow-rec', toneFill[tone], tilts[index % tilts.length], className)}>
+      <span aria-hidden className="absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper" />
+      {children}
+    </div>
+  )
+}
+
 // Scrapbook: a tilted paper scrap taped into the row
 function ScrapCard({ title, text, tone, photo, label, size = 'lg', onClick, index = 0 }: RecCardProps) {
   return (
     <div className={cx('shrink-0 snap-start px-1 pb-4 pt-3', recSizes[size].card)}>
-      <button
-        type="button"
-        onClick={onClick}
-        className={cx(
-          'grain relative flex w-full flex-col gap-2.5 rounded-card p-2.5 pb-4 text-left shadow-rec transition active:scale-[0.98]',
-          toneFill[tone],
-          tilts[index % tilts.length],
-        )}
-      >
-        <span
-          aria-hidden
-          className={cx('absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper')}
-        />
-        <div className={cx('relative w-full shrink-0 overflow-hidden rounded-tile', recSizes[size].photo)}>
-          <img src={photo} alt="" draggable={false} className="size-full object-cover" />
-        </div>
-        <div className="flex flex-col gap-1 px-1">
-          {label && <p className="text-caption font-medium opacity-60">{label}</p>}
-          <p className="font-display text-card-title font-medium">{title}</p>
-          <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
-        </div>
+      <button type="button" onClick={onClick} className="block w-full text-left transition active:scale-[0.98]">
+        <Scrap tone={tone} index={index} className="flex flex-col gap-2.5">
+          <div className={cx('relative w-full shrink-0 overflow-hidden rounded-tile', recSizes[size].photo)}>
+            <img src={photo} alt="" draggable={false} className="size-full object-cover" />
+          </div>
+          <div className="flex flex-col gap-1 px-1">
+            {label && <p className="text-caption font-medium opacity-60">{label}</p>}
+            <p className="font-display text-card-title font-medium">{title}</p>
+            <p className="line-clamp-3 text-card-body opacity-70">{text}</p>
+          </div>
+        </Scrap>
       </button>
     </div>
   )

@@ -1,10 +1,13 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { goBack } from '../app/navigate'
 import { setState, useStore } from '../app/store'
 import { pages } from '../data/pages'
 import { chloe } from '../data/people'
 import { findLeaver, relayCategory, relayCopy, relayItems, relayPlaceholderAvatar, relayPlaceholderPhoto } from '../data/relay'
-import { ArrowRightIcon, Avatar, BatonMark, BottomSheet, Button, Chip, MapPinIcon, Screen, TextArea, ToneTile } from '../ui'
+import { ArrowRightIcon, Avatar, BatonMark, BottomSheet, Button, Chip, cx, MapPinIcon, Scrap, Screen, TextArea } from '../ui'
+
+// Notes lean a little, alternating
+const noteTilts = [-2, 1.6, -1.2, 2.2]
 
 // Pushed page for one Relay pick or tip: the full story, who it came from,
 // and notes people left on it. Notes go on a recommendation, never on a whole
@@ -40,23 +43,23 @@ export function RelayDetail() {
         }
       >
         <div className="flex flex-col gap-6 pt-1">
-          <ToneTile
-            tone={category.tone}
-            src={item.photo ?? relayPlaceholderPhoto}
-            alt={item.title}
-            label={category.label}
-            className="aspect-[4/3] w-full rounded-rec"
-          />
+          {/* The card she tapped, opened up: the same scrapbook scrap in its category color */}
+          <Scrap tone={category.tone} className="mt-3 flex flex-col gap-3">
+            <img src={item.photo ?? relayPlaceholderPhoto} alt={item.title} draggable={false} className="aspect-[4/3] w-full rounded-tile object-cover" />
+            <div className="flex flex-col gap-1 px-1.5">
+              <p className="text-caption font-medium opacity-60">{category.label}</p>
+              <h1 className="font-display text-title-1 font-medium">{item.title}</h1>
+              {item.place && (
+                <p className="flex items-center gap-1 text-subhead opacity-70">
+                  <MapPinIcon className="size-4 shrink-0" />
+                  {item.place}
+                </p>
+              )}
+            </div>
+          </Scrap>
 
           <div className="flex flex-col gap-3 px-1">
-            <h1 className="font-display text-large-title font-normal text-baton-navy">{item.title}</h1>
             {item.quote && <p className="font-display text-title-2 text-baton-navy">“{item.quote}”</p>}
-            {item.place && (
-              <p className="flex items-center gap-1 text-subhead text-ink-muted">
-                <MapPinIcon className="size-4 shrink-0" />
-                {item.place}
-              </p>
-            )}
             <p className="text-body text-ink">{item.body}</p>
           </div>
 
@@ -85,7 +88,7 @@ export function RelayDetail() {
             )}
           </div>
 
-          <section className="flex flex-col gap-2.5">
+          <section className="flex flex-col gap-4">
             <h2 className="font-display text-title-3 font-medium text-baton-navy">
               {relayCopy.notesHeader}
               <span className="ml-1.5 font-normal text-ink-muted">{item.notes.length + mine.length}</span>
@@ -95,14 +98,23 @@ export function RelayDetail() {
               ...item.notes,
               ...mine.map((text) => ({ from: relayCopy.you, detail: relayCopy.youDetail, text })),
             ].map((note, index) => (
-              <div key={index} className="flex gap-3 rounded-card bg-card p-4 shadow-card animate-fade-in">
+              // Post-its like her Archive notes, tilting either way; one she just
+              // left slaps down
+              <div
+                key={index}
+                className={cx(
+                  'flex gap-3 rounded-[10px] bg-note-yellow p-4 shadow-moment-note',
+                  index >= item.notes.length ? 'animate-note-stick' : 'rotate-(--note-tilt)',
+                )}
+                style={{ '--note-tilt': `${noteTilts[index % noteTilts.length]}deg` } as CSSProperties}
+              >
                 <Avatar name={note.from === relayCopy.you ? chloe.name : note.from} src={note.from === relayCopy.you ? chloe.avatar : undefined} size="sm" />
                 <div className="min-w-0">
                   <p className="text-subhead">
                     <span className="font-medium text-baton-navy">{note.from}</span>
                     <span className="text-ink-muted"> · {note.detail}</span>
                   </p>
-                  <p className="text-body text-ink">{note.text}</p>
+                  <p className="text-body text-baton-navy">{note.text}</p>
                 </div>
               </div>
             ))}
