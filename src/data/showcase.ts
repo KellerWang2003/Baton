@@ -24,8 +24,6 @@ export const thingsToTry: Record<Stage, TryItem[]> = {
   ],
   local: [
     { text: 'Tap Let’s go to see how her life changed since LA.' },
-    { text: 'Compare her café seat in LA and New York.' },
-    { text: 'Check her progress on the intentions she set.' },
     { text: 'Open Archive to see New York filled in.' },
   ],
 }
