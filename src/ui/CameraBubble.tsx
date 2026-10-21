@@ -90,7 +90,7 @@ const clipTo = (box: Box, width: number, height: number) =>
 // (always the live camera, Keller Oct 21; the green screen is gone):
 // the circle morphs into a rounded rectangle with the live camera in it, the
 // prompt moves to the top, and a round button below takes the photo, which goes
-// on to Capture to be saved. A small close button at the top left goes back.
+// on to the sticky-note reflection page. A small close button at the top left goes back.
 export function CameraBubble() {
   const { camera, realLife } = useStore()
   const prompt = useDailyPrompt()
@@ -280,12 +280,13 @@ export function CameraBubble() {
   // The photo, taken or picked from her library, goes on to be saved
   const finish = (photo: File) => {
     stop()
-    // Real-life: where the picture is, so the reflection page can turn it into its orb
+    // Where the picture is, so the reflection page can turn it into its orb
     const shown = picture.current?.getBoundingClientRect()
-    const captureFrom = realLife && shown ? { x: shown.left, y: shown.top, width: shown.width, height: shown.height } : null
+    const captureFrom = shown ? { x: shown.left, y: shown.top, width: shown.width, height: shown.height } : null
     setState({ capturePhoto: photo, camera: null, composing: false, captureFrom })
-    // Real-life: on to writing a line about it
-    navigate(realLife ? 'reflection' : 'capture')
+    // Always on to the sticky note, where what it's about is read (Keller,
+    // Oct 21: never the old Capture page)
+    navigate('reflection')
   }
 
   // Freeze the current frame over the camera, then switch to the other one
