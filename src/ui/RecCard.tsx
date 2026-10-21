@@ -120,15 +120,17 @@ type ScrapProps = {
   tone: RecTone
   // Place in its row, so scraps tilt different ways
   index?: number
+  // Off for a scrap that stands alone (the recommendation detail page)
+  tilt?: boolean
   className?: string
   children: ReactNode
 }
 
 // The scrapbook scrap itself: tilted paper in its category color, held on
 // with cream tape. Relay's cards and the recommendation detail page use it.
-export function Scrap({ tone, index = 0, className, children }: ScrapProps) {
+export function Scrap({ tone, index = 0, tilt = true, className, children }: ScrapProps) {
   return (
-    <div className={cx('grain relative rounded-card p-2.5 pb-4 shadow-rec', toneFill[tone], tilts[index % tilts.length], className)}>
+    <div className={cx('grain relative rounded-card p-2.5 pb-4 shadow-rec', toneFill[tone], tilt && tilts[index % tilts.length], className)}>
       <span aria-hidden className="absolute -top-3 left-1/2 z-10 h-6 w-20 -translate-x-1/2 -rotate-3 bg-baton-cream shadow-paper" />
       {children}
     </div>

@@ -29,6 +29,13 @@ export const relayYou = { x: 174, y: 450 }
 export const relayPlaceholderPhoto = '/relay/placeholder.jpg'
 export const relayPlaceholderAvatar = '/relay/avatar-placeholder.jpg'
 
+// Stand-in portraits for leavers and note writers (Keller, Oct 21: real
+// faces, not initials), in public/people/ with CREDITS.md
+const relayFaces = ['Jess', 'Kai', 'Leo', 'Marco', 'Priya', 'Maya', 'Ana', 'Sam', 'Mina', 'Theo']
+export function relayAvatar(name: string) {
+  return relayFaces.includes(name) ? `/people/${name.toLowerCase()}.jpg` : relayPlaceholderAvatar
+}
+
 export type RelayNote = { from: string; detail: string; text: string }
 
 export type RelayLeaver = {

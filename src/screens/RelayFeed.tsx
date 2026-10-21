@@ -1,4 +1,4 @@
-import { relayCategory, relayCopy, relayPlaceholderAvatar, relayPlaceholderPhoto } from '../data/relay'
+import { relayCategory, relayCopy, relayAvatar, relayPlaceholderPhoto } from '../data/relay'
 import type { ReactNode } from 'react'
 import type { RelayItem, RelayLeaver } from '../data/relay'
 import { Avatar, CardRow, RecCard, cx, relaySection } from '../ui'
@@ -49,7 +49,7 @@ export function RelayFeed({ look, headers, picks, people, onOpen }: RelayFeedPro
           {people.map(({ leaver, tips }) => (
             <div key={leaver.id} className="flex flex-col gap-4 not-first-of-type:mt-4">
               <div data-relay-person className="flex items-center gap-3">
-                <Avatar name={leaver.name} src={relayPlaceholderAvatar} size="sm" />
+                <Avatar name={leaver.name} src={relayAvatar(leaver.name)} size="sm" />
                 <div className="min-w-0">
                   <p className="text-card-body text-ink">{relayCopy.legacy(leaver.name)}</p>
                   <p className="truncate text-[11px] leading-[1.2] text-ink/60">
