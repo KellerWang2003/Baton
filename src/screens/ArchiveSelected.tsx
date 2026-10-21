@@ -124,7 +124,7 @@ export function ArchiveSelected() {
               glass is drawn once it has landed, since it sizes its canvas from
               its size on screen, which is tiny mid-grow */}
           <div ref={growRef} className="absolute inset-0">
-            <PhotoOrb src={moment.photo} size={CIRCLE} category={moment.category} moves={orbMoves} tuning={glassTuning} glass={landed} />
+            <PhotoOrb src={moment.photo} size={CIRCLE} category={moment.category} moves={orbMoves} tuning={glassTuning} glass={landed} idle={false} />
           </div>
         </div>
 

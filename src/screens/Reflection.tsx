@@ -50,8 +50,6 @@ export function Reflection() {
   const [text, setText] = useState('')
   const [category, setCategory] = useState<CloudCategory | null>(null)
   const [adding, setAdding] = useState(false)
-  // While she's writing (the keyboard is up) the button steps aside
-  const [typing, setTyping] = useState(false)
   const noteRef = useRef<HTMLTextAreaElement>(null)
   const rootRef = useRef<HTMLDivElement>(null)
   const orbRef = useRef<HTMLDivElement>(null)
@@ -207,8 +205,6 @@ export function Reflection() {
               ref={noteRef}
               value={text}
               onChange={(event) => setText(event.target.value)}
-              onFocus={() => setTyping(true)}
-              onBlur={() => setTyping(false)}
               placeholder={reflectionCopy.placeholder}
               className="block size-full resize-none bg-transparent text-moment-note text-baton-navy placeholder:text-baton-navy/40 focus:outline-none"
             />
@@ -233,10 +229,11 @@ export function Reflection() {
         <ArrowLeftIcon />
       </button>
 
-      {/* Pinned to the bottom, out of the way while she's typing */}
+      {/* Pinned to the bottom and always there, even with nothing written,
+          since a capture can be saved without a note (Keller, Oct 21) */}
       <div className={`pointer-events-none absolute inset-x-0 bottom-[36px] z-10 flex justify-center ${adding ? away : settle}`}>
-        <div className={`transition duration-300 ease-out ${typing ? 'translate-y-4 opacity-0' : 'pointer-events-auto'}`} aria-hidden={typing}>
-          <Button variant="glow" onClick={addToArchive} tabIndex={typing ? -1 : undefined} className="h-[52px] w-[309px] text-cta">
+        <div className="pointer-events-auto">
+          <Button variant="glow" onClick={addToArchive} className="h-[52px] w-[309px] text-cta">
             {reflectionCopy.save}
           </Button>
         </div>

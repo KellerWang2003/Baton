@@ -50,6 +50,8 @@ export const DISSOLVE_MS = 900
 // is the photo's only mask (no rim): the photo, bleeding past the glass's
 // edge, stays put on the page while the glass moves over it like a spotlight.
 // Give its wrapper a z-index so the glass stays above what follows it.
+// `idle` false stops it moving on its own (no breathe, wobble or spin; the
+// Archive's opened photos, Keller Oct 21); it still gives when dragged.
 export function PhotoOrb({
   src,
   size,
@@ -57,6 +59,7 @@ export function PhotoOrb({
   dissolve = false,
   moves = false,
   glass = true,
+  idle = true,
   tuning = defaultGlassTuning,
   style,
   className,
@@ -67,6 +70,7 @@ export function PhotoOrb({
   dissolve?: boolean
   moves?: boolean
   glass?: boolean
+  idle?: boolean
   tuning?: GlassTuning
   style?: CSSProperties
   className?: string
@@ -115,6 +119,7 @@ export function PhotoOrb({
             canvas={picture}
             text=""
             {...photoGlass(tuning, moves)}
+            {...(idle ? {} : { breathe: 0, wobble: 0, spin: 0 })}
             clipToGlass={moves}
             backdrop={backdrop}
             // Paper wherever neither the photo nor the page covers
