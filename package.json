@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "icons": "sh scripts/icons.sh"
+    "icons": "sh scripts/icons.sh",
+    "seed": "node scripts/seed-supabase.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.136.0",

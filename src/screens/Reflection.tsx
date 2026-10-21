@@ -3,8 +3,8 @@ import { judgeReflection } from '../app/judgeReflection'
 import { toLocal } from '../app/localPoint'
 import { navigate } from '../app/navigate'
 import { saveCapture } from '../app/supabase'
-import { setState, useDailyPrompt, useStore } from '../app/store'
-import { archiveClouds, freeSpot } from '../data/archiveCloud'
+import { setState, useArchive, useDailyPrompt, useStore } from '../app/store'
+import { freeSpot } from '../data/archiveCloud'
 import { reflectionCopy } from '../data/pages'
 import { reflectionCategoryLabel } from '../data/reflection'
 import { ArrowLeftIcon, Button, PhotoOrb } from '../ui'
@@ -42,6 +42,7 @@ const LEAVE = { duration: DISSOLVE_MS, easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
 // cloud (ArchiveDetail plays the landing).
 export function Reflection() {
   const prompt = useDailyPrompt()
+  const { clouds } = useArchive()
   const { capturePhoto, captureFrom, addedPhotos, orbMoves } = useStore()
   // Kept for the rest of the session: the photo goes on to LA's cloud
   const photo = useMemo(() => (capturePhoto ? URL.createObjectURL(capturePhoto) : null), [capturePhoto])
@@ -120,7 +121,7 @@ export function Reflection() {
     await orbRef.current?.animate([{ transform: 'scale(1)' }, { transform: `scale(${LEAVE_SCALE})` }], LEAVE).finished
     // A unique address in the cloud, even for the stand-in photo
     const cloudSrc = photo ?? `${FALLBACK_PHOTO}?added=${Date.now()}`
-    const spot = freeSpot([...(archiveClouds.la ?? []), ...addedPhotos], CLOUD_SIZE)
+    const spot = freeSpot([...(clouds.la ?? []), ...addedPhotos], CLOUD_SIZE)
     const at = orbRef.current?.getBoundingClientRect()
     const time = momentTime(new Date())
     void saveCapture({

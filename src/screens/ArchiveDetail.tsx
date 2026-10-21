@@ -3,9 +3,8 @@ import { clearFolderOpening, pendingFolderOpening, playFolderEnter } from '../ap
 import { toLocal } from '../app/localPoint'
 import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
-import { setState, useStatus, useStore } from '../app/store'
-import { archiveMoments } from '../data/archiveMoments'
-import { archiveClouds, cloudFilters } from '../data/archiveCloud'
+import { setState, useArchive, useStatus, useStore } from '../app/store'
+import { cloudFilters } from '../data/archiveCloud'
 import { pages } from '../data/pages'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
 import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, Screen, VisibilityBadge } from '../ui'
@@ -26,9 +25,10 @@ export function ArchiveDetail() {
   // Opened straight from the debug panel or arrow keys, it shows LA (the story)
   const folder = folders.find((item) => item.id === (selectedFolder ?? 'la')) ?? folders[0]
   // LA also shows the photos added from the reflection page (Real-life)
-  const base = archiveClouds[folder.id]
+  const { clouds, moments: archived } = useArchive()
+  const base = clouds[folder.id]
   const cloud = base && folder.id === 'la' ? [...base, ...addedPhotos] : base
-  const moments = { ...archiveMoments, ...addedMoments }
+  const moments = { ...archived, ...addedMoments }
   // Back from an opened photo, the cloud is where she left it: same spot,
   // zoom and filter. Read once; opened any other way it starts fresh.
   const [resume] = useState(() => cloudView)
