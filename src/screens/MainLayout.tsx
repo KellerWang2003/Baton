@@ -60,9 +60,10 @@ export function MainLayout({ title, subtitle, children, bleed = false, profile =
           aria-label="Profile"
           className="relative inline-flex shrink-0 items-center justify-center rounded-full transition-transform duration-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand motion-reduce:transition-none"
         >
-          <Avatar name={chloe.name} src={chloe.avatar} size="md" />
-          {/* Her stage, hanging just under the picture (Figma TODAY 334:10047) */}
-          <StageTag stage={status} label={stageTags[status]} className="absolute -bottom-[18px] left-1/2 -translate-x-1/2" />
+          {/* As big as the greeting's two lines, like Profile's picture (Keller, Oct 21) */}
+          <Avatar name={chloe.name} src={chloe.avatar} size="lg" className="size-16 shadow-card" />
+          {/* Her stage, overlapping the bottom of the picture (Figma TODAY 334:10047) */}
+          <StageTag stage={status} label={stageTags[status]} className="absolute -bottom-5 left-1/2 -translate-x-1/2" />
         </button>
       )}
     </header>
