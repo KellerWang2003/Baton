@@ -7,4 +7,6 @@ export const chloe = {
   from: 'Los Angeles',
   to: 'New York',
   leavingOn: 'Dec 19',
+  // Shown on Profile when onboarding was skipped (the demo starts past it)
+  tags: ['Student', 'International', 'Moving alone'],
 }

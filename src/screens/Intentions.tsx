@@ -3,7 +3,7 @@ import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, toggleIn, useStore } from '../app/store'
 import { goalBubbles, intentions } from '../data/intentions'
-import { ArrowRightIcon, Button, FluidGlass } from '../ui'
+import { ArrowRightIcon, Button, FluidGlass, pickedGoalFill } from '../ui'
 import { cx } from '../ui/cx'
 import { defaultGlassTuning } from '../ui/promptGlass'
 
@@ -451,11 +451,7 @@ function Bubble({ label, glass, picked, x, y, delay, onTap }: BubbleProps) {
           'absolute inset-0 rounded-full transition-[scale,opacity] duration-500 ease-[cubic-bezier(0.34,1.4,0.64,1)]',
           picked ? 'scale-100 opacity-100' : 'scale-60 opacity-0',
         )}
-        // Brand blue in the middle, softening to a pale blue at the edge
-        style={{
-          background:
-            'radial-gradient(circle closest-side, var(--color-baton-blue) 0%, color-mix(in srgb, var(--color-baton-blue) 68%, white) 45%, color-mix(in srgb, var(--color-baton-blue) 38%, white) 85%, color-mix(in srgb, var(--color-baton-blue) 30%, white) 100%)',
-        }}
+        style={{ background: pickedGoalFill }}
       />
       <span className="relative mx-auto block w-[93px] text-center text-[18px] leading-[21px] tracking-[-0.011em] text-baton-navy">
         {label}

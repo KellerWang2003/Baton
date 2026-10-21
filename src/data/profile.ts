@@ -1,11 +1,6 @@
 import type { Stage } from '../flow'
 
 export const profile = {
-  journey: 'Your journey',
-  update: 'Update stage',
-  from: 'From',
-  to: 'Next stop',
-  arrived: 'Now in',
   departure: 'Leaving',
   intentions: 'Make room for what’s next.',
   intentionsDetail: 'Choose what you want to try, find, or make time for in New York.',
@@ -13,15 +8,24 @@ export const profile = {
   editIntentions: 'Edit intentions',
   about: 'About you',
   aboutDetail: 'A little context helps Baton find tips from people with a life like yours.',
-  addTags: 'Add a few details',
   edit: 'Edit',
   keepsakes: 'Your time in LA',
   keepsakesDetail: 'Your moments and the people who were part of them.',
   lifestyle: 'See how your life has changed',
-  stageTitle: 'Your stage',
+  // Her lifestyle sentence: LA so far while Moving, the snapshot from her
+  // last night after that, and New York next to it once she's a Local
+  lifestyleTitle: 'Your lifestyle',
+  lifestyleWhen: {
+    moving: 'Los Angeles · so far',
+    newcomer: 'Los Angeles · your snapshot, Dec 18',
+    local: 'Los Angeles · your snapshot, Dec 18',
+  } satisfies Record<Stage, string>,
+  nowWhen: 'New York · now',
+  // Your time in LA, as two scraps
+  wrappedPhoto: '/wrapped/m21-aug01.jpg',
+  paperPhoto: '/archive/la-party-1.jpg',
   tagsTitle: 'About you',
   save: 'Save changes',
-  stageDetail: 'Choose where you are in your move. Your Today page and recommendations will follow.',
   stages: {
     moving: 'Making the most of Los Angeles before your next chapter.',
     newcomer: 'Finding your feet and your favorite places in New York.',

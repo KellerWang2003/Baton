@@ -95,3 +95,4 @@ export {
   StackIcon,
   TodayIcon,
 } from './icons'
+export { pickedGoalFill } from './goalBubble'
