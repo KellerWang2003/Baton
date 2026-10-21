@@ -33,9 +33,10 @@
   --text-status: 17px;
   --text-status--line-height: 22px;
   --text-status--letter-spacing: -0.8px;
-  /* Filter name on the Archive photo orb: shows at 18pt (Keller, Oct 19; 16pt in
-     Figma ARCHIVE_detail feeling, 267:5758), set at 22.5 because the orb draws at 80% in filter mode */
-  --text-orb-label: 22.5px;
+  /* Filter name in the pill above the Archive photo orb: shows at 16pt (Keller, Oct 21,
+     a little smaller than 18; 16pt in Figma ARCHIVE_detail feeling, 267:5758), set at 20
+     because the orb draws at 80% in filter mode */
+  --text-orb-label: 20px;
   --text-orb-label--line-height: 1.3;
   --text-orb-label--letter-spacing: -0.011em;
   /* A photo opened from the Archive cloud (Figma ARCHIVE_selected, 236:234):
