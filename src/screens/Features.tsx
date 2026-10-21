@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { navigate } from '../app/navigate'
 import { features, type FeatureStage } from '../data/onboarding'
-import { ArrowRightIcon, BatonMark, Button, Steps } from '../ui'
+import { archiveFolders } from '../data/stages'
+import { ArrowRightIcon, BatonMark, Button, FolderStack, Steps } from '../ui'
 import { cx } from '../ui/cx'
 
 // Feature overview before sign up: Baton as a journey through the three
@@ -55,7 +56,15 @@ export function Features() {
           </div>
         </div>
       )}
-      {!slide.stage && (
+      {index === 0 && (
+        // The real Archive folder stack, just to look at
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-[56%] overflow-hidden">
+          <div className="h-[161%] w-[161%] origin-top-left scale-[0.62]">
+            <FolderStack className="bg-baton-paper" folders={archiveFolders()} initialId="la" onSelect={() => {}} />
+          </div>
+        </div>
+      )}
+      {last && (
         <div className="absolute inset-x-0 top-0 flex h-[44%] items-center justify-center">
           <BatonMark className="size-28 text-brand" />
         </div>

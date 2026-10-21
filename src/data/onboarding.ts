@@ -26,13 +26,13 @@ export const features = {
     {
       eyebrow: 'Baton',
       title: 'Every city has a story.',
-      body: 'We let the last person who lived there tell it to the next.',
+      body: 'Baton is where you keep yours.',
     },
     {
       stage: 'moving',
       eyebrow: 'Moving',
-      title: 'Hold on to the last weeks',
-      body: 'A few seconds a day for the places, people and feelings your camera roll misses, kept in a private archive. When you leave, you choose what to pass on.',
+      title: 'Capture the last weeks',
+      body: 'A photo or a line a day, kept private. When you leave, you choose what to pass on.',
       photos: ['/archive/la-sunset.jpg', '/archive/la-tacos-1.jpg'],
     },
     {
@@ -55,7 +55,7 @@ export const features = {
       stage: 'local',
       eyebrow: 'Local',
       title: 'See how far you’ve come',
-      body: 'Your new life next to your old one, and how you’re doing on what you hoped for. Then you hand it on.',
+      body: 'Your new life next to your old one, and how you’re doing on what you hoped for.',
       photos: ['/relay/ana-cafe.jpg', '/relay/cafe.jpg'],
     },
     {
