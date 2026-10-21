@@ -78,8 +78,6 @@
 .try-item:nth-child(3) { animation-delay: 80ms; }
 .try-item:nth-child(4) { animation-delay: 120ms; }
 .try-item:nth-child(5) { animation-delay: 160ms; }
-/* The step that matters on the screen showing (e.g. choose Moving soon) */
-.try-item-now { color: var(--color-brand); font-weight: 500; }
 .try-number { flex-shrink: 0; width: 14px; opacity: 0.7; }
 @keyframes try-in { from { opacity: 0; transform: translateY(6px); } }
 

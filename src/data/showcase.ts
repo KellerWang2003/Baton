@@ -3,17 +3,11 @@ import type { Stage } from '../flow'
 // Screens that count as onboarding beside the phone (journey selector, Things to try)
 export const onboardingScreens = new Set(['features', 'signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'])
 
-// "Things to try" beside the phone on desktop (TryList), one list per moment
-// of Chloe's journey. Placeholder copy for Keller to rewrite. `screen` marks the
-// item to highlight while that screen shows.
-export type TryItem = { text: string; screen?: string }
+// "Things to try" beside the phone on desktop (TryList), one list per stage
+// (none during onboarding). Placeholder copy for Keller to rewrite.
+export type TryItem = { text: string }
 
-export const thingsToTry: Record<Stage | 'onboarding', TryItem[]> = {
-  onboarding: [
-    { text: 'Swipe through what Baton does.' },
-    { text: 'On Tell us about yourself, choose Moving soon.', screen: 'about' },
-    { text: 'Pick a few tags that fit Chloe, then finish setting up.' },
-  ],
+export const thingsToTry: Record<Stage, TryItem[]> = {
   moving: [
     { text: 'Tap the glass circle on Today to answer the daily prompt with a photo.' },
     { text: 'Write a line about it and add it to her archive.' },

@@ -11,8 +11,7 @@ export function DemoNote({ children }: { children: ReactNode }) {
       const screen = document.querySelector('[data-device-page] [data-app-root]')
       const rect = screen?.parentElement?.getBoundingClientRect()
       const left = rect ? rect.right + 28 : 0
-      // From 1100px wide, Things to try (TryList) carries the note instead
-      setSpot(rect && window.innerWidth < 1100 && left + 240 < window.innerWidth ? { left, top: rect.top + rect.height / 2 } : null)
+      setSpot(rect && left + 240 < window.innerWidth ? { left, top: rect.top + rect.height / 2 } : null)
     }
     place()
     const observer = new ResizeObserver(place)
