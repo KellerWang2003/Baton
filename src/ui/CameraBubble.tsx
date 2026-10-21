@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { navigate } from '../app/navigate'
 import { setState, useDailyPrompt, useStore } from '../app/store'
 import { cx } from './cx'
+import { defaultGlassTuning } from './promptGlass'
 import { BackButton } from './BackButton'
 
 // What the camera shows when there's no camera to use (a laptop without one, or
@@ -147,7 +148,9 @@ export function CameraBubble() {
         height: size,
         radius: size / 2,
       })
-      setText(promptLayout(prompt.question, size, (camera.cy - bounds.top) / scale))
+      // Opened from a small button (the + on an empty city), the prompt is
+      // still set as wide as Today's glass would set it
+      setText(promptLayout(prompt.question, Math.max(size, defaultGlassTuning.size), (camera.cy - bounds.top) / scale))
       setScreen({ width: box.offsetWidth, height: box.offsetHeight })
       setTarget({
         left: sideMargin,

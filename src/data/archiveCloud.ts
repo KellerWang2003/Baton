@@ -59,4 +59,8 @@ function layoutCloud(count: number): CloudPhoto[] {
   return photos.map((photo) => ({ ...photo, y: photo.y + shift }))
 }
 
-export const newYorkCloud = { newcomer: layoutCloud(3), local: layoutCloud(newYorkPhotos.length) }
+// Keller, Oct 21: just landed, her New York archive is still empty
+export const newYorkCloud = { newcomer: [] as CloudPhoto[], local: layoutCloud(newYorkPhotos.length) }
+
+// In the middle of a city's page while it has no photos yet
+export const emptyCloudPrompt = (city: string) => `Capture a moment to start\nyour ${city} archive.`

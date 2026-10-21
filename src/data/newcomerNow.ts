@@ -7,7 +7,10 @@ export const newcomerNow = {
   title: { lead: 'You’re a', rest: 'in New York now' },
   // Two lines: the second starts at "Here’s"
   subtitle: 'Your LA chapter is saved.\nHere’s to the next one.',
-  cta: 'Start in New York',
+  // Keller, Oct 21: the main button opens Archive, where the new New York
+  // folder files itself in; the quiet one under it goes straight to Today
+  cta: 'Check out your new Archive',
+  secondary: 'Go to Today',
   // Same colors as their Archive folders (FolderStack's folderTones)
   la: { city: 'LA', dates: '09.2023-01.2027', tone: 'blue' as const },
   ny: { city: 'New York', dates: '01.2027-', tone: 'yellow' as const },

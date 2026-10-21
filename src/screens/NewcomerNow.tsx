@@ -1,10 +1,12 @@
 import { navigate } from '../app/navigate'
+import { setState } from '../app/store'
 import { newcomerNow } from '../data/newcomerNow'
 import { ArrowRightIcon, Button, cx, folderTones, StageTag, TAB_PATH, TAB_WIDTH } from '../ui'
 
 // "You're a Newcomer now": shown after LA Wrapped. Her LA folder slides aside
-// and a new, empty New York folder lands on top of it, then the heading and
-// on to Today.
+// and a new, empty New York folder lands on top of it, then the heading. The
+// main button opens Archive, where that folder files itself in; the quiet one
+// under it goes on to Today.
 export function NewcomerNow() {
   return (
     <div className="relative flex h-full flex-col items-center bg-baton-paper font-display text-baton-navy">
@@ -29,13 +31,28 @@ export function NewcomerNow() {
       </div>
 
       <div
-        className="absolute inset-x-0 bottom-[36px] flex animate-splash-rise justify-center"
+        className="absolute inset-x-0 bottom-[20px] flex animate-splash-rise flex-col items-center"
         style={{ animationDelay: '1400ms' }}
       >
-        <Button variant="glow" size="cta" onClick={() => navigate('today')} className="w-[309px]">
+        <Button
+          variant="glow"
+          size="cta"
+          onClick={() => {
+            setState({ archiveArrival: 'ny', archiveSegment: 'mine' })
+            navigate('archive')
+          }}
+          className="w-[309px]"
+        >
           {newcomerNow.cta}
           <ArrowRightIcon />
         </Button>
+        <button
+          type="button"
+          onClick={() => navigate('today')}
+          className="mt-1 h-11 px-6 text-callout font-medium text-baton-navy/60 transition active:opacity-50"
+        >
+          {newcomerNow.secondary}
+        </button>
       </div>
     </div>
   )

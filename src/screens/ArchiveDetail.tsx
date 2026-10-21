@@ -5,9 +5,9 @@ import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
 import { deleteCapture } from '../app/supabase'
-import { cloudFilters, newYorkCloud } from '../data/archiveCloud'
+import { cloudFilters, emptyCloudPrompt, newYorkCloud } from '../data/archiveCloud'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
-import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, Screen, VisibilityBadge } from '../ui'
+import { CameraBubble, FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, PlusIcon, Screen, VisibilityBadge } from '../ui'
 import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../ui'
 
 // Pushed detail page for a single city folder in Archive, opened by tapping
@@ -132,8 +132,26 @@ export function ArchiveDetail() {
           }}
           hidden={menu?.photo}
         />
+        {/* Nothing here yet: the prompt, and a + that opens Today's camera
+            out of itself (Keller, Oct 21) */}
+        {cloud.length === 0 && (
+          <div className="pointer-events-none absolute inset-0 flex animate-fade-in flex-col items-center justify-center gap-5">
+            <p className="text-center font-display text-callout whitespace-pre-line text-ink-faint">{emptyCloudPrompt(folder.city)}</p>
+            <button
+              type="button"
+              aria-label="Capture a moment"
+              onClick={(event) => {
+                const rect = event.currentTarget.getBoundingClientRect()
+                setState({ camera: { cx: rect.left + rect.width / 2, cy: rect.top + rect.height / 2, size: rect.width }, composing: false })
+              }}
+              className="pointer-events-auto flex size-14 items-center justify-center rounded-full bg-brand text-on-brand shadow-float transition active:opacity-80"
+            >
+              <PlusIcon />
+            </button>
+          </div>
+        )}
         <FolderSideTab folder={folder} onClick={() => goBack()} className="absolute top-6 -left-[7px]" />
-        <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />
+        {cloud.length > 0 && <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />}
         {menu && (
           <PhotoMenu
             key={`${menu.photo.src}|${menu.photo.x}|${menu.photo.y}`}
@@ -144,6 +162,7 @@ export function ArchiveDetail() {
             onClose={() => setMenu(null)}
           />
         )}
+        {cloud.length === 0 && <CameraBubble />}
       </div>
     )
   }

@@ -24,6 +24,9 @@ type FolderStackProps = {
   // Shown once, centered at the bottom of the last folder just above the tab
   // bar, in that folder's quiet text color, when the last folder is open
   footer?: ReactNode
+  // A folder that files itself in when the stack opens, sliding down into its
+  // slot from above
+  arrivingId?: string
   className?: string
 }
 
@@ -71,7 +74,7 @@ function tick(ms = 8) {
 //   focus expands and the others collapse, all of them staying on screen.
 // - Flick to turn one folder, drag to step through them (see above).
 // - Tap a peeking folder to bring it into focus, tap the open one to select it.
-export function FolderStack({ folders, onSelect, initialId, renderActive, footer, className }: FolderStackProps) {
+export function FolderStack({ folders, onSelect, initialId, renderActive, footer, arrivingId, className }: FolderStackProps) {
   const wheelTimerRef = useRef<number | null>(null)
   const wheelGestureRef = useRef(createWheelGesture())
   const dragStateRef = useRef<{
@@ -333,6 +336,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
               className={cx(
                 'group relative flex w-full shrink-0 flex-col text-left',
                 index > 0 && 'drop-shadow-[0_-8px_18px_rgb(0_0_0/0.12)]',
+                folder.id === arrivingId && 'animate-folder-file-in',
               )}
             >
               {/* Protruding folder tab, same outline as the Figma frame */}

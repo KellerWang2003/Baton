@@ -141,7 +141,8 @@ export const archiveSummaries: Record<string, Partial<Record<Stage, ArchiveSumma
   },
   ny: {
     newcomer: {
-      parts: ['Still being written. Your first weeks here', [photo('Exploring the new neighborhood', '/relay/greenpoint.jpg')], 'will show up as you add to your archive.'],
+      // No photo yet: her New York archive starts out empty (Keller, Oct 21)
+      parts: ['Still being written. Your first weeks here will show up as you add to your archive.'],
     },
     local: {
       parts: [

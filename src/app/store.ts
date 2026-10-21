@@ -41,6 +41,9 @@ type State = {
   expectedLeaveMonth: string
   // Which Archive segment opens (the legacy card on Today opens Legacy)
   archiveSegment: 'mine' | 'legacy'
+  // A city folder that files itself into Archive the next time it opens (the
+  // new New York one, from You're a Newcomer now); cleared once it has played
+  archiveArrival: string | null
   // Which city folder in Archive was tapped (opens the detail page next)
   selectedFolder: string | null
   // Which photo in a city's photo cloud was tapped (its cloud image src), and
@@ -140,6 +143,7 @@ let state: State = {
   leaveDate: leave.defaultDate,
   expectedLeaveMonth: '',
   archiveSegment: 'mine',
+  archiveArrival: null,
   selectedFolder: null,
   selectedPhoto: null,
   addedPhotos: [],
