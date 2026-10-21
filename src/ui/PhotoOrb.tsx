@@ -17,6 +17,10 @@ const LENS = 305 / 342
 // The whole photo shows through the lens (it magnifies the middle), with a
 // full-bleed copy behind it for the glass to bend at the rim
 const PHOTO = 0.5
+// Moving, how much of the box the one photo covers: a little less than all of
+// it, so a short drag reaches its edges (Keller, Oct 21); past them the glass
+// shows the page
+const SPOTLIGHT = 0.7
 // The glass stops a few points inside the rim, so its edge can't darken it
 const INSET = 3
 // Moving, room above and below the glass to travel, as on Today
@@ -91,7 +95,7 @@ export function PhotoOrb({
         style={{ inset: INSET }}
       >
         {/* Moving, cropped the way the glass shows the photo at rest */}
-        <img src={src} alt="" draggable={false} className="size-full object-cover" style={{ scale: moves ? 1 / PHOTO : undefined }} />
+        <img src={src} alt="" draggable={false} className="size-full object-cover" style={{ scale: moves ? SPOTLIGHT / PHOTO : undefined }} />
       </div>
       <div
         ref={overlay}
@@ -166,7 +170,7 @@ function useEased(target: number, ms: number) {
 
 // The photo laid out for the glass, cropped square like object-cover: across
 // the box, then again at PHOTO size in the middle. Moving (a taller canvas),
-// it's just the one photo across the box in the middle, so it reads as a
+// it's just the one photo, SPOTLIGHT of the box, in the middle, so it reads as a
 // single picture wherever the glass moves over it, with the page around it
 function usePicture(src: string, box: number, height: number) {
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
@@ -183,10 +187,14 @@ function usePicture(src: string, box: number, height: number) {
       picture.height = height * 2
       const context = picture.getContext('2d')
       if (!context) return
-      const top = height - box
-      drawCover(context, image, 0, top, box * 2)
       const inner = box * 2 * PHOTO
-      if (height === box) drawCover(context, image, (box * 2 - inner) / 2, (box * 2 - inner) / 2, inner)
+      if (height === box) {
+        drawCover(context, image, 0, 0, box * 2)
+        drawCover(context, image, (box * 2 - inner) / 2, (box * 2 - inner) / 2, inner)
+      } else {
+        const side = box * 2 * SPOTLIGHT
+        drawCover(context, image, box - side / 2, height - side / 2, side)
+      }
       setCanvas(picture)
     }
     image.src = src
