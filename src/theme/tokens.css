@@ -131,7 +131,7 @@
   --color-on-brand: #ffffff;
   --color-accent: #636363;
   --color-on-accent: #ffffff;
-  --color-danger: var(--color-ink);
+  --color-danger: #ff3b30; /* iOS system red: destructive actions (Delete) */
 
   /* Brand palette (Keller, Oct 17). Used by the high-fidelity pages, starting
      with the Archive city folders; the rest of the app stays neutral for now */

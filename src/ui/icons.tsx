@@ -301,3 +301,19 @@ export function MapIcon() {
     </Icon>
   )
 }
+
+export function TrashIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <Icon strokeWidth={1.9} className={className}>
+      <path d="M4.5 6.5h15M9.5 6.5V5a1.5 1.5 0 0 1 1.5-1.5h2A1.5 1.5 0 0 1 14.5 5v1.5M6.5 6.5l.8 12.1A2 2 0 0 0 9.3 20.5h5.4a2 2 0 0 0 2-1.9l.8-12.1M10 10.5v6M14 10.5v6" />
+    </Icon>
+  )
+}
+
+export function ExpandIcon({ className = 'size-5' }: { className?: string }) {
+  return (
+    <Icon strokeWidth={1.9} className={className}>
+      <path d="M14.5 4.5h5v5M9.5 19.5h-5v-5M19.5 4.5l-6 6M4.5 19.5l6-6" />
+    </Icon>
+  )
+}

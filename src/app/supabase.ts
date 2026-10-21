@@ -44,9 +44,10 @@ export type CaptureToSave = {
 }
 
 // Save one capture: the photo file, then its row. Fire and forget; a failure
-// is logged and the session carries on in memory.
-export async function saveCapture(capture: CaptureToSave) {
-  if (!client) return
+// is logged and the session carries on in memory. Resolves to the new row's
+// id (so it can be deleted later), or null.
+export async function saveCapture(capture: CaptureToSave): Promise<string | null> {
+  if (!client) return null
   try {
     let photoPath: string | null = null
     if (capture.photo) {
@@ -54,7 +55,7 @@ export async function saveCapture(capture: CaptureToSave) {
       const { error } = await client.storage.from(BUCKET).upload(photoPath, capture.photo, { contentType: capture.photo.type || 'image/jpeg' })
       if (error) throw error
     }
-    const { error } = await client.from('captures').insert({
+    const { data, error } = await client.from('captures').insert({
       device_id: 'app',
       photo_path: photoPath,
       question: capture.question,
@@ -66,10 +67,12 @@ export async function saveCapture(capture: CaptureToSave) {
       x: capture.spot?.x ?? null,
       y: capture.spot?.y ?? null,
       size: capture.spot?.size ?? null,
-    })
+    }).select('id').single()
     if (error) throw error
+    return (data as { id: string }).id
   } catch (error) {
     console.warn('[baton] Could not save the capture', error)
+    return null
   }
 }
 
@@ -93,7 +96,7 @@ export async function loadSavedCaptures() {
     for (const row of rows) {
       const src = photoUrl(row.photo_path!)
       const category = row.category!
-      ;(clouds[row.city] ??= []).push({ src, category, x: row.x!, y: row.y!, size: row.size! })
+      ;(clouds[row.city] ??= []).push({ id: row.id, src, category, x: row.x!, y: row.y!, size: row.size! })
       if (row.note.trim()) {
         moments[src] = {
           prompt: row.prompt_number ?? 0,
@@ -111,6 +114,33 @@ export async function loadSavedCaptures() {
     setState({ archive: { clouds, moments } })
   } catch (error) {
     console.warn('[baton] Could not load saved captures', error)
+  }
+}
+
+// Long-press Delete in a city's cloud: the photo leaves the cloud at once
+// (and its moment, unless the same photo is still in the cloud elsewhere),
+// then its row goes from Supabase, with its file when it was uploaded
+export async function deleteCapture(city: string, photo: CloudPhoto) {
+  setState(({ archive, addedPhotos, addedMoments }) => {
+    const cloud = (archive?.clouds[city] ?? []).filter((item) => item !== photo)
+    const added = addedPhotos.filter((item) => item !== photo)
+    const moments = { ...archive?.moments }
+    const addedNext = { ...addedMoments }
+    if (![...cloud, ...added].some((item) => item.src === photo.src)) {
+      delete moments[photo.src]
+      delete addedNext[photo.src]
+    }
+    return { archive: { clouds: { ...archive?.clouds, [city]: cloud }, moments }, addedPhotos: added, addedMoments: addedNext }
+  })
+  if (!client || !photo.id) return
+  try {
+    const { data, error } = await client.from('captures').delete().eq('id', photo.id).select('photo_path, moment_photo')
+    if (error) throw error
+    const removed = (data ?? []) as Pick<Row, 'photo_path' | 'moment_photo'>[]
+    const files = removed.flatMap((row) => [row.photo_path, row.moment_photo]).filter((p): p is string => !!p && !p.startsWith('/') && !p.startsWith('http'))
+    if (files.length) await client.storage.from(BUCKET).remove(files)
+  } catch (error) {
+    console.warn('[baton] Could not delete the capture', error)
   }
 }
 

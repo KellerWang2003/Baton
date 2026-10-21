@@ -124,6 +124,8 @@ export function Reflection() {
     const spot = freeSpot([...(clouds.la ?? []), ...addedPhotos], CLOUD_SIZE)
     const at = orbRef.current?.getBoundingClientRect()
     const time = momentTime(new Date())
+    const added = { src: cloudSrc, category: kind, x: spot.x, y: spot.y, size: CLOUD_SIZE }
+    // Once saved, the photo keeps its row's id so a long press can delete it
     void saveCapture({
       photo: capturePhoto,
       question: prompt.question,
@@ -133,9 +135,11 @@ export function Reflection() {
       promptNumber: PROMPT_NUMBER,
       timeLabel: time,
       spot: { x: spot.x, y: spot.y, size: CLOUD_SIZE },
+    }).then((id) => {
+      if (id) setState((current) => ({ addedPhotos: current.addedPhotos.map((item) => (item === added ? { ...item, id } : item)) }))
     })
     setState((current) => ({
-      addedPhotos: [...current.addedPhotos, { src: cloudSrc, category: kind, x: spot.x, y: spot.y, size: CLOUD_SIZE }],
+      addedPhotos: [...current.addedPhotos, added],
       addedMoments: {
         ...current.addedMoments,
         [cloudSrc]: {

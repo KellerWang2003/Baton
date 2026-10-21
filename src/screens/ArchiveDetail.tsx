@@ -4,11 +4,12 @@ import { toLocal } from '../app/localPoint'
 import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
+import { deleteCapture } from '../app/supabase'
 import { cloudFilters } from '../data/archiveCloud'
 import { pages } from '../data/pages'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
-import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, Screen, VisibilityBadge } from '../ui'
-import type { CloudCategory } from '../ui'
+import { FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, Screen, VisibilityBadge } from '../ui'
+import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../ui'
 
 const { title: archiveTitle } = pages.archive
 
@@ -18,6 +19,9 @@ const { title: archiveTitle } = pages.archive
 // tab on its side at the left edge to go back and the tricolor glass orb at
 // the bottom to filter them (Feeling, People, Places). Other cities still show the
 // list: a private archive while she lives there, a legacy once she has left.
+// Pressing and holding a photo (or right-clicking it) lifts it into an
+// iOS-style context menu with Open and Delete; Delete removes its capture
+// from Supabase.
 export function ArchiveDetail() {
   const { selectedFolder, cloudView, cloudFilter, addedPhotos, addedMoments, arrivingPhoto } = useStore()
   const status = useStatus()
@@ -43,6 +47,8 @@ export function ArchiveDetail() {
   // where its orb was. Read once
   const [arriving] = useState(() => arrivingPhoto)
   const pageRef = useRef<HTMLDivElement>(null)
+  // The photo held down for its context menu
+  const [menu, setMenu] = useState<{ photo: CloudPhoto; rect: DOMRect; view: CloudView; layout: PhotoMenuLayout } | null>(null)
   useLayoutEffect(() => {
     clearFolderOpening()
     if (opening && base && pageRef.current) return playFolderEnter(pageRef.current)
@@ -102,6 +108,18 @@ export function ArchiveDetail() {
     }
   }, [arriving])
 
+  // Photos with a moment behind them open it (Figma ARCHIVE_selected)
+  function openPhoto(photo: CloudPhoto, rect: DOMRect, view: CloudView) {
+    if (!moments[photo.src]) return
+    setState({
+      selectedPhoto: photo.src,
+      selectedPhotoFrom: { x: rect.left, y: rect.top, size: rect.width },
+      cloudView: view,
+      cloudFilter: filter,
+    })
+    navigate('archive-selected')
+  }
+
   if (cloud) {
     return (
       // Clipped only sideways: the cloud runs up under the status bar
@@ -109,23 +127,27 @@ export function ArchiveDetail() {
         <PhotoCloud
           photos={cloud}
           focus={filter}
-          // Photos with a moment behind them open it (Figma ARCHIVE_selected)
           resume={resume}
           // No pop-in while a new photo is landing, so the landing is the motion
           pop={!opening && !arriving}
-          onSelect={(photo, rect, view) => {
-            if (!moments[photo.src]) return
-            setState({
-              selectedPhoto: photo.src,
-              selectedPhotoFrom: { x: rect.left, y: rect.top, size: rect.width },
-              cloudView: view,
-              cloudFilter: filter,
-            })
-            navigate('archive-selected')
+          onSelect={openPhoto}
+          onLongPress={(photo, rect, view) => {
+            if (pageRef.current) setMenu({ photo, rect, view, layout: placePhotoMenu(rect, pageRef.current, moments[photo.src] ? 2 : 1) })
           }}
+          hidden={menu?.photo}
         />
         <FolderSideTab folder={folder} onClick={() => goBack('archive')} className="absolute top-6 -left-[7px]" />
         <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />
+        {menu && (
+          <PhotoMenu
+            key={`${menu.photo.src}|${menu.photo.x}|${menu.photo.y}`}
+            src={menu.photo.src}
+            layout={menu.layout}
+            onOpen={moments[menu.photo.src] ? () => openPhoto(menu.photo, menu.rect, menu.view) : undefined}
+            onDelete={() => void deleteCapture(folder.id, menu.photo)}
+            onClose={() => setMenu(null)}
+          />
+        )}
       </div>
     )
   }

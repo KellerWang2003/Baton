@@ -8,6 +8,8 @@ export type CloudCategory = 'feeling' | 'people' | 'places'
 export type CloudView = { x: number; y: number; scale: number }
 
 export type CloudPhoto = {
+  // Its row in Supabase (captures), to delete it
+  id?: string
   src: string
   category: CloudCategory
   // Top-left corner on the 402pt-wide canvas the layout was drawn on
@@ -23,6 +25,11 @@ type PhotoCloudProps = {
   // A quick, still tap on a photo (not a drag, pinch or double-tap zoom), with
   // where that photo sits on screen right now and where the canvas is
   onSelect?: (photo: CloudPhoto, rect: DOMRect, view: CloudView) => void
+  // Pressing and holding still on a photo (or right-clicking it), as for an
+  // iOS context menu, with the same details as onSelect
+  onLongPress?: (photo: CloudPhoto, rect: DOMRect, view: CloudView) => void
+  // A photo to leave out of sight (lifted into the context menu)
+  hidden?: CloudPhoto | null
   // Open where the canvas was left (coming back from a photo) instead of at
   // the start, and without the photos popping in
   resume?: CloudView | null
@@ -41,6 +48,8 @@ const MAX_GLIDE = 24
 // Per-frame velocity kept after letting go (higher glides further)
 const GLIDE_FRICTION = 0.9
 const DOUBLE_TAP_MS = 280
+// How long a still press on a photo takes to open its context menu
+const LONG_PRESS_MS = 450
 // Photos hang on springs and follow the finger: how far they trail per
 // px/frame of movement, how far at most (screen px), the distance (screen px)
 // at which a photo follows the finger only half as much, and how the spring
@@ -62,15 +71,18 @@ type Point = { x: number; y: number }
 // bob gently on their own. Each photo hangs on its own spring and follows your
 // finger: the ones near it move right along with it, the far ones trail behind
 // and wobble back into place.
-export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop = true, className }: PhotoCloudProps) {
+export function PhotoCloud({ photos, focus = null, onSelect, onLongPress, hidden = null, resume = null, pop = true, className }: PhotoCloudProps) {
   const height = Math.max(0, ...photos.map((photo) => photo.y + photo.size))
-  // The area the photos actually cover on the canvas
-  const bounds = {
-    left: Math.min(...photos.map((photo) => photo.x)),
-    top: Math.min(...photos.map((photo) => photo.y)),
-    right: Math.max(...photos.map((photo) => photo.x + photo.size)),
-    bottom: height,
-  }
+  // The area the photos actually cover on the canvas (the middle of the
+  // canvas once every photo is deleted)
+  const bounds = photos.length
+    ? {
+        left: Math.min(...photos.map((photo) => photo.x)),
+        top: Math.min(...photos.map((photo) => photo.y)),
+        right: Math.max(...photos.map((photo) => photo.x + photo.size)),
+        bottom: height,
+      }
+    : { left: CANVAS_WIDTH / 2, top: 0, right: CANVAS_WIDTH / 2, bottom: 0 }
   const viewportRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLDivElement>(null)
   const view = useRef<View>({ x: 0, y: 0, scale: 1 })
@@ -85,6 +97,9 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
   // Where and when a one-finger press started, and how far it has moved, to
   // tell a tap from a drag
   const press = useRef<{ x: number; y: number; at: number; travel: number } | null>(null)
+  // The long-press timer, and whether it fired for the finger still down
+  const hold = useRef(0)
+  const held = useRef(false)
 
   function apply() {
     const canvas = canvasRef.current
@@ -172,7 +187,13 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => () => stopMotion(), [])
+  useEffect(
+    () => () => {
+      stopMotion()
+      clearTimeout(hold.current)
+    },
+    [],
+  )
 
   // Turning the orb to another filter (or swiping it back to all) brings the
   // photos back to where they started, however far they were moved or zoomed
@@ -309,6 +330,8 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
   }
 
   function onPointerDown(event: React.PointerEvent<HTMLDivElement>) {
+    // Right-click is the context menu (onContextMenu), not a tap or drag
+    if (event.button > 0) return
     stopMotion()
     event.currentTarget.setPointerCapture(event.pointerId)
     pointers.current.set(event.pointerId, local(event))
@@ -316,6 +339,21 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
     if (pointers.current.size === 2) pinch.current = pinchState()
     const start = local(event)
     press.current = pointers.current.size === 1 ? { ...start, at: performance.now(), travel: 0 } : null
+    clearTimeout(hold.current)
+    held.current = false
+    // Held still on a photo: its context menu. Moving, a second finger or
+    // letting go first cancels it
+    const pressed = pointers.current.size === 1 && onLongPress ? photoAt(start) : null
+    if (pressed) {
+      hold.current = window.setTimeout(() => {
+        if (!press.current || press.current.travel >= 6 || pointers.current.size !== 1) return
+        if (openMenu(pressed)) {
+          held.current = true
+          lastTap.current = 0
+          navigator.vibrate?.(10)
+        }
+      }, LONG_PRESS_MS)
+    }
 
     if (pointers.current.size === 1) {
       const now = performance.now()
@@ -337,7 +375,10 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
     if (!previous) return
     const point = local(event)
     pointers.current.set(event.pointerId, point)
+    // The menu is open under the finger: the canvas stays put
+    if (held.current) return
     if (press.current) press.current.travel += Math.hypot(point.x - previous.x, point.y - previous.y)
+    if (!press.current || press.current.travel >= 6) clearTimeout(hold.current)
 
     if (pointers.current.size >= 2 && pinch.current) {
       const next = pinchState()
@@ -377,9 +418,35 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
     return null
   }
 
+  // Open a photo's context menu; false if it isn't on screen
+  function openMenu(photo: CloudPhoto) {
+    const image = photoRefs.current[photos.indexOf(photo)]?.firstElementChild
+    if (!onLongPress || !image) return false
+    stopMotion()
+    onLongPress(photo, image.getBoundingClientRect(), { ...view.current })
+    return true
+  }
+
+  // Right-click (and the long-press menu some browsers raise themselves)
+  function onContextMenu(event: React.MouseEvent<HTMLDivElement>) {
+    event.preventDefault()
+    if (held.current || !onLongPress) return
+    const photo = photoAt(local(event))
+    if (photo) openMenu(photo)
+  }
+
   function onPointerUp(event: React.PointerEvent<HTMLDivElement>) {
+    if (!pointers.current.has(event.pointerId)) return
     const tap = press.current
     press.current = null
+    clearTimeout(hold.current)
+    if (held.current) {
+      // Letting go after the menu opened: no tap, no glide
+      held.current = false
+      pointers.current.delete(event.pointerId)
+      if (pointers.current.size < 2) pinch.current = null
+      return
+    }
     if (tap && event.type === 'pointerup' && pointers.current.size === 1 && tap.travel < 6 && performance.now() - tap.at < 350) {
       const photo = onSelect && photoAt(local(event))
       const image = photo && photoRefs.current[photos.indexOf(photo)]?.firstElementChild
@@ -401,8 +468,9 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
+      onContextMenu={onContextMenu}
       // Up under the status bar, so photos float behind the time and icons
-      style={{ top: 'calc(-1 * var(--status-bar, 0px))' }}
+      style={{ top: 'calc(-1 * var(--status-bar, 0px))', WebkitTouchCallout: 'none' }}
       className={cx('absolute inset-0 cursor-grab touch-none overflow-hidden select-none active:cursor-grabbing', className)}
     >
       <div
@@ -412,7 +480,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
       >
         {photos.map((photo, index) => (
           <div
-            key={index}
+            key={`${photo.src}|${photo.x}|${photo.y}`}
             ref={(node) => {
               photoRefs.current[index] = node
             }}
@@ -437,6 +505,7 @@ export function PhotoCloud({ photos, focus = null, onSelect, resume = null, pop 
                 pop && !resumeAt && 'animate-photo-pop',
                 'size-full rounded-full bg-placeholder object-cover transition-[filter,opacity] duration-500 ease-out',
                 focus && photo.category !== focus && 'opacity-60 blur-[5px]',
+                photo === hidden && 'invisible',
               )}
             />
           </div>
