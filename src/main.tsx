@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import { loadSavedCaptures } from './app/supabase'
+import { inject } from '@vercel/analytics'
 
 // Dev server on a phone over wifi: iOS Safari drops Vite's live-reload socket
 // every so often, and Vite answers a dropped socket by reloading the whole page,
@@ -17,6 +18,8 @@ if (import.meta.hot && !['localhost', '127.0.0.1'].includes(location.hostname)) 
 }
 
 void loadSavedCaptures()
+
+inject()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
