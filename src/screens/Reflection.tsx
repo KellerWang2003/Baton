@@ -222,7 +222,7 @@ export function Reflection() {
       )}
 
       {/* Back to Today, as on the Archive's opened photos */}
-      <BackButton onClick={leave} label="Back to Today" floating className="absolute top-2 left-5 z-10" />
+      <BackButton onClick={leave} label="Back to Today" className="absolute top-2 left-5 z-10" />
 
       {/* Pinned to the bottom and always there, even with nothing written,
           since a capture can be saved without a note (Keller, Oct 21) */}
