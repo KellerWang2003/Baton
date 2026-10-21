@@ -135,7 +135,7 @@ const intentionTone = {
 
 // One of her intentions, with a dot per week since she landed: they fill in,
 // one by one, for the weeks she did it
-function Intention({ intention }: { intention: (typeof intentions)[number] }) {
+export function Intention({ intention }: { intention: Omit<(typeof intentions)[number], 'detail'> & { detail?: string } }) {
   const [ref, inView] = useInView<HTMLElement>()
   const done = new Set(intention.done)
   const tone = intentionTone[intention.tone]
@@ -156,7 +156,7 @@ function Intention({ intention }: { intention: (typeof intentions)[number] }) {
         ))}
       </div>
       <p className="mt-6 text-today-card font-medium">{intention.headline}</p>
-      <p className={cx('mt-0.5 text-today-detail', tone.muted)}>{intention.detail}</p>
+      {intention.detail !== undefined && <p className={cx('mt-0.5 text-today-detail', tone.muted)}>{intention.detail}</p>}
     </section>
   )
 }
