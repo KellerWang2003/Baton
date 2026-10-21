@@ -11,7 +11,7 @@ export function SignUp() {
 
   return (
     <main className="onboarding-step account-page">
-      <header className="account-header">
+      <header className="account-header" style={{ paddingTop: 115 }}>
         <img src="/onboarding/account-mark.svg" width="79" height="79" alt="Baton" />
         <h1>{auth.title}</h1>
       </header>

@@ -18,7 +18,7 @@ import { Intention } from './LocalInsight'
 function Splash() {
   return (
     <>
-      <BatonMark className="absolute top-[172.95px] left-1/2 size-[112.56px]! -translate-x-1/2 text-baton-blue!" />
+      <BatonMark className="absolute top-[193px] left-1/2 size-[112.56px]! -translate-x-1/2 text-baton-blue!" />
       <div className="absolute inset-x-0 top-[329.43px] flex flex-col items-center gap-2 text-center">
         <p className="font-display text-[48px] leading-normal font-medium tracking-[-0.528px] text-baton-blue">Baton</p>
         <p className="font-display text-[24.12px] leading-[28.944px] tracking-[-0.2653px] text-baton-navy opacity-60">{features.tagline}</p>
@@ -53,9 +53,9 @@ function Folders() {
 
 // The photo orbs fill in one after another
 const orbs = [
-  { src: '/archive/moments/seoul-karaoke.jpg', category: 'people', pos: 'left-[25.56px] top-[13.77px]', delay: 300 },
-  { src: '/archive/moments/itaewon-sunset.jpg', category: 'feeling', pos: 'left-[188.75px] top-[156.42px]', delay: 800 },
-  { src: '/archive/moments/goseong-lunch.jpg', category: 'places', pos: 'left-[36.9px] top-[299.65px]', delay: 1300 },
+  { src: '/archive/moments/seoul-karaoke.jpg', category: 'people', pos: 'left-[25.56px] top-[48.9px]', delay: 300 },
+  { src: '/archive/moments/itaewon-sunset.jpg', category: 'feeling', pos: 'left-[188.75px] top-[191.5px]', delay: 800 },
+  { src: '/archive/moments/goseong-lunch.jpg', category: 'places', pos: 'left-[36.9px] top-[334.8px]', delay: 1300 },
 ] as const
 function Moments() {
   return (
@@ -71,8 +71,8 @@ function Moments() {
 
 // Two of Baton's picks as Relay's scrapbook cards
 const picks = [
-  { id: 'gym', tone: 'olive', label: 'Exercise', pos: 'left-[28.23px] top-[41.42px]' },
-  { id: 'cafe', tone: 'cream', label: 'Food', pos: 'left-[104.46px] top-[162.54px]' },
+  { id: 'gym', tone: 'olive', label: 'Exercise', pos: 'left-[28.23px] top-[67.4px]' },
+  { id: 'cafe', tone: 'cream', label: 'Food', pos: 'left-[104.46px] top-[188.5px]' },
 ] as const
 function Recs() {
   return (
@@ -101,7 +101,7 @@ function Recs() {
 // The goal cards from the Local insight, with their dots
 function Growth() {
   return (
-    <div className="pointer-events-none absolute top-[31.42px] left-1/2 flex w-[340.93px] -translate-x-1/2 flex-col gap-4">
+    <div className="pointer-events-none absolute top-[56.4px] left-1/2 flex w-[340.93px] -translate-x-1/2 flex-col gap-4">
       {localInsight.intentions.map((intention) => (
         <Intention key={intention.quote} intention={{ ...intention, label: 'Your goal for NY', detail: undefined }} />
       ))}
