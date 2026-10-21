@@ -494,7 +494,7 @@ export function FilterOrb<Id extends string>({ filters, value, onChange, classNa
           <span
             key={active.id}
             className={cx(
-              'pointer-events-none absolute bottom-full left-1/2 mb-7 -translate-x-1/2 animate-fade-in rounded-full px-5 py-2 text-center font-display text-orb-label whitespace-nowrap',
+              'pointer-events-none absolute bottom-full left-1/2 mb-7 -translate-x-1/2 animate-fade-in rounded-full px-4 py-1.5 text-center font-display text-orb-label whitespace-nowrap',
               labelColor[active.color],
             )}
           >
