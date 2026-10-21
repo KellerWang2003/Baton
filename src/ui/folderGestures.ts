@@ -2,6 +2,8 @@ export const DRAG_THRESHOLD = 100
 export const FLICK_MS = 120
 // Release speed in px/ms that counts as a flick, however long the drag took
 export const FLING_VELOCITY = 0.4
+// A touch held longer than this is a scroll, not a flick
+export const FLICK_HOLD_MS = 200
 export const MOVE_SLOP = 8
 export const WHEEL_THRESHOLD = 80
 export const WHEEL_IDLE_MS = 180

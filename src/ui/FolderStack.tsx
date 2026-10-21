@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react'
 import { cx } from './cx'
 import { folderTones, TAB_PATH, TAB_WIDTH } from './folderStyles'
-import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_MS, FLING_VELOCITY, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
+import { advanceWheelGesture, createWheelGesture, dragFeedback, DRAG_THRESHOLD, FLICK_HOLD_MS, FLICK_MS, FLING_VELOCITY, folderOpenness, MOVE_SLOP, WHEEL_IDLE_MS } from './folderGestures'
 import { useFolderFocus } from './useFolderFocus'
 
 export type ArchiveFolder = {
@@ -85,7 +85,8 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     lastY: number
     lastTime: number
     velocity: number
-  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, anchorY: 0, scale: 1, moved: false, lastY: 0, lastTime: 0, velocity: 0 })
+    stepped: boolean
+  }>({ active: false, pointerId: -1, startY: 0, startTime: 0, anchorY: 0, scale: 1, moved: false, lastY: 0, lastTime: 0, velocity: 0, stepped: false })
 
   const [activeIndex, setActiveIndex] = useState(() =>
     Math.max(0, folders.findIndex((folder) => folder.id === initialId)),
@@ -183,6 +184,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       lastY: event.clientY,
       lastTime: event.timeStamp,
       velocity: 0,
+      stepped: false,
     }
   }
 
@@ -212,12 +214,15 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
       return
     }
     const { step, progress } = dragFeedback(distance, event.timeStamp - drag.startTime)
-    // While the finger is flinging, hold the turn for release so a fast
-    // swipe turns exactly one folder
-    if (step && Math.abs(drag.velocity) > FLING_VELOCITY) showProgress(Math.sign(distance))
+    // A fast swipe in its first moments holds its turn for release, so a
+    // flick turns exactly one folder. Once the finger has been down past
+    // FLICK_HOLD_MS it's a scroll and steps through folders at any speed.
+    const flicking = event.timeStamp - drag.startTime < FLICK_HOLD_MS && Math.abs(drag.velocity) > FLING_VELOCITY
+    if (step && flicking) showProgress(Math.sign(distance))
     else if (step) {
       goTo(activeIndexRef.current + step)
       drag.anchorY = event.clientY
+      drag.stepped = true
     } else showProgress(progress)
   }
 
@@ -233,7 +238,7 @@ export function FolderStack({ folders, onSelect, initialId, renderActive, footer
     const sinceAnchor = (drag.anchorY - event.clientY) / drag.scale
     // A finger still moving fast on release (a touch flick) also turns one
     const stale = event.timeStamp - drag.lastTime > 80
-    const flung = !stale && Math.abs(drag.velocity) > FLING_VELOCITY && Math.sign(drag.velocity) === Math.sign(sinceAnchor) && Math.abs(sinceAnchor) > MOVE_SLOP
+    const flung = !drag.stepped && !stale && Math.abs(drag.velocity) > FLING_VELOCITY && Math.sign(drag.velocity) === Math.sign(sinceAnchor) && Math.abs(sinceAnchor) > MOVE_SLOP
     if (drag.moved && event.type === 'pointerup') {
       if (event.timeStamp - drag.startTime < FLICK_MS && Math.abs(distance) > MOVE_SLOP) {
         goTo(activeIndexRef.current + Math.sign(distance))
