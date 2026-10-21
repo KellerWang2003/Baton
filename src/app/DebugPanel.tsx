@@ -10,6 +10,7 @@ import { dailyPrompts } from '../data/pages'
 import { frameLimits } from './useFrameSize'
 import type { FrameSettings } from './useFrameSize'
 import { changeStage, setState, useStatus, useStore } from './store'
+import { clearSavedCaptures } from './supabase'
 
 type DebugPanelProps = {
   index: number
