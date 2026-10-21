@@ -35,3 +35,28 @@ export function freeSpot(photos: CloudPhoto[], size: number): { x: number; y: nu
   }
   return { x: cx - size / 2, y: cy - size / 2 }
 }
+
+// New York has no captures in Supabase yet, so its folder (Newcomer, Local)
+// opens a cloud of the New York placeholder photos from public/relay/: a few
+// from her first weeks as a Newcomer, a full cloud once she's a Local.
+const newYorkPhotos: [string, CloudCategory][] = [
+  ['cafe', 'places'], ['citibike', 'feeling'], ['hmart', 'places'], ['bridge', 'feeling'],
+  ['laundry', 'places'], ['falafel', 'people'], ['omny', 'feeling'], ['greenpoint', 'places'],
+  ['gym', 'places'], ['library', 'places'], ['market', 'people'], ['diner', 'people'],
+  ['greenway', 'feeling'], ['studio', 'people'], ['climbing', 'people'], ['domino', 'feeling'],
+  ['potatoes', 'people'], ['month-two', 'feeling'], ['say-yes', 'people'], ['library-tables', 'places'],
+  ['gym-late', 'feeling'], ['blick', 'places'], ['ana-cafe', 'people'], ['ana-drawing-spot', 'feeling'],
+]
+const newYorkSizes = [104, 72, 88, 60, 96, 66, 80, 54, 92, 70, 62, 84]
+
+function layoutCloud(count: number): CloudPhoto[] {
+  const photos = newYorkPhotos.slice(0, count).reduce<CloudPhoto[]>((placed, [file, category], index) => {
+    const size = newYorkSizes[index % newYorkSizes.length]
+    return [...placed, { src: `/relay/${file}.jpg`, category, size, ...freeSpot(placed, size) }]
+  }, [])
+  // Start below the status bar and the folder's side tab, like LA's
+  const shift = 140 - Math.min(...photos.map((photo) => photo.y))
+  return photos.map((photo) => ({ ...photo, y: photo.y + shift }))
+}
+
+export const newYorkCloud = { newcomer: layoutCloud(8), local: layoutCloud(newYorkPhotos.length) }
