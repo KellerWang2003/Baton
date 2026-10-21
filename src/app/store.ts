@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 import { foundPlaces } from '../data/onboarding'
 import { dailyPrompts, realLifePrompt } from '../data/pages'
 import { leave } from '../data/today'
+import { relaySearchSeed } from '../data/relay'
 import type { ArchiveSketchId } from '../data/archiveSketches'
 import type { Stage } from '../flow'
 import { defaultGlassTuning } from '../ui/promptGlass'
@@ -67,6 +68,9 @@ type State = {
   // Relay shows the map (list slid down), and the picked category filter
   relayMap: boolean
   relayFilter: string | null
+  // Relay's search page: what's typed, and her recent searches (newest first)
+  relayQuery: string
+  relaySearches: string[]
   // Visual treatment for Relay, picked in the team-only Relay looks playground
   relayEntrance: RelayEntrance
   relayEntranceSpeed: number
@@ -146,6 +150,8 @@ let state: State = {
   relayNotes: {},
   relayMap: false,
   relayFilter: null,
+  relayQuery: '',
+  relaySearches: relaySearchSeed,
   // Keller picked Scrapbook (Oct 18)
   relayLook: 'scrapbook',
   archiveWall: false,

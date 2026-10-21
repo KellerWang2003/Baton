@@ -21,12 +21,6 @@ function open(id: string) {
   navigate('relay-detail')
 }
 
-function matches(item: RelayItem, query: string) {
-  const q = query.trim().toLowerCase()
-  if (!q) return true
-  return [item.title, item.quote, relayCategory(item.category).label, item.place, item.body].some((text) => text?.toLowerCase().includes(q))
-}
-
 // Relay (Figma 265:2550): category filters, Baton's picks from her life, then
 // tips from the legacies of people with a similar lifestyle; each card takes
 // its category's color. The Map button slides the whole list down like a sheet
@@ -36,9 +30,7 @@ export function Community() {
   const { relayMap: mapOpen, relayFilter, relayLook, relayEntrance, relayEntranceSpeed } = useStore()
   const entranceRef = useRef<HTMLDivElement>(null)
   const category = relayFilter as RelayCategory | null
-  const [searching, setSearching] = useState(false)
-  const [query, setQuery] = useState('')
-  useRelayEntrance(entranceRef, relayEntrance, relayEntranceSpeed, `${status}:${relayLook}:${relayFilter}:${query}:${searching}`)
+  useRelayEntrance(entranceRef, relayEntrance, relayEntranceSpeed, `${status}:${relayLook}:${relayFilter}`)
   const [pinned, setPinned] = useState<string | null>(null)
   // Where the press on the peek started; mouse and pen drags also keep recent
   // samples for a flick and the phone frame's scale, so the sheet stays under the pointer
@@ -46,7 +38,7 @@ export function Community() {
   // How far the sheet is being pulled up right now (negative), while a finger is on it
   const [pull, setPull] = useState<number | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  const shown = (item: RelayItem) => (!category || item.category === category) && matches(item, query)
+  const shown = (item: RelayItem) => !category || item.category === category
   const setCategory = (id: RelayCategory | null) => {
     setState({ relayFilter: id })
     setPinned(null)
@@ -168,7 +160,7 @@ export function Community() {
             )}
           >
             {/* Category filters, with search at the end */}
-            <div data-relay-enter className="-mb-4 flex flex-col gap-3">
+            <div data-relay-enter className="-mb-4">
               <div className="-mx-gutter flex items-center gap-[26px] pr-gutter">
                 <div className="flex min-w-0 flex-1 gap-2 overflow-x-auto pl-gutter [scrollbar-width:none]">
                   <CategoryChip look={relayLook} selected={!category} onClick={() => setCategory(null)}>
@@ -186,29 +178,16 @@ export function Community() {
                     </CategoryChip>
                   ))}
                 </div>
+                {/* Opens search on its own page, like iOS apps do */}
                 <button
                   type="button"
                   aria-label="Search"
-                  aria-pressed={searching}
-                  onClick={() => {
-                    setSearching((on) => !on)
-                    setQuery('')
-                  }}
+                  onClick={() => navigate('relay-search')}
                   className={cx('flex size-10 shrink-0 items-center justify-center rounded-full active:opacity-60', relayChipIdle[relayLook])}
                 >
                   <SearchIcon className="size-[18px]" />
                 </button>
               </div>
-              {searching && (
-                <input
-                  autoFocus
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder={relayCopy.searchPlaceholder}
-                  className="w-full rounded-full bg-baton-chip px-5 py-2.5 text-body text-ink outline-none placeholder:text-ink-muted"
-                />
-              )}
             </div>
             {/* Below the filters: hidden behind the nav while the map shows */}
             <div className={cx('flex flex-col gap-10 transition-opacity duration-300', mapOpen && 'pointer-events-none opacity-0')}>

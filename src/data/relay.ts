@@ -403,8 +403,19 @@ export function findLeaver(id: string) {
   return leavers.find((leaver) => leaver.id === id)
 }
 
+// Relay's search page: a few recent searches to start with, and suggestions
+// that each find something
+export const relaySearchSeed = ['Williamsburg', 'Late night food']
+export const relaySearchSuggestions = ['Coffee', 'Bike', 'Laundromat', 'First winter', 'Lease']
+
 export const relayCopy = {
   searchPlaceholder: 'Search places and tips',
+  searchRecent: 'Recent',
+  searchClear: 'Clear',
+  searchSuggested: 'Try searching',
+  searchBrowse: 'Browse by category',
+  searchResults: (count: number) => `${count} ${count === 1 ? 'result' : 'results'}`,
+  searchNone: (query: string) => `Nothing for “${query}” yet. Try a place, a feeling or someone’s name.`,
   all: 'All',
   map: 'Map view',
   legacy: (name: string) => `${name}’s legacy`,

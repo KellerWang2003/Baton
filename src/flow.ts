@@ -20,6 +20,7 @@ import { PhotoAccess } from './screens/PhotoAccess'
 import { Places } from './screens/Places'
 import { Profile } from './screens/Profile'
 import { RelayDetail } from './screens/RelayDetail'
+import { RelaySearch } from './screens/RelaySearch'
 import { RollingPaper } from './screens/RollingPaper'
 import { ArrivedSplash, LocalSplash } from './screens/StageSplash'
 import { SignUp } from './screens/SignUp'
@@ -64,6 +65,8 @@ export const flow: FlowScreen[] = [
   { id: 'archive-detail', title: 'Archive: city detail', stage: 'moving', component: ArchiveDetail, parent: 'archive' },
   { id: 'archive-selected', title: 'Archive: a photo opened', stage: 'moving', component: ArchiveSelected, parent: 'archive-detail' },
   { id: 'community', title: 'Relay', stage: 'moving', component: Community },
+  // Relay's search icon opens its own page, like search in iOS apps
+  { id: 'relay-search', title: 'Relay: search', stage: 'moving', component: RelaySearch, parent: 'community' },
   { id: 'capture', title: 'Capture (+)', stage: 'moving', component: Capture, parent: 'today' },
   // Debug > Real-life: writing a line about the photo just taken
   { id: 'reflection', title: 'Real-life: reflection', stage: 'moving', component: Reflection, parent: 'today' },
@@ -84,7 +87,7 @@ export const flow: FlowScreen[] = [
   // ...and its Continue: her LA folder hands off to a new New York one, with her goals
   { id: 'newcomer-now', title: "You're a Newcomer now", stage: 'newcomer', component: NewcomerNow },
   // 9. Recommendation detail: a Relay pick or tip, with notes on it
-  { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail, parent: 'community' },
+  { id: 'relay-detail', title: 'Relay: recommendation detail', stage: 'newcomer', component: RelayDetail, parent: ['community', 'relay-search'] },
   // 10. Local: the congrats splash as she becomes a Local
   { id: 'local-splash', title: "Stage change: you're a Local", stage: 'local', component: LocalSplash },
   // ...whose button opens the insight page: LA vs New York, her intention, the café bookend
