@@ -46,6 +46,8 @@ export interface FluidGlassProps {
   rim?: number;
   // Baton: a slow, small surface wobble while it rests, so it looks alive (0..1)
   breathe?: number;
+  // Baton: how fast the resting motion runs (the breathe and the spin), 1 as built
+  pace?: number;
   // Baton: a clear band with a faint gray line around the very edge (0..1)
   ring?: number;
   // Baton: receives a function that pushes the glass with a velocity (px/s),
@@ -102,6 +104,7 @@ interface Settings {
   tint: number;
   rim: number;
   breathe: number;
+  pace: number;
   ring: number;
   pushRef?: FluidGlassProps['pushRef'];
   shadow: number;
@@ -756,6 +759,7 @@ const FluidGlass = ({
   tint = 0,
   rim = 0,
   breathe = 0,
+  pace = 1,
   ring = 0,
   pushRef,
   shadow = 0.5,
@@ -811,6 +815,7 @@ const FluidGlass = ({
     tint: clamp(tint, 0, 1),
     rim: clamp(rim, 0, 1),
     breathe: clamp(breathe, 0, 1),
+    pace: Math.max(0, pace),
     ring: clamp(ring, 0, 1),
     pushRef,
     shadow: clamp(shadow, 0, 1),
@@ -1252,7 +1257,7 @@ const FluidGlass = ({
       const s = settingsRef.current;
       const dt = clamp((now - last) / 1000 || 0, 0, 0.05);
       last = Math.max(last, now);
-      time += dt;
+      time += dt * s.pace;
       let busy = false;
 
       if (s.shape !== requested) {
@@ -1359,7 +1364,7 @@ const FluidGlass = ({
       if (!reduced && (morph.to === 'blob' || (morph.from === 'blob' && morph.t < 1))) busy = true;
       if (!reduced && s.breathe > 0) busy = true;
       if (!reduced && s.spin) {
-        body.spin += dt * s.spin;
+        body.spin += dt * s.spin * s.pace;
         busy = true;
       }
       const key = morph.t < 1 ? `${morph.from}>${morph.to}` : `${morph.to}>${morph.to}`;

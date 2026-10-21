@@ -151,6 +151,8 @@ export function PromptWindow({
               // A heavier blue at the glass's own rim, fading inward (Figma 236:1282)
               rim={edge}
               {...glassProps}
+              // Its resting motion at half speed (Keller, Oct 21)
+              pace={0.5}
               give={give}
               pushRef={push}
             />
