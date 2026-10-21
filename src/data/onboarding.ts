@@ -10,6 +10,10 @@ export type FeatureSlide = {
 
 export const features = {
   tagline: 'Leave a story. Start another.',
+  recommendation: {
+    title: 'Your Sunday ritual',
+    body: 'Coffee, a sketchbook, and nowhere else to be.',
+  },
   slides: [
     { visual: 'splash', title: 'Baton' },
     {
@@ -25,7 +29,7 @@ export const features = {
     {
       visual: 'recs',
       title: 'Land with a head start',
-      body: 'Recommendations from people with routines like yours, plus tips for settling into a new city.',
+      body: 'Find your places through people with routines like yours.',
     },
     {
       visual: 'growth',

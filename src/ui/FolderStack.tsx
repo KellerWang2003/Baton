@@ -67,8 +67,8 @@ const FADE_HEIGHT = 81
 // - Trackpad and mouse wheel step one folder per WHEEL_STEP of scrolling.
 const MOVE_SLOP = 8
 const FLICK_MS = 250
-const DRAG_PX_PER_FOLDER = 100
-const WHEEL_STEP = 80
+const DRAG_PX_PER_FOLDER = 160
+const WHEEL_STEP = 160
 const WHEEL_QUIET_MS = 160
 
 function tick(ms = 8) {

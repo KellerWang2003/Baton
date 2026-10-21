@@ -3,7 +3,7 @@ import { navigate } from '../app/navigate'
 import { features, type FeatureSlide } from '../data/onboarding'
 import { localInsight } from '../data/localInsight'
 import { relayItems } from '../data/relay'
-import { ArrowRightIcon, BatonMark, Button, PhotoOrb, RecCard, Steps } from '../ui'
+import { ArrowRightIcon, BatonMark, Button, PhotoOrb, Scrap, Steps } from '../ui'
 import { cx } from '../ui/cx'
 import { Intention } from './LocalInsight'
 
@@ -69,31 +69,28 @@ function Moments() {
   )
 }
 
-// Two of Baton's picks as Relay's scrapbook cards
-const picks = [
-  { id: 'gym', tone: 'olive', label: 'Exercise', pos: 'left-[28.23px] top-[67.4px]' },
-  { id: 'cafe', tone: 'cream', label: 'Food', pos: 'left-[104.46px] top-[188.5px]' },
-] as const
+// Two overlapping previews, with only the front card carrying a short caption.
 function Recs() {
+  const cafe = relayItems.find((item) => item.id === 'cafe')!
+  const gym = relayItems.find((item) => item.id === 'gym')!
   return (
     <>
-      {picks.map((p, i) => {
-        const r = relayItems.find((item) => item.id === p.id)!
-        return (
-          <div key={p.id} className={cx('pointer-events-none absolute animate-card-stick', p.pos)} style={{ animationDelay: `${200 + i * 450}ms` }}>
-            <RecCard
-              look="scrapbook"
-              index={i}
-              size="lg"
-              title={r.title}
-              text={r.source.kind === 'baton' ? r.source.why : ''}
-              tone={p.tone}
-              label={p.label}
-              photo={r.photo ?? ''}
-            />
-          </div>
-        )
-      })}
+      <div className="absolute top-[67.4px] left-[28.23px] w-[266px] animate-card-stick px-1 pt-3 pb-4" style={{ animationDelay: '200ms' }}>
+        <Scrap tone="olive" index={0}>
+          <img src={gym.photo} alt="" className="h-[240px] w-full rounded-tile object-cover" />
+        </Scrap>
+      </div>
+      <div className="absolute top-[126px] left-[104.46px] w-[266px] animate-card-stick px-1 pt-3 pb-4" style={{ animationDelay: '450ms' }}>
+        <Scrap tone="cream" index={1}>
+          <figure>
+            <img src={cafe.photo} alt="" className="h-[197px] w-full rounded-tile object-cover" />
+            <figcaption className="flex flex-col gap-1 px-1 pt-2.5">
+              <p className="font-display text-[24px] font-medium leading-tight">{features.recommendation.title}</p>
+              <p className="text-[18px] leading-snug opacity-70">{features.recommendation.body}</p>
+            </figcaption>
+          </figure>
+        </Scrap>
+      </div>
     </>
   )
 }

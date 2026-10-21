@@ -90,9 +90,9 @@ const clipTo = (box: Box, width: number, height: number) =>
 // (always the live camera, Keller Oct 21; the green screen is gone):
 // the circle morphs into a rounded rectangle with the live camera in it, the
 // prompt moves to the top, and a round button below takes the photo, which goes
-// on to the sticky-note reflection page. A small close button at the top left goes back.
+// on to the sticky-note reflection page. The back button at the top left returns to Today.
 export function CameraBubble() {
-  const { camera, realLife } = useStore()
+  const { camera } = useStore()
   const prompt = useDailyPrompt()
   const root = useRef<HTMLDivElement>(null)
   const video = useRef<HTMLVideoElement>(null)
@@ -399,15 +399,13 @@ export function CameraBubble() {
             </div>
           </div>
 
-          {/* Real-life only: a way back to Today without tapping the picture */}
-          {realLife && (
-            <div
-              className="absolute top-2 left-5 z-10 transition-opacity duration-300"
-              style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? 'auto' : 'none' }}
-            >
-              <BackButton onClick={() => setState({ camera: null })} label="Back to Today" />
-            </div>
-          )}
+          {/* Return to Today while the camera shrinks back into its circle */}
+          <div
+            className="absolute top-2 left-5 z-10 transition-opacity duration-300"
+            style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? 'auto' : 'none' }}
+          >
+            <BackButton onClick={() => setState({ camera: null })} label="Back to Today" />
+          </div>
 
           {/* Her photo library on the left, the shutter, and flipping the camera
               on the right (phones only; Keller, Oct 21) */}
