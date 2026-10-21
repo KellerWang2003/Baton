@@ -37,7 +37,7 @@ export function freeSpot(photos: CloudPhoto[], size: number): { x: number; y: nu
 }
 
 // New York has no captures in Supabase yet, so its folder (Newcomer, Local)
-// opens a cloud of the New York placeholder photos from public/relay/: just a couple
+// opens a cloud of the New York placeholder photos from public/relay/: three
 // from her first weeks as a Newcomer, a full cloud once she's a Local.
 const newYorkPhotos: [string, CloudCategory][] = [
   ['cafe', 'places'], ['citibike', 'feeling'], ['hmart', 'places'], ['bridge', 'feeling'],
