@@ -2,7 +2,7 @@ import type { CloudCategory } from '../ui/PhotoCloud'
 
 // Debug > Real-life: what a reflection she just wrote is mostly about, so the
 // photo's circle glows that filter's color (Feeling pink, People yellow,
-// Places blue). Claude reads it first (app/judgeReflection, api/classify.ts);
+// Places blue). TypeSafe reads it first (app/judgeReflection, api/classify.ts);
 // this word count is the fallback when that isn't available: whichever kind
 // of word shows up most wins, and a photo with nothing else said is a place.
 const words: Record<CloudCategory, string[]> = {

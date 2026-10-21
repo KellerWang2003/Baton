@@ -3,7 +3,7 @@ import type { CloudCategory } from '../ui/PhotoCloud'
 
 const categories: CloudCategory[] = ['feeling', 'people', 'places']
 
-// What a reflection is mostly about (Real-life): asks Claude through
+// What a reflection is mostly about (Real-life): asks TypeSafe through
 // /api/classify (api/classify.ts), which reads the note as a whole. If that
 // isn't available (no API key yet, offline, slow), it falls back to the word
 // count in data/reflection, so filming never gets stuck.

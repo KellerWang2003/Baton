@@ -5,7 +5,7 @@ import type { Plugin } from 'vite'
 import tailwindcss from '@tailwindcss/vite'
 
 // In local dev, serve the Vercel functions in api/ (only /api/classify for
-// now: Real-life's reflection reader), with ANTHROPIC_API_KEY from .env.local
+// now: Real-life's reflection reader), with TYPESAFE_API_KEY from .env.local
 function apiRoutes(): Plugin {
   return {
     name: 'baton-api-routes',
@@ -27,9 +27,8 @@ function apiRoutes(): Plugin {
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
-  // The API keys for the dev server's functions, from .env.local (never sent to the page)
+  // The API key for the dev server's functions, from .env.local (never sent to the page)
   const env = loadEnv(mode, process.cwd(), '')
-  process.env.ANTHROPIC_API_KEY ??= env.ANTHROPIC_API_KEY
   process.env.TYPESAFE_API_KEY ??= env.TYPESAFE_API_KEY
   return {
     plugins: [
