@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
@@ -49,6 +49,17 @@ const stages: Stage[] = ['moving', 'newcomer', 'local']
 const debugTabs = ['Recording', 'Demo', 'Glass', 'Playgrounds'] as const
 type DebugTab = (typeof debugTabs)[number]
 
+type PanelPosition = { x: number; y: number }
+
+function readPosition(): PanelPosition | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem('debugPosition') ?? 'null')
+    return typeof saved?.x === 'number' && typeof saved?.y === 'number' ? saved : null
+  } catch {
+    return null
+  }
+}
+
 function readTab(): DebugTab {
   try {
     const saved = localStorage.getItem('debugTab')
@@ -65,6 +76,36 @@ function readTab(): DebugTab {
 export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFrame, joystick, toggleJoystick, lockRatio, toggleLockRatio, backgroundColor, setBackgroundColor, kitOpen, toggleKit, mapsOpen, toggleMaps, motionOpen, toggleMotion, looksOpen, toggleLooks, todayLooksOpen, toggleTodayLooks, archiveIdeasOpen, toggleArchiveIdeas, collageOpen, toggleCollage, archiveMockOpen, toggleArchiveMock, sketchesOpen, toggleSketches }: DebugPanelProps) {
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).has('debug'))
   const [tab, setTab] = useState<DebugTab>(readTab)
+  const [position, setPosition] = useState<PanelPosition | null>(readPosition)
+  const panelRef = useRef<HTMLElement>(null)
+  const drag = useRef<{ dx: number; dy: number } | null>(null)
+
+  // Drag the panel by its header; where it lands is remembered
+  const clamp = (x: number, y: number, el: HTMLElement): PanelPosition => ({
+    x: Math.min(Math.max(0, x), Math.max(0, window.innerWidth - el.offsetWidth)),
+    y: Math.min(Math.max(0, y), Math.max(0, window.innerHeight - el.offsetHeight)),
+  })
+  const startDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const el = panelRef.current
+    if (!el || (event.target as HTMLElement).closest('button')) return
+    const rect = el.getBoundingClientRect()
+    drag.current = { dx: event.clientX - rect.left, dy: event.clientY - rect.top }
+    event.currentTarget.setPointerCapture(event.pointerId)
+  }
+  const moveDrag = (event: React.PointerEvent<HTMLElement>) => {
+    const el = panelRef.current
+    if (!drag.current || !el) return
+    setPosition(clamp(event.clientX - drag.current.dx, event.clientY - drag.current.dy, el))
+  }
+  const endDrag = () => {
+    if (!drag.current) return
+    drag.current = null
+    try {
+      localStorage.setItem('debugPosition', JSON.stringify(position))
+    } catch {
+      // not remembered
+    }
+  }
   const chooseTab = (next: DebugTab) => {
     setTab(next)
     try {
@@ -89,8 +130,28 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
       else if (event.key === 'f') toggleFrame()
       else if (['1', '2', '3'].includes(event.key)) changeStage(stages[Number(event.key) - 1])
     }
+    // On a phone: swipe right from the left edge
+    let swipe: { x: number; y: number } | null = null
+    const onTouchStart = (event: TouchEvent) => {
+      const touch = event.touches[0]
+      swipe = touch.clientX < 24 ? { x: touch.clientX, y: touch.clientY } : null
+    }
+    const onTouchMove = (event: TouchEvent) => {
+      if (!swipe) return
+      const touch = event.touches[0]
+      if (touch.clientX - swipe.x > 40 && Math.abs(touch.clientY - swipe.y) < 40) {
+        swipe = null
+        setOpen(true)
+      }
+    }
     window.addEventListener('keydown', onKey)
-    return () => window.removeEventListener('keydown', onKey)
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    return () => {
+      window.removeEventListener('keydown', onKey)
+      window.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchmove', onTouchMove)
+    }
   }, [index, goTo, toggleFrame])
 
   if (!open) {
@@ -115,7 +176,7 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
           aria-label="Open debug panel"
           title="Open debug panel (`)"
           className={cx(
-            'fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60',
+            'fixed left-0 top-1/2 z-50 h-12 w-3 -translate-y-1/2 rounded-r-control bg-ink/30 hover:w-4 hover:bg-ink/60 max-[500px]:h-20 max-[500px]:w-6 max-[500px]:bg-ink/50',
             framed && 'min-[501px]:hidden',
           )}
         />
@@ -124,15 +185,28 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   }
 
   return (
-    <aside className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float">
+    <aside
+      ref={panelRef}
+      style={position ? { left: position.x, top: position.y, bottom: 'auto' } : undefined}
+      className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float"
+    >
       <div className="flex flex-col gap-3 border-b border-line p-3">
-        <header className="flex items-center justify-between">
-          <p className="font-display text-base font-bold">Debug</p>
+        <header
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          title="Drag to move"
+          className="-m-3 flex cursor-grab touch-none select-none items-center justify-between p-3 active:cursor-grabbing"
+        >
+          <p className="font-display text-base font-bold">
+            Debug <span aria-hidden className="ml-1 text-ink-faint">⠿</span>
+          </p>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Close debug panel"
-            className="inline-flex size-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted"
+            className="inline-flex size-9 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted"
           >
             ×
           </button>
