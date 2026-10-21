@@ -88,6 +88,10 @@
   opacity: 0.6;
 }
 .try-items { display: flex; flex-direction: column; gap: 10px; font-size: 15px; line-height: 1.4; text-wrap: pretty; }
+/* Crossed out once she has done it this session */
+.try-items li { transition: opacity 300ms ease; }
+.try-done { opacity: 0.45; }
+.try-done s { text-decoration-thickness: 1px; }
 @keyframes try-in { from { opacity: 0; transform: translateY(6px); } }
 
 @media (min-width: 501px) and (max-width: 1099px) {

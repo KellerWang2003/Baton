@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { clearFolderOpening, pendingFolderOpening, playFolderEnter } from '../app/folderTransition'
 import { toLocal } from '../app/localPoint'
+import { markTried } from '../app/tried'
 import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
@@ -151,7 +152,7 @@ export function ArchiveDetail() {
           </div>
         )}
         <FolderSideTab folder={folder} onClick={() => goBack()} className="absolute top-6 -left-[7px]" />
-        {cloud.length > 0 && <FilterOrb filters={cloudFilters} value={filter} onChange={setFilter} />}
+        {cloud.length > 0 && <FilterOrb filters={cloudFilters} value={filter} onChange={(next) => { setFilter(next); if (next) markTried('archive-filter') }} />}
         {menu && (
           <PhotoMenu
             key={`${menu.photo.src}|${menu.photo.x}|${menu.photo.y}`}
