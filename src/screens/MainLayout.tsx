@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { openComposer, registerComposerField } from '../app/composer'
 import { navigate } from '../app/navigate'
+import { saveCapture } from '../app/supabase'
 import { setState, useDailyPrompt, useStatus, useStore } from '../app/store'
 import { useKeyboardArea } from '../app/useKeyboardArea'
 import { pages, tabs } from '../data/pages'
@@ -170,6 +171,7 @@ export function TabShell({ activeTab, children }: TabShellProps) {
             saveLabel={pages.capture.save}
             onSubmit={(text, photos) => {
               setState((s) => ({ reflections: [...s.reflections, { text, photos }] }))
+              void saveCapture({ photo: null, question: '', note: text, category: null, place: '', promptNumber: 0, timeLabel: '', spot: null })
               setToast(true)
             }}
           />

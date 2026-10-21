@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { judgeReflection } from '../app/judgeReflection'
 import { toLocal } from '../app/localPoint'
 import { navigate } from '../app/navigate'
+import { saveCapture } from '../app/supabase'
 import { setState, useDailyPrompt, useStore } from '../app/store'
 import { archiveClouds, freeSpot } from '../data/archiveCloud'
 import { reflectionCopy } from '../data/pages'
@@ -123,6 +124,17 @@ export function Reflection() {
     const cloudSrc = photo ?? `${FALLBACK_PHOTO}?added=${Date.now()}`
     const spot = freeSpot([...(archiveClouds.la ?? []), ...addedPhotos], CLOUD_SIZE)
     const at = orbRef.current?.getBoundingClientRect()
+    const time = momentTime(new Date())
+    void saveCapture({
+      photo: capturePhoto,
+      question: prompt.question,
+      note: text.trim(),
+      category: kind,
+      place: PLACE,
+      promptNumber: PROMPT_NUMBER,
+      timeLabel: time,
+      spot: { x: spot.x, y: spot.y, size: CLOUD_SIZE },
+    })
     setState((current) => ({
       addedPhotos: [...current.addedPhotos, { src: cloudSrc, category: kind, x: spot.x, y: spot.y, size: CLOUD_SIZE }],
       addedMoments: {
@@ -133,7 +145,7 @@ export function Reflection() {
           photo: src,
           category: kind,
           place: PLACE,
-          time: momentTime(new Date()),
+          time,
           note: text.trim(),
         },
       },

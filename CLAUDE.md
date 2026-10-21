@@ -4,7 +4,7 @@ Guidance for Claude Code when working in this repository.
 
 ## What this is
 
-Baton is a hackathon prototype for the SVSD "Traces" storytelling hackathon. It helps people leaving a city pass on what they knew to whoever arrives next. The deliverable is a **video (target 6:50, hard cap 7:00) due Mon Oct 19 2026, 11:59 PM PT**; this app exists to be screen-recorded for section 5 of that video. It is a demo, not a production app: favor clear, polished screens for the story over backend work. Mock data is fine and nothing needs to persist.
+Baton is a hackathon prototype for the SVSD "Traces" storytelling hackathon. It helps people leaving a city pass on what they knew to whoever arrives next. The deliverable is a **video (target 6:50, hard cap 7:00) due Mon Oct 19 2026, 11:59 PM PT**; this app exists to be screen-recorded for section 5 of that video. It is a demo, not a production app: favor clear, polished screens for the story over backend work. Mock data is fine and nothing needs to persist, except captures added in Real-life or the + field, which save to Supabase.
 
 - Pitch: "Every city has a story. We let the last person who lived there tell it to the next."
 - HMW: "How might we turn the story of leaving a city into the beginning of someone else's?"
@@ -135,7 +135,7 @@ Final key visuals arrive after screens are built, so styling must be swappable f
 - `src/ui/`: shared building blocks
 - `src/theme/tokens.css`: design tokens
 - `src/data/`: mock content (`pages.ts` holds page copy and the daily prompts per stage, `today.ts` the Today suggestions, to-do tips, leave date and legacy card, `onboarding.ts` the onboarding copy, found places and to-dos, `photos.ts` the recent photos row, `relay.ts` Relay picks, leavers, tips and notes, `people.ts` Chloe and others, `stages.ts` placeholder content per stage for the tabs and Profile)
-- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, tags, kept places, which Archive segment opens, the tapped Relay card and notes left on it, picked to-dos, Instagram handle, whether the + field is open, saved reflections). Nothing persists
+- `src/app/store.ts`: tiny in-memory store for choices that carry across screens (status, tags, kept places, which Archive segment opens, the tapped Relay card and notes left on it, picked to-dos, Instagram handle, whether the + field is open, saved reflections). Only captures persist, in Supabase via `src/app/supabase.ts` (table `captures` + bucket `capture-photos`, set up by `docs/supabase.sql`; keys `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` and Vercel; no sign-in, rows are per browser `device_id`, so not private; without keys it stays in memory; `loadSavedCaptures` runs in `main.tsx`). Everything else doesn't persist
 - `src/app/composer.ts`: opens the + field and focuses it after the morph (used by + and the daily prompt card)
 - `docs/daily-prompts.md`: daily prompt list per stage and the rules prompts follow
 - `public/`: static assets (`public/brand/` holds the logo SVGs)
