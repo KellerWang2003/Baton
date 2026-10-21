@@ -19,6 +19,7 @@ const splashTones: Partial<Record<Stage, { page: string; rim: string; dark?: boo
   local: { page: 'bg-baton-olive text-baton-cream', rim: 'var(--color-baton-olive)', dark: true },
 }
 
+// The group sits centered between the status bar and the button (Keller, Oct 21)
 // Reaches up under the status bar, so the color fills the whole screen
 const fullBleed = {
   top: 'calc(-1 * var(--status-bar, 0px))',
@@ -57,7 +58,7 @@ function StageSplashAnimation({ stage, onDone }: { stage: Stage; onDone: () => v
 
   return (
     <div className={cx('absolute inset-0 z-50 flex animate-fade-in flex-col items-center', tone.page)} style={fullBleed}>
-      <h1 className="mt-[100px] animate-splash-rise text-center text-section leading-[1.36]">
+      <h1 className="mt-[133px] animate-splash-rise text-center text-section leading-[1.36]">
         {content.title.map((line) => (
           <span key={line} className="block">
             {line}
