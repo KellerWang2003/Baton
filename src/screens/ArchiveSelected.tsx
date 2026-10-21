@@ -94,7 +94,7 @@ export function ArchiveSelected() {
       }}
     >
       {/* Figma's arrow, 30pt in, just under the status bar (this page reaches up under it) */}
-      <div data-fade className="absolute left-4 z-10" style={{ top: 'calc(var(--status-bar, 0px) + 4px)' }}>
+      <div data-fade className="absolute left-5 z-10" style={{ top: 'calc(var(--status-bar, 0px) + 8px)' }}>
         <BackButton onClick={close} label="Back to the photos" />
       </div>
 

@@ -402,7 +402,7 @@ export function CameraBubble() {
           {/* Real-life only: a way back to Today without tapping the picture */}
           {realLife && (
             <div
-              className="absolute top-1 left-4 z-10 transition-opacity duration-300"
+              className="absolute top-2 left-5 z-10 transition-opacity duration-300"
               style={{ opacity: expanded ? 1 : 0, pointerEvents: expanded ? 'auto' : 'none' }}
             >
               <BackButton onClick={() => setState({ camera: null })} label="Back to Today" />

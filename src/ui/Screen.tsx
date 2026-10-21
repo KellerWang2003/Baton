@@ -26,8 +26,8 @@ export function Screen({ title, subtitle, eyebrow, onBack, action, footer, child
   return (
     <div className={cx('flex h-full flex-col transition-colors duration-500', background)}>
       {onBack && (
-        // Lines the arrow up with the pages that float it (top-1 left-4)
-        <nav className="flex h-12 shrink-0 items-center justify-between px-4 pt-1">
+        // Lines the arrow up with the pages that float it (top-2 left-5)
+        <nav className="flex h-14 shrink-0 items-center justify-between px-5 pt-2">
           <BackButton onClick={onBack === true ? undefined : onBack} />
           {action}
         </nav>
