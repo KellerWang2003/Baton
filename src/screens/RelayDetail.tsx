@@ -28,9 +28,15 @@ export function RelayDetail() {
     setPosted((count) => count + 1)
   }
 
-  // Once her note is stuck on, bring it into view as it slaps down
+  // Once her note is stuck on, scroll the page so it's in view as it slaps
+  // down. Scrolls the page's own scroller directly: scrollIntoView also tried
+  // to move the phone frame around it and left the page where it was.
   useEffect(() => {
-    if (posted) notesEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
+    const end = notesEnd.current
+    const page = end?.closest('main')
+    if (!posted || !end || !page) return
+    const below = end.getBoundingClientRect().bottom - page.getBoundingClientRect().bottom
+    if (below > 0) page.scrollTo({ top: page.scrollTop + below, behavior: 'smooth' })
   }, [posted])
 
   return (
