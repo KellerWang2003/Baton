@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { flow, stageLabels } from '../flow'
 import type { Stage } from '../flow'
 import { stageNames } from '../data/stages'
@@ -122,197 +123,221 @@ export function DebugPanel({ index, goTo, framed, toggleFrame, frame, updateFram
   }
 
   return (
-    <aside className="fixed bottom-4 left-4 z-50 flex max-h-[80vh] w-72 flex-col gap-3 overflow-y-auto rounded-card bg-surface p-3 font-body text-sm text-ink shadow-float">
-      <header className="flex items-center justify-between">
-        <p className="font-display font-bold">Debug</p>
-        <button
-          type="button"
-          onClick={() => setOpen(false)}
-          aria-label="Close debug panel"
-          className="inline-flex size-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted"
-        >
-          ×
-        </button>
-      </header>
+    <aside className="fixed bottom-4 left-4 z-50 flex max-h-[85vh] w-80 flex-col overflow-hidden rounded-card bg-surface font-body text-sm text-ink shadow-float">
+      <div className="flex flex-col gap-3 border-b border-line p-3">
+        <header className="flex items-center justify-between">
+          <p className="font-display text-base font-bold">Debug</p>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close debug panel"
+            className="inline-flex size-7 items-center justify-center rounded-full text-ink-muted hover:bg-surface-muted"
+          >
+            ×
+          </button>
+        </header>
 
-      {/* Chloe's stage: Today, Archive, Community and Profile follow it */}
-      <div className="flex flex-col gap-1.5">
-        <p className="px-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">Chloe's stage</p>
-        <div role="radiogroup" aria-label="Chloe's stage" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
-          {stages.map((stage) => (
+        {/* Chloe's stage: Today, Archive, Community and Profile follow it */}
+        <div className="flex flex-col gap-2">
+          <div role="radiogroup" aria-label="Chloe's stage" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+            {stages.map((stage) => (
+              <button
+                key={stage}
+                type="button"
+                role="radio"
+                aria-checked={status === stage}
+                data-stage={stage}
+                onClick={() => changeStage(stage)}
+                className={cx(
+                  'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
+                  status === stage ? 'bg-stage text-on-stage' : 'text-ink hover:bg-surface',
+                )}
+              >
+                {stageNames[stage]}
+              </button>
+            ))}
+          </div>
+          <select
+            aria-label="Go to screen"
+            value={index}
+            onChange={(event) => goTo(Number(event.target.value))}
+            className="w-full truncate rounded-control bg-surface-muted px-2.5 py-2 text-xs font-semibold"
+          >
+            {stages.map((stage) => {
+              const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage && screen.id !== 'intentions-video' && (onboardingPhotoAccess || screen.id !== 'photos'))
+              if (screens.length === 0) return null
+              return (
+                <optgroup key={stage} label={stageLabels[stage]}>
+                  {screens.map(({ screen, i }) => (
+                    <option key={screen.id} value={i}>
+                      {String(i + 1).padStart(2, '0')} {screen.title}
+                    </option>
+                  ))}
+                </optgroup>
+              )
+            })}
+          </select>
+        </div>
+
+        <div role="tablist" aria-label="Debug sections" className="-mb-3 flex gap-4">
+          {debugTabs.map((name) => (
             <button
-              key={stage}
+              key={name}
               type="button"
-              role="radio"
-              aria-checked={status === stage}
-              data-stage={stage}
-              onClick={() => changeStage(stage)}
+              role="tab"
+              aria-selected={tab === name}
+              onClick={() => chooseTab(name)}
               className={cx(
-                'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
-                status === stage ? 'bg-stage text-on-stage' : 'text-ink hover:bg-surface',
+                'border-b-2 pb-2 text-xs font-semibold transition',
+                tab === name ? 'border-ink text-ink' : 'border-transparent text-ink-muted hover:text-ink',
               )}
             >
-              {stageNames[stage]}
+              {name}
             </button>
           ))}
         </div>
-        <select
-          aria-label="Go to screen"
-          value={index}
-          onChange={(event) => goTo(Number(event.target.value))}
-          className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
-        >
-          {stages.map((stage) => {
-            const screens = flow.map((screen, i) => ({ screen, i })).filter(({ screen }) => screen.stage === stage && screen.id !== 'intentions-video' && (onboardingPhotoAccess || screen.id !== 'photos'))
-            if (screens.length === 0) return null
-            return (
-              <optgroup key={stage} label={stageLabels[stage]}>
-                {screens.map(({ screen, i }) => (
-                  <option key={screen.id} value={i}>
-                    {String(i + 1).padStart(2, '0')} {screen.title}
-                  </option>
-                ))}
-              </optgroup>
-            )
-          })}
-        </select>
       </div>
 
-      <div role="tablist" aria-label="Debug sections" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
-        {debugTabs.map((name) => (
-          <button
-            key={name}
-            type="button"
-            role="tab"
-            aria-selected={tab === name}
-            onClick={() => chooseTab(name)}
-            className={cx('flex-1 rounded-full px-1 py-1 text-xs font-semibold transition', tab === name ? 'bg-ink text-surface' : 'text-ink hover:bg-surface')}
-          >
-            {name}
-          </button>
-        ))}
-      </div>
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-3">
+        {tab === 'Recording' && (
+          <>
+            <Group title="Phone">
+              <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
+              {framed && (
+                <div className="flex flex-col gap-2 px-2 py-2">
+                  <div role="radiogroup" aria-label="Frame preset" className="flex gap-1 rounded-full bg-surface p-0.5">
+                    {(['iphone', 'custom'] as const).map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        role="radio"
+                        aria-checked={frame.preset === preset}
+                        onClick={() => updateFrame({ preset })}
+                        className={cx('flex-1 rounded-full px-2 py-1 text-xs font-semibold transition', frame.preset === preset ? 'bg-ink text-surface' : 'text-ink hover:bg-surface-muted')}
+                      >
+                        {preset === 'iphone' ? 'iPhone' : 'Custom'}
+                      </button>
+                    ))}
+                  </div>
+                  {frame.preset === 'custom' && (
+                    <>
+                      <div className="flex items-center gap-2 text-xs">
+                        <SizeInput label="W" value={frame.width} onChange={(width) => updateFrame({ width })} />
+                        <SizeInput label="H" value={frame.height} onChange={(height) => updateFrame({ height })} />
+                        <button type="button" aria-label="Swap width and height" onClick={() => updateFrame({ width: frame.height, height: frame.width })} className="rounded-control bg-surface px-2 py-1 font-semibold hover:bg-line">⇄</button>
+                      </div>
+                      <div className="flex gap-1">
+                        {[['Phone', 402, 874], ['Tablet', 820, 1180], ['Wide', 1280, 800]].map(([name, width, height]) => (
+                          <button key={name} type="button" onClick={() => updateFrame({ width: Number(width), height: Number(height) })} className="flex-1 rounded-control bg-surface px-1 py-1 text-xs font-semibold hover:bg-line">{name}</button>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+              <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
+            </Group>
 
-      {tab === 'Recording' && (
-        <>
-          <div className="flex flex-col gap-1">
-        <DebugToggle label="Phone frame" on={framed} onClick={toggleFrame} hint="F" />
-        {framed && (
-          <div className="flex flex-col gap-1.5 px-2 py-1">
-            <div role="radiogroup" aria-label="Frame preset" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
-              {(['iphone', 'custom'] as const).map((preset) => (
+            <Group title="While filming">
+              <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
+              <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
+              <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
+            </Group>
+
+            <Group title="Background" note="Outside the phone frame. Close Debug with ` before recording.">
+              <div className="flex items-center gap-2 px-2 py-1.5">
+                <input
+                  type="color"
+                  aria-label="Background color"
+                  value={backgroundColor ?? getComputedStyle(document.documentElement).getPropertyValue('--color-backdrop').trim()}
+                  onChange={(event) => setBackgroundColor(event.target.value)}
+                  className="h-7 w-10 cursor-pointer rounded-control bg-transparent"
+                />
                 <button
-                  key={preset}
                   type="button"
-                  role="radio"
-                  aria-checked={frame.preset === preset}
-                  onClick={() => updateFrame({ preset })}
-                  className={cx('flex-1 rounded-full px-2 py-1 text-xs font-semibold transition', frame.preset === preset ? 'bg-ink text-surface' : 'text-ink hover:bg-surface')}
+                  onClick={() => setBackgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--color-recording-green').trim())}
+                  className="flex-1 rounded-control bg-surface px-2 py-1.5 text-xs font-semibold hover:bg-line"
                 >
-                  {preset === 'iphone' ? 'iPhone' : 'Custom'}
+                  Green screen
                 </button>
-              ))}
-            </div>
-            {frame.preset === 'custom' && (
-              <>
-                <div className="flex items-center gap-2 text-xs">
-                  <SizeInput label="W" value={frame.width} onChange={(width) => updateFrame({ width })} />
-                  <SizeInput label="H" value={frame.height} onChange={(height) => updateFrame({ height })} />
-                  <button type="button" aria-label="Swap width and height" onClick={() => updateFrame({ width: frame.height, height: frame.width })} className="rounded-control bg-surface-muted px-2 py-1 font-semibold hover:bg-line">⇄</button>
-                </div>
-                <div className="flex gap-1">
-                  {[['Phone', 402, 874], ['Tablet', 820, 1180], ['Wide', 1280, 800]].map(([name, width, height]) => (
-                    <button key={name} type="button" onClick={() => updateFrame({ width: Number(width), height: Number(height) })} className="flex-1 rounded-control bg-surface-muted px-1 py-1 text-xs font-semibold hover:bg-line">{name}</button>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
+                <button
+                  type="button"
+                  onClick={() => setBackgroundColor(null)}
+                  className="rounded-control bg-surface px-2 py-1.5 text-xs font-semibold hover:bg-line"
+                >
+                  Reset
+                </button>
+              </div>
+            </Group>
+
+            <Group title="Video" note="1.5 seconds blank, then the intentions entrance. Resets picks.">
+              <button
+                type="button"
+                onClick={() => {
+                  setState((s) => ({ intentionsVideoRun: s.intentionsVideoRun + 1, goals: [], stageSplash: null, composing: false }))
+                  goTo(flow.findIndex((screen) => screen.id === 'intentions-video'))
+                  setOpen(false)
+                }}
+                className="px-2 py-2 text-left hover:bg-line"
+              >
+                Open intentions from blank
+              </button>
+            </Group>
+          </>
         )}
-            <DebugToggle label="Lock aspect ratio" on={lockRatio} onClick={toggleLockRatio} />
-            <DebugToggle label="Scroll joystick" on={joystick} onClick={toggleJoystick} />
-            <DebugToggle label="Hide navigation" on={hideNav} onClick={() => setState({ hideNav: !hideNav })} />
-            <DebugToggle label="Hide status bar" on={hideStatusBar} onClick={() => setState({ hideStatusBar: !hideStatusBar })} />
-          </div>
-      <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
-        <label className="flex items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-ink-muted">
-          Background color
-          <input
-            type="color"
-            value={backgroundColor ?? getComputedStyle(document.documentElement).getPropertyValue('--color-backdrop').trim()}
-            onChange={(event) => setBackgroundColor(event.target.value)}
-            className="h-7 w-10 cursor-pointer rounded-control bg-transparent"
-          />
-        </label>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setBackgroundColor(getComputedStyle(document.documentElement).getPropertyValue('--color-recording-green').trim())}
-            className="flex-1 rounded-control bg-surface-muted px-2 py-1.5 text-xs font-semibold hover:bg-line"
-          >
-            Green screen
-          </button>
-          <button
-            type="button"
-            onClick={() => setBackgroundColor(null)}
-            className="rounded-control bg-surface-muted px-2 py-1.5 text-xs font-semibold hover:bg-line"
-          >
-            Reset
-          </button>
-        </div>
-        <p className="text-xs text-ink-muted">Outside the phone frame. Close Debug with ` before recording.</p>
+
+        {tab === 'Demo' && (
+          <>
+            <Group title="Today">
+              <PromptPicker />
+              <DebugToggle label="Orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
+            </Group>
+            <Group title="Welcome confetti">
+              <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
+            </Group>
+            <Group title="Archive direction">
+              <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
+            </Group>
+            <Group title="Real-life" note="Live camera, then write a line about it. The camera needs https (the Vercel link) or localhost. On a phone, open the link with ?real-life#/today.">
+              <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
+            </Group>
+            <Group title="Prototype">
+              <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
+              <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
+            </Group>
+          </>
+        )}
+
+        {tab === 'Glass' && <GlassControls />}
+
+        {tab === 'Playgrounds' && (
+          <Group title="Open a playground" note="Each one takes over the page until you switch it off.">
+            <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
+            <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
+            <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
+            <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
+            <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
+            <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
+            <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
+            <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
+            <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
+          </Group>
+        )}
       </div>
 
-      <div className="border-t border-line pt-3">
-        <button
-          type="button"
-          onClick={() => {
-            setState((s) => ({ intentionsVideoRun: s.intentionsVideoRun + 1, goals: [], stageSplash: null, composing: false }))
-            goTo(flow.findIndex((screen) => screen.id === 'intentions-video'))
-            setOpen(false)
-          }}
-          className="w-full rounded-control bg-surface-muted px-2 py-2 text-left text-xs font-semibold hover:bg-line"
-        >
-          Video: open intentions from blank
-        </button>
-        <p className="px-2 pt-1 text-xs text-ink-muted">1.5 seconds blank, then the intentions entrance. Resets picks.</p>
-      </div>
-
-        </>
-      )}
-
-      {tab === 'Demo' && (
-        <>
-          <PromptPicker />
-          <ConfettiPicker goToArrived={() => goTo(flow.findIndex((screen) => screen.id === 'arrived'))} />
-          <ArchiveDirectionPicker goToArchive={() => goTo(flow.findIndex((screen) => screen.id === 'archive'))} />
-          <RealLife goToToday={() => goTo(flow.findIndex((screen) => screen.id === 'today'))} />
-          <div className="flex flex-col gap-1 border-t border-line pt-3">
-            <DebugToggle label="Today orb moves" on={orbMoves} onClick={() => setState({ orbMoves: !orbMoves })} />
-            <DebugToggle label="Only 8 intention bubbles" on={fewBubbles} onClick={() => setState({ fewBubbles: !fewBubbles })} />
-            <DebugToggle label="Onboarding photo access" on={onboardingPhotoAccess} onClick={() => setState({ onboardingPhotoAccess: !onboardingPhotoAccess })} />
-          </div>
-        </>
-      )}
-
-      {tab === 'Glass' && <GlassControls />}
-
-      {tab === 'Playgrounds' && (
-        <div className="flex flex-col gap-1">
-          <DebugToggle label="Design system" on={kitOpen} onClick={toggleKit} />
-          <DebugToggle label="Map looks" on={mapsOpen} onClick={toggleMaps} />
-          <DebugToggle label="Relay entrances" on={motionOpen} onClick={toggleMotion} />
-          <DebugToggle label="Relay looks" on={looksOpen} onClick={toggleLooks} />
-          <DebugToggle label="Today looks" on={todayLooksOpen} onClick={toggleTodayLooks} />
-          <DebugToggle label="3D proto" on={archiveMockOpen} onClick={toggleArchiveMock} />
-          <DebugToggle label="Archive sketches" on={sketchesOpen} onClick={toggleSketches} />
-          <DebugToggle label="Archive ideas" on={archiveIdeasOpen} onClick={toggleArchiveIdeas} />
-          <DebugToggle label="Brand collage" on={collageOpen} onClick={toggleCollage} />
-        </div>
-      )}
-
-      <p className="border-t border-line pt-2 text-xs text-ink-muted">` panel · ← → screens · 1 2 3 stage · F frame</p>
+      <p className="border-t border-line px-3 py-2 text-xs text-ink-muted">` panel · ← → screens · 1 2 3 stage · F frame</p>
     </aside>
+  )
+}
+
+// A titled card of related controls; rows inside are separated by hairlines.
+function Group({ title, note, children }: { title: string; note?: string; children: ReactNode }) {
+  return (
+    <section className="flex flex-col gap-1.5">
+      <h3 className="px-1 text-xs font-semibold uppercase tracking-wide text-ink-muted">{title}</h3>
+      <div className="flex flex-col divide-y divide-line overflow-hidden rounded-control bg-surface-muted">{children}</div>
+      {note && <p className="px-1 text-xs text-ink-muted">{note}</p>}
+    </section>
   )
 }
 
@@ -339,7 +364,7 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
       role="switch"
       aria-checked={on}
       onClick={onClick}
-      className="flex items-center justify-between rounded-control px-2 py-1.5 hover:bg-surface-muted"
+      className="flex items-center justify-between px-2 py-2 text-left hover:bg-line"
     >
       <span>
         {label}
@@ -357,74 +382,76 @@ function DebugToggle({ label, on, onClick, hint }: { label: string; on: boolean;
 function GlassControls() {
   const { glassTuning: tuning } = useStore()
   const set = (patch: Partial<GlassTuning>) => setState((s) => ({ glassTuning: { ...s.glassTuning, ...patch } }))
-  const select = 'rounded-full bg-surface-muted px-2 py-1 text-xs'
+  const select = 'rounded-full bg-surface px-2 py-1 text-xs'
 
   return (
-    <div className="flex flex-col gap-2 px-2">
-      <>
-          <label className="flex items-center justify-between gap-2">
-            Shape
-            <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
-              {glassShapes.map((shape) => (
-                <option key={shape}>{shape}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center justify-between gap-2">
-            Interaction
-            <select
-              value={tuning.interaction}
-              onChange={(event) => set({ interaction: event.target.value as GlassTuning['interaction'] })}
-              className={select}
-            >
-              {glassInteractions.map((interaction) => (
-                <option key={interaction}>{interaction}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex items-center justify-between gap-2">
-            Color
-            <input
-              type="color"
-              value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-baton-blue').trim()}
-              onChange={(event) => set({ color: event.target.value })}
-              className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
-            />
-          </label>
-          {glassSliders.map((slider) => {
-            const value = tuning[slider.key] as number
-            return (
-              <label key={slider.key} className="flex flex-col gap-0.5">
-                <span className="flex justify-between text-xs">
-                  {slider.label}
-                  <span className="tabular-nums text-ink-muted">{value}</span>
-                </span>
-                <input
-                  type="range"
-                  min={slider.min}
-                  max={slider.max}
-                  step={slider.step}
-                  value={value}
-                  onChange={(event) => set({ [slider.key]: Number(event.target.value) })}
-                  className="accent-baton-blue"
-                />
-              </label>
-            )
-          })}
-          <div className="-mx-2 flex flex-col">
-            <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
-            <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
-            <DebugToggle label="Intro" on={tuning.intro} onClick={() => set({ intro: !tuning.intro })} />
-          </div>
-          <button
-            type="button"
-            onClick={() => setState({ glassTuning: defaultGlassTuning })}
-            className="self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
+    <>
+      <Group title="Today glass" note="Live settings for the prompt circle. They reset on reload.">
+        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
+          Shape
+          <select value={tuning.shape} onChange={(event) => set({ shape: event.target.value as GlassTuning['shape'] })} className={select}>
+            {glassShapes.map((shape) => (
+              <option key={shape}>{shape}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
+          Interaction
+          <select
+            value={tuning.interaction}
+            onChange={(event) => set({ interaction: event.target.value as GlassTuning['interaction'] })}
+            className={select}
           >
-            Reset
-          </button>
-      </>
-    </div>
+            {glassInteractions.map((interaction) => (
+              <option key={interaction}>{interaction}</option>
+            ))}
+          </select>
+        </label>
+        <label className="flex items-center justify-between gap-2 px-2 py-1.5">
+          Color
+          <input
+            type="color"
+            value={tuning.color || getComputedStyle(document.documentElement).getPropertyValue('--color-baton-blue').trim()}
+            onChange={(event) => set({ color: event.target.value })}
+            className="h-6 w-10 cursor-pointer rounded-full bg-transparent"
+          />
+        </label>
+      </Group>
+      <Group title="Lens">
+        {glassSliders.map((slider) => {
+          const value = tuning[slider.key] as number
+          return (
+            <label key={slider.key} className="flex flex-col gap-0.5 px-2 py-1.5">
+              <span className="flex justify-between text-xs">
+                {slider.label}
+                <span className="tabular-nums text-ink-muted">{value}</span>
+              </span>
+              <input
+                type="range"
+                min={slider.min}
+                max={slider.max}
+                step={slider.step}
+                value={value}
+                onChange={(event) => set({ [slider.key]: Number(event.target.value) })}
+                className="accent-baton-blue"
+              />
+            </label>
+          )
+        })}
+      </Group>
+      <Group title="Motion">
+        <DebugToggle label="Idle drift" on={tuning.idle} onClick={() => set({ idle: !tuning.idle })} />
+        <DebugToggle label="Morph on click" on={tuning.morphOnClick} onClick={() => set({ morphOnClick: !tuning.morphOnClick })} />
+        <DebugToggle label="Intro" on={tuning.intro} onClick={() => set({ intro: !tuning.intro })} />
+      </Group>
+      <button
+        type="button"
+        onClick={() => setState({ glassTuning: defaultGlassTuning })}
+        className="self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
+      >
+        Reset glass
+      </button>
+    </>
   )
 }
 
@@ -438,20 +465,14 @@ function GlassControls() {
 function RealLife({ goToToday }: { goToToday: () => void }) {
   const { realLife } = useStore()
   return (
-    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Real-life</span>
-      <DebugToggle
-        label="Today: photo of your school"
-        on={realLife}
-        onClick={() => {
-          setState({ realLife: !realLife, camera: null })
-          if (!realLife) goToToday()
-        }}
-      />
-      <p className="px-2 text-xs text-ink-muted">
-        Live camera, then write a line about it. The camera needs https (the Vercel link) or localhost. On a phone, open the link with ?real-life#/today.
-      </p>
-    </div>
+    <DebugToggle
+      label="Today: photo of your school"
+      on={realLife}
+      onClick={() => {
+        setState({ realLife: !realLife, camera: null })
+        if (!realLife) goToToday()
+      }}
+    />
   )
 }
 
@@ -463,9 +484,8 @@ function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
     ...archiveDirections.map((direction) => ({ key: direction.id, label: direction.label, sketch: direction.id, wall: false })),
   ]
   return (
-    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Archive direction</span>
-      <div role="radiogroup" aria-label="Archive direction" className="flex flex-wrap gap-1 rounded-[14px] bg-surface-muted p-0.5">
+    <div className="p-1.5">
+      <div role="radiogroup" aria-label="Archive direction" className="flex flex-wrap gap-1 rounded-[14px] bg-surface p-0.5">
         {options.map((option) => {
           const on = archiveSketch === option.sketch && archiveWall === option.wall
           return (
@@ -480,7 +500,7 @@ function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
               }}
               className={cx(
                 'flex-1 whitespace-nowrap rounded-full px-2 py-1 text-xs font-semibold transition',
-                on ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
+                on ? 'bg-ink text-surface' : 'text-ink hover:bg-surface-muted',
               )}
             >
               {option.label}
@@ -497,9 +517,8 @@ function ArchiveDirectionPicker({ goToArchive }: { goToArchive: () => void }) {
 function ConfettiPicker({ goToArrived }: { goToArrived: () => void }) {
   const { confetti, confettiRun } = useStore()
   return (
-    <div className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Welcome confetti</span>
-      <div role="radiogroup" aria-label="Welcome confetti" className="flex gap-1 rounded-full bg-surface-muted p-0.5">
+    <div className="p-1.5">
+      <div role="radiogroup" aria-label="Welcome confetti" className="flex gap-1 rounded-full bg-surface p-0.5">
         {confettiVariants.map((variant) => (
           <button
             key={variant.id}
@@ -512,7 +531,7 @@ function ConfettiPicker({ goToArrived }: { goToArrived: () => void }) {
             }}
             className={cx(
               'flex-1 rounded-full px-2 py-1 text-xs font-semibold transition',
-              confetti === variant.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface',
+              confetti === variant.id ? 'bg-ink text-surface' : 'text-ink hover:bg-surface-muted',
             )}
           >
             {variant.label}
@@ -529,12 +548,12 @@ function PromptPicker() {
   const { promptIndex } = useStore()
   const prompts = dailyPrompts[status]
   return (
-    <label className="flex flex-col gap-1.5 border-t border-line px-2 pt-3">
-      <span className="text-xs font-semibold uppercase tracking-wide text-ink-muted">Today's prompt</span>
+    <label className="flex flex-col gap-1 p-2">
+      <span className="text-xs text-ink-muted">Prompt</span>
       <select
         value={promptIndex % prompts.length}
         onChange={(event) => setState({ promptIndex: Number(event.target.value) })}
-        className="w-full truncate rounded-control bg-surface-muted px-2 py-1.5 text-xs"
+        className="w-full truncate rounded-control bg-surface px-2 py-1.5 text-xs"
       >
         {prompts.map((prompt, i) => (
           <option key={`${status}-${i}`} value={i}>
