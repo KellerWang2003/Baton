@@ -465,14 +465,23 @@ function GlassControls() {
 function RealLife({ goToToday }: { goToToday: () => void }) {
   const { realLife } = useStore()
   return (
-    <DebugToggle
-      label="Today: photo of your school"
-      on={realLife}
-      onClick={() => {
-        setState({ realLife: !realLife, camera: null })
-        if (!realLife) goToToday()
-      }}
-    />
+    <>
+      <DebugToggle
+        label="Today: photo of your school"
+        on={realLife}
+        onClick={() => {
+          setState({ realLife: !realLife, camera: null })
+          if (!realLife) goToToday()
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => void clearSavedCaptures()}
+        className="m-1.5 self-start rounded-full bg-surface-muted px-3 py-1 text-xs font-semibold hover:bg-line"
+      >
+        Clear my saved captures
+      </button>
+    </>
   )
 }
 
