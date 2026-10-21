@@ -42,7 +42,7 @@ const LEAVE = { duration: DISSOLVE_MS, easing: 'cubic-bezier(0.45, 0, 0.55, 1)',
 // cloud (ArchiveDetail plays the landing).
 export function Reflection() {
   const prompt = useDailyPrompt()
-  const { capturePhoto, captureFrom, addedPhotos } = useStore()
+  const { capturePhoto, captureFrom, addedPhotos, orbMoves } = useStore()
   // Kept for the rest of the session: the photo goes on to LA's cloud
   const photo = useMemo(() => (capturePhoto ? URL.createObjectURL(capturePhoto) : null), [capturePhoto])
   const src = photo ?? FALLBACK_PHOTO
@@ -166,14 +166,15 @@ export function Reflection() {
 
   return (
     <div ref={rootRef} className="relative h-full bg-baton-paper font-display text-baton-navy">
-      {/* Scrolls up and down only: the tilted note and the orb's glow reach
-          past the sides on a phone-width screen */}
+      {/* Scrolls up and down only: the orb's glass canvas is wider than a
+          phone screen, so the content is clipped at its sides (clip, not
+          hidden, so it doesn't count toward scrolling; iOS can pan hidden) */}
       <div
         className="absolute inset-0 overflow-x-hidden overflow-y-auto"
         // Tapping anywhere off the note ends typing (iOS doesn't always do it)
         onPointerDown={(event) => event.target !== noteRef.current && noteRef.current?.blur()}
       >
-        <div className="flex flex-col items-center px-gutter pb-40">
+        <div className="flex flex-col items-center overflow-x-clip px-gutter pb-40">
           <div className={`flex flex-col items-center ${adding ? away : settle}`}>
             <p className="mt-[62px] text-moment-meta text-wrap-faint">{reflectionCopy.label}</p>
             <h1 className="mt-2 w-[260px] text-center text-moment-question font-medium">{prompt.question}</h1>
@@ -181,7 +182,7 @@ export function Reflection() {
 
           {/* Her photo as an orb, its edge glowing the color of what she wrote about */}
           <div ref={orbRef} className="mt-8">
-            <PhotoOrb src={src} size={ORB} category={category} dissolve={adding} style={{ opacity: morphing ? 0 : 1 }} />
+            <PhotoOrb src={src} size={ORB} category={category} dissolve={adding} moves={orbMoves} style={{ opacity: morphing ? 0 : 1 }} />
           </div>
 
           {/* What it's about, once the color settles */}

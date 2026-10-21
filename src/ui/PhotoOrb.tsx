@@ -4,6 +4,8 @@ import { cx } from './cx'
 import { GLASS_RIM, drawCover, filterColor, filterGlassColor, filterGlow } from './filterColor'
 import FluidGlass from './FluidGlass'
 import { GlassRim } from './GlassRim'
+import { movingGlass } from './promptGlass'
+import { useScrollNudge } from './useScrollNudge'
 import type { CloudCategory } from './PhotoCloud'
 
 // Built like the Archive's opened photos (ArchiveSelected, Figma 236:234), at
@@ -26,11 +28,15 @@ export const DISSOLVE_MS = 900
 // in the same way as on the Archive's opened photos (shared in filterColor):
 // the glass tints its rim and the color glows in from the edge, easing in.
 // `dissolve` gently fades the glass and the rim, leaving the photo and its glow.
+// `moves` gives the glass Today's moving orb (Keller, Oct 21): it gives when
+// dragged and springs back, breathes, wobbles, spins and is nudged by scrolling,
+// all inside the rim, which holds still.
 export function PhotoOrb({
   src,
   size,
   category,
   dissolve = false,
+  moves = false,
   style,
   className,
 }: {
@@ -38,6 +44,7 @@ export function PhotoOrb({
   size: number
   category: CloudCategory | null
   dissolve?: boolean
+  moves?: boolean
   style?: CSSProperties
   className?: string
 }) {
@@ -52,9 +59,11 @@ export function PhotoOrb({
   const color = shown ? filterColor(shown) : null
   // The color fills a circle up to where the rim starts (Figma: 329 of 342)
   const glow = size - 13
+  const root = useRef<HTMLDivElement>(null)
+  const push = useScrollNudge(root, moves)
 
   return (
-    <div className={cx('relative shrink-0', className)} style={{ width: size, height: size, ...style }}>
+    <div ref={root} className={cx('relative shrink-0', className)} style={{ width: size, height: size, ...style }}>
       {/* The plain photo until the glass is drawn, and after it dissolves */}
       <div aria-hidden className="absolute overflow-hidden rounded-full" style={{ inset: INSET }}>
         <img src={src} alt="" draggable={false} className="size-full object-cover" />
@@ -72,17 +81,19 @@ export function PhotoOrb({
             color={shown ? filterGlassColor(shown) : '#ffffff'}
             rim={rim}
             ring={0}
-            breathe={0.1}
+            breathe={moves ? movingGlass.breathe : 0.1}
             refraction={0.5}
             dispersion={1}
             reflection={1}
             shadow={0}
-            interaction="static"
+            interaction={moves ? movingGlass.interaction : 'static'}
+            give={moves ? movingGlass.give : 0}
             idle={false}
             intro={false}
             morphOnClick={false}
-            spin={0}
-            wobble={0}
+            spin={moves ? movingGlass.spin : 0}
+            wobble={moves ? movingGlass.wobble : 0}
+            pushRef={push}
             onReady={() => setGlassReady(true)}
           />
         )}
