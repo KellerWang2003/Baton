@@ -1,7 +1,27 @@
 // Copy and mock data for onboarding (flow 1) and the setup to-dos on Today.
 // Chloe is in her last term in Pasadena and leaves LA for New York on Dec 19.
 
+export type FeatureStage = 'moving' | 'newcomer' | 'local'
+
+export type FeatureSlide = {
+  // Stage slides sit on their stage color and show the journey marker; the
+  // others (the opener and the tagline) stay on paper.
+  stage?: FeatureStage
+  eyebrow: string
+  title: string
+  body?: string
+  // A second layer on the same page: short titled points under the title
+  points?: { title: string; body: string }[]
+  // Photos shown as tilted scraps in the top half
+  photos?: string[]
+}
+
 export const features = {
+  journey: [
+    { id: 'moving', label: 'Moving' },
+    { id: 'newcomer', label: 'Newcomer' },
+    { id: 'local', label: 'Local' },
+  ] as { id: FeatureStage; label: string }[],
   slides: [
     {
       eyebrow: 'Baton',
@@ -9,21 +29,40 @@ export const features = {
       body: 'We let the last person who lived there tell it to the next.',
     },
     {
-      eyebrow: 'While you live there',
-      title: 'Keep the small stuff',
-      body: 'A few seconds a day for the places, people and feelings your camera roll misses. Only you can see it.',
+      stage: 'moving',
+      eyebrow: 'Moving',
+      title: 'Hold on to the last weeks',
+      body: 'A few seconds a day for the places, people and feelings your camera roll misses, kept in a private archive. When you leave, you choose what to pass on.',
+      photos: ['/archive/la-sunset.jpg', '/archive/la-tacos-1.jpg'],
     },
     {
-      eyebrow: 'When you leave',
-      title: 'Pass it on',
-      body: 'Choose what to make public. It becomes your legacy for whoever arrives next.',
+      stage: 'newcomer',
+      eyebrow: 'Newcomer',
+      title: 'Land with a head start',
+      points: [
+        {
+          title: 'Recommendations that fit you',
+          body: 'Tips from people with your lifestyle who lived there before you, picked from what you captured.',
+        },
+        {
+          title: 'Help with the logistics',
+          body: 'A to-do list for the first weeks, with tips from people who did it before.',
+        },
+      ],
+      photos: ['/relay/gym.jpg', '/relay/cafe.jpg'],
     },
     {
-      eyebrow: 'When you arrive',
-      title: 'Start with a head start',
-      body: 'Tips from people with your lifestyle who lived there before you, and places picked from your own routine.',
+      stage: 'local',
+      eyebrow: 'Local',
+      title: 'See how far you’ve come',
+      body: 'Your new life next to your old one, and how you’re doing on what you hoped for. Then you hand it on.',
+      photos: ['/relay/ana-cafe.jpg', '/relay/cafe.jpg'],
     },
-  ],
+    {
+      eyebrow: 'Baton',
+      title: 'Leave a story. Start another.',
+    },
+  ] as FeatureSlide[],
   next: 'Next',
   start: 'Get started',
 }
