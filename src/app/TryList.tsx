@@ -14,7 +14,7 @@ export function TryList() {
 
   return (
     <aside className="try-list" aria-label="Things to try">
-      <h2 className="text-2xl font-medium leading-tight">Things to try</h2>
+      <h2 className="text-base font-medium text-ink-muted">Things to try</h2>
       <ol key={onboardingScreens.has(id) ? 'onboarding' : status} className="try-items">
         {items.map((item, i) => (
           <li key={item.text} className={cx('try-item', item.screen === id && 'try-item-now')}>

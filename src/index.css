@@ -65,16 +65,13 @@
 .journey-indicator svg { width: 16px; height: 16px; }
 
 .try-list { align-self: center; justify-self: end; width: min(280px, 100%); }
-.try-items { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.try-items { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
 .try-item {
   display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-  border-radius: 20px;
-  background: var(--color-baton-cream);
-  color: var(--color-baton-navy);
-  font-size: 16px;
-  line-height: 1.35;
+  gap: 10px;
+  color: var(--color-ink-muted);
+  font-size: 15px;
+  line-height: 1.4;
   animation: try-in 320ms ease-out both;
 }
 .try-item:nth-child(2) { animation-delay: 40ms; }
@@ -82,8 +79,8 @@
 .try-item:nth-child(4) { animation-delay: 120ms; }
 .try-item:nth-child(5) { animation-delay: 160ms; }
 /* The step that matters on the screen showing (e.g. choose Moving soon) */
-.try-item-now { background: var(--color-brand); color: var(--color-baton-paper); box-shadow: var(--shadow-float); }
-.try-number { flex-shrink: 0; width: 18px; font-weight: 500; opacity: 0.6; }
+.try-item-now { color: var(--color-brand); font-weight: 500; }
+.try-number { flex-shrink: 0; width: 14px; opacity: 0.7; }
 @keyframes try-in { from { opacity: 0; transform: translateY(6px); } }
 
 @media (min-width: 501px) and (max-width: 1099px) {
