@@ -21,7 +21,9 @@ const openedPlace = 'ArtCenter Hillside'
 export function KeyScreens() {
   const status = useStatus()
   const [index] = useScreenIndex()
-  const { id } = flow[index]
+  // A Today variant (her last week in LA, which "Chloe is about to leave LA"
+  // opens) counts as Today
+  const id = flow[index].tab ?? flow[index].id
   const { selectedFolder } = useStore()
   const tried = useTried()
   const { clouds, moments } = useArchive()
