@@ -49,10 +49,10 @@ const newYorkPhotos: [string, CloudCategory][] = [
 ]
 const newYorkSizes = [104, 72, 88, 60, 96, 66, 80, 54, 92, 70, 62, 84]
 
-function layoutCloud(count: number): CloudPhoto[] {
-  const photos = newYorkPhotos.slice(0, count).reduce<CloudPhoto[]>((placed, [file, category], index) => {
+function layoutCloud(files: [string, CloudCategory][], folder: string): CloudPhoto[] {
+  const photos = files.reduce<CloudPhoto[]>((placed, [file, category], index) => {
     const size = newYorkSizes[index % newYorkSizes.length]
-    return [...placed, { src: `/relay/${file}.jpg`, category, size, ...freeSpot(placed, size) }]
+    return [...placed, { src: `/${folder}/${file}.jpg`, category, size, ...freeSpot(placed, size) }]
   }, [])
   // Start below the status bar and the folder's side tab, like LA's
   const shift = 140 - Math.min(...photos.map((photo) => photo.y))
@@ -60,7 +60,17 @@ function layoutCloud(count: number): CloudPhoto[] {
 }
 
 // Keller, Oct 21: just landed, her New York archive is still empty
-export const newYorkCloud = { newcomer: [] as CloudPhoto[], local: layoutCloud(newYorkPhotos.length) }
+export const newYorkCloud = { newcomer: [] as CloudPhoto[], local: layoutCloud(newYorkPhotos, 'relay') }
+
+// Chicago has no captures in Supabase either: a mock cloud of the photos its
+// folder summary already shows, from public/archive/
+export const chicagoCloud = layoutCloud(
+  [
+    ['chicago-rooftop-1', 'feeling'], ['chicago-l-train', 'places'], ['chicago-lake-1', 'places'],
+    ['chicago-rooftop-2', 'people'], ['chicago-lake-2', 'feeling'],
+  ],
+  'archive',
+)
 
 // In the middle of a city's page while it has no photos yet
 export const emptyCloudPrompt = (city: string) => `Capture a moment to start\nyour ${city} archive.`

@@ -6,14 +6,17 @@ import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
 import { deleteCapture } from '../app/supabase'
-import { cloudFilters, emptyCloudPrompt, newYorkCloud } from '../data/archiveCloud'
+import { chicagoCloud, cloudFilters, emptyCloudPrompt, newYorkCloud } from '../data/archiveCloud'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
 import { CameraBubble, FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, PlusIcon, Screen, VisibilityBadge } from '../ui'
 import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../ui'
 
+// One empty cloud for every city with no photos, so it stays the same array
+const noPhotos: CloudPhoto[] = []
+
 // Pushed detail page for a single city folder in Archive, opened by tapping
 // the open folder. A city with a photo cloud (LA, Figma ARCHIVE_detail
-// default) shows every photo from its archive as circles, with the folder's
+// default; a city with no photos yet gets an empty one) shows every photo from its archive as circles, with the folder's
 // tab on its side at the left edge to go back and the tricolor glass orb at
 // the bottom to filter them (Feeling, People, Places). Other cities still show the
 // list: a private archive while she lives there, a legacy once she has left.
@@ -21,15 +24,18 @@ import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../u
 // iOS-style context menu with Open and Delete; Delete removes its capture
 // from Supabase.
 export function ArchiveDetail() {
-  const { selectedFolder, cloudView, cloudFilter, addedPhotos, arrivingPhoto } = useStore()
+  const { selectedFolder, cloudView, cloudFilter, addedPhotos, arrivingPhoto, archive } = useStore()
   const status = useStatus()
   const folders = archiveFolders(status)
   // Opened straight from the debug panel or arrow keys, it shows LA (the story)
   const folder = folders.find((item) => item.id === (selectedFolder ?? 'la')) ?? folders[0]
   // LA also shows the photos added from the reflection page (Real-life)
   const { clouds } = useArchive()
-  // New York falls back to its placeholder cloud until it has captures
-  const base = clouds[folder.id] ?? (folder.id === 'ny' && status !== 'moving' ? newYorkCloud[status] : undefined)
+  // New York and Chicago fall back to placeholder clouds until they have
+  // captures. Any other city with none opens empty, with the capture prompt,
+  // once the archive has loaded (until then, its list)
+  const placeholder = folder.id === 'ny' && status !== 'moving' ? newYorkCloud[status] : folder.id === 'chicago' ? chicagoCloud : undefined
+  const base = clouds[folder.id] ?? placeholder ?? (archive ? noPhotos : undefined)
   const cloud = base && folder.id === 'la' ? [...base, ...addedPhotos] : base
   // Back from an opened photo, the cloud is where she left it: same spot,
   // zoom and filter. Read once; opened any other way it starts fresh.
