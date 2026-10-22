@@ -3,31 +3,35 @@ import type { Stage } from '../flow'
 // Screens that count as onboarding beside the phone (journey selector, Things to try)
 export const onboardingScreens = new Set(['features', 'signup', 'about', 'about-leave', 'about-tags', 'photos', 'welcome'])
 
-// "Things to try" beside the phone on desktop (TryList), one list per stage
-// (none during onboarding). Placeholder copy for Keller to rewrite.
-// area: the tab or place in the app where it happens, shown as a small tag.
-// done: what crosses it out once she's done it this session, a screen she
-// reached in this stage ('screen:reflection') or a session mark from
-// src/app/tried.ts or the store (see TryList)
-export type TryItem = { text: string; area: string; done: string }
+// Key screens beside the phone on desktop (KeyScreens), grouped under the three
+// stages. Clicking one sets her stage (plus any `state` the screen reads) and
+// opens `screen`. A screen counts as seen once reached in its stage this session.
+export type KeyScreen = {
+  label: string
+  screen: string
+  state?: { selectedFolder?: string }
+  // One level down, inside the screen above it (the LA folder and the opened photo
+  // inside Archive; Rolling Paper and LA Wrapped under Welcome
+  // to New York)
+  depth?: 1
+}
 
-export const thingsToTry: Record<Stage, TryItem[]> = {
+export const keyScreens: Record<Stage, KeyScreen[]> = {
   moving: [
-    { text: 'Tap the glass circle on Today to answer the daily prompt with a photo.', area: 'Today', done: 'screen:reflection' },
-    { text: 'Write a line about it and add it to her archive.', area: 'Today', done: 'added-photo' },
-    { text: 'Pick her moving to-dos under Finish setting up.', area: 'Today', done: 'todos' },
-    { text: 'Open the LA folder in Archive and turn the orb to filter by feeling, people or places.', area: 'Archive', done: 'archive-filter' },
-    { text: 'Set her intentions for New York from Profile.', area: 'Profile', done: 'goals' },
+    { label: 'Today', screen: 'today' },
+    { label: 'Archive', screen: 'archive' },
+    { label: 'Inside her LA folder', screen: 'archive-detail', state: { selectedFolder: 'la' }, depth: 1 },
+    { label: 'A photo opened', screen: 'archive-selected', state: { selectedFolder: 'la' }, depth: 1 },
+    { label: 'Setting intentions for New York', screen: 'intentions' },
   ],
   newcomer: [
-    { text: 'Tap Check it out to read the notes her LA friends left.', area: 'Today', done: 'screen:rolling-paper' },
-    { text: 'Watch LA Wrapped, then start in New York.', area: 'Today', done: 'screen:newcomer-now' },
-    { text: 'Browse Relay for picks from people with a lifestyle like hers.', area: 'Relay', done: 'screen:community' },
-    { text: 'Open a pick and leave a note on it.', area: 'Relay', done: 'relay-note' },
-    { text: 'See her new New York folder in Archive.', area: 'Archive', done: 'screen:archive-detail' },
+    { label: 'Welcome to New York', screen: 'arrived' },
+    { label: 'Rolling Paper', screen: 'rolling-paper', depth: 1 },
+    { label: 'LA Wrapped', screen: 'la-wrapped', depth: 1 },
+    { label: 'Relay', screen: 'community' },
   ],
   local: [
-    { text: 'Tap Let’s go to see how her life changed since LA.', area: 'Today', done: 'screen:local-insight' },
-    { text: 'Open Archive to see New York filled in.', area: 'Archive', done: 'screen:archive' },
+    { label: 'You’re a Local', screen: 'local-splash' },
+    { label: 'Lifestyle comparison', screen: 'local-insight' },
   ],
 }
