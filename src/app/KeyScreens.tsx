@@ -16,8 +16,8 @@ const openedPlace = 'ArtCenter Hillside'
 
 // Beside the phone on desktop: shortcuts to the key screens of Chloe's
 // journey, grouped under the three stages, each group tinted with its stage's
-// color. The screen showing is filled in, screens seen this session get a
-// check, and a click jumps there. Hidden on narrower windows and phones.
+// color. The screen showing is filled in, it and screens seen this session
+// get a check, and a click jumps there. Hidden on narrower windows and phones.
 export function KeyScreens() {
   const status = useStatus()
   const [index] = useScreenIndex()
@@ -98,7 +98,7 @@ export function KeyScreens() {
                     <button type="button" className="key-screen" aria-current={current ? 'page' : undefined} onClick={() => open(stage, item)}>
                       <span className="key-screen-label">{item.label}</span>
                       <span className="key-screen-mark" aria-hidden="true">
-                        {isSeen(stage, item) && !current ? <CheckIcon /> : <ArrowRightIcon />}
+                        {current || isSeen(stage, item) ? <CheckIcon /> : <ArrowRightIcon />}
                       </span>
                     </button>
                   </li>
