@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { clearFolderOpening, pendingFolderOpening, playFolderEnter } from '../app/folderTransition'
 import { toLocal } from '../app/localPoint'
 import { markTried } from '../app/tried'
@@ -6,7 +6,7 @@ import { filterGlow } from '../ui/filterColor'
 import { goBack, navigate } from '../app/navigate'
 import { setState, useArchive, useStatus, useStore } from '../app/store'
 import { deleteCapture } from '../app/supabase'
-import { chicagoCloud, cloudFilters, emptyCloudPrompt, newYorkCloud } from '../data/archiveCloud'
+import { chicagoCloud, cloudFilters, emptyCloudPrompt, newYorkCloud, settleCloud, unsettled } from '../data/archiveCloud'
 import { archiveDetail, archiveFolders, olderArchive } from '../data/stages'
 import { CameraBubble, FilterOrb, FolderSideTab, ListRow, ListSection, PhotoCloud, PhotoMenu, placePhotoMenu, PlusIcon, Screen, VisibilityBadge } from '../ui'
 import type { CloudCategory, CloudPhoto, CloudView, PhotoMenuLayout } from '../ui'
@@ -36,7 +36,13 @@ export function ArchiveDetail() {
   // once the archive has loaded (until then, its list)
   const placeholder = folder.id === 'ny' && status !== 'moving' ? newYorkCloud[status] : folder.id === 'chicago' ? chicagoCloud : undefined
   const base = clouds[folder.id] ?? placeholder ?? (archive ? noPhotos : undefined)
-  const cloud = base && folder.id === 'la' ? [...base, ...addedPhotos] : base
+  // Her own captures (uploaded photos, and ones added this session) settle
+  // into free spots around the Figma layout, which stays put
+  const cloud = useMemo(() => {
+    if (!base) return undefined
+    const added = folder.id === 'la' ? addedPhotos : []
+    return settleCloud([...base, ...added], (photo) => added.includes(photo) || !photo.src.startsWith('/'))
+  }, [base, addedPhotos, folder.id])
   // Back from an opened photo, the cloud is where she left it: same spot,
   // zoom and filter. Read once; opened any other way it starts fresh.
   const [resume] = useState(() => cloudView)
@@ -165,7 +171,7 @@ export function ArchiveDetail() {
             src={menu.photo.src}
             layout={menu.layout}
             onOpen={() => openPhoto(menu.photo, menu.rect, menu.view)}
-            onDelete={() => void deleteCapture(folder.id, menu.photo)}
+            onDelete={() => void deleteCapture(folder.id, unsettled(menu.photo))}
             onClose={() => setMenu(null)}
           />
         )}
